@@ -19,7 +19,7 @@
         .product-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
         .add-button { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
         .filter-tab.active { background: #2563eb; color: white; }
-        .discount-badge { background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; z-index: 10; }
+        .discount-badge { background: #ef4444; color: white; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 10px; position: absolute; top: 10px; left: 10px; z-index: 10; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4); }
         .qty-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-weight: 800; }
         .modal-animate { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -29,12 +29,12 @@
 
     <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-blue-600">
         <div class="bg-white w-full max-w-sm p-8 rounded-[32px] shadow-2xl text-center">
-            <div onclick="requestAdminLogin()" class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 cursor-pointer">
-                <i class="fas fa-paperclip text-3xl text-blue-600"></i>
+            <div onclick="requestAdminLogin()" class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 cursor-pointer hover:bg-blue-200 transition-colors">
+                <i class="fas fa-paperclip text-3xl text-blue-600 font-bold"></i>
             </div>
             <h1 class="text-2xl font-extrabold mb-2">Clips Papelaria</h1>
             <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 mb-4 outline-none font-bold" placeholder="(00) 00000-0000">
-            <button id="loginButton" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">Entrar na Loja</button>
+            <button id="loginButton" class="w-full bg-blue-600 hover:bg-blue-700 transition-all text-white font-bold py-4 rounded-2xl shadow-lg">Entrar na Loja</button>
         </div>
     </div>
 
@@ -42,14 +42,14 @@
         <div class="bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl text-center">
             <div id="adminLoginArea">
                 <h2 class="text-xl font-black mb-6">Acesso Admin</h2>
-                <input type="tel" id="adminPhone" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-4 outline-none text-slate-800" placeholder="WhatsApp Admin">
+                <input type="tel" id="adminPhone" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-4 outline-none text-slate-800 font-bold" placeholder="WhatsApp Admin">
                 <button onclick="checkAdminAuth()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl">Verificar</button>
                 <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-2">Sair</button>
             </div>
             <div id="adminCampaignArea" class="hidden">
                 <h2 class="text-xl font-black mb-6 text-slate-800 font-bold">Nova Campanha 🚀</h2>
-                <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-6 outline-none text-slate-800" placeholder="Nome da Campanha">
-                <button onclick="triggerN8N()" id="btnN8N" class="w-full bg-orange-500 text-white font-bold py-5 rounded-2xl shadow-lg">Iniciar no WhatsApp</button>
+                <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-6 outline-none text-slate-800 font-bold" placeholder="Nome da Campanha">
+                <button onclick="triggerN8N()" id="btnN8N" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl shadow-lg">Iniciar no WhatsApp</button>
                 <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-4 text-xs underline">Voltar</button>
             </div>
         </div>
@@ -78,13 +78,13 @@
                 <p class="text-[10px] text-slate-400 uppercase leading-none">Total</p>
                 <p id="cartTotal" class="text-xl font-black font-bold">R$ 0,00</p>
             </div>
-            <button id="checkoutButton" class="bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold font-bold">Finalizar Pedido</button>
+            <button id="checkoutButton" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold font-bold">Finalizar Pedido</button>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO WEBHOOK
-        const MODO_TESTE = true; // Mude para false quando clicar em Publish
+        // CONFIGURAÇÃO DO WEBHOOK (Use MODO_TESTE = false para produção)
+        const MODO_TESTE = true; 
         const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
 
@@ -140,18 +140,18 @@
             products.forEach(p => {
                 const discount = calculateDiscount(p.priceFrom, p.priceTo);
                 const div = document.createElement('div');
-                div.className = 'product-card p-3 shadow-lg';
+                div.className = 'product-card p-3 shadow-lg relative hover:shadow-xl';
                 div.onclick = () => openModal(p);
                 div.innerHTML = `
-                    ${discount ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                    ${discount ? `<div class="discount-badge">-${discount}% OFF</div>` : ''}
                     <img src="${p.image}" class="product-image rounded-2xl mb-4 font-bold">
-                    <h3 class="text-[13px] font-bold text-slate-700 font-bold mb-2">${p.name}</h3>
+                    <h3 class="text-[13px] font-bold text-slate-700 font-bold mb-2 line-clamp-2">${p.name}</h3>
                     <div class="flex justify-between items-end font-bold">
                         <div>
-                            ${parseFloat(String(p.priceFrom).replace(',','.')) > parseFloat(String(p.priceTo).replace(',','.')) ? `<p class="text-[10px] text-slate-400 line-through">R$ ${parseFloat(String(p.priceFrom).replace(',','.')).toFixed(2)}</p>` : ''}
-                            <p class="text-blue-600 font-black text-lg">R$ ${parseFloat(String(p.priceTo).replace(',','.')).toFixed(2)}</p>
+                            ${discount ? `<p class="text-[11px] text-slate-400 line-through mb-0.5">R$ ${parseFloat(String(p.priceFrom).replace(',','.')).toFixed(2)}</p>` : ''}
+                            <p class="text-blue-600 font-black text-lg leading-none">R$ ${parseFloat(String(p.priceTo).replace(',','.')).toFixed(2)}</p>
                         </div>
-                        <button class="add-button font-bold"><i class="fas fa-plus"></i></button>
+                        <button class="add-button font-bold hover:scale-105 transition-transform"><i class="fas fa-plus"></i></button>
                     </div>`;
                 grid.appendChild(div);
             });
@@ -164,24 +164,28 @@
                 <div class="flex flex-col md:flex-row gap-8">
                     <img src="${p.image}" class="w-full md:w-1/2 aspect-square object-cover rounded-[32px] shadow-xl font-bold">
                     <div class="flex-1 font-bold">
-                        <h2 class="text-2xl font-black mb-4 font-bold">${p.name}</h2>
-                        <div class="bg-slate-50 rounded-3xl p-6 mb-6 font-bold">
-                            <span class="text-3xl font-black text-blue-600 font-bold">R$ ${parseFloat(String(p.priceTo).replace(',','.')).toFixed(2)}</span>
-                            ${discount ? `<span class="text-slate-400 line-through ml-2 font-bold font-bold">R$ ${parseFloat(String(p.priceFrom).replace(',','.')).toFixed(2)}</span>` : ''}
+                        <h2 class="text-2xl font-black mb-4 font-bold leading-tight">${p.name}</h2>
+                        <div class="bg-slate-50 rounded-3xl p-6 mb-6 font-bold relative overflow-hidden">
+                            ${discount ? `<div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-bl-xl">-${discount}% OFF</div>` : ''}
+                            <div class="flex items-end gap-3">
+                                <span class="text-4xl font-black text-blue-600 font-bold leading-none">R$ ${parseFloat(String(p.priceTo).replace(',','.')).toFixed(2)}</span>
+                                ${discount ? `<span class="text-slate-400 line-through text-lg font-bold mb-1">R$ ${parseFloat(String(p.priceFrom).replace(',','.')).toFixed(2)}</span>` : ''}
+                            </div>
+                            ${discount ? `<p class="text-red-500 text-xs font-black mt-2 uppercase tracking-wider"><i class="fas fa-fire mr-1"></i> Preço de oportunidade!</p>` : ''}
                         </div>
                         <div class="grid grid-cols-2 gap-4 mb-6 font-bold font-bold">
-                            <div class="border rounded-2xl p-4 font-bold font-bold"><p class="text-xs text-slate-400 uppercase">Cor</p>${p.cor || 'Consultar'}</div>
-                            <div class="border rounded-2xl p-4 font-bold font-bold"><p class="text-xs text-slate-400 uppercase">Tamanho</p>${p.tamanho || 'GG'}</div>
+                            <div class="border border-slate-100 rounded-2xl p-4 font-bold font-bold"><p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Cor</p>${p.cor || 'Única'}</div>
+                            <div class="border border-slate-100 rounded-2xl p-4 font-bold font-bold"><p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Tamanho</p>${p.tamanho || 'Padrão'}</div>
                         </div>
-                        <div class="flex items-center justify-between mb-8 bg-slate-50 p-3 rounded-2xl font-bold font-bold font-bold">
-                            <p class="ml-2 font-bold font-bold">Qtd:</p>
+                        <div class="flex items-center justify-between mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100 font-bold font-bold">
+                            <p class="font-bold font-bold text-slate-600">Quantidade:</p>
                             <div class="flex items-center gap-4 font-bold">
-                                <button onclick="updateTempQty(-1)" class="qty-btn text-blue-600 font-bold"><i class="fas fa-minus font-bold"></i></button>
-                                <span id="tempQtyDisplay" class="text-xl font-black text-slate-800 font-bold">1</span>
-                                <button onclick="updateTempQty(1)" class="qty-btn text-blue-600 font-bold"><i class="fas fa-plus font-bold"></i></button>
+                                <button onclick="updateTempQty(-1)" class="qty-btn text-blue-600 font-bold hover:bg-blue-50"><i class="fas fa-minus font-bold"></i></button>
+                                <span id="tempQtyDisplay" class="text-2xl font-black text-slate-800 font-bold w-12 text-center">1</span>
+                                <button onclick="updateTempQty(1)" class="qty-btn text-blue-600 font-bold hover:bg-blue-50"><i class="fas fa-plus font-bold"></i></button>
                             </div>
                         </div>
-                        <button onclick="addToCart(${p.id}, tempQty); closeModal();" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl font-bold font-bold">Adicionar ao Carrinho</button>
+                        <button onclick="addToCart(${p.id}, tempQty); closeModal();" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl font-bold font-bold text-lg hover:shadow-2xl transition-all hover:scale-[1.02] active:scale-100">Adicionar ao Carrinho</button>
                     </div>
                 </div>`;
             modal.classList.remove('hidden');
@@ -201,8 +205,22 @@
         }
 
         document.getElementById('loginButton').onclick = () => {
+            if(document.getElementById('phoneInput').value.length < 8) return alert("Telefone inválido");
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden'); loadProducts();
+        };
+
+        document.getElementById('checkoutButton').onclick = () => {
+            let msg = "*🛒 NOVO PEDIDO - CLIPS PAPELARIA*\n\n";
+            Object.entries(cart).forEach(([id, qty]) => {
+                const p = products.find(x => x.id == id);
+                msg += `✅ *${qty}x* ${p.name}\n`;
+                if(p.cor) msg += `   └ Cor: ${p.cor}\n`;
+                if(p.tamanho) msg += `   └ Tamanho: ${p.tamanho}\n`;
+                msg += `   └ Subtotal: R$ ${(parseFloat(String(p.priceTo).replace(',','.')) * qty).toFixed(2)}\n\n`;
+            });
+            msg += `💰 *TOTAL: ${document.getElementById('cartTotal').innerText}*`;
+            window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(msg)}`);
         };
     </script>
 </body>
