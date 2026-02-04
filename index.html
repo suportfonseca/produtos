@@ -1,339 +1,369 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Pedidos + Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Clips Papelaria - Vitrine Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { royal: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } }
+        }
+    </script>
     <style>
-        /* --- ESTILOS GERAIS --- */
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
-        
-        /* TELA DE LOGIN */
-        #login-screen {
-            display: flex; justify-content: center; align-items: center; height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .login-box {
-            background: white; padding: 2rem; border-radius: 10px; text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 300px;
-        }
-        .login-box input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn-primary { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
-        .btn-primary:hover { background: #218838; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%); min-height: 100vh; }
+        .product-card { background: white; border-radius: 24px; overflow: hidden; transition: 0.3s; cursor: pointer; border: 1px solid rgba(59, 130, 246, 0.1); position: relative; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15); }
+        .product-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        .add-button { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .filter-tab.active { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        /* Selo de desconto flutuante */
+        .discount-tag { position: absolute; top: 12px; left: 12px; background: #ef4444; color: white; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 20; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); }
+        .qty-btn { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #eff6ff; color: #1e40af; font-weight: 800; transition: 0.2s; }
+        .qty-btn:active { background: #dbeafe; transform: scale(0.95); }
+        .modal-animate { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* SISTEMA PRINCIPAL (Escondido inicialmente) */
-        #app-screen { display: none; }
-        
-        header { background: #333; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .header-btn { background: #555; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
-
-        .container { padding: 20px; display: flex; gap: 20px; flex-wrap: wrap; }
-        
-        /* ÁREA DE PRODUTOS */
-        .products-area { flex: 2; min-width: 300px; }
-        .product-card {
-            background: white; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px;
-            border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        /* Estilo do Popup de Notificação (Prova Social) */
+        #social-toast {
+            transform: translateX(-120%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
-        .prod-info h3 { margin: 0 0 5px 0; color: #333; }
-        .prod-price { color: #27ae60; font-weight: bold; font-size: 1.1em; }
-        
-        .btn-add { background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .btn-add:hover { background: #0056b3; }
-
-        /* ÁREA DO CARRINHO */
-        .cart-area {
-            flex: 1; background: white; padding: 20px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); height: fit-content; min-width: 250px;
-            position: sticky; top: 20px;
+        #social-toast.show {
+            transform: translateX(0);
         }
-        .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; font-size: 0.9em; }
-        .cart-total { font-size: 1.2em; font-weight: bold; margin-top: 15px; text-align: right; border-top: 2px solid #333; padding-top: 10px; }
-        
-        #btn-finalizar {
-            width: 100%; background: #28a745; color: white; padding: 15px; border: none;
-            border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px;
-        }
-
-        /* ÁREA ADMIN */
-        #admin-panel {
-            background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; margin: 20px;
-            border-radius: 5px; display: none; /* Escondido por padrão */
-        }
-        .admin-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-right: 5px; }
-
-        /* --- POPUP DE NOTIFICAÇÃO (Prova Social) --- */
-        #notification-popup {
-            position: fixed; bottom: 20px; left: 20px; background-color: #fff;
-            padding: 15px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            display: flex; align-items: center; gap: 12px; z-index: 1000;
-            opacity: 0; visibility: hidden; transform: translateY(20px); transition: all 0.5s ease-in-out;
-            border-left: 5px solid #28a745; max-width: 300px;
-        }
-        #notification-popup.visible { opacity: 1; visibility: visible; transform: translateY(0); }
-        .notif-content p { margin: 0; font-size: 14px; color: #333; }
-        .notif-icon { font-size: 20px; }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 text-slate-900 font-bold">
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h2>Acesso ao Sistema</h2>
-            <input type="text" id="username" placeholder="Usuário (admin)">
-            <input type="password" id="password" placeholder="Senha (123)">
-            <button class="btn-primary" onclick="fazerLogin()">Entrar</button>
-            <p id="error-msg" style="color: red; font-size: 12px; display: none;">Dados incorretos!</p>
+    <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-blue-600">
+        <div class="bg-white w-full max-w-sm p-8 rounded-[32px] shadow-2xl text-center">
+            <div onclick="requestAdminLogin()" class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 cursor-pointer hover:scale-105 transition-transform">
+                <i class="fas fa-paperclip text-3xl text-blue-600"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold mb-2 text-slate-800">Clips Papelaria</h1>
+            <p class="text-sm text-slate-400 font-medium mb-6">Sua vitrine digital exclusiva</p>
+            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 mb-4 outline-none font-bold text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-blue-500" placeholder="(00) 00000-0000">
+            <button id="loginButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/30 transition-all">Entrar na Loja</button>
         </div>
     </div>
 
-    <div id="app-screen">
-        <header>
-            <div><strong>Minha Loja</strong> | Olá, <span id="user-display">Visitante</span></div>
-            <div>
-                <button class="header-btn" onclick="toggleAdmin()">Admin / Adicionar Produtos</button>
-                <button class="header-btn" onclick="logout()">Sair</button>
+    <div id="adminPanel" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md">
+        <div class="bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl text-center">
+            <div id="adminLoginArea">
+                <h2 class="text-xl font-black mb-6 text-slate-800">Acesso Admin</h2>
+                <input type="tel" id="adminPhone" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-4 outline-none font-bold text-slate-800" placeholder="WhatsApp Admin">
+                <button onclick="checkAdminAuth()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl">Verificar</button>
+                <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-4">Sair</button>
+            </div>
+            <div id="adminCampaignArea" class="hidden">
+                <h2 class="text-xl font-black mb-6 text-slate-800">Nova Campanha 🚀</h2>
+                <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-6 outline-none font-bold text-slate-800" placeholder="Nome da Campanha">
+                <button onclick="triggerN8N()" id="btnN8N" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl shadow-lg transition-all">Iniciar no WhatsApp</button>
+                <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-4 text-xs">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden pb-32">
+        <header class="bg-white/90 backdrop-blur-sm sticky top-0 z-40 p-4 border-b border-blue-50">
+            <div class="max-w-7xl mx-auto flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <h1 class="font-extrabold text-xl text-slate-800">Clips Papelaria</h1>
+                    <div class="bg-blue-50 p-2 rounded-full"><i class="fas fa-shopping-bag text-blue-600"></i></div>
+                </div>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    <button class="filter-tab active px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all" data-category="todos">🔥 Todos</button>
+                    <button class="filter-tab bg-white border border-slate-100 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all" data-category="escolar">🎒 Escolar</button>
+                    <button class="filter-tab bg-white border border-slate-100 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all" data-category="bazar">🎁 Bazar</button>
+                </div>
             </div>
         </header>
+        <main class="max-w-7xl mx-auto p-4">
+            <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+        </main>
+    </div>
 
-        <div id="admin-panel">
-            <h3>Painel Administrativo - Cadastrar Novo Produto</h3>
-            <div class="admin-form">
-                <input type="text" id="novo-nome" placeholder="Nome do Produto">
-                <input type="number" id="novo-preco" placeholder="Preço (R$)">
-                <button class="btn-primary" style="width: auto;" onclick="cadastrarProduto()">Salvar Produto</button>
-            </div>
-        </div>
-
-        <div class="container">
-            <div class="products-area">
-                <h2>Produtos Disponíveis</h2>
-                <div id="lista-produtos">
-                    </div>
-            </div>
-
-            <div class="cart-area">
-                <h2>Seu Carrinho</h2>
-                <div id="lista-carrinho">
-                    <p style="color: #777;">Seu carrinho está vazio.</p>
-                </div>
-                
-                <div class="cart-total">
-                    Total: R$ <span id="total-valor">0,00</span>
-                </div>
-
-                <button id="btn-finalizar" onclick="gerarOrcamento()">
-                    GERAR ORÇAMENTO
-                </button>
-            </div>
+    <div id="productModal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-6 modal-animate max-h-[95vh] overflow-y-auto shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+            <div id="modalContent" class="max-w-xl mx-auto"></div>
         </div>
     </div>
 
-    <div id="notification-popup">
-        <div class="notif-icon">🛒</div>
-        <div class="notif-content">
-            <p id="notif-text">Carregando...</p>
+    <div id="social-toast" class="fixed bottom-28 left-4 z-50 bg-white/95 backdrop-blur shadow-2xl border border-blue-100 p-3 pr-5 rounded-2xl flex items-center gap-3 max-w-[85%]">
+        <div class="bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+            <i class="fas fa-check text-sm"></i>
         </div>
+        <div>
+            <p id="social-text" class="text-xs text-slate-600 leading-tight">
+                <span class="font-bold text-slate-800 block mb-0.5" id="social-name">Maria</span>
+                acabou de comprar 3 itens
+            </p>
+        </div>
+    </div>
+
+    <div id="cartBar" class="fixed bottom-6 left-4 right-4 bg-slate-900 rounded-2xl p-4 shadow-2xl hidden z-50 text-white flex justify-between items-center transform transition-all hover:scale-[1.02]">
+        <div class="px-2">
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Total do Pedido</p>
+            <p id="cartTotal" class="text-xl font-black">R$ 0,00</p>
+        </div>
+        <button id="checkoutButton" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
+            Finalizar <i class="fas fa-arrow-right text-sm"></i>
+        </button>
     </div>
 
     <script>
-        // --- DADOS INICIAIS ---
-        let produtos = [
-            { id: 1, nome: "Camiseta Básica", preco: 29.90 },
-            { id: 2, nome: "Calça Jeans", preco: 99.90 },
-            { id: 3, nome: "Tênis Esportivo", preco: 149.90 },
-            { id: 4, nome: "Boné Preto", preco: 19.90 }
+        // CONFIGURAÇÃO
+        const MODO_TESTE = true; 
+        const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
+        const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
+
+        // DADOS DE EXEMPLO (Caso o JSON falhe, para teste)
+        const fallbackProducts = [
+            { id: 1, name: "Caderno Inteligente", priceFrom: "99,90", priceTo: "89,90", category: "escolar", image: "https://placehold.co/400", cor: "Azul", tamanho: "Grande" },
+            { id: 2, name: "Caneta Gel Kit", priceFrom: "25,00", priceTo: "19,90", category: "escolar", image: "https://placehold.co/400", cor: "Colorido", tamanho: "Padrão" }
         ];
 
-        let carrinho = [];
+        let products = []; let cart = {}; let adminUser = ""; let tempQty = 1;
 
-        // --- SISTEMA DE LOGIN ---
-        function fazerLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+        // FUNÇÕES ADMIN
+        function requestAdminLogin() { document.getElementById('adminPanel').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
+        function checkAdminAuth() {
+            const phone = document.getElementById('adminPhone').value;
+            if(phone.length < 8) return alert("Número inválido");
+            adminUser = phone;
+            document.getElementById('adminLoginArea').classList.add('hidden');
+            document.getElementById('adminCampaignArea').classList.remove('hidden');
+        }
 
-            if (user === 'admin' && pass === '123') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-screen').style.display = 'block';
-                document.getElementById('user-display').innerText = user;
-                renderizarProdutos();
-                iniciarPopup(); // Inicia o contador "Fulano comprou"
-            } else {
-                document.getElementById('error-msg').style.display = 'block';
+        async function triggerN8N() {
+            const campaign = document.getElementById('campaignName').value;
+            if(!campaign) return alert("Dê um nome!");
+            const btn = document.getElementById('btnN8N');
+            const url = MODO_TESTE ? URL_TEST : URL_PROD;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...'; btn.disabled = true;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Nome_campanha: campaign, usuario_admin: adminUser })
+                });
+                if (response.ok) { alert("🚀 Campanha iniciada!"); closeAdmin(); }
+                else { alert("Erro ao conectar."); }
+            } catch (e) { alert("Erro de conexão."); }
+            finally { btn.innerHTML = 'Iniciar no WhatsApp'; btn.disabled = false; }
+        }
+
+        // VITRINE
+        async function loadProducts() {
+            try {
+                const response = await fetch('produtos.json?t=' + Date.now());
+                if(!response.ok) throw new Error("JSON não encontrado");
+                products = await response.json(); 
+            } catch (e) { 
+                console.log("Usando produtos de fallback");
+                products = fallbackProducts; // Fallback se não tiver JSON
             }
+            renderProducts();
         }
 
-        function logout() {
-            location.reload();
+        function getPrice(val) { return parseFloat(String(val).replace(',', '.')); }
+
+        function calculateDiscount(from, to) {
+            const f = getPrice(from); const t = getPrice(to);
+            if (!f || !t || f <= t) return null;
+            return Math.round(((f - t) / f) * 100);
         }
 
-        // --- SISTEMA DE PRODUTOS (VITRINE) ---
-        function renderizarProdutos() {
-            const container = document.getElementById('lista-produtos');
-            container.innerHTML = ''; // Limpa antes de renderizar
-
-            produtos.forEach(p => {
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
+            products.forEach(p => {
+                const discount = calculateDiscount(p.priceFrom, p.priceTo);
                 const div = document.createElement('div');
-                div.className = 'product-card';
+                div.className = 'product-card group';
+                div.onclick = () => openModal(p);
+                
                 div.innerHTML = `
-                    <div class="prod-info">
-                        <h3>${p.nome}</h3>
-                        <div class="prod-price">R$ ${p.preco.toFixed(2).replace('.', ',')}</div>
+                    <div class="relative p-3 pb-0">
+                        ${discount ? `<div class="discount-tag">-${discount}%</div>` : ''}
+                        <img src="${p.image}" class="product-image rounded-xl group-hover:scale-105 transition-transform duration-500">
                     </div>
-                    <button class="btn-add" onclick="adicionarAoCarrinho(${p.id})">Adicionar +</button>
-                `;
-                container.appendChild(div);
+                    <div class="p-3">
+                        <h3 class="text-[13px] font-bold text-slate-700 leading-snug mb-2 line-clamp-2 min-h-[34px]">${p.name}</h3>
+                        <div class="flex items-end justify-between">
+                            <div>
+                                ${discount ? `<p class="text-[10px] text-slate-400 line-through font-semibold mb-0.5">R$ ${getPrice(p.priceFrom).toFixed(2)}</p>` : ''}
+                                <p class="text-blue-600 font-black text-lg leading-none">R$ ${getPrice(p.priceTo).toFixed(2)}</p>
+                            </div>
+                            <button class="add-button shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform"><i class="fas fa-plus text-xs"></i></button>
+                        </div>
+                    </div>`;
+                grid.appendChild(div);
             });
         }
 
-        // --- SISTEMA DO CARRINHO ---
-        function adicionarAoCarrinho(id) {
-            const produto = produtos.find(p => p.id === id);
+        function openModal(p) {
+            tempQty = 1; 
+            const modal = document.getElementById('productModal');
+            const discount = calculateDiscount(p.priceFrom, p.priceTo);
             
-            // Verifica se já existe no carrinho para aumentar qtd
-            const itemExistente = carrinho.find(item => item.id === id);
-            
-            if (itemExistente) {
-                itemExistente.qtd += 1;
-            } else {
-                carrinho.push({ ...produto, qtd: 1 });
-            }
-            
-            atualizarCarrinhoVisual();
+            document.getElementById('modalContent').innerHTML = `
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="relative w-full md:w-1/2">
+                        <img src="${p.image}" class="w-full aspect-square object-cover rounded-3xl shadow-lg border border-slate-100">
+                        ${discount ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/30">🔥 -${discount}% OFF</div>` : ''}
+                    </div>
+                    <div class="flex-1 pt-2">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="px-2.5 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-lg tracking-wider">${p.category}</span>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-800 leading-tight mb-4">${p.name}</h2>
+                        
+                        <div class="flex items-center gap-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <div>
+                                ${discount ? `<p class="text-slate-400 text-sm line-through font-bold mb-0.5">De: R$ ${getPrice(p.priceFrom).toFixed(2)}</p>` : ''}
+                                <p class="text-4xl font-black text-blue-600 leading-none">R$ ${getPrice(p.priceTo).toFixed(2)}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <div class="border border-slate-200 p-3 rounded-xl bg-white">
+                                <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Cor</p>
+                                <p class="text-slate-700 font-bold capitalize">${p.cor || 'Única'}</p>
+                            </div>
+                            <div class="border border-slate-200 p-3 rounded-xl bg-white">
+                                <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Modelo</p>
+                                <p class="text-slate-700 font-bold uppercase">${p.tamanho || 'Padrão'}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-4 p-2 bg-white border border-slate-100 rounded-2xl shadow-sm mb-4">
+                            <div class="flex items-center gap-3 px-2">
+                                <button onclick="updateTempQty(-1)" class="qty-btn hover:bg-blue-100 text-blue-600"><i class="fas fa-minus text-xs"></i></button>
+                                <span id="tempQtyDisplay" class="text-xl font-black text-slate-700 w-6 text-center">1</span>
+                                <button onclick="updateTempQty(1)" class="qty-btn hover:bg-blue-100 text-blue-600"><i class="fas fa-plus text-xs"></i></button>
+                            </div>
+                            <p class="text-xs text-slate-400 font-bold mr-2">unidades</p>
+                        </div>
+
+                        <button onclick="addToCart(${p.id}, tempQty); closeModal();" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-2xl shadow-xl shadow-blue-600/20 active:scale-95 transition-all flex items-center justify-center gap-3">
+                            <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>`;
+            modal.classList.remove('hidden');
         }
 
-        function atualizarCarrinhoVisual() {
-            const container = document.getElementById('lista-carrinho');
-            const totalSpan = document.getElementById('total-valor');
-            
-            container.innerHTML = '';
+        function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
+        function closeModal() { document.getElementById('productModal').classList.add('hidden'); }
+        function addToCart(id, qty) { cart[id] = (cart[id] || 0) + qty; updateCartUI(); }
+        
+        function updateCartUI() {
             let total = 0;
-
-            if (carrinho.length === 0) {
-                container.innerHTML = '<p style="color: #777;">Seu carrinho está vazio.</p>';
-            } else {
-                carrinho.forEach(item => {
-                    const subtotal = item.preco * item.qtd;
-                    total += subtotal;
-                    
-                    const div = document.createElement('div');
-                    div.className = 'cart-item';
-                    div.innerHTML = `
-                        <span>${item.qtd}x ${item.nome}</span>
-                        <span>R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
-                    `;
-                    container.appendChild(div);
-                });
-            }
-
-            totalSpan.innerText = total.toFixed(2).replace('.', ',');
-        }
-
-        // --- FUNÇÃO DO BOTÃO FINALIZAR (CORRIGIDA) ---
-        function gerarOrcamento() {
-            const btn = document.getElementById('btn-finalizar');
+            Object.entries(cart).forEach(([id, qty]) => {
+                const p = products.find(x => x.id == id);
+                if(p) total += getPrice(p.priceTo) * qty;
+            });
+            document.getElementById('cartTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             
-            if (carrinho.length === 0) {
-                alert("O carrinho está vazio! Adicione produtos primeiro.");
-                return;
-            }
-
-            btn.innerHTML = "Gerando Pedido...";
-            btn.style.backgroundColor = "#e67e22"; // Muda cor pra laranja
-
-            setTimeout(() => {
-                let mensagem = "Olá! Gostaria de fazer o seguinte pedido:%0A%0A";
-                let total = 0;
-
-                carrinho.forEach(item => {
-                    const sub = item.preco * item.qtd;
-                    total += sub;
-                    mensagem += `▪ ${item.qtd}x ${item.nome} - R$ ${sub.toFixed(2)}%0A`;
-                });
-
-                mensagem += `%0A*TOTAL: R$ ${total.toFixed(2)}*`;
-
-                // URL do WhatsApp (troque o numero 5500... pelo seu)
-                const url = `https://wa.me/5511999999999?text=${mensagem}`;
-                
-                // Abre em nova aba
-                window.open(url, '_blank');
-
-                // Reseta botão
-                btn.innerHTML = "GERAR ORÇAMENTO";
-                btn.style.backgroundColor = "#28a745";
-            }, 1000);
-        }
-
-        // --- ADMINISTRAÇÃO (ADICIONAR PRODUTOS) ---
-        function toggleAdmin() {
-            const panel = document.getElementById('admin-panel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function cadastrarProduto() {
-            const nomeInput = document.getElementById('novo-nome');
-            const precoInput = document.getElementById('novo-preco');
-
-            if (nomeInput.value && precoInput.value) {
-                const novoId = produtos.length + 1;
-                produtos.push({
-                    id: novoId,
-                    nome: nomeInput.value,
-                    preco: parseFloat(precoInput.value)
-                });
-                
-                // Limpa inputs
-                nomeInput.value = '';
-                precoInput.value = '';
-                
-                alert("Produto cadastrado com sucesso!");
-                renderizarProdutos(); // Atualiza a lista na tela
+            // Só mostra a barra se tiver itens
+            if (Object.keys(cart).length > 0) {
+                document.getElementById('cartBar').classList.remove('hidden');
             } else {
-                alert("Preencha nome e preço!");
+                document.getElementById('cartBar').classList.add('hidden');
             }
         }
 
-        // --- NOVO: POPUP DE PROVA SOCIAL ("FULANO COMPROU") ---
-        function iniciarPopup() {
-            const nomes = [
-                "Fulano", "Ciclano", "Beltrano", "Ana", "João", "Carlos", 
-                "Beatriz", "Fernanda", "Lucas", "Mariana", "Pedro", "Juliana"
+        document.getElementById('loginButton').onclick = () => {
+            const phone = document.getElementById('phoneInput').value;
+            if(phone.length < 8) return alert("Digite um WhatsApp válido");
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            loadProducts();
+            
+            // Inicia o contador de leads (Prova Social) ao logar
+            startSocialProof();
+        };
+
+        document.querySelectorAll('.filter-tab').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.className = 'filter-tab bg-white border border-slate-100 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all text-slate-500');
+                btn.className = 'filter-tab active px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/20';
+                loadProducts();
+            };
+        });
+
+        // --- CORREÇÃO DO BOTÃO FINALIZAR ---
+        document.getElementById('checkoutButton').onclick = () => {
+            if (Object.keys(cart).length === 0) return alert("Seu carrinho está vazio!");
+
+            let msg = "*🛒 NOVO PEDIDO - CLIPS PAPELARIA*\n\n";
+            let hasItems = false;
+
+            Object.entries(cart).forEach(([id, qty]) => {
+                // Conversão de ID para garantir compatibilidade string/número
+                const p = products.find(x => x.id == id);
+                
+                if (p) {
+                    hasItems = true;
+                    msg += `✅ *${qty}x* ${p.name}\n   └ Cor: ${p.cor || '-'} | Tam: ${p.tamanho || '-'}\n   └ Subtotal: R$ ${(getPrice(p.priceTo) * qty).toFixed(2)}\n\n`;
+                }
+            });
+
+            if (!hasItems) return alert("Erro ao processar itens do carrinho.");
+
+            msg += `💰 *TOTAL: ${document.getElementById('cartTotal').innerText}*`;
+            
+            // Troque este número pelo seu WhatsApp real
+            const whatsappNumber = "5511999999999"; 
+            
+            const link = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`;
+            
+            // Abre em nova aba
+            window.open(link, '_blank');
+        };
+
+        // --- SISTEMA DE PROVA SOCIAL (LEADS) ---
+        function startSocialProof() {
+            const names = [
+                "Ana Silva", "João Pedro", "Mariana S.", "Carlos Edu", "Beatriz M.", 
+                "Lucas F.", "Fernanda T.", "Rafael L.", "Juliana C.", "Gustavo R.",
+                "Larissa P.", "Thiago A.", "Patrícia B.", "Rodrigo S."
             ];
             
-            const popup = document.getElementById('notification-popup');
-            const popupText = document.getElementById('notif-text');
+            const toast = document.getElementById('social-toast');
+            const nameEl = document.getElementById('social-name');
+            const textEl = document.getElementById('social-text');
 
-            function mostrar() {
-                // Se o usuário não estiver logado (tela de app oculta), não mostra popup
-                if(document.getElementById('app-screen').style.display === 'none') return;
-
-                const nomeAleatorio = nomes[Math.floor(Math.random() * nomes.length)];
-                const qtd = Math.floor(Math.random() * 4) + 1; // 1 a 4 itens
-                const textoItens = qtd === 1 ? "item" : "itens";
-
-                popupText.innerHTML = `<strong>${nomeAleatorio}</strong> adicionou <strong>${qtd} ${textoItens}</strong> ao carrinho agora.`;
-                popup.classList.add('visible');
-
-                // Esconde após 4 seg
+            function showToast() {
+                const randomName = names[Math.floor(Math.random() * names.length)];
+                const randomQty = Math.floor(Math.random() * 5) + 2; // Entre 2 e 6 itens
+                
+                nameEl.innerText = randomName;
+                textEl.innerHTML = `<span class="font-bold text-slate-800 block mb-0.5" id="social-name">${randomName}</span> adicionou ${randomQty} itens ao carrinho`;
+                
+                toast.classList.add('show');
+                
+                // Esconde após 4 segundos
                 setTimeout(() => {
-                    popup.classList.remove('visible');
+                    toast.classList.remove('show');
                 }, 4000);
+
+                // Re-agenda o próximo (tempo aleatório entre 10s e 20s)
+                setTimeout(showToast, Math.floor(Math.random() * 10000) + 10000);
             }
 
-            // Loop infinito com intervalo aleatório
-            function agendarProximo() {
-                const tempo = Math.floor(Math.random() * (15000 - 8000 + 1) + 8000); // 8 a 15 seg
-                setTimeout(() => {
-                    mostrar();
-                    agendarProximo();
-                }, tempo);
-            }
-            
-            // Começa depois de 3 segudos
-            setTimeout(agendarProximo, 3000);
+            // Primeiro popup aparece após 5 segundos
+            setTimeout(showToast, 5000);
         }
+
     </script>
 </body>
 </html>
