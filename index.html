@@ -142,24 +142,60 @@
             document.getElementById('adminCampaignArea').classList.remove('hidden');
         }
 
-        async function triggerN8N() {
-            const campaign = document.getElementById('campaignName').value;
-            if(!campaign) return alert("Dê um nome!");
-            const btn = document.getElementById('btnN8N');
-            const url = MODO_TESTE ? URL_TEST : URL_PROD;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...'; btn.disabled = true;
+        // --- SUBSTITUA A FUNÇÃO triggerN8N POR ESTA ---
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Nome_campanha: campaign, usuario_admin: adminUser })
-                });
-                if (response.ok) { alert("🚀 Campanha iniciada!"); closeAdmin(); }
-                else { alert("Erro ao conectar."); }
-            } catch (e) { alert("Erro de conexão."); }
-            finally { btn.innerHTML = 'Iniciar no WhatsApp'; btn.disabled = false; }
+async function triggerN8N() {
+    const campaign = document.getElementById('campaignName').value;
+    if(!campaign) return alert("Dê um nome para a campanha!");
+    
+    const btn = document.getElementById('btnN8N');
+    
+    // Defina as duas URLs
+    const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
+    const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
+
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...'; 
+    btn.disabled = true;
+
+    const payload = { 
+        Nome_campanha: campaign, 
+        usuario_admin: adminUser 
+    };
+
+    // Função auxiliar para fazer o fetch
+    const enviarRequisicao = async (url) => {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error(`Erro: ${response.status}`);
+        return response;
+    };
+
+    try {
+        console.log("Tentando via PRODUÇÃO...");
+        await enviarRequisicao(URL_PROD);
+        alert("🚀 Campanha iniciada com sucesso (Produção)!");
+        closeAdmin();
+
+    } catch (erroProd) {
+        console.warn("Falha na produção, tentando modo TESTE...", erroProd);
+        
+        try {
+            // Se falhou produção, tenta teste imediatamente
+            await enviarRequisicao(URL_TEST);
+            alert("⚠️ Campanha iniciada em modo TESTE (n8n aberto)!");
+            closeAdmin();
+        } catch (erroTest) {
+            console.error("Falha em ambos:", erroTest);
+            alert("❌ Erro: Não foi possível conectar nem em Produção nem em Teste. Verifique se o n8n está ativo e o CORS configurado.");
         }
+    } finally {
+        btn.innerHTML = 'Iniciar no WhatsApp'; 
+        btn.disabled = false; 
+    }
+}
 
         // VITRINE
         async function loadProducts() {
