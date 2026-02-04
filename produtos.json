@@ -1,22 +1,22 @@
 [
   {
     "id": 2,
-    "name": "MIRELLA FONTONELLE",
-    "priceFrom": 350,
-    "priceTo": 125,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_49.jpg",
+    "name": "LANGERIE PINK WEB P",
+    "priceFrom": 999,
+    "priceTo": 100,
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_52.jpg",
     "cor": "ROSA",
-    "tamanho": "P",
+    "tamanho": "PP",
     "category": "bazar"
   },
   {
     "id": 3,
-    "name": "CAMISETA VERMELHA",
-    "priceFrom": 560,
-    "priceTo": 99.9,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_49.jpg",
-    "cor": "VERMELHA",
-    "tamanho": "P",
+    "name": "CAMISETA RED PINK",
+    "priceFrom": 500,
+    "priceTo": 250,
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_53.jpg",
+    "cor": "VERMELHO",
+    "tamanho": "GG",
     "category": "bazar"
   }
 ]
