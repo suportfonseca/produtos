@@ -19,7 +19,6 @@
         .product-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
         .add-button { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
         .filter-tab.active { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        /* Selo de desconto flutuante */
         .discount-tag { position: absolute; top: 12px; left: 12px; background: #ef4444; color: white; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 20; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); }
         .qty-btn { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #eff6ff; color: #1e40af; font-weight: 800; transition: 0.2s; }
         .qty-btn:active { background: #dbeafe; transform: scale(0.95); }
@@ -28,16 +27,28 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
         /* Estilo do Popup de Notificação (Prova Social) */
-        #social-toast {
-            transform: translateX(-120%);
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-        #social-toast.show {
-            transform: translateX(0);
-        }
+        #social-toast { transform: translateX(-120%); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        #social-toast.show { transform: translateX(0); }
+
+        /* NOVO POPUP DE ALERTA (Centro da tela) */
+        #custom-alert { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #custom-alert.visible { opacity: 1; pointer-events: auto; }
+        .alert-box { transform: scale(0.9); transition: transform 0.3s ease; }
+        #custom-alert.visible .alert-box { transform: scale(1); }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-900 font-bold">
+
+    <div id="custom-alert" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="alert-box bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center relative overflow-hidden">
+            <div id="alert-icon-bg" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+                <i id="alert-icon" class="fas text-2xl"></i>
+            </div>
+            <h3 id="alert-title" class="text-xl font-black text-slate-800 mb-2">Atenção</h3>
+            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6 leading-relaxed">Mensagem aqui.</p>
+            <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors">Entendido</button>
+        </div>
+    </div>
 
     <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-blue-600">
         <div class="bg-white w-full max-w-sm p-8 rounded-[32px] shadow-2xl text-center">
@@ -118,12 +129,15 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO
+        // --- 1. CONFIGURAÇÕES ---
+        // Se colocar true, usa a URL_TEST. Se false, tenta a URL_PROD primeiro.
         const MODO_TESTE = true; 
+        
+        // Seus Endpoints n8n
         const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
 
-        // DADOS DE EXEMPLO (Caso o JSON falhe, para teste)
+        // Fallback de produtos se o JSON falhar
         const fallbackProducts = [
             { id: 1, name: "Caderno Inteligente", priceFrom: "99,90", priceTo: "89,90", category: "escolar", image: "https://placehold.co/400", cor: "Azul", tamanho: "Grande" },
             { id: 2, name: "Caneta Gel Kit", priceFrom: "25,00", priceTo: "19,90", category: "escolar", image: "https://placehold.co/400", cor: "Colorido", tamanho: "Padrão" }
@@ -131,81 +145,143 @@
 
         let products = []; let cart = {}; let adminUser = ""; let tempQty = 1;
 
-        // FUNÇÕES ADMIN
+        // --- 2. SISTEMA DE POPUP (ALERT CUSTOMIZADO) ---
+        function showPopup(message, type = 'error') {
+            const popup = document.getElementById('custom-alert');
+            const titleEl = document.getElementById('alert-title');
+            const msgEl = document.getElementById('alert-message');
+            const iconEl = document.getElementById('alert-icon');
+            const iconBg = document.getElementById('alert-icon-bg');
+
+            msgEl.innerText = message;
+            popup.classList.add('visible');
+
+            if (type === 'success') {
+                titleEl.innerText = "Sucesso!";
+                titleEl.className = "text-xl font-black text-green-600 mb-2";
+                iconEl.className = "fas fa-check text-2xl text-green-600";
+                iconBg.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-100";
+            } else {
+                titleEl.innerText = "Algo deu errado";
+                titleEl.className = "text-xl font-black text-red-600 mb-2";
+                iconEl.className = "fas fa-times text-2xl text-red-600";
+                iconBg.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100";
+            }
+        }
+
+        function closeAlert() {
+            document.getElementById('custom-alert').classList.remove('visible');
+        }
+
+        // --- 3. FUNÇÕES ADMIN (LOGIN E ENVIO) ---
         function requestAdminLogin() { document.getElementById('adminPanel').classList.remove('hidden'); }
         function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
+
         function checkAdminAuth() {
             const phone = document.getElementById('adminPhone').value;
-            if(phone.length < 8) return alert("Número inválido");
-            adminUser = phone;
+            // Limpa o telefone (deixa só números)
+            const cleanPhone = phone.replace(/\D/g, ''); 
+
+            if(cleanPhone.length < 8) return showPopup("Por favor, digite um número válido.", "error");
+            
+            adminUser = cleanPhone;
             document.getElementById('adminLoginArea').classList.add('hidden');
             document.getElementById('adminCampaignArea').classList.remove('hidden');
         }
 
-        // --- SUBSTITUA A FUNÇÃO triggerN8N POR ESTA ---
+        async function triggerN8N() {
+            const campaign = document.getElementById('campaignName').value;
+            if(!campaign) return showPopup("Dê um nome para a campanha!", "error");
+            
+            const btn = document.getElementById('btnN8N');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...'; 
+            btn.disabled = true;
 
-async function triggerN8N() {
-    const campaign = document.getElementById('campaignName').value;
-    if(!campaign) return alert("Dê um nome para a campanha!");
-    
-    const btn = document.getElementById('btnN8N');
-    
-    // Defina as duas URLs
-    const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
-    const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
+            const payload = { 
+                Nome_campanha: campaign, 
+                usuario_admin: adminUser 
+            };
 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...'; 
-    btn.disabled = true;
+            const enviarRequisicao = async (url) => {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Se o status for 404 ou 400, lança erro para cair no catch
+                if (!response.ok) {
+                    throw new Error(response.status); 
+                }
+                
+                // Tenta ler o JSON se houver resposta
+                try {
+                    const data = await response.json();
+                    return data; 
+                } catch (e) {
+                    return {}; // Retorna vazio se não tiver JSON
+                }
+            };
 
-    const payload = { 
-        Nome_campanha: campaign, 
-        usuario_admin: adminUser 
-    };
+            try {
+                console.log("Tentando via PRODUÇÃO...");
+                // Tenta URL de Produção
+                const resp = await enviarRequisicao(URL_PROD);
+                
+                // Verifica se o JSON tem alguma flag de erro (configure seu n8n para mandar isso)
+                if (resp && (resp.status === 'erro' || resp.found === false)) {
+                     throw new Error("UserNotFound");
+                }
 
-    // Função auxiliar para fazer o fetch
-    const enviarRequisicao = async (url) => {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!response.ok) throw new Error(`Erro: ${response.status}`);
-        return response;
-    };
+                showPopup("🚀 Campanha iniciada com sucesso!", "success");
+                setTimeout(() => closeAdmin(), 2000);
 
-    try {
-        console.log("Tentando via PRODUÇÃO...");
-        await enviarRequisicao(URL_PROD);
-        alert("🚀 Campanha iniciada com sucesso (Produção)!");
-        closeAdmin();
+            } catch (erroProd) {
+                console.warn("Falha Prod:", erroProd);
+                
+                // Se o erro foi especificamente "UserNotFound" (vindo do JSON), avisa direto
+                if (erroProd.message === "UserNotFound") {
+                    showPopup("Administrador não localizado na planilha! Verifique o número.", "error");
+                    btn.innerHTML = 'Iniciar no WhatsApp'; 
+                    btn.disabled = false;
+                    return;
+                }
 
-    } catch (erroProd) {
-        console.warn("Falha na produção, tentando modo TESTE...", erroProd);
-        
-        try {
-            // Se falhou produção, tenta teste imediatamente
-            await enviarRequisicao(URL_TEST);
-            alert("⚠️ Campanha iniciada em modo TESTE (n8n aberto)!");
-            closeAdmin();
-        } catch (erroTest) {
-            console.error("Falha em ambos:", erroTest);
-            alert("❌ Erro: Não foi possível conectar nem em Produção nem em Teste. Verifique se o n8n está ativo e o CORS configurado.");
+                // Se foi erro de conexão, tenta TESTE
+                console.log("Tentando modo TESTE...");
+                try {
+                    const respTest = await enviarRequisicao(URL_TEST);
+                    
+                    if (respTest && (respTest.status === 'erro' || respTest.found === false)) {
+                         showPopup("Administrador não localizado na planilha (Modo Teste)!", "error");
+                    } else {
+                         showPopup("⚠️ Campanha iniciada (Modo Teste)!", "success");
+                         setTimeout(() => closeAdmin(), 2000);
+                    }
+                } catch (erroTest) {
+                    console.error("Erro Final:", erroTest);
+                    // Aqui pegamos o erro final. Se for 404, assumimos que usuário não existe ou endpoint falhou
+                    if (erroTest.message === "404" || erroTest.message === "UserNotFound") {
+                        showPopup("Administrador não localizado no cadastro! Verifique o número digitado.", "error");
+                    } else {
+                        showPopup("Erro de conexão. Verifique se o n8n está ativo.", "error");
+                    }
+                }
+            } finally {
+                btn.innerHTML = 'Iniciar no WhatsApp'; 
+                btn.disabled = false; 
+            }
         }
-    } finally {
-        btn.innerHTML = 'Iniciar no WhatsApp'; 
-        btn.disabled = false; 
-    }
-}
 
-        // VITRINE
+        // --- 4. FUNÇÕES DA LOJA (VITRINE) ---
         async function loadProducts() {
             try {
                 const response = await fetch('produtos.json?t=' + Date.now());
                 if(!response.ok) throw new Error("JSON não encontrado");
                 products = await response.json(); 
             } catch (e) { 
-                console.log("Usando produtos de fallback");
-                products = fallbackProducts; // Fallback se não tiver JSON
+                console.log("Usando fallback");
+                products = fallbackProducts; 
             }
             renderProducts();
         }
@@ -261,14 +337,12 @@ async function triggerN8N() {
                             <span class="px-2.5 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-lg tracking-wider">${p.category}</span>
                         </div>
                         <h2 class="text-2xl font-black text-slate-800 leading-tight mb-4">${p.name}</h2>
-                        
                         <div class="flex items-center gap-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                             <div>
                                 ${discount ? `<p class="text-slate-400 text-sm line-through font-bold mb-0.5">De: R$ ${getPrice(p.priceFrom).toFixed(2)}</p>` : ''}
                                 <p class="text-4xl font-black text-blue-600 leading-none">R$ ${getPrice(p.priceTo).toFixed(2)}</p>
                             </div>
                         </div>
-
                         <div class="grid grid-cols-2 gap-3 mb-6">
                             <div class="border border-slate-200 p-3 rounded-xl bg-white">
                                 <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Cor</p>
@@ -279,7 +353,6 @@ async function triggerN8N() {
                                 <p class="text-slate-700 font-bold uppercase">${p.tamanho || 'Padrão'}</p>
                             </div>
                         </div>
-
                         <div class="flex items-center justify-between gap-4 p-2 bg-white border border-slate-100 rounded-2xl shadow-sm mb-4">
                             <div class="flex items-center gap-3 px-2">
                                 <button onclick="updateTempQty(-1)" class="qty-btn hover:bg-blue-100 text-blue-600"><i class="fas fa-minus text-xs"></i></button>
@@ -288,7 +361,6 @@ async function triggerN8N() {
                             </div>
                             <p class="text-xs text-slate-400 font-bold mr-2">unidades</p>
                         </div>
-
                         <button onclick="addToCart(${p.id}, tempQty); closeModal();" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-2xl shadow-xl shadow-blue-600/20 active:scale-95 transition-all flex items-center justify-center gap-3">
                             <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
                         </button>
@@ -308,23 +380,16 @@ async function triggerN8N() {
                 if(p) total += getPrice(p.priceTo) * qty;
             });
             document.getElementById('cartTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            
-            // Só mostra a barra se tiver itens
-            if (Object.keys(cart).length > 0) {
-                document.getElementById('cartBar').classList.remove('hidden');
-            } else {
-                document.getElementById('cartBar').classList.add('hidden');
-            }
+            if (Object.keys(cart).length > 0) document.getElementById('cartBar').classList.remove('hidden');
+            else document.getElementById('cartBar').classList.add('hidden');
         }
 
         document.getElementById('loginButton').onclick = () => {
             const phone = document.getElementById('phoneInput').value;
-            if(phone.length < 8) return alert("Digite um WhatsApp válido");
+            if(phone.length < 8) return showPopup("Digite um WhatsApp válido", "error");
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             loadProducts();
-            
-            // Inicia o contador de leads (Prova Social) ao logar
             startSocialProof();
         };
 
@@ -336,70 +401,44 @@ async function triggerN8N() {
             };
         });
 
-        // --- CORREÇÃO DO BOTÃO FINALIZAR ---
         document.getElementById('checkoutButton').onclick = () => {
-            if (Object.keys(cart).length === 0) return alert("Seu carrinho está vazio!");
+            if (Object.keys(cart).length === 0) return showPopup("Seu carrinho está vazio!", "error");
 
             let msg = "*🛒 NOVO PEDIDO - CLIPS PAPELARIA*\n\n";
             let hasItems = false;
-
             Object.entries(cart).forEach(([id, qty]) => {
-                // Conversão de ID para garantir compatibilidade string/número
                 const p = products.find(x => x.id == id);
-                
                 if (p) {
                     hasItems = true;
                     msg += `✅ *${qty}x* ${p.name}\n   └ Cor: ${p.cor || '-'} | Tam: ${p.tamanho || '-'}\n   └ Subtotal: R$ ${(getPrice(p.priceTo) * qty).toFixed(2)}\n\n`;
                 }
             });
 
-            if (!hasItems) return alert("Erro ao processar itens do carrinho.");
-
+            if (!hasItems) return showPopup("Erro ao processar itens.", "error");
             msg += `💰 *TOTAL: ${document.getElementById('cartTotal').innerText}*`;
             
-            // Troque este número pelo seu WhatsApp real
-            const whatsappNumber = "5511999999999"; 
-            
-            const link = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`;
-            
-            // Abre em nova aba
-            window.open(link, '_blank');
+            // Link do WhatsApp (Troque pelo número real da loja)
+            window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
-        // --- SISTEMA DE PROVA SOCIAL (LEADS) ---
+        // --- 5. PROVA SOCIAL (LEADS) ---
         function startSocialProof() {
-            const names = [
-                "Ana Silva", "João Pedro", "Mariana S.", "Carlos Edu", "Beatriz M.", 
-                "Lucas F.", "Fernanda T.", "Rafael L.", "Juliana C.", "Gustavo R.",
-                "Larissa P.", "Thiago A.", "Patrícia B.", "Rodrigo S."
-            ];
-            
+            const names = ["Ana Silva", "João Pedro", "Mariana S.", "Carlos Edu", "Beatriz M.", "Lucas F.", "Fernanda T.", "Rafael L."];
             const toast = document.getElementById('social-toast');
             const nameEl = document.getElementById('social-name');
             const textEl = document.getElementById('social-text');
 
             function showToast() {
                 const randomName = names[Math.floor(Math.random() * names.length)];
-                const randomQty = Math.floor(Math.random() * 5) + 2; // Entre 2 e 6 itens
-                
+                const randomQty = Math.floor(Math.random() * 5) + 2;
                 nameEl.innerText = randomName;
                 textEl.innerHTML = `<span class="font-bold text-slate-800 block mb-0.5" id="social-name">${randomName}</span> adicionou ${randomQty} itens ao carrinho`;
-                
                 toast.classList.add('show');
-                
-                // Esconde após 4 segundos
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 4000);
-
-                // Re-agenda o próximo (tempo aleatório entre 10s e 20s)
+                setTimeout(() => toast.classList.remove('show'), 4000);
                 setTimeout(showToast, Math.floor(Math.random() * 10000) + 10000);
             }
-
-            // Primeiro popup aparece após 5 segundos
             setTimeout(showToast, 5000);
         }
-
     </script>
 </body>
 </html>
