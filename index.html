@@ -124,30 +124,37 @@
         }
 
         async function triggerN8N() {
-            const campaign = document.getElementById('campaignName').value;
-            if(!campaign) return alert("Digite o nome da campanha");
+    const campaign = document.getElementById('campaignName').value;
+    if(!campaign) return alert("Digite o nome da campanha");
 
-            const btn = document.getElementById('btnN8N');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
-            btn.disabled = true;
+    const btn = document.getElementById('btnN8N');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
+    btn.disabled = true;
 
-            try {
-                const response = await fetch('https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        nome_campanha: campaign,
-                        usuario_admin: adminUser
-                    })
-                });
+    try {
+        // USANDO A URL DE PRODUÇÃO (SEM O -TEST)
+        const response = await fetch('https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nome_campanha: campaign,
+                usuario_admin: adminUser
+            })
+        });
 
-                if (response.ok) {
-                    alert("✅ Campanha iniciada! Robô te chamará no WhatsApp.");
-                    closeAdmin();
-                } else { alert("Erro ao conectar."); }
-            } catch (e) { alert("n8n fora do ar ou URL errada."); }
-            finally { btn.innerHTML = '<i class="fas fa-rocket"></i> Iniciar Campanha'; btn.disabled = false; }
+        if (response.ok) {
+            alert("🚀 Campanha '" + campaign + "' enviada com sucesso!");
+            closeAdmin();
+        } else {
+            alert("Erro no servidor n8n. Verifique se o fluxo foi publicado.");
         }
+    } catch (e) {
+        alert("n8n fora do ar ou URL errada.");
+    } finally {
+        btn.innerHTML = '<i class="fas fa-rocket"></i> Iniciar Campanha';
+        btn.disabled = false;
+    }
+}
 
         // --- VITRINE ---
         async function loadProducts() {
