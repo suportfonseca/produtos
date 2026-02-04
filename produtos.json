@@ -18,5 +18,15 @@
     "cor": "VERMELHO",
     "tamanho": "GG",
     "category": "bazar"
+  },
+  {
+    "id": 4,
+    "name": "Teclado husky",
+    "priceFrom": 197,
+    "priceTo": 97.9,
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_56.jpg",
+    "cor": "Branco",
+    "tamanho": "120cm",
+    "category": "bazar"
   }
 ]
