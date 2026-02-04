@@ -1,22 +1,22 @@
 [
   {
     "id": 2,
-    "name": "teste1",
-    "priceFrom": 23,
-    "priceTo": 1,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_46.jpg",
-    "cor": "preto",
-    "tamanho": "GG",
+    "name": "MIRELLA FONTONELLE",
+    "priceFrom": 350,
+    "priceTo": 125,
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_49.jpg",
+    "cor": "ROSA",
+    "tamanho": "P",
     "category": "bazar"
   },
   {
     "id": 3,
-    "name": "teste3",
-    "priceFrom": 3219,
-    "priceTo": 123,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_46.jpg",
-    "cor": "preto",
-    "tamanho": "gg",
+    "name": "CAMISETA VERMELHA",
+    "priceFrom": 560,
+    "priceTo": 99.9,
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_49.jpg",
+    "cor": "VERMELHA",
+    "tamanho": "P",
     "category": "bazar"
   }
 ]
