@@ -1,2 +1,10 @@
-// JavaScript source code
-[]
+[
+  {
+    "id": 1770164307449,
+    "name": "TECLADO GAMER HUSKY",
+    "priceFrom": 97.9,
+    "priceTo": 100,
+    "category": "bazar",
+    "image": "https://api.telegram.org/file/botundefined/photos/file_18.jpg"
+  }
+]
