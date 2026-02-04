@@ -19,14 +19,17 @@
         .product-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
         .add-button { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
         .filter-tab.active { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .discount-badge { background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; }
+        .discount-badge { background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; z-index: 10; }
+        .qty-btn { width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #1e293b; font-weight: 800; transition: all 0.2s; }
+        .qty-btn:active { background: #e2e8f0; transform: scale(0.9); }
         .modal-animate { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-900">
 
-    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-blue-600">
+    <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-blue-600">
         <div class="bg-white w-full max-w-sm p-8 rounded-[32px] shadow-2xl text-center">
             <div class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-paperclip text-3xl text-blue-600"></i>
@@ -63,10 +66,9 @@
 
     <div id="productModal" class="fixed inset-0 z-[60] hidden">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 modal-animate max-h-[90vh] overflow-y-auto">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 modal-animate max-h-[95vh] overflow-y-auto shadow-2xl">
             <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-            <div id="modalContent" class="max-w-xl mx-auto">
-                </div>
+            <div id="modalContent" class="max-w-xl mx-auto"></div>
         </div>
     </div>
 
@@ -86,6 +88,7 @@
         let products = [];
         let cart = {};
         let currentCategory = 'todos';
+        let tempQty = 1;
 
         async function loadProducts() {
             try {
@@ -96,8 +99,10 @@
         }
 
         function calculateDiscount(from, to) {
-            if (!from || from <= to) return null;
-            return Math.round(((from - to) / from) * 100);
+            const f = parseFloat(from);
+            const t = parseFloat(to);
+            if (!f || f <= t) return null;
+            return Math.round(((f - t) / f) * 100);
         }
 
         function renderProducts() {
@@ -109,9 +114,7 @@
                 const discount = calculateDiscount(p.priceFrom, p.priceTo);
                 const div = document.createElement('div');
                 div.className = 'product-card p-3 relative shadow-lg shadow-blue-900/5';
-                div.onclick = (e) => {
-                    if(!e.target.closest('button')) openModal(p);
-                };
+                div.onclick = (e) => { if(!e.target.closest('button')) openModal(p); };
                 
                 div.innerHTML = `
                     ${discount ? `<div class="discount-badge">-${discount}%</div>` : ''}
@@ -119,10 +122,10 @@
                     <h3 class="text-[13px] font-bold text-slate-700 line-clamp-2 leading-tight mb-3">${p.name}</h3>
                     <div class="flex justify-between items-end">
                         <div>
-                            ${p.priceFrom > p.priceTo ? `<p class="text-[10px] text-slate-400 line-through">R$ ${p.priceFrom.toFixed(2)}</p>` : ''}
-                            <p class="text-blue-600 font-black text-lg">R$ ${p.priceTo.toFixed(2)}</p>
+                            ${parseFloat(p.priceFrom) > parseFloat(p.priceTo) ? `<p class="text-[10px] text-slate-400 line-through">R$ ${parseFloat(p.priceFrom).toFixed(2)}</p>` : ''}
+                            <p class="text-blue-600 font-black text-lg">R$ ${parseFloat(p.priceTo).toFixed(2)}</p>
                         </div>
-                        <button onclick="addToCart(${p.id}); event.stopPropagation();" class="add-button">
+                        <button onclick="addToCart(${p.id}, 1); event.stopPropagation();" class="add-button">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -132,6 +135,7 @@
         }
 
         function openModal(p) {
+            tempQty = 1;
             const modal = document.getElementById('productModal');
             const content = document.getElementById('modalContent');
             const discount = calculateDiscount(p.priceFrom, p.priceTo);
@@ -140,7 +144,7 @@
                 <div class="flex flex-col md:flex-row gap-8">
                     <div class="relative w-full md:w-1/2">
                         <img src="${p.image}" class="w-full aspect-square object-cover rounded-[32px] shadow-xl">
-                        ${discount ? `<div class="absolute top-4 left-4 bg-red-500 text-white font-black px-4 py-2 rounded-2xl shadow-lg">-${discount}% OFF</div>` : ''}
+                        ${discount ? `<div class="absolute top-4 left-4 bg-red-500 text-white font-black px-4 py-2 rounded-2xl shadow-lg animate-pulse">-${discount}% OFF</div>` : ''}
                     </div>
                     <div class="flex-1">
                         <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-lg mb-4 italic tracking-widest">${p.category}</span>
@@ -148,24 +152,33 @@
                         
                         <div class="bg-slate-50 rounded-3xl p-6 mb-6">
                             <div class="flex items-center gap-4 mb-2">
-                                <span class="text-3xl font-black text-blue-600 italic">R$ ${p.priceTo.toFixed(2)}</span>
-                                ${p.priceFrom > p.priceTo ? `<span class="text-slate-400 line-through text-lg font-bold">R$ ${p.priceFrom.toFixed(2)}</span>` : ''}
+                                <span class="text-3xl font-black text-blue-600 italic">R$ ${parseFloat(p.priceTo).toFixed(2)}</span>
+                                ${parseFloat(p.priceFrom) > parseFloat(p.priceTo) ? `<span class="text-slate-400 line-through text-lg font-bold">R$ ${parseFloat(p.priceFrom).toFixed(2)}</span>` : ''}
                             </div>
                             <p class="text-green-600 text-xs font-bold uppercase tracking-wider"><i class="fas fa-bolt mr-1"></i> Oferta por tempo limitado</p>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="grid grid-cols-2 gap-4 mb-6">
                             <div class="border border-slate-100 rounded-2xl p-4">
-                                <p class="text-[10px] text-slate-400 font-bold uppercase">🎨 Cor Disponível</p>
-                                <p class="font-bold text-slate-700 capitalize">${p.cor || 'Consultar'}</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase">🎨 Cor</p>
+                                <p class="font-bold text-slate-700 capitalize">${p.cor || 'Única'}</p>
                             </div>
                             <div class="border border-slate-100 rounded-2xl p-4">
-                                <p class="text-[10px] text-slate-400 font-bold uppercase">📏 Tamanho/Modelo</p>
-                                <p class="font-bold text-slate-700 uppercase">${p.tamanho || 'Consultar'}</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase">📏 Tamanho</p>
+                                <p class="font-bold text-slate-700 uppercase">${p.tamanho || 'Padrão'}</p>
                             </div>
                         </div>
 
-                        <button onclick="addToCart(${p.id}); closeModal();" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3">
+                        <div class="flex items-center justify-between mb-8 bg-slate-50 p-3 rounded-2xl">
+                            <p class="font-bold text-slate-600 ml-2">Quantidade:</p>
+                            <div class="flex items-center gap-4">
+                                <button onclick="updateTempQty(-1)" class="qty-btn text-blue-600"><i class="fas fa-minus"></i></button>
+                                <span id="tempQtyDisplay" class="text-xl font-black text-slate-800 min-w-[30px] text-center">1</span>
+                                <button onclick="updateTempQty(1)" class="qty-btn text-blue-600"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+
+                        <button onclick="addToCart(${p.id}, tempQty); closeModal();" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 transition-all">
                             <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
                         </button>
                     </div>
@@ -174,10 +187,15 @@
             modal.classList.remove('hidden');
         }
 
+        function updateTempQty(val) {
+            tempQty = Math.max(1, tempQty + val);
+            document.getElementById('tempQtyDisplay').innerText = tempQty;
+        }
+
         function closeModal() { document.getElementById('productModal').classList.add('hidden'); }
 
-        function addToCart(id) {
-            cart[id] = (cart[id] || 0) + 1;
+        function addToCart(id, qty) {
+            cart[id] = (cart[id] || 0) + qty;
             updateCartUI();
         }
 
@@ -185,15 +203,14 @@
             let total = 0; let count = 0;
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
-                if(p) { total += p.priceTo * qty; count += qty; }
+                if(p) { total += parseFloat(p.priceTo) * qty; count += qty; }
             });
             document.getElementById('cartTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cartBar').classList.toggle('hidden', count === 0);
         }
 
         document.getElementById('loginButton').onclick = () => {
-            const phone = document.getElementById('phoneInput').value;
-            if(phone.length < 10) return alert("Por favor, insira seu WhatsApp");
+            if(document.getElementById('phoneInput').value.length < 8) return alert("Insira um WhatsApp válido");
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             loadProducts();
@@ -214,7 +231,8 @@
                 const p = products.find(x => x.id == id);
                 msg += `✅ *${qty}x* ${p.name}\n`;
                 if(p.cor) msg += `   └ Cor: ${p.cor}\n`;
-                msg += `   └ Preço: R$ ${p.priceTo.toFixed(2)}\n\n`;
+                if(p.tamanho) msg += `   └ Tamanho: ${p.tamanho}\n`;
+                msg += `   └ Subtotal: R$ ${(parseFloat(p.priceTo) * qty).toFixed(2)}\n\n`;
             });
             msg += `💰 *TOTAL: ${document.getElementById('cartTotal').innerText}*`;
             window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(msg)}`);
