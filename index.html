@@ -43,26 +43,18 @@
     <div id="adminPanel" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-6 bg-slate-900/95 backdrop-blur-md">
         <div class="bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl">
             <div id="adminLoginArea">
-                <h2 class="text-xl font-black text-slate-800 mb-2 text-center">Acesso Restrito</h2>
-                <p class="text-xs text-slate-500 mb-6 text-center">Identifique-se para gerenciar campanhas</p>
+                <h2 class="text-xl font-black text-slate-800 mb-2 text-center">Acesso Admin</h2>
                 <input type="tel" id="adminPhone" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-4 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Seu WhatsApp Admin">
-                <button onclick="checkAdminAuth()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl">Verificar Acesso</button>
+                <button onclick="checkAdminAuth()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl">Verificar</button>
                 <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold py-4 mt-2">Cancelar</button>
             </div>
 
             <div id="adminCampaignArea" class="hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black text-slate-800">Nova Campanha</h2>
-                    <button onclick="closeAdmin()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="space-y-4">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Nome da Campanha</label>
-                    <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-orange-500" placeholder="Ex: Ofertas de Informática">
-                    
-                    <button onclick="triggerN8N()" id="btnN8N" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-5 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all mt-6">
-                        <i class="fas fa-rocket"></i> Iniciar Campanha
-                    </button>
-                </div>
+                <h2 class="text-xl font-black text-slate-800 mb-6">Cadastrar Campanha</h2>
+                <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-6 outline-none focus:ring-2 focus:ring-orange-500" placeholder="Nome da Campanha (ex: Informática)">
+                <button onclick="triggerN8N()" id="btnN8N" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-5 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all">
+                    <i class="fas fa-rocket"></i> Iniciar Campanha
+                </button>
             </div>
         </div>
     </div>
@@ -70,60 +62,42 @@
     <div id="mainApp" class="hidden pb-32">
         <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 p-4 border-b border-blue-50">
             <div class="max-w-7xl mx-auto flex flex-col gap-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Vitrine Digital</p>
-                        <h1 class="font-extrabold text-xl text-slate-800">Clips Papelaria</h1>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center border border-blue-100"><i class="fas fa-shopping-bag text-blue-600"></i></div>
-                </div>
-                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                    <button class="filter-tab active px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap" data-category="todos">🔥 Todos</button>
-                    <button class="filter-tab bg-white border border-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap" data-category="escolar">🎒 Escolar</button>
-                    <button class="filter-tab bg-white border border-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap" data-category="bazar">🎁 Bazar</button>
+                <div class="flex justify-between items-center text-slate-800 font-bold text-xl">
+                    <h1>Clips Papelaria</h1>
+                    <i class="fas fa-shopping-bag text-blue-600"></i>
                 </div>
             </div>
         </header>
-
         <main class="max-w-7xl mx-auto p-4">
             <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
         </main>
     </div>
 
     <script>
-        let products = [];
-        let cart = {};
-        let currentCategory = 'todos';
         let adminUser = "";
-
-        // --- LÓGICA ADMINISTRATIVA ---
-        function requestAdminLogin() {
-            document.getElementById('adminPanel').classList.remove('hidden');
-            document.getElementById('adminLoginArea').classList.remove('hidden');
-            document.getElementById('adminCampaignArea').classList.add('hidden');
-        }
-
+        
+        function requestAdminLogin() { document.getElementById('adminPanel').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
+        
         function checkAdminAuth() {
             const phone = document.getElementById('adminPhone').value;
-            if(phone.length < 8) return alert("Insira um número válido");
+            if(phone.length < 8) return alert("Número inválido");
             adminUser = phone;
             document.getElementById('adminLoginArea').classList.add('hidden');
             document.getElementById('adminCampaignArea').classList.remove('hidden');
         }
 
-        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
-
         async function triggerN8N() {
             const campaign = document.getElementById('campaignName').value;
-            if(!campaign) return alert("Digite um nome para a campanha");
+            if(!campaign) return alert("Digite o nome da campanha");
 
             const btn = document.getElementById('btnN8N');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             btn.disabled = true;
 
             try {
-                // Envia os dados exatamente como o seu n8n espera: Nome da Campanha e Usuário Admin
-                const response = await fetch('SUA_URL_WEBHOOK_N8N_AQUI', {
+                // COLE SUA PRODUCTION URL ABAIXO
+                const response = await fetch('https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -131,19 +105,14 @@
                         usuario_admin: adminUser
                     })
                 });
-                alert("✅ Campanha '" + campaign + "' iniciada com sucesso!");
+                alert("🚀 Campanha '" + campaign + "' iniciada!");
                 closeAdmin();
-            } catch (e) {
-                alert("Erro ao conectar com o servidor");
-            } finally {
-                btn.innerHTML = '<i class="fas fa-rocket"></i> Iniciar Campanha';
-                btn.disabled = false;
-            }
+            } catch (e) { alert("Erro de conexão."); }
+            finally { btn.innerHTML = '<i class="fas fa-rocket"></i> Iniciar Campanha'; btn.disabled = false; }
         }
 
-        // --- LÓGICA DE CARREGAMENTO E RENDERIZAÇÃO (Mantida do código anterior) ---
-        // ... (Funções loadProducts, renderProducts, openModal, addToCart, etc) ...
-        // [Para encurtar a resposta e manter o foco no Admin, as funções de vitrine são as mesmas da sua versão profissional]
+        // --- Restante da lógica de Vitrine (loadProducts, render, etc) ---
+        // ...
     </script>
 </body>
 </html>
