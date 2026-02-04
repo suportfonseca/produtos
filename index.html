@@ -7,15 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { royal: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } }
+        }
+    </script>
     <style>
         body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%); min-height: 100vh; }
         .product-card { background: white; border-radius: 24px; overflow: hidden; transition: 0.3s; cursor: pointer; border: 1px solid rgba(59, 130, 246, 0.1); }
+        .product-card:active { transform: scale(0.95); }
         .product-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
         .add-button { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
         .filter-tab.active { background: #2563eb; color: white; }
+        .discount-badge { background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; z-index: 10; }
+        .qty-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-weight: 800; }
+        .modal-animate { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-900">
+<body class="bg-gray-50 text-slate-900 font-bold">
 
     <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-blue-600">
         <div class="bg-white w-full max-w-sm p-8 rounded-[32px] shadow-2xl text-center">
@@ -23,7 +33,7 @@
                 <i class="fas fa-paperclip text-3xl text-blue-600"></i>
             </div>
             <h1 class="text-2xl font-extrabold mb-2">Clips Papelaria</h1>
-            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 mb-4 outline-none" placeholder="(00) 00000-0000">
+            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 mb-4 outline-none font-bold" placeholder="(00) 00000-0000">
             <button id="loginButton" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">Entrar na Loja</button>
         </div>
     </div>
@@ -32,47 +42,57 @@
         <div class="bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl text-center">
             <div id="adminLoginArea">
                 <h2 class="text-xl font-black mb-6">Acesso Admin</h2>
-                <input type="tel" id="adminPhone" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-4 outline-none" placeholder="WhatsApp Admin">
+                <input type="tel" id="adminPhone" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-4 outline-none text-slate-800" placeholder="WhatsApp Admin">
                 <button onclick="checkAdminAuth()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl">Verificar</button>
                 <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-2">Sair</button>
             </div>
             <div id="adminCampaignArea" class="hidden">
-                <h2 class="text-xl font-black mb-6">Nova Campanha 🚀</h2>
-                <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-6 outline-none" placeholder="Nome da Campanha">
+                <h2 class="text-xl font-black mb-6 text-slate-800 font-bold">Nova Campanha 🚀</h2>
+                <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-6 outline-none text-slate-800" placeholder="Nome da Campanha">
                 <button onclick="triggerN8N()" id="btnN8N" class="w-full bg-orange-500 text-white font-bold py-5 rounded-2xl shadow-lg">Iniciar no WhatsApp</button>
-                <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-4 text-xs underline">Cancelar</button>
+                <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-4 text-xs underline">Voltar</button>
             </div>
         </div>
     </div>
 
     <div id="mainApp" class="hidden pb-32">
         <header class="bg-white sticky top-0 z-40 p-4 border-b border-blue-50">
-            <div class="max-w-7xl mx-auto flex flex-col gap-4">
-                <h1 class="font-extrabold text-xl text-slate-800">Clips Papelaria</h1>
-            </div>
+            <h1 class="font-extrabold text-xl text-slate-800">Clips Papelaria</h1>
         </header>
         <main class="max-w-7xl mx-auto p-4">
             <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
         </main>
     </div>
 
+    <div id="productModal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 modal-animate max-h-[95vh] overflow-y-auto">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
+            <div id="modalContent" class="max-w-xl mx-auto text-slate-800 font-bold"></div>
+        </div>
+    </div>
+
+    <div id="cartBar" class="fixed bottom-6 left-4 right-4 bg-slate-900 rounded-3xl p-4 shadow-2xl hidden z-50 text-white">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-2">
+            <div>
+                <p class="text-[10px] text-slate-400 uppercase leading-none">Total</p>
+                <p id="cartTotal" class="text-xl font-black font-bold">R$ 0,00</p>
+            </div>
+            <button id="checkoutButton" class="bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold font-bold">Finalizar Pedido</button>
+        </div>
+    </div>
+
     <script>
         // CONFIGURAÇÃO DO WEBHOOK
-        const MODO_TESTE = true; // MUDE PARA false QUANDO CLICAR EM "PUBLISH"
+        const MODO_TESTE = true; // Mude para false quando clicar em Publish
         const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
 
-        let products = [];
-        let adminUser = "";
+        let products = []; let cart = {}; let adminUser = ""; let tempQty = 1;
 
-        function requestAdminLogin() { 
-            document.getElementById('adminPanel').classList.remove('hidden'); 
-        }
-        
-        function closeAdmin() { 
-            document.getElementById('adminPanel').classList.add('hidden'); 
-        }
-        
+        // FUNÇÕES ADMIN
+        function requestAdminLogin() { document.getElementById('adminPanel').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
         function checkAdminAuth() {
             const phone = document.getElementById('adminPhone').value;
             if(phone.length < 8) return alert("Número inválido");
@@ -86,62 +106,104 @@
             if(!campaign) return alert("Dê um nome!");
             const btn = document.getElementById('btnN8N');
             const url = MODO_TESTE ? URL_TEST : URL_PROD;
-            
-            btn.innerHTML = 'Conectando...';
-            btn.disabled = true;
+            btn.innerHTML = 'Iniciando...'; btn.disabled = true;
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        Nome_campanha: campaign, 
-                        usuario_admin: adminUser 
-                    })
+                    body: JSON.stringify({ Nome_campanha: campaign, usuario_admin: adminUser })
                 });
-                if (response.ok) { 
-                    alert("🚀 Campanha iniciada!"); 
-                    closeAdmin(); 
-                } else { 
-                    alert("Erro ao conectar. Verifique se o n8n está no modo 'Listen'."); 
-                }
-            } catch (e) { 
-                alert("Erro de conexão."); 
-            } finally { 
-                btn.innerHTML = 'Iniciar Campanha'; 
-                btn.disabled = false; 
-            }
+                if (response.ok) { alert("🚀 Campanha iniciada!"); closeAdmin(); }
+                else { alert("Erro ao conectar."); }
+            } catch (e) { alert("Erro de conexão."); }
+            finally { btn.innerHTML = 'Iniciar Campanha'; btn.disabled = false; }
         }
 
-        document.getElementById('loginButton').onclick = () => {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            loadProducts();
-        };
-
+        // VITRINE
         async function loadProducts() {
             try {
                 const response = await fetch('produtos.json?t=' + Date.now());
-                products = await response.json();
-                renderProducts();
+                products = await response.json(); renderProducts();
             } catch (e) { console.error(e); }
         }
 
+        function calculateDiscount(from, to) {
+            const f = parseFloat(String(from).replace(',', '.'));
+            const t = parseFloat(String(to).replace(',', '.'));
+            if (!f || f <= t) return null;
+            return Math.round(((f - t) / f) * 100);
+        }
+
         function renderProducts() {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = '';
+            const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
             products.forEach(p => {
+                const discount = calculateDiscount(p.priceFrom, p.priceTo);
                 const div = document.createElement('div');
                 div.className = 'product-card p-3 shadow-lg';
+                div.onclick = () => openModal(p);
                 div.innerHTML = `
-                    <img src="${p.image}" class="product-image rounded-2xl mb-4">
-                    <h3 class="text-[13px] font-bold text-slate-700 mb-2">${p.name}</h3>
-                    <div class="flex justify-between items-end">
-                        <p class="text-blue-600 font-black text-lg">R$ ${parseFloat(p.priceTo).toFixed(2)}</p>
+                    ${discount ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                    <img src="${p.image}" class="product-image rounded-2xl mb-4 font-bold">
+                    <h3 class="text-[13px] font-bold text-slate-700 font-bold mb-2">${p.name}</h3>
+                    <div class="flex justify-between items-end font-bold">
+                        <div>
+                            ${parseFloat(String(p.priceFrom).replace(',','.')) > parseFloat(String(p.priceTo).replace(',','.')) ? `<p class="text-[10px] text-slate-400 line-through">R$ ${parseFloat(String(p.priceFrom).replace(',','.')).toFixed(2)}</p>` : ''}
+                            <p class="text-blue-600 font-black text-lg">R$ ${parseFloat(String(p.priceTo).replace(',','.')).toFixed(2)}</p>
+                        </div>
+                        <button class="add-button font-bold"><i class="fas fa-plus"></i></button>
                     </div>`;
                 grid.appendChild(div);
             });
         }
+
+        function openModal(p) {
+            tempQty = 1; const modal = document.getElementById('productModal');
+            const discount = calculateDiscount(p.priceFrom, p.priceTo);
+            document.getElementById('modalContent').innerHTML = `
+                <div class="flex flex-col md:flex-row gap-8">
+                    <img src="${p.image}" class="w-full md:w-1/2 aspect-square object-cover rounded-[32px] shadow-xl font-bold">
+                    <div class="flex-1 font-bold">
+                        <h2 class="text-2xl font-black mb-4 font-bold">${p.name}</h2>
+                        <div class="bg-slate-50 rounded-3xl p-6 mb-6 font-bold">
+                            <span class="text-3xl font-black text-blue-600 font-bold">R$ ${parseFloat(String(p.priceTo).replace(',','.')).toFixed(2)}</span>
+                            ${discount ? `<span class="text-slate-400 line-through ml-2 font-bold font-bold">R$ ${parseFloat(String(p.priceFrom).replace(',','.')).toFixed(2)}</span>` : ''}
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-6 font-bold font-bold">
+                            <div class="border rounded-2xl p-4 font-bold font-bold"><p class="text-xs text-slate-400 uppercase">Cor</p>${p.cor || 'Consultar'}</div>
+                            <div class="border rounded-2xl p-4 font-bold font-bold"><p class="text-xs text-slate-400 uppercase">Tamanho</p>${p.tamanho || 'GG'}</div>
+                        </div>
+                        <div class="flex items-center justify-between mb-8 bg-slate-50 p-3 rounded-2xl font-bold font-bold font-bold">
+                            <p class="ml-2 font-bold font-bold">Qtd:</p>
+                            <div class="flex items-center gap-4 font-bold">
+                                <button onclick="updateTempQty(-1)" class="qty-btn text-blue-600 font-bold"><i class="fas fa-minus font-bold"></i></button>
+                                <span id="tempQtyDisplay" class="text-xl font-black text-slate-800 font-bold">1</span>
+                                <button onclick="updateTempQty(1)" class="qty-btn text-blue-600 font-bold"><i class="fas fa-plus font-bold"></i></button>
+                            </div>
+                        </div>
+                        <button onclick="addToCart(${p.id}, tempQty); closeModal();" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl font-bold font-bold">Adicionar ao Carrinho</button>
+                    </div>
+                </div>`;
+            modal.classList.remove('hidden');
+        }
+
+        function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
+        function closeModal() { document.getElementById('productModal').classList.add('hidden'); }
+        function addToCart(id, qty) { cart[id] = (cart[id] || 0) + qty; updateCartUI(); }
+        function updateCartUI() {
+            let total = 0;
+            Object.entries(cart).forEach(([id, qty]) => {
+                const p = products.find(x => x.id == id);
+                if(p) total += parseFloat(String(p.priceTo).replace(',','.')) * qty;
+            });
+            document.getElementById('cartTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cartBar').classList.remove('hidden');
+        }
+
+        document.getElementById('loginButton').onclick = () => {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden'); loadProducts();
+        };
     </script>
 </body>
 </html>
