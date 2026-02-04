@@ -1,227 +1,270 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clips Papelaria - Vitrine Digital</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { royal: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } }
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra - Oferta Especial</title>
     <style>
-        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%); min-height: 100vh; }
-        .product-card { background: white; border-radius: 24px; overflow: hidden; transition: 0.3s; cursor: pointer; border: 1px solid rgba(59, 130, 246, 0.1); }
-        .product-card:active { transform: scale(0.95); }
-        .product-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
-        .add-button { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-        .filter-tab.active { background: #2563eb; color: white; }
-        .discount-badge { background: #ef4444; color: white; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 10px; position: absolute; top: 10px; left: 10px; z-index: 10; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4); }
-        .qty-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-weight: 800; }
-        .modal-animate { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        /* --- 1. ESTILOS GERAIS (CSS) --- */
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        /* Topo da página */
+        header {
+            background-color: #232f3e;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Container Principal */
+        .main-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        /* Área da Imagem (Simulação) */
+        .product-image {
+            background-color: #ddd;
+            width: 100%;
+            max-width: 400px;
+            height: 400px; /* Espaço para sua foto */
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #777;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Detalhes do Produto */
+        .product-details {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 { font-size: 24px; margin-bottom: 10px; color: #111; }
+        .desc { color: #555; line-height: 1.5; margin-bottom: 20px; }
+        
+        .price-tag {
+            font-size: 32px;
+            color: #b12704; /* Cor de preço estilo Amazon */
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        /* BOTÃO FINALIZAR (Importante) */
+        .btn-comprar {
+            background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
+            border: 1px solid #a88734;
+            color: #111;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .btn-comprar:hover {
+            background: linear-gradient(to bottom, #f5d78e, #eeb933);
+        }
+
+        .btn-comprar:active {
+            transform: scale(0.98);
+        }
+
+        /* --- POPUP DE VENDAS --- */
+        #sales-popup {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 9999;
+            border-left: 5px solid #2ecc71;
+            min-width: 280px;
+
+            /* Animação */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(50px);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        #sales-popup.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .popup-text p { margin: 0; font-size: 14px; color: #444; }
+        .popup-text strong { color: #000; }
+        .popup-time { font-size: 11px; color: #888; margin-top: 3px; display: block; }
+        
+        /* Ícone de check */
+        .check-icon {
+            width: 24px;
+            height: 24px;
+            background: #2ecc71;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-900 font-bold">
+<body>
 
-    <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-blue-600">
-        <div class="bg-white w-full max-w-sm p-8 rounded-[32px] shadow-2xl text-center">
-            <div onclick="requestAdminLogin()" class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 cursor-pointer hover:bg-blue-200 transition-colors">
-                <i class="fas fa-paperclip text-3xl text-blue-600 font-bold"></i>
-            </div>
-            <h1 class="text-2xl font-extrabold mb-2">Clips Papelaria</h1>
-            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 mb-4 outline-none font-bold" placeholder="(00) 00000-0000">
-            <button id="loginButton" class="w-full bg-blue-600 hover:bg-blue-700 transition-all text-white font-bold py-4 rounded-2xl shadow-lg">Entrar na Loja</button>
+    <header>
+        <h2>🔒 Ambiente Seguro de Compra</h2>
+    </header>
+
+    <div class="main-wrapper">
+        
+        <div class="product-image">
+            <img src="https://via.placeholder.com/400" alt="Foto do Produto" style="max-width:100%; border-radius:8px;">
+        </div>
+
+        <div class="product-details">
+            <h1>Kit Premium Completo</h1>
+            <p class="desc">Garanta agora o seu kit com desconto exclusivo. Promoção por tempo limitado enquanto durarem os estoques.</p>
+            
+            <div class="price-tag">R$ 97,90</div>
+
+            <button class="btn-comprar" id="botao-finalizar">
+                Finalizar Pedido Agora
+            </button>
+
+            <p style="text-align: center; margin-top: 15px; font-size: 12px; color: #888;">
+                🔒 Pagamento processado com segurança
+            </p>
         </div>
     </div>
 
-    <div id="adminPanel" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md">
-        <div class="bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl text-center">
-            <div id="adminLoginArea">
-                <h2 class="text-xl font-black mb-6">Acesso Admin</h2>
-                <input type="tel" id="adminPhone" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-4 outline-none text-slate-800 font-bold" placeholder="WhatsApp Admin">
-                <button onclick="checkAdminAuth()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl">Verificar</button>
-                <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-2">Sair</button>
-            </div>
-            <div id="adminCampaignArea" class="hidden">
-                <h2 class="text-xl font-black mb-6 text-slate-800 font-bold">Nova Campanha 🚀</h2>
-                <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-6 outline-none text-slate-800 font-bold" placeholder="Nome da Campanha">
-                <button onclick="triggerN8N()" id="btnN8N" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl shadow-lg">Iniciar no WhatsApp</button>
-                <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-4 text-xs underline">Voltar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="mainApp" class="hidden pb-32">
-        <header class="bg-white sticky top-0 z-40 p-4 border-b border-blue-50">
-            <h1 class="font-extrabold text-xl text-slate-800">Clips Papelaria</h1>
-        </header>
-        <main class="max-w-7xl mx-auto p-4">
-            <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
-        </main>
-    </div>
-
-    <div id="productModal" class="fixed inset-0 z-[60] hidden">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 modal-animate max-h-[95vh] overflow-y-auto">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-            <div id="modalContent" class="max-w-xl mx-auto text-slate-800 font-bold"></div>
-        </div>
-    </div>
-
-    <div id="cartBar" class="fixed bottom-6 left-4 right-4 bg-slate-900 rounded-3xl p-4 shadow-2xl hidden z-50 text-white">
-        <div class="max-w-7xl mx-auto flex justify-between items-center px-2">
-            <div>
-                <p class="text-[10px] text-slate-400 uppercase leading-none">Total</p>
-                <p id="cartTotal" class="text-xl font-black font-bold">R$ 0,00</p>
-            </div>
-            <button id="checkoutButton" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold font-bold">Finalizar Pedido</button>
+    <div id="sales-popup">
+        <div class="check-icon">✔</div>
+        <div class="popup-text">
+            <span id="msg-popup">Carregando...</span>
+            <span class="popup-time">Agora mesmo</span>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO WEBHOOK (Use MODO_TESTE = false para produção)
-        const MODO_TESTE = true; 
-        const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
-        const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
+        // --- PARTE 1: LÓGICA DO BOTÃO FINALIZAR ---
+        const btn = document.getElementById('botao-finalizar');
 
-        let products = []; let cart = {}; let adminUser = ""; let tempQty = 1;
+        btn.addEventListener('click', function() {
+            // EDITAR AQUI: Coloque seu link de checkout real
+            const urlCheckout = "https://google.com"; 
 
-        // FUNÇÕES ADMIN
-        function requestAdminLogin() { document.getElementById('adminPanel').classList.remove('hidden'); }
-        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
-        function checkAdminAuth() {
-            const phone = document.getElementById('adminPhone').value;
-            if(phone.length < 8) return alert("Número inválido");
-            adminUser = phone;
-            document.getElementById('adminLoginArea').classList.add('hidden');
-            document.getElementById('adminCampaignArea').classList.remove('hidden');
+            // Efeito visual de carregamento
+            const textoOriginal = btn.innerText;
+            btn.innerText = "CARREGANDO...";
+            btn.style.opacity = "0.8";
+
+            // Simula um pequeno delay para parecer processamento (opcional)
+            setTimeout(() => {
+                // Tira o alert abaixo quando for colocar no ar!
+                alert("Redirecionando para: " + urlCheckout);
+                
+                // Redireciona de verdade (remova o // da linha abaixo):
+                // window.location.href = urlCheckout;
+                
+                // Reseta o botão
+                btn.innerText = textoOriginal;
+                btn.style.opacity = "1";
+            }, 800);
+        });
+
+
+        // --- PARTE 2: LÓGICA DO POPUP (Contador + Nomes) ---
+        const popup = document.getElementById('sales-popup');
+        const msgPopup = document.getElementById('msg-popup');
+
+        // Lista de nomes brasileiros
+        const nomes = [
+            "Fulano", "Ciclano", "Beltrano", "João", "Maria", "Pedro", 
+            "Ana", "Lucas", "Fernanda", "Carlos", "Juliana", "Marcos",
+            "Larissa", "Rafael", "Camila", "Gustavo", "Patrícia", "Diego",
+            "Bruna", "Thiago", "Beatriz", "Rodrigo", "Amanda", "Felipe"
+        ];
+
+        // Função para pegar número aleatório (entre min e max)
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        async function triggerN8N() {
-            const campaign = document.getElementById('campaignName').value;
-            if(!campaign) return alert("Dê um nome!");
-            const btn = document.getElementById('btnN8N');
-            const url = MODO_TESTE ? URL_TEST : URL_PROD;
-            btn.innerHTML = 'Iniciando...'; btn.disabled = true;
+        function mostrarPopup() {
+            // 1. Sorteia um nome
+            const nome = nomes[randomInt(0, nomes.length - 1)];
+            
+            // 2. Sorteia quantidade (1 a 4, como você pediu)
+            const qtd = randomInt(1, 4);
+            const termo = qtd > 1 ? "itens" : "item";
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Nome_campanha: campaign, usuario_admin: adminUser })
-                });
-                if (response.ok) { alert("🚀 Campanha iniciada!"); closeAdmin(); }
-                else { alert("Erro ao conectar."); }
-            } catch (e) { alert("Erro de conexão."); }
-            finally { btn.innerHTML = 'Iniciar Campanha'; btn.disabled = false; }
+            // 3. Monta a frase
+            msgPopup.innerHTML = `<strong>${nome}</strong> adicionou <strong>${qtd} ${termo}</strong> ao carrinho.`;
+
+            // 4. Exibe o popup
+            popup.classList.add('active');
+
+            // 5. Esconde depois de 4 segundos
+            setTimeout(() => {
+                popup.classList.remove('active');
+            }, 4000);
         }
 
-        // VITRINE
-        async function loadProducts() {
-            try {
-                const response = await fetch('produtos.json?t=' + Date.now());
-                products = await response.json(); renderProducts();
-            } catch (e) { console.error(e); }
+        // --- AGENDAMENTO DO POPUP ---
+        
+        // Primeira aparição rápida (3 segundos após abrir a página)
+        setTimeout(mostrarPopup, 3000);
+
+        // Repetições subsequentes (Intervalo aleatório para parecer real)
+        function agendarProximo() {
+            // Tempo aleatório entre 8 e 15 segundos
+            const tempoEspera = randomInt(8000, 15000);
+            
+            setTimeout(() => {
+                mostrarPopup();
+                agendarProximo(); // Chama a si mesmo para criar um loop infinito
+            }, tempoEspera);
         }
 
-        function calculateDiscount(from, to) {
-            const f = parseFloat(String(from).replace(',', '.'));
-            const t = parseFloat(String(to).replace(',', '.'));
-            if (!f || f <= t) return null;
-            return Math.round(((f - t) / f) * 100);
-        }
+        // Inicia o ciclo
+        setTimeout(agendarProximo, 3000);
 
-        function renderProducts() {
-            const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
-            products.forEach(p => {
-                const discount = calculateDiscount(p.priceFrom, p.priceTo);
-                const div = document.createElement('div');
-                div.className = 'product-card p-3 shadow-lg relative hover:shadow-xl';
-                div.onclick = () => openModal(p);
-                div.innerHTML = `
-                    ${discount ? `<div class="discount-badge">-${discount}% OFF</div>` : ''}
-                    <img src="${p.image}" class="product-image rounded-2xl mb-4 font-bold">
-                    <h3 class="text-[13px] font-bold text-slate-700 font-bold mb-2 line-clamp-2">${p.name}</h3>
-                    <div class="flex justify-between items-end font-bold">
-                        <div>
-                            ${discount ? `<p class="text-[11px] text-slate-400 line-through mb-0.5">R$ ${parseFloat(String(p.priceFrom).replace(',','.')).toFixed(2)}</p>` : ''}
-                            <p class="text-blue-600 font-black text-lg leading-none">R$ ${parseFloat(String(p.priceTo).replace(',','.')).toFixed(2)}</p>
-                        </div>
-                        <button class="add-button font-bold hover:scale-105 transition-transform"><i class="fas fa-plus"></i></button>
-                    </div>`;
-                grid.appendChild(div);
-            });
-        }
-
-        function openModal(p) {
-            tempQty = 1; const modal = document.getElementById('productModal');
-            const discount = calculateDiscount(p.priceFrom, p.priceTo);
-            document.getElementById('modalContent').innerHTML = `
-                <div class="flex flex-col md:flex-row gap-8">
-                    <img src="${p.image}" class="w-full md:w-1/2 aspect-square object-cover rounded-[32px] shadow-xl font-bold">
-                    <div class="flex-1 font-bold">
-                        <h2 class="text-2xl font-black mb-4 font-bold leading-tight">${p.name}</h2>
-                        <div class="bg-slate-50 rounded-3xl p-6 mb-6 font-bold relative overflow-hidden">
-                            ${discount ? `<div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-bl-xl">-${discount}% OFF</div>` : ''}
-                            <div class="flex items-end gap-3">
-                                <span class="text-4xl font-black text-blue-600 font-bold leading-none">R$ ${parseFloat(String(p.priceTo).replace(',','.')).toFixed(2)}</span>
-                                ${discount ? `<span class="text-slate-400 line-through text-lg font-bold mb-1">R$ ${parseFloat(String(p.priceFrom).replace(',','.')).toFixed(2)}</span>` : ''}
-                            </div>
-                            ${discount ? `<p class="text-red-500 text-xs font-black mt-2 uppercase tracking-wider"><i class="fas fa-fire mr-1"></i> Preço de oportunidade!</p>` : ''}
-                        </div>
-                        <div class="grid grid-cols-2 gap-4 mb-6 font-bold font-bold">
-                            <div class="border border-slate-100 rounded-2xl p-4 font-bold font-bold"><p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Cor</p>${p.cor || 'Única'}</div>
-                            <div class="border border-slate-100 rounded-2xl p-4 font-bold font-bold"><p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Tamanho</p>${p.tamanho || 'Padrão'}</div>
-                        </div>
-                        <div class="flex items-center justify-between mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100 font-bold font-bold">
-                            <p class="font-bold font-bold text-slate-600">Quantidade:</p>
-                            <div class="flex items-center gap-4 font-bold">
-                                <button onclick="updateTempQty(-1)" class="qty-btn text-blue-600 font-bold hover:bg-blue-50"><i class="fas fa-minus font-bold"></i></button>
-                                <span id="tempQtyDisplay" class="text-2xl font-black text-slate-800 font-bold w-12 text-center">1</span>
-                                <button onclick="updateTempQty(1)" class="qty-btn text-blue-600 font-bold hover:bg-blue-50"><i class="fas fa-plus font-bold"></i></button>
-                            </div>
-                        </div>
-                        <button onclick="addToCart(${p.id}, tempQty); closeModal();" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl font-bold font-bold text-lg hover:shadow-2xl transition-all hover:scale-[1.02] active:scale-100">Adicionar ao Carrinho</button>
-                    </div>
-                </div>`;
-            modal.classList.remove('hidden');
-        }
-
-        function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
-        function closeModal() { document.getElementById('productModal').classList.add('hidden'); }
-        function addToCart(id, qty) { cart[id] = (cart[id] || 0) + qty; updateCartUI(); }
-        function updateCartUI() {
-            let total = 0;
-            Object.entries(cart).forEach(([id, qty]) => {
-                const p = products.find(x => x.id == id);
-                if(p) total += parseFloat(String(p.priceTo).replace(',','.')) * qty;
-            });
-            document.getElementById('cartTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('cartBar').classList.remove('hidden');
-        }
-
-        document.getElementById('loginButton').onclick = () => {
-            if(document.getElementById('phoneInput').value.length < 8) return alert("Telefone inválido");
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden'); loadProducts();
-        };
-
-        document.getElementById('checkoutButton').onclick = () => {
-            let msg = "*🛒 NOVO PEDIDO - CLIPS PAPELARIA*\n\n";
-            Object.entries(cart).forEach(([id, qty]) => {
-                const p = products.find(x => x.id == id);
-                msg += `✅ *${qty}x* ${p.name}\n`;
-                if(p.cor) msg += `   └ Cor: ${p.cor}\n`;
-                if(p.tamanho) msg += `   └ Tamanho: ${p.tamanho}\n`;
-                msg += `   └ Subtotal: R$ ${(parseFloat(String(p.priceTo).replace(',','.')) * qty).toFixed(2)}\n\n`;
-            });
-            msg += `💰 *TOTAL: ${document.getElementById('cartTotal').innerText}*`;
-            window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(msg)}`);
-        };
     </script>
+
 </body>
 </html>
