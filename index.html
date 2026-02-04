@@ -129,15 +129,12 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURAÇÕES ---
-        // Se colocar true, usa a URL_TEST. Se false, tenta a URL_PROD primeiro.
+        // --- CONFIGURAÇÃO ---
         const MODO_TESTE = true; 
-        
-        // Seus Endpoints n8n
         const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
 
-        // Fallback de produtos se o JSON falhar
+        // Fallback de produtos
         const fallbackProducts = [
             { id: 1, name: "Caderno Inteligente", priceFrom: "99,90", priceTo: "89,90", category: "escolar", image: "https://placehold.co/400", cor: "Azul", tamanho: "Grande" },
             { id: 2, name: "Caneta Gel Kit", priceFrom: "25,00", priceTo: "19,90", category: "escolar", image: "https://placehold.co/400", cor: "Colorido", tamanho: "Padrão" }
@@ -145,7 +142,7 @@
 
         let products = []; let cart = {}; let adminUser = ""; let tempQty = 1;
 
-        // --- 2. SISTEMA DE POPUP (ALERT CUSTOMIZADO) ---
+        // --- SISTEMA DE POPUP (ALERT) ---
         function showPopup(message, type = 'error') {
             const popup = document.getElementById('custom-alert');
             const titleEl = document.getElementById('alert-title');
@@ -162,7 +159,7 @@
                 iconEl.className = "fas fa-check text-2xl text-green-600";
                 iconBg.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-100";
             } else {
-                titleEl.innerText = "Algo deu errado";
+                titleEl.innerText = "Atenção";
                 titleEl.className = "text-xl font-black text-red-600 mb-2";
                 iconEl.className = "fas fa-times text-2xl text-red-600";
                 iconBg.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100";
@@ -173,13 +170,13 @@
             document.getElementById('custom-alert').classList.remove('visible');
         }
 
-        // --- 3. FUNÇÕES ADMIN (LOGIN E ENVIO) ---
+        // --- FUNÇÕES ADMIN ---
         function requestAdminLogin() { document.getElementById('adminPanel').classList.remove('hidden'); }
         function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
 
         function checkAdminAuth() {
             const phone = document.getElementById('adminPhone').value;
-            // Limpa o telefone (deixa só números)
+            // Remove caracteres não numéricos
             const cleanPhone = phone.replace(/\D/g, ''); 
 
             if(cleanPhone.length < 8) return showPopup("Por favor, digite um número válido.", "error");
@@ -209,63 +206,60 @@
                     body: JSON.stringify(payload)
                 });
                 
-                // Se o status for 404 ou 400, lança erro para cair no catch
-                if (!response.ok) {
-                    throw new Error(response.status); 
-                }
+                // Se o servidor devolver 404, 500, etc.
+                if (!response.ok) throw new Error(`Status: ${response.status}`);
                 
-                // Tenta ler o JSON se houver resposta
+                // Tenta ler o JSON de resposta
                 try {
-                    const data = await response.json();
-                    return data; 
+                    return await response.json();
                 } catch (e) {
-                    return {}; // Retorna vazio se não tiver JSON
+                    // Se não for JSON (ex: texto simples "Workflow got started"), 
+                    // retorna nulo para tratarmos como erro de validação
+                    return null;
                 }
             };
 
             try {
-                console.log("Tentando via PRODUÇÃO...");
-                // Tenta URL de Produção
-                const resp = await enviarRequisicao(URL_PROD);
-                
-                // Verifica se o JSON tem alguma flag de erro (configure seu n8n para mandar isso)
-                if (resp && (resp.status === 'erro' || resp.found === false)) {
-                     throw new Error("UserNotFound");
+                // Tenta URL de Produção primeiro
+                console.log("Tentando Produção...");
+                let data = await enviarRequisicao(URL_PROD);
+
+                // --- VALIDAÇÃO RIGOROSA ---
+                // Se o JSON for nulo ou NÃO tiver { "found": true }, consideramos ERRO
+                if (!data || data.found !== true) {
+                    throw new Error("UserNotFound"); 
                 }
 
                 showPopup("🚀 Campanha iniciada com sucesso!", "success");
                 setTimeout(() => closeAdmin(), 2000);
 
             } catch (erroProd) {
-                console.warn("Falha Prod:", erroProd);
-                
-                // Se o erro foi especificamente "UserNotFound" (vindo do JSON), avisa direto
+                console.warn("Falha na produção, tentando TESTE...", erroProd);
+
+                // Se o erro já foi "Usuário não encontrado", não adianta testar o outro link
                 if (erroProd.message === "UserNotFound") {
-                    showPopup("Administrador não localizado na planilha! Verifique o número.", "error");
+                    showPopup("Administrador não localizado na planilha! Verifique o número cadastrado.", "error");
                     btn.innerHTML = 'Iniciar no WhatsApp'; 
                     btn.disabled = false;
                     return;
                 }
-
-                // Se foi erro de conexão, tenta TESTE
-                console.log("Tentando modo TESTE...");
+                
+                // Se foi erro de conexão/CORS, tenta o modo TESTE
                 try {
-                    const respTest = await enviarRequisicao(URL_TEST);
-                    
-                    if (respTest && (respTest.status === 'erro' || respTest.found === false)) {
+                    let dataTest = await enviarRequisicao(URL_TEST);
+
+                    // Validação Rigorosa no Teste também
+                    if (!dataTest || dataTest.found !== true) {
                          showPopup("Administrador não localizado na planilha (Modo Teste)!", "error");
                     } else {
                          showPopup("⚠️ Campanha iniciada (Modo Teste)!", "success");
                          setTimeout(() => closeAdmin(), 2000);
                     }
+
                 } catch (erroTest) {
                     console.error("Erro Final:", erroTest);
-                    // Aqui pegamos o erro final. Se for 404, assumimos que usuário não existe ou endpoint falhou
-                    if (erroTest.message === "404" || erroTest.message === "UserNotFound") {
-                        showPopup("Administrador não localizado no cadastro! Verifique o número digitado.", "error");
-                    } else {
-                        showPopup("Erro de conexão. Verifique se o n8n está ativo.", "error");
-                    }
+                    // Se deu erro de conexão em ambos ou falha grave
+                    showPopup("Erro de conexão ou Administrador não encontrado. Verifique o n8n.", "error");
                 }
             } finally {
                 btn.innerHTML = 'Iniciar no WhatsApp'; 
@@ -273,14 +267,13 @@
             }
         }
 
-        // --- 4. FUNÇÕES DA LOJA (VITRINE) ---
+        // --- FUNÇÕES DA VITRINE (SEM ALTERAÇÕES) ---
         async function loadProducts() {
             try {
                 const response = await fetch('produtos.json?t=' + Date.now());
                 if(!response.ok) throw new Error("JSON não encontrado");
                 products = await response.json(); 
             } catch (e) { 
-                console.log("Usando fallback");
                 products = fallbackProducts; 
             }
             renderProducts();
@@ -417,11 +410,10 @@
             if (!hasItems) return showPopup("Erro ao processar itens.", "error");
             msg += `💰 *TOTAL: ${document.getElementById('cartTotal').innerText}*`;
             
-            // Link do WhatsApp (Troque pelo número real da loja)
             window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
-        // --- 5. PROVA SOCIAL (LEADS) ---
+        // --- PROVA SOCIAL ---
         function startSocialProof() {
             const names = ["Ana Silva", "João Pedro", "Mariana S.", "Carlos Edu", "Beatriz M.", "Lucas F.", "Fernanda T.", "Rafael L."];
             const toast = document.getElementById('social-toast');
