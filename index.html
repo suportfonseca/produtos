@@ -14,33 +14,44 @@
     </script>
     <style>
         body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%); min-height: 100vh; }
-        .product-card { background: white; border-radius: 20px; overflow: hidden; transition: all 0.3s ease; }
+        .product-card { background: white; border-radius: 24px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: 1px solid rgba(59, 130, 246, 0.1); }
+        .product-card:active { transform: scale(0.95); }
         .product-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
-        .add-button { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .filter-tab.active { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-        .cart-bar { background: white; box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.1); }
+        .add-button { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .filter-tab.active { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .discount-badge { background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 8px; position: absolute; top: 8px; left: 8px; }
+        .modal-animate { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-gray-50">
-    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-gradient-to-br from-blue-900 to-blue-500">
-        <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl">
-            <h1 class="text-2xl font-bold text-center mb-6">Clips Papelaria</h1>
-            <input type="tel" id="phoneInput" class="w-full border rounded-xl px-4 py-3 mb-4" placeholder="(00) 00000-0000">
-            <button id="loginButton" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg">Entrar na Loja</button>
+<body class="bg-gray-50 text-slate-900">
+
+    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-blue-600">
+        <div class="bg-white w-full max-w-sm p-8 rounded-[32px] shadow-2xl text-center">
+            <div class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-paperclip text-3xl text-blue-600"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold text-slate-800 mb-2">Clips Papelaria</h1>
+            <p class="text-slate-500 mb-8 text-sm">Entre com seu WhatsApp para ver as ofertas exclusivas</p>
+            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 mb-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="(00) 00000-0000">
+            <button id="loginButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all">Começar a Comprar</button>
         </div>
     </div>
 
-    <div id="mainApp" class="hidden pb-28">
-        <header class="bg-white/95 sticky top-0 z-40 p-4 shadow-sm">
+    <div id="mainApp" class="hidden pb-32">
+        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 p-4 border-b border-blue-50">
             <div class="max-w-7xl mx-auto flex flex-col gap-4">
                 <div class="flex justify-between items-center">
-                    <h1 class="font-bold text-xl text-blue-800">Clips Papelaria</h1>
-                    <div class="bg-blue-100 p-2 rounded-full"><i class="fas fa-user text-blue-600"></i></div>
+                    <div>
+                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Bem-vindo à</p>
+                        <h1 class="font-extrabold text-xl text-slate-800">Clips Papelaria</h1>
+                    </div>
+                    <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center border border-blue-100"><i class="fas fa-shopping-bag text-blue-600"></i></div>
                 </div>
-                <div class="flex gap-2 overflow-x-auto pb-2">
-                    <button class="filter-tab active px-4 py-2 rounded-full text-sm font-semibold" data-category="todos">Todos</button>
-                    <button class="filter-tab px-4 py-2 rounded-full text-sm font-semibold" data-category="escolar">Escolar</button>
-                    <button class="filter-tab px-4 py-2 rounded-full text-sm font-semibold" data-category="escritorio">Escritório</button>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    <button class="filter-tab active px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap" data-category="todos">🔥 Todos</button>
+                    <button class="filter-tab bg-white border border-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap" data-category="escolar">🎒 Escolar</button>
+                    <button class="filter-tab bg-white border border-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap" data-category="bazar">🎁 Bazar</button>
                 </div>
             </div>
         </header>
@@ -50,13 +61,24 @@
         </main>
     </div>
 
-    <div id="cartBar" class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t hidden z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <div id="productModal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 modal-animate max-h-[90vh] overflow-y-auto">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
+            <div id="modalContent" class="max-w-xl mx-auto">
+                </div>
+        </div>
+    </div>
+
+    <div id="cartBar" class="fixed bottom-6 left-4 right-4 bg-slate-900 rounded-3xl p-4 shadow-2xl hidden z-50 transition-all border border-white/10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-2">
             <div>
-                <p class="text-xs text-gray-500">Total do pedido</p>
-                <p id="cartTotal" class="text-xl font-bold text-blue-700">R$ 0,00</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total do Pedido</p>
+                <p id="cartTotal" class="text-xl font-black text-white">R$ 0,00</p>
             </div>
-            <button id="checkoutButton" class="bg-green-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg">Enviar Pedido</button>
+            <button id="checkoutButton" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all">
+                Finalizar <i class="fas fa-arrow-right text-xs"></i>
+            </button>
         </div>
     </div>
 
@@ -65,38 +87,94 @@
         let cart = {};
         let currentCategory = 'todos';
 
-        // CARREGAR DADOS DO JSON (BANCO DE DADOS DO N8N)
         async function loadProducts() {
             try {
-                // Adicionamos um timestamp para evitar que o navegador use o cache antigo
                 const response = await fetch('produtos.json?t=' + Date.now());
                 products = await response.json();
                 renderProducts();
-            } catch (e) {
-                console.error("Erro ao carregar produtos:", e);
-            }
+            } catch (e) { console.error("Erro ao carregar produtos:", e); }
+        }
+
+        function calculateDiscount(from, to) {
+            if (!from || from <= to) return null;
+            return Math.round(((from - to) / from) * 100);
         }
 
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             grid.innerHTML = '';
-            
             const filtered = products.filter(p => currentCategory === 'todos' || p.category === currentCategory);
             
             filtered.forEach(p => {
+                const discount = calculateDiscount(p.priceFrom, p.priceTo);
                 const div = document.createElement('div');
-                div.className = 'product-card shadow-sm border p-3';
+                div.className = 'product-card p-3 relative shadow-lg shadow-blue-900/5';
+                div.onclick = (e) => {
+                    if(!e.target.closest('button')) openModal(p);
+                };
+                
                 div.innerHTML = `
-                    <img src="${p.image}" class="product-image rounded-xl mb-3">
-                    <h3 class="text-sm font-medium text-gray-800 line-clamp-2 mb-2">${p.name}</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-blue-700 font-bold">${parseFloat(p.priceTo).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</span>
-                        <button onclick="addToCart(${p.id})" class="add-button"><i class="fas fa-plus"></i></button>
+                    ${discount ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                    <img src="${p.image}" class="product-image rounded-2xl mb-4">
+                    <h3 class="text-[13px] font-bold text-slate-700 line-clamp-2 leading-tight mb-3">${p.name}</h3>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            ${p.priceFrom > p.priceTo ? `<p class="text-[10px] text-slate-400 line-through">R$ ${p.priceFrom.toFixed(2)}</p>` : ''}
+                            <p class="text-blue-600 font-black text-lg">R$ ${p.priceTo.toFixed(2)}</p>
+                        </div>
+                        <button onclick="addToCart(${p.id}); event.stopPropagation();" class="add-button">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 `;
                 grid.appendChild(div);
             });
         }
+
+        function openModal(p) {
+            const modal = document.getElementById('productModal');
+            const content = document.getElementById('modalContent');
+            const discount = calculateDiscount(p.priceFrom, p.priceTo);
+
+            content.innerHTML = `
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="relative w-full md:w-1/2">
+                        <img src="${p.image}" class="w-full aspect-square object-cover rounded-[32px] shadow-xl">
+                        ${discount ? `<div class="absolute top-4 left-4 bg-red-500 text-white font-black px-4 py-2 rounded-2xl shadow-lg">-${discount}% OFF</div>` : ''}
+                    </div>
+                    <div class="flex-1">
+                        <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-lg mb-4 italic tracking-widest">${p.category}</span>
+                        <h2 class="text-2xl font-black text-slate-800 leading-tight mb-4">${p.name}</h2>
+                        
+                        <div class="bg-slate-50 rounded-3xl p-6 mb-6">
+                            <div class="flex items-center gap-4 mb-2">
+                                <span class="text-3xl font-black text-blue-600 italic">R$ ${p.priceTo.toFixed(2)}</span>
+                                ${p.priceFrom > p.priceTo ? `<span class="text-slate-400 line-through text-lg font-bold">R$ ${p.priceFrom.toFixed(2)}</span>` : ''}
+                            </div>
+                            <p class="text-green-600 text-xs font-bold uppercase tracking-wider"><i class="fas fa-bolt mr-1"></i> Oferta por tempo limitado</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="border border-slate-100 rounded-2xl p-4">
+                                <p class="text-[10px] text-slate-400 font-bold uppercase">🎨 Cor Disponível</p>
+                                <p class="font-bold text-slate-700 capitalize">${p.cor || 'Consultar'}</p>
+                            </div>
+                            <div class="border border-slate-100 rounded-2xl p-4">
+                                <p class="text-[10px] text-slate-400 font-bold uppercase">📏 Tamanho/Modelo</p>
+                                <p class="font-bold text-slate-700 uppercase">${p.tamanho || 'Consultar'}</p>
+                            </div>
+                        </div>
+
+                        <button onclick="addToCart(${p.id}); closeModal();" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3">
+                            <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('productModal').classList.add('hidden'); }
 
         function addToCart(id) {
             cart[id] = (cart[id] || 0) + 1;
@@ -104,21 +182,18 @@
         }
 
         function updateCartUI() {
-            let total = 0;
-            let count = 0;
+            let total = 0; let count = 0;
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
-                if(p) {
-                    total += p.priceTo * qty;
-                    count += qty;
-                }
+                if(p) { total += p.priceTo * qty; count += qty; }
             });
             document.getElementById('cartTotal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cartBar').classList.toggle('hidden', count === 0);
         }
 
-        // Login e Inicialização
         document.getElementById('loginButton').onclick = () => {
+            const phone = document.getElementById('phoneInput').value;
+            if(phone.length < 10) return alert("Por favor, insira seu WhatsApp");
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             loadProducts();
@@ -126,20 +201,22 @@
 
         document.querySelectorAll('.filter-tab').forEach(btn => {
             btn.onclick = () => {
-                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                btn.classList.add('active');
+                document.querySelectorAll('.filter-tab').forEach(t => t.className = 'filter-tab bg-white border border-slate-100 px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap');
+                btn.className = 'filter-tab active px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap';
                 currentCategory = btn.dataset.category;
                 renderProducts();
             };
         });
 
-        // Enviar para o WhatsApp
         document.getElementById('checkoutButton').onclick = () => {
-            let msg = "*NOVO PEDIDO CLIPS*\n\n";
+            let msg = "*🛒 NOVO PEDIDO - CLIPS PAPELARIA*\n\n";
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
-                msg += `• ${qty}x ${p.name}\n`;
+                msg += `✅ *${qty}x* ${p.name}\n`;
+                if(p.cor) msg += `   └ Cor: ${p.cor}\n`;
+                msg += `   └ Preço: R$ ${p.priceTo.toFixed(2)}\n\n`;
             });
+            msg += `💰 *TOTAL: ${document.getElementById('cartTotal').innerText}*`;
             window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(msg)}`);
         };
     </script>
