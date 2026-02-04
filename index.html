@@ -82,23 +82,37 @@
         }
 
         async function triggerN8N() {
-            const campaign = document.getElementById('campaignName').value;
-            if(!campaign) return alert("Dê um nome!");
-            const btn = document.getElementById('btnN8N');
-            btn.innerHTML = 'Conectando...'; btn.disabled = true;
+    const campaign = document.getElementById('campaignName').value;
+    if(!campaign) return alert("Dê um nome!");
+    const btn = document.getElementById('btnN8N');
+    btn.innerHTML = 'Conectando...'; btn.disabled = true;
 
-            try {
-                // USANDO A URL DE PRODUÇÃO
-                const response = await fetch('https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Nome_campanha: campaign, usuario_admin: adminUser })
-                });
-                if (response.ok) { alert("🚀 Campanha iniciada!"); closeAdmin(); }
-                else { alert("Erro: Verifique se você clicou em PUBLISH no n8n."); }
-            } catch (e) { alert("Erro de conexão."); }
-            finally { btn.innerHTML = 'Iniciar Campanha'; btn.disabled = false; }
+    try {
+        // Use EXATAMENTE a URL de PRODUÇÃO sem o "-test"
+        const response = await fetch('https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            mode: 'cors', // Adicionado para evitar bloqueio do navegador
+            body: JSON.stringify({ 
+                Nome_campanha: campaign, 
+                usuario_admin: adminUser 
+            })
+        });
+
+        if (response.ok) { 
+            alert("🚀 Campanha iniciada com sucesso!"); 
+            closeAdmin(); 
+        } else { 
+            alert("Erro no n8n: Verifique se o fluxo está PUBLICADO (botão Publish)."); 
         }
+    } catch (e) { 
+        alert("Erro de conexão: O n8n recusou a requisição ou o endereço está errado."); 
+        console.error("Detalhes do erro:", e);
+    } finally { 
+        btn.innerHTML = 'Iniciar Campanha'; 
+        btn.disabled = false; 
+    }
+}}
 
         async function loadProducts() {
             try {
