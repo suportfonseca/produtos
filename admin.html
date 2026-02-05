@@ -27,12 +27,11 @@
         .status-badge { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
         .status-active { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
         .status-closed { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .status-draft { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
         
-        /* Animações */
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Modal Customizado */
         #custom-alert, #newCampaignModal { transition: opacity 0.3s ease; opacity: 0; pointer-events: none; }
         #custom-alert.visible, #newCampaignModal.visible { opacity: 1; pointer-events: auto; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
@@ -54,21 +53,17 @@
             <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
                 Entrar no Sistema
             </button>
-            
             <a href="index.html" class="text-xs text-slate-500 font-bold hover:text-white transition-colors">← Voltar para a Loja</a>
         </div>
     </div>
 
     <div id="dashboard" class="hidden flex-1 flex flex-col max-w-7xl mx-auto w-full p-4 lg:p-8 fade-in">
-        
         <header class="flex justify-between items-center mb-10">
             <div>
                 <h1 class="text-3xl font-black text-white">Gestão Clips 📎</h1>
-                <p class="text-slate-400 text-sm mt-1">Bem-vindo(a), <span id="adminNameDisplay" class="text-brand-500">Admin</span></p>
+                <p class="text-slate-400 text-sm mt-1">Bem-vindo(a), <span class="text-brand-500">Admin</span></p>
             </div>
-            <button onclick="logout()" class="w-12 h-12 glass-panel rounded-2xl hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-400 transition-all flex items-center justify-center">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
+            <button onclick="logout()" class="w-12 h-12 glass-panel rounded-2xl hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-400 transition-all flex items-center justify-center"><i class="fas fa-sign-out-alt"></i></button>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -76,14 +71,14 @@
                 <div class="w-12 h-12 rounded-2xl bg-green-500/20 text-green-400 flex items-center justify-center text-xl"><i class="fas fa-dollar-sign"></i></div>
                 <div>
                     <p class="text-xs text-slate-400 font-bold uppercase">Total Vendido</p>
-                    <p class="text-2xl font-black">R$ 1.250,00</p>
+                    <p class="text-2xl font-black" id="totalSalesDisplay">R$ 0,00</p>
                 </div>
             </div>
             <div class="glass-panel p-6 rounded-3xl flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-xl"><i class="fas fa-bullhorn"></i></div>
                 <div>
                     <p class="text-xs text-slate-400 font-bold uppercase">Campanhas</p>
-                    <p class="text-2xl font-black">3 Ativas</p>
+                    <p class="text-2xl font-black" id="activeCampaignsDisplay">0 Ativas</p>
                 </div>
             </div>
             <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-center gap-3 shadow-xl shadow-blue-600/20 transition-transform hover:scale-[1.02] cursor-pointer group">
@@ -99,23 +94,21 @@
             <div class="p-6 border-b border-white/10 flex justify-between items-center">
                 <h3 class="text-xl font-bold">Histórico de Campanhas</h3>
                 <div class="flex gap-2">
-                    <input type="text" placeholder="Buscar..." class="bg-dark-900/50 border border-slate-700 rounded-xl px-4 py-2 text-sm outline-none focus:border-brand-500">
+                    <button onclick="fetchDashboardData()" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors"><i class="fas fa-sync-alt text-xs"></i></button>
                 </div>
             </div>
-            
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-dark-900/30 text-slate-400 text-xs uppercase font-bold">
                         <tr>
                             <th class="p-6">Status</th>
                             <th class="p-6">Campanha</th>
-                            <th class="p-6">Orçamentos (R$)</th>
+                            <th class="p-6">Vendas (R$)</th>
                             <th class="p-6 text-center">Produtos</th>
                             <th class="p-6 text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5">
-                        </tbody>
+                    <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
                 </table>
             </div>
         </div>
@@ -124,17 +117,11 @@
     <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
         <div class="modal-content glass-panel w-full max-w-md p-8 rounded-[32px] shadow-2xl relative">
             <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
-            
-            <div class="w-16 h-16 bg-orange-500/20 text-orange-500 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-                <i class="fas fa-rocket text-2xl"></i>
-            </div>
-            
+            <div class="w-16 h-16 bg-orange-500/20 text-orange-500 rounded-2xl flex items-center justify-center mb-6 mx-auto"><i class="fas fa-rocket text-2xl"></i></div>
             <h3 class="text-2xl font-black text-center mb-2">Lançar Campanha</h3>
-            <p class="text-slate-400 text-center text-sm mb-8">Isso ativará o Bot no Telegram para capturar fotos.</p>
-
+            <p class="text-slate-400 text-center text-sm mb-8">Isso ativará o Bot no Telegram.</p>
             <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Nome da Campanha</label>
             <input type="text" id="campaignNameInput" class="w-full bg-dark-900 border border-slate-600 rounded-2xl px-5 py-4 mb-6 outline-none font-bold text-white focus:border-orange-500" placeholder="Ex: Volta às Aulas">
-            
             <button id="btnStart" onclick="triggerCampaign()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition-all">
                 <i class="fab fa-whatsapp"></i> Disparar e Iniciar
             </button>
@@ -143,9 +130,7 @@
 
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
-            <div id="alert-icon-area" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100 text-red-600">
-                <i id="alert-icon" class="fas fa-exclamation-triangle text-2xl"></i>
-            </div>
+            <div id="alert-icon-area" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100 text-red-600"><i id="alert-icon" class="fas fa-exclamation-triangle text-2xl"></i></div>
             <h3 id="alert-title" class="text-xl font-black mb-2">Atenção</h3>
             <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6">Msg</p>
             <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl">Entendido</button>
@@ -153,90 +138,32 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÕES DE WEBHOOK (NÃO MEXA) ---
+        // --- LINKS DO N8N ---
         const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
         let adminUser = "";
+        let campaignsData = [];
 
-        // --- DADOS FICTÍCIOS (MOCK) ---
-        // Futuramente isso virá do n8n (Get Rows)
-        const mockCampaigns = [
-            { id: 1, name: "Bazar de Natal", date: "05/12/2023", status: "active", sales: "R$ 850,00", products: 12 },
-            { id: 2, name: "Volta às Aulas", date: "15/01/2024", status: "draft", sales: "R$ 0,00", products: 5 },
-            { id: 3, name: "Saldão de Verão", date: "10/02/2024", status: "closed", sales: "R$ 400,00", products: 20 }
-        ];
-
-        // --- SISTEMA DE UI ---
+        // --- UI UTILS ---
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
+        function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
         
         function showPopup(msg, type='error') {
             const el = document.getElementById('custom-alert');
             const iconArea = document.getElementById('alert-icon-area');
-            const icon = document.getElementById('alert-icon');
             const title = document.getElementById('alert-title');
-            
             document.getElementById('alert-message').innerText = msg;
-            
             if(type === 'success') {
                 iconArea.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-100 text-green-600";
-                icon.className = "fas fa-check text-2xl";
-                title.innerText = "Sucesso!";
-                title.className = "text-xl font-black mb-2 text-green-600";
+                title.innerText = "Sucesso!"; title.className = "text-xl font-black mb-2 text-green-600";
             } else {
                 iconArea.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100 text-red-600";
-                icon.className = "fas fa-exclamation-triangle text-2xl";
-                title.innerText = "Atenção";
-                title.className = "text-xl font-black mb-2 text-red-600";
+                title.innerText = "Atenção"; title.className = "text-xl font-black mb-2 text-red-600";
             }
             el.classList.add('visible');
         }
-        function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
 
-        // --- RENDERIZAÇÃO DA TABELA ---
-        function renderCampaigns() {
-            const tbody = document.getElementById('campaignList');
-            tbody.innerHTML = '';
-
-            mockCampaigns.forEach(c => {
-                let statusBadge = '';
-                let actionBtn = '';
-                
-                if(c.status === 'active') {
-                    statusBadge = '<span class="status-badge status-active">● Ativa</span>';
-                    // Botão para encerrar
-                    actionBtn += `<button onclick="stopCampaign('${c.name}')" title="Encerrar Campanha" class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-colors"><i class="fas fa-stop"></i></button>`;
-                } else if (c.status === 'closed') {
-                    statusBadge = '<span class="status-badge status-closed">Encerrada</span>';
-                } else {
-                    statusBadge = '<span class="status-badge bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">Rascunho</span>';
-                }
-
-                const row = `
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="p-6">${statusBadge}</td>
-                        <td class="p-6">
-                            <p class="font-bold text-white text-base">${c.name}</p>
-                            <p class="text-xs text-slate-500">Criada em ${c.date}</p>
-                        </td>
-                        <td class="p-6 font-mono text-emerald-400">${c.sales}</td>
-                        <td class="p-6 text-center">
-                            <span class="bg-slate-700 px-2 py-1 rounded text-xs font-bold">${c.products}</span>
-                        </td>
-                        <td class="p-6 text-right">
-                            <div class="flex items-center justify-end gap-2 opacity-100">
-                                <button onclick="shareLink('${c.name}')" title="Copiar Link" class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white transition-colors"><i class="fas fa-link"></i></button>
-                                <button onclick="editProducts('${c.name}')" title="Editar Produtos" class="w-8 h-8 rounded-lg bg-slate-700 text-slate-300 hover:bg-white hover:text-slate-900 transition-colors"><i class="fas fa-pen"></i></button>
-                                ${actionBtn}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-        }
-
-        // --- CONEXÃO N8N (LÓGICA PRESERVADA) ---
         async function sendN8N(payload) {
             const req = async(url) => {
                 const res = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
@@ -245,7 +172,7 @@
             try { return await req(URL_PROD); } catch { try { return await req(URL_TEST); } catch { return null; } }
         }
 
-        // 1. LOGIN
+        // --- 1. LOGIN ---
         async function checkAuth() {
             const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
             if(phone.length < 8) return showPopup("Número inválido");
@@ -261,68 +188,138 @@
                 adminUser = phone;
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-                renderCampaigns(); // Carrega a tabela
+                fetchDashboardData(); // Carrega os dados reais ao entrar
             } else {
                 showPopup("Admin não encontrado.");
             }
         }
 
-        // 2. DISPARAR CAMPANHA (Mantido igual)
+        // --- 2. BUSCAR DADOS (DASHBOARD) ---
+        async function fetchDashboardData() {
+            const tbody = document.getElementById('campaignList');
+            tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin"></i> Atualizando...</td></tr>';
+
+            const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
+
+            if(res && res.found && res.campanhas) {
+                // MAPEAMENTO DOS DADOS REAIS DA SUA PLANILHA
+                campaignsData = res.campanhas.map((row, index) => {
+                    let st = 'draft';
+                    if (row.status && row.status.toLowerCase().includes('ativa')) st = 'active';
+                    else if (row.status && row.status.toLowerCase().includes('fechada')) st = 'closed';
+
+                    // Tratamento de Data (Sua planilha tem ISO string)
+                    let dt = row.data_hora || "-";
+                    try { dt = new Date(row.data_hora).toLocaleDateString('pt-BR'); } catch(e){}
+
+                    return {
+                        id: row.id_campanha || index, // Usa o ID da planilha ou index se faltar
+                        name: row.nome_campanha || "Sem Nome",
+                        date: dt,
+                        status: st,
+                        sales: row.total_vendas || 0, // Lê a coluna nova
+                        products: row.qtd_produtos || 0 // Lê a coluna nova
+                    };
+                });
+                
+                campaignsData.reverse(); // Mostra as mais recentes primeiro
+                renderTable();
+                updateStats();
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('campaignList');
+            tbody.innerHTML = '';
+            
+            if(campaignsData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">Nenhuma campanha encontrada.</td></tr>';
+                return;
+            }
+
+            campaignsData.forEach(c => {
+                let badge = c.status === 'active' ? '<span class="status-badge status-active">● Ativa</span>' :
+                            c.status === 'closed' ? '<span class="status-badge status-closed">Encerrada</span>' :
+                            '<span class="status-badge status-draft">Rascunho</span>';
+                
+                let stopBtn = c.status === 'active' ? 
+                    `<button onclick="stopCampaign('${c.name}')" title="Encerrar" class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-colors"><i class="fas fa-stop"></i></button>` : '';
+
+                // Formatação de Moeda
+                let valorFmt = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+                const row = `
+                    <tr class="hover:bg-white/5 transition-colors group border-b border-white/5 last:border-0">
+                        <td class="p-6">${badge}</td>
+                        <td class="p-6">
+                            <p class="font-bold text-white text-base">${c.name}</p>
+                            <p class="text-xs text-slate-500 font-mono text-[10px]">ID: ${c.id}</p>
+                            <p class="text-xs text-slate-500">${c.date}</p>
+                        </td>
+                        <td class="p-6 font-mono text-emerald-400 font-bold">${valorFmt}</td>
+                        <td class="p-6 text-center"><span class="bg-slate-700 px-2 py-1 rounded text-xs font-bold text-white">${c.products}</span></td>
+                        <td class="p-6 text-right">
+                            <div class="flex items-center justify-end gap-2 opacity-100">
+                                <button onclick="shareLink('${c.name}')" title="Link" class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white transition-colors"><i class="fas fa-link"></i></button>
+                                <button onclick="editProducts('${c.name}')" title="Editar" class="w-8 h-8 rounded-lg bg-slate-700 text-slate-300 hover:bg-white hover:text-slate-900 transition-colors"><i class="fas fa-pen"></i></button>
+                                ${stopBtn}
+                            </div>
+                        </td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function updateStats() {
+            const active = campaignsData.filter(c => c.status === 'active').length;
+            // Somar vendas (precisa garantir que venha como numero na planilha)
+            const total = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0);
+            
+            document.getElementById('activeCampaignsDisplay').innerText = `${active} Ativas`;
+            document.getElementById('totalSalesDisplay').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        }
+
+        // --- 3. CRIAR NOVA CAMPANHA (COM GERADOR DE ID) ---
         async function triggerCampaign() {
             const name = document.getElementById('campaignNameInput').value;
-            if(!name) return showPopup("Digite o nome da campanha");
+            if(!name) return showPopup("Digite o nome");
+
+            // GERAÇÃO DE CHAVE PRIMÁRIA (ID ÚNICO)
+            const newID = Math.floor(Date.now() / 1000); // Ex: 1708549922
 
             const btn = document.getElementById('btnStart');
             const txt = btn.innerHTML; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Iniciando...'; btn.disabled=true;
 
-            // Mantendo a lógica exata que você pediu
-            const res = await sendN8N({ usuario_admin: adminUser, Nome_campanha: name, tipo_requisicao: "campanha" });
+            const res = await sendN8N({ 
+                usuario_admin: adminUser, 
+                Nome_campanha: name, 
+                id_campanha: newID, // Envia o novo ID pro n8n salvar
+                tipo_requisicao: "campanha" 
+            });
 
             btn.innerHTML = txt; btn.disabled=false;
 
             if(res && res.found){
-                showPopup("Campanha Iniciada! O bot está aguardando as fotos.", "success");
+                showPopup("Campanha Iniciada! 🚀", "success");
                 closeNewCampaignModal();
-                // Simulação visual: adiciona a nova campanha na tabela localmente
-                mockCampaigns.unshift({ 
-                    id: Date.now(), 
-                    name: name, 
-                    date: new Date().toLocaleDateString('pt-BR'), 
-                    status: 'active', 
-                    sales: "R$ 0,00", 
-                    products: 0 
-                });
-                renderCampaigns();
+                fetchDashboardData(); // Atualiza a tabela
             } else {
-                showPopup("Erro ao conectar com o Bot.");
+                showPopup("Erro ao iniciar.");
             }
         }
 
-        // --- NOVAS AÇÕES (SIMULAÇÃO) ---
-        
+        // --- AÇÕES ---
         function shareLink(name) {
-            // Gera um link simulado
             const link = window.location.origin + "/index.html?c=" + encodeURIComponent(name);
             navigator.clipboard.writeText(link);
-            showPopup("Link copiado! Envie para os clientes.", "success");
+            showPopup("Link copiado!", "success");
         }
-
-        function editProducts(name) {
-            // Futuramente: Abrir modal com lista de produtos para editar preço
-            showPopup(`Abrindo editor para: ${name}... (Em breve)`, "success");
-        }
-
+        function editProducts(name) { showPopup(`Editar ${name} (Em breve)`, "success"); }
         function stopCampaign(name) {
-            if(confirm(`Tem certeza que deseja encerrar a campanha "${name}"? Os clientes não poderão mais comprar.`)) {
-                // Futuramente: Enviar webhook para n8n atualizar status
-                showPopup("Campanha encerrada com sucesso.", "success");
-                // Atualiza visualmente
-                const c = mockCampaigns.find(x => x.name === name);
-                if(c) c.status = 'closed';
-                renderCampaigns();
-            }
+            if(confirm(`Encerrar campanha "${name}"?`)) showPopup("Encerrada (Simulação)", "success");
         }
-        
         function logout() { location.reload(); }
     </script>
 </body>
