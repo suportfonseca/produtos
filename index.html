@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clips Papelaria - Vitrine Digital</title>
+    <title>Clips Papelaria - Vitrine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -25,12 +25,8 @@
         .modal-animate { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        /* Estilo do Popup de Notificação (Prova Social) */
         #social-toast { transform: translateX(-120%); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
         #social-toast.show { transform: translateX(0); }
-
-        /* NOVO POPUP DE ALERTA (Centro da tela) */
         #custom-alert { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #custom-alert.visible { opacity: 1; pointer-events: auto; }
         .alert-box { transform: scale(0.9); transition: transform 0.3s ease; }
@@ -45,37 +41,20 @@
                 <i id="alert-icon" class="fas text-2xl"></i>
             </div>
             <h3 id="alert-title" class="text-xl font-black text-slate-800 mb-2">Atenção</h3>
-            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6 leading-relaxed">Mensagem aqui.</p>
+            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6 leading-relaxed">Mensagem.</p>
             <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors">Entendido</button>
         </div>
     </div>
 
     <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-blue-600">
         <div class="bg-white w-full max-w-sm p-8 rounded-[32px] shadow-2xl text-center">
-            <div onclick="requestAdminLogin()" class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 cursor-pointer hover:scale-105 transition-transform">
+            <div onclick="window.location.href='admin.html'" class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 cursor-pointer hover:scale-105 transition-transform" title="Área Administrativa">
                 <i class="fas fa-paperclip text-3xl text-blue-600"></i>
             </div>
             <h1 class="text-2xl font-extrabold mb-2 text-slate-800">Clips Papelaria</h1>
             <p class="text-sm text-slate-400 font-medium mb-6">Sua vitrine digital exclusiva</p>
             <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 mb-4 outline-none font-bold text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-blue-500" placeholder="(00) 00000-0000">
             <button id="loginButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/30 transition-all">Entrar na Loja</button>
-        </div>
-    </div>
-
-    <div id="adminPanel" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-md">
-        <div class="bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl text-center">
-            <div id="adminLoginArea">
-                <h2 class="text-xl font-black mb-6 text-slate-800">Acesso Admin</h2>
-                <input type="tel" id="adminPhone" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-4 outline-none font-bold text-slate-800" placeholder="WhatsApp Admin">
-                <button onclick="checkAdminAuth()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl">Verificar</button>
-                <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-4">Sair</button>
-            </div>
-            <div id="adminCampaignArea" class="hidden">
-                <h2 class="text-xl font-black mb-6 text-slate-800">Nova Campanha 🚀</h2>
-                <input type="text" id="campaignName" class="w-full bg-slate-50 border rounded-2xl px-5 py-4 mb-6 outline-none font-bold text-slate-800" placeholder="Nome da Campanha">
-                <button onclick="triggerN8N()" id="btnN8N" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl shadow-lg transition-all">Iniciar no WhatsApp</button>
-                <button onclick="closeAdmin()" class="w-full text-slate-400 font-bold mt-4 text-xs">Cancelar</button>
-            </div>
         </div>
     </div>
 
@@ -129,30 +108,23 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO ---
-        const MODO_TESTE = true; 
-        const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
-        const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
-
-        // Fallback de produtos
+        // CONFIG
+        const GITHUB_JSON_URL = "https://raw.githubusercontent.com/suportfonseca/produtos/main/produtos.json";
         const fallbackProducts = [
-            { id: 1, name: "Caderno Inteligente", priceFrom: "99,90", priceTo: "89,90", category: "escolar", image: "https://placehold.co/400", cor: "Azul", tamanho: "Grande" },
-            { id: 2, name: "Caneta Gel Kit", priceFrom: "25,00", priceTo: "19,90", category: "escolar", image: "https://placehold.co/400", cor: "Colorido", tamanho: "Padrão" }
+            { id: 1, name: "Produto Teste", priceFrom: "99,90", priceTo: "89,90", category: "escolar", image: "https://placehold.co/400", cor: "Azul", tamanho: "Grande" }
         ];
 
-        let products = []; let cart = {}; let adminUser = ""; let tempQty = 1;
+        let products = []; let cart = {}; let tempQty = 1;
 
-        // --- SISTEMA DE POPUP (ALERT) ---
+        // ALERTAS
         function showPopup(message, type = 'error') {
             const popup = document.getElementById('custom-alert');
             const titleEl = document.getElementById('alert-title');
             const msgEl = document.getElementById('alert-message');
             const iconEl = document.getElementById('alert-icon');
             const iconBg = document.getElementById('alert-icon-bg');
-
             msgEl.innerText = message;
             popup.classList.add('visible');
-
             if (type === 'success') {
                 titleEl.innerText = "Sucesso!";
                 titleEl.className = "text-xl font-black text-green-600 mb-2";
@@ -165,114 +137,24 @@
                 iconBg.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100";
             }
         }
+        function closeAlert() { document.getElementById('custom-alert').classList.remove('visible'); }
 
-        function closeAlert() {
-            document.getElementById('custom-alert').classList.remove('visible');
-        }
-
-        // --- FUNÇÕES ADMIN ---
-        function requestAdminLogin() { document.getElementById('adminPanel').classList.remove('hidden'); }
-        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
-
-        function checkAdminAuth() {
-            const phone = document.getElementById('adminPhone').value;
-            // Remove caracteres não numéricos
-            const cleanPhone = phone.replace(/\D/g, ''); 
-
-            if(cleanPhone.length < 8) return showPopup("Por favor, digite um número válido.", "error");
-            
-            adminUser = cleanPhone;
-            document.getElementById('adminLoginArea').classList.add('hidden');
-            document.getElementById('adminCampaignArea').classList.remove('hidden');
-        }
-
-        async function triggerN8N() {
-            const campaign = document.getElementById('campaignName').value;
-            if(!campaign) return showPopup("Dê um nome para a campanha!", "error");
-            
-            const btn = document.getElementById('btnN8N');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...'; 
-            btn.disabled = true;
-
-            const payload = { 
-                Nome_campanha: campaign, 
-                usuario_admin: adminUser 
-            };
-
-            const enviarRequisicao = async (url) => {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                // Se o servidor devolver 404, 500, etc.
-                if (!response.ok) throw new Error(`Status: ${response.status}`);
-                
-                // Tenta ler o JSON de resposta
-                try {
-                    return await response.json();
-                } catch (e) {
-                    // Se não for JSON (ex: texto simples "Workflow got started"), 
-                    // retorna nulo para tratarmos como erro de validação
-                    return null;
-                }
-            };
-
-            try {
-                // Tenta URL de Produção primeiro
-                console.log("Tentando Produção...");
-                let data = await enviarRequisicao(URL_PROD);
-
-                // --- VALIDAÇÃO RIGOROSA ---
-                // Se o JSON for nulo ou NÃO tiver { "found": true }, consideramos ERRO
-                if (!data || data.found !== true) {
-                    throw new Error("UserNotFound"); 
-                }
-
-                showPopup("🚀 Campanha iniciada com sucesso!", "success");
-                setTimeout(() => closeAdmin(), 2000);
-
-            } catch (erroProd) {
-                console.warn("Falha na produção, tentando TESTE...", erroProd);
-
-                // Se o erro já foi "Usuário não encontrado", não adianta testar o outro link
-                if (erroProd.message === "UserNotFound") {
-                    showPopup("Administrador não localizado na planilha! Verifique o número cadastrado.", "error");
-                    btn.innerHTML = 'Iniciar no WhatsApp'; 
-                    btn.disabled = false;
-                    return;
-                }
-                
-                // Se foi erro de conexão/CORS, tenta o modo TESTE
-                try {
-                    let dataTest = await enviarRequisicao(URL_TEST);
-
-                    // Validação Rigorosa no Teste também
-                    if (!dataTest || dataTest.found !== true) {
-                         showPopup("Administrador não localizado na planilha (Modo Teste)!", "error");
-                    } else {
-                         showPopup("⚠️ Campanha iniciada (Modo Teste)!", "success");
-                         setTimeout(() => closeAdmin(), 2000);
-                    }
-
-                } catch (erroTest) {
-                    console.error("Erro Final:", erroTest);
-                    // Se deu erro de conexão em ambos ou falha grave
-                    showPopup("Erro de conexão ou Administrador não encontrado. Verifique o n8n.", "error");
-                }
-            } finally {
-                btn.innerHTML = 'Iniciar no WhatsApp'; 
-                btn.disabled = false; 
-            }
-        }
-
-        // --- FUNÇÕES DA VITRINE (SEM ALTERAÇÕES) ---
+        // LOAD PRODUTOS
         async function loadProducts() {
             try {
-                const response = await fetch('produtos.json?t=' + Date.now());
-                if(!response.ok) throw new Error("JSON não encontrado");
-                products = await response.json(); 
+                const response = await fetch(GITHUB_JSON_URL + '?t=' + Date.now());
+                if(!response.ok) throw new Error("Erro GitHub");
+                const rawData = await response.json();
+                products = rawData.map((item, index) => ({
+                    id: item.id || index,
+                    name: item.name || item.nome_produto,
+                    priceFrom: item.priceFrom || item.preco_de,
+                    priceTo: item.priceTo || item.preco_por,
+                    image: item.image || item.temp_foto,
+                    cor: item.cor,
+                    tamanho: item.tamanho,
+                    category: item.category || 'bazar'
+                }));
             } catch (e) { 
                 products = fallbackProducts; 
             }
@@ -280,7 +162,6 @@
         }
 
         function getPrice(val) { return parseFloat(String(val).replace(',', '.')); }
-
         function calculateDiscount(from, to) {
             const f = getPrice(from); const t = getPrice(to);
             if (!f || !t || f <= t) return null;
@@ -294,11 +175,10 @@
                 const div = document.createElement('div');
                 div.className = 'product-card group';
                 div.onclick = () => openModal(p);
-                
                 div.innerHTML = `
                     <div class="relative p-3 pb-0">
                         ${discount ? `<div class="discount-tag">-${discount}%</div>` : ''}
-                        <img src="${p.image}" class="product-image rounded-xl group-hover:scale-105 transition-transform duration-500">
+                        <img src="${p.image}" class="product-image rounded-xl group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/400?text=Sem+Foto'">
                     </div>
                     <div class="p-3">
                         <h3 class="text-[13px] font-bold text-slate-700 leading-snug mb-2 line-clamp-2 min-h-[34px]">${p.name}</h3>
@@ -314,15 +194,15 @@
             });
         }
 
+        // MODAL
         function openModal(p) {
             tempQty = 1; 
             const modal = document.getElementById('productModal');
             const discount = calculateDiscount(p.priceFrom, p.priceTo);
-            
             document.getElementById('modalContent').innerHTML = `
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="relative w-full md:w-1/2">
-                        <img src="${p.image}" class="w-full aspect-square object-cover rounded-3xl shadow-lg border border-slate-100">
+                        <img src="${p.image}" class="w-full aspect-square object-cover rounded-3xl shadow-lg border border-slate-100" onerror="this.src='https://placehold.co/400?text=Sem+Foto'">
                         ${discount ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/30">🔥 -${discount}% OFF</div>` : ''}
                     </div>
                     <div class="flex-1 pt-2">
@@ -377,6 +257,7 @@
             else document.getElementById('cartBar').classList.add('hidden');
         }
 
+        // LOGIN DO CLIENTE
         document.getElementById('loginButton').onclick = () => {
             const phone = document.getElementById('phoneInput').value;
             if(phone.length < 8) return showPopup("Digite um WhatsApp válido", "error");
@@ -386,17 +267,9 @@
             startSocialProof();
         };
 
-        document.querySelectorAll('.filter-tab').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.filter-tab').forEach(t => t.className = 'filter-tab bg-white border border-slate-100 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all text-slate-500');
-                btn.className = 'filter-tab active px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/20';
-                loadProducts();
-            };
-        });
-
+        // CHECKOUT
         document.getElementById('checkoutButton').onclick = () => {
             if (Object.keys(cart).length === 0) return showPopup("Seu carrinho está vazio!", "error");
-
             let msg = "*🛒 NOVO PEDIDO - CLIPS PAPELARIA*\n\n";
             let hasItems = false;
             Object.entries(cart).forEach(([id, qty]) => {
@@ -406,20 +279,17 @@
                     msg += `✅ *${qty}x* ${p.name}\n   └ Cor: ${p.cor || '-'} | Tam: ${p.tamanho || '-'}\n   └ Subtotal: R$ ${(getPrice(p.priceTo) * qty).toFixed(2)}\n\n`;
                 }
             });
-
             if (!hasItems) return showPopup("Erro ao processar itens.", "error");
             msg += `💰 *TOTAL: ${document.getElementById('cartTotal').innerText}*`;
-            
             window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
-        // --- PROVA SOCIAL ---
+        // PROVA SOCIAL
         function startSocialProof() {
-            const names = ["Ana Silva", "João Pedro", "Mariana S.", "Carlos Edu", "Beatriz M.", "Lucas F.", "Fernanda T.", "Rafael L."];
+            const names = ["Ana Silva", "João Pedro", "Mariana S.", "Carlos Edu", "Beatriz M.", "Lucas F.", "Fernanda T."];
             const toast = document.getElementById('social-toast');
             const nameEl = document.getElementById('social-name');
             const textEl = document.getElementById('social-text');
-
             function showToast() {
                 const randomName = names[Math.floor(Math.random() * names.length)];
                 const randomQty = Math.floor(Math.random() * 5) + 2;
