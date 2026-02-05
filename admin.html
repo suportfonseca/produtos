@@ -18,6 +18,8 @@
         #custom-alert.visible .alert-box { transform: scale(1); }
         #custom-alert { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #custom-alert.visible { opacity: 1; pointer-events: auto; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -42,7 +44,9 @@
         
         <input type="tel" id="adminPhone" class="w-full bg-slate-800/50 border border-slate-700 rounded-2xl px-5 py-4 mb-4 outline-none font-bold text-white placeholder-slate-500 focus:border-blue-500 transition-colors" placeholder="WhatsApp Admin">
         
-        <button onclick="checkAdminAuth()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all mb-4">Acessar Painel</button>
+        <button id="btnLogin" onclick="checkAdminAuth()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/20 transition-all mb-4 flex items-center justify-center gap-2">
+            Acessar Painel
+        </button>
         
         <a href="index.html" class="text-slate-500 text-xs font-bold hover:text-white transition-colors">← Voltar para a Loja</a>
     </div>
@@ -84,11 +88,12 @@
     </div>
 
     <script>
+        // CONFIGURAÇÃO DOS LINKS DO N8N
         const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
         let adminUser = "";
 
-        // ALERTAS
+        // --- SISTEMA DE POPUP ---
         function showPopup(message, type = 'error') {
             const popup = document.getElementById('custom-alert');
             const titleEl = document.getElementById('alert-title');
@@ -113,25 +118,76 @@
         }
         function closeAlert() { document.getElementById('custom-alert').classList.remove('visible'); }
 
-        // LOGIN
-        function checkAdminAuth() {
-            const phone = document.getElementById('adminPhone').value;
-            const cleanPhone = phone.replace(/\D/g, ''); 
+        // --- FUNÇÃO PARA ENVIAR DADOS AO N8N (REUTILIZÁVEL) ---
+        async function conectarN8N(payload) {
+            const enviar = async (url) => {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`Status: ${response.status}`);
+                try { return await response.json(); } catch (e) { return null; }
+            };
+
+            // Tenta Produção -> Se falhar, tenta Teste
+            try {
+                let data = await enviar(URL_PROD);
+                return data;
+            } catch (erro) {
+                console.warn("Falha em produção, tentando teste...", erro);
+                try {
+                    return await enviar(URL_TEST);
+                } catch (erroTest) {
+                    console.error("Erro total:", erroTest);
+                    return null;
+                }
+            }
+        }
+
+        // --- 1. LOGIN ADMIN (AGORA COM VERIFICAÇÃO NO WEBHOOK) ---
+        async function checkAdminAuth() {
+            const phoneField = document.getElementById('adminPhone');
+            const btn = document.getElementById('btnLogin');
+            const cleanPhone = phoneField.value.replace(/\D/g, ''); 
 
             if(cleanPhone.length < 8) return showPopup("Digite um número válido.", "error");
-            
-            adminUser = cleanPhone;
-            // Efeito visual de transição
-            document.getElementById('adminLoginArea').classList.add('hidden');
-            document.getElementById('adminDashboard').classList.remove('hidden');
-            document.getElementById('adminDashboard').classList.add('animate-fade-in');
+
+            // UI: Carregando
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            btn.disabled = true;
+
+            // Envia para o n8n apenas para validar (tipo_requisicao: login)
+            // O n8n deve olhar se 'usuario_admin' existe. Se sim, devolve { found: true }
+            const payload = { 
+                usuario_admin: cleanPhone,
+                tipo_requisicao: "login", // Flag para o n8n saber que é só login (se você quiser configurar lá)
+                Nome_campanha: "Verificacao Login" 
+            };
+
+            const resultado = await conectarN8N(payload);
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
+            if (resultado && resultado.found === true) {
+                // SUCESSO: Login Aprovado
+                adminUser = cleanPhone;
+                document.getElementById('adminLoginArea').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('animate-fade-in');
+            } else {
+                // ERRO: Usuário não está na planilha
+                showPopup("Acesso Negado. Administrador não encontrado na base de dados.", "error");
+            }
         }
 
         function logout() {
             location.reload();
         }
 
-        // INTEGRACAO N8N
+        // --- 2. DISPARAR CAMPANHA (VERIFICAÇÃO DUPLA) ---
         async function triggerN8N() {
             const campaign = document.getElementById('campaignName').value;
             if(!campaign) return showPopup("Dê um nome para a campanha!", "error");
@@ -143,54 +199,20 @@
 
             const payload = { 
                 Nome_campanha: campaign, 
-                usuario_admin: adminUser 
+                usuario_admin: adminUser,
+                tipo_requisicao: "campanha"
             };
 
-            const enviarRequisicao = async (url) => {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) throw new Error(`Status: ${response.status}`);
-                try { return await response.json(); } catch (e) { return null; }
-            };
+            const data = await conectarN8N(payload);
 
-            try {
-                let data = await enviarRequisicao(URL_PROD);
+            btn.innerHTML = originalText; 
+            btn.disabled = false;
 
-                if (!data || data.found !== true) {
-                    throw new Error("UserNotFound"); 
-                }
-
+            if (data && data.found === true) {
                 showPopup("🚀 Campanha iniciada com sucesso!", "success");
-                setTimeout(() => {
-                    // Limpa campo para nova campanha
-                    document.getElementById('campaignName').value = "";
-                }, 2000);
-
-            } catch (erroProd) {
-                if (erroProd.message === "UserNotFound") {
-                    showPopup("Administrador não localizado na planilha! Verifique o número.", "error");
-                    // Se não achou usuário, volta pro login? Ou deixa tentar de novo?
-                    // Vamos deixar tentar de novo por enquanto.
-                    return;
-                }
-                
-                try {
-                    let dataTest = await enviarRequisicao(URL_TEST);
-                    if (!dataTest || dataTest.found !== true) {
-                         showPopup("Administrador não localizado (Teste)!", "error");
-                    } else {
-                         showPopup("⚠️ Campanha iniciada (Teste)!", "success");
-                    }
-                } catch (erroTest) {
-                    console.error("Erro Final:", erroTest);
-                    showPopup("Erro de conexão. Verifique o n8n.", "error");
-                }
-            } finally {
-                btn.innerHTML = originalText; 
-                btn.disabled = false; 
+                setTimeout(() => { document.getElementById('campaignName').value = ""; }, 2000);
+            } else {
+                showPopup("Erro ao iniciar campanha ou Administrador inválido.", "error");
             }
         }
     </script>
