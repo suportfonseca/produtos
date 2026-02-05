@@ -1,32 +1,22 @@
 [
   {
     "id": 2,
-    "name": "LANGERIE PINK WEB P",
-    "priceFrom": 999,
-    "priceTo": 100,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_52.jpg",
-    "cor": "ROSA",
-    "tamanho": "PP",
+    "name": "Controle de XBOX One",
+    "priceFrom": 697,
+    "priceTo": 397,
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_59.jpg",
+    "cor": "Vermelho",
+    "tamanho": "Pequeno",
     "category": "bazar"
   },
   {
     "id": 3,
-    "name": "CAMISETA RED PINK",
-    "priceFrom": 500,
-    "priceTo": 250,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_53.jpg",
-    "cor": "VERMELHO",
-    "tamanho": "GG",
-    "category": "bazar"
-  },
-  {
-    "id": 4,
-    "name": "Teclado husky",
+    "name": "Enfeite Buda Dourado",
     "priceFrom": 197,
-    "priceTo": 97.9,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_56.jpg",
-    "cor": "Branco",
-    "tamanho": "120cm",
+    "priceTo": 49.9,
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_60.jpg",
+    "cor": "Dourado",
+    "tamanho": "15 cm",
     "category": "bazar"
   }
 ]
