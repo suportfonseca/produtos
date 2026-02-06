@@ -34,8 +34,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* Modais */
-        #custom-alert, #newCampaignModal, #editProductsModal, #activationModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
-        #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible, #activationModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
+        #custom-alert, #newCampaignModal, #editProductsModal, #activationModal, #reopenModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
+        #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible, #activationModal.visible, #reopenModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
         .visible .modal-content { transform: scale(1); }
         
@@ -137,6 +137,20 @@
         </div>
     </div>
 
+    <div id="reopenModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="text-xl font-black mb-2">Campanha Ativa</h3>
+            <p class="text-sm text-slate-500 font-medium mb-6">Esta campanha já está ativa e vendendo. Para editá-la, você precisa reabrir (status mudará para Rascunho).</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="confirmReopen()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Reabrir e Editar</button>
+                <button onclick="closeReopenModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="activationModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl">
@@ -160,30 +174,26 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÕES N8N (PRODUÇÃO & TESTE) ---
-        
-        // 1. Webhook Principal (Login, Dashboard)
+        // --- CONFIGURAÇÕES N8N ---
         const URL_MAIN_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_MAIN_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
-
-        // 2. Webhook Produtos (GET - Leitura)
         const URL_PRODUCTS_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
         const URL_PRODUCTS_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
-
-        // 3. Webhook ATUALIZAÇÃO (POST - Salvar Dados e Status)
-        // ✅ JÁ ATUALIZADO COM SEUS LINKS NOVOS
         const URL_UPDATE_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/update-data";
         const URL_UPDATE_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/update-data";
 
         let adminUser = "";
         let campaignsData = [];
         let currentEditingId = null;
+        let pendingReopenId = null;
+        let pendingReopenName = null;
 
         // --- UI UTILS ---
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
         function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
         function closeEditModal() { document.getElementById('editProductsModal').classList.remove('visible'); fetchDashboardData(); }
+        function closeReopenModal() { document.getElementById('reopenModal').classList.remove('visible'); }
         
         function showPopup(msg, type='error') {
             const el = document.getElementById('custom-alert');
@@ -194,7 +204,7 @@
             el.classList.add('visible');
         }
 
-        // --- FUNÇÕES DE CONEXÃO BLINDADA ---
+        // --- CONEXÃO BLINDADA ---
         async function sendN8N(payload, customUrlProd = null, customUrlTest = null) {
             const prod = customUrlProd || URL_MAIN_PROD;
             const test = customUrlTest || URL_MAIN_TEST;
@@ -214,7 +224,7 @@
             try { return await req(URL_PRODUCTS_PROD); } catch { try { return await req(URL_PRODUCTS_TEST); } catch { return null; } }
         }
 
-        // --- LÓGICA DO SISTEMA ---
+        // --- SISTEMA PRINCIPAL ---
         async function checkAuth() {
             const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
             if(phone.length < 8) return showPopup("Número inválido");
@@ -235,8 +245,14 @@
             const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
             if(res && res.found && res.campanhas) {
                 const dadosValidos = res.campanhas.filter(row => row.nome_campanha && row.nome_campanha.toString().trim() !== "");
+                
+                // Mapeamento Inteligente de Status
                 campaignsData = dadosValidos.map((row, index) => {
-                    let st = row.status && row.status.toString().toLowerCase().includes('ativa') ? 'active' : 'closed';
+                    let raw = row.status ? row.status.toString().toLowerCase() : '';
+                    let st = 'closed';
+                    if(raw.includes('ativa')) st = 'active';
+                    if(raw.includes('rascunho')) st = 'draft';
+                    
                     let dt = row.data_hora ? new Date(row.data_hora).toLocaleDateString('pt-BR') : "-";
                     return { id: row.id_campanha || index, name: row.nome_campanha || "Sem Nome", date: dt, status: st, sales: row.total_vendas || 0, products: row.qtd_produtos || 0 };
                 });
@@ -248,15 +264,21 @@
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
             if(campaignsData.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">Nenhuma campanha.</td></tr>'; return; }
             campaignsData.forEach(c => {
-                let badge = c.status === 'active' ? '<span class="status-badge status-active">● Ativa</span>' : '<span class="status-badge status-closed">Encerrada</span>';
+                let badge;
+                if(c.status === 'active') badge = '<span class="status-badge status-active">● Ativa</span>';
+                else if(c.status === 'draft') badge = '<span class="status-badge status-draft">● Rascunho</span>';
+                else badge = '<span class="status-badge status-closed">Encerrada</span>';
+
                 let valorFmt = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+                
+                // Botão de Editar agora manda o status também
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/5 border-b border-white/5">
                         <td class="p-6">${badge}</td>
                         <td class="p-6"><p class="font-bold text-base">${c.name}</p><p class="text-xs opacity-50">ID: ${c.id}</p></td>
                         <td class="p-6 font-mono text-emerald-400 font-bold">${valorFmt}</td>
                         <td class="p-6 text-center"><span class="bg-slate-700 px-2 py-1 rounded text-xs">${c.products}</span></td>
-                        <td class="p-6 text-right"><button onclick="openEditProducts('${c.id}', '${c.name}')" class="action-btn bg-slate-700 hover:bg-white hover:text-slate-900"><i class="fas fa-pen"></i></button></td>
+                        <td class="p-6 text-right"><button onclick="openEditProducts('${c.id}', '${c.name}', '${c.status}')" class="action-btn bg-slate-700 hover:bg-white hover:text-slate-900"><i class="fas fa-pen"></i></button></td>
                     </tr>`;
             });
         }
@@ -275,7 +297,18 @@
             if(res && res.found){ showPopup("Campanha Iniciada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 2000); } else { showPopup("Erro ao iniciar."); }
         }
 
-        async function openEditProducts(id, name) {
+        // --- SISTEMA DE EDIÇÃO COM TRAVA DE SEGURANÇA ---
+        
+        async function openEditProducts(id, name, status) {
+            // TRAVA DE SEGURANÇA: Se estiver ativa, bloqueia e pede reabertura
+            if (status === 'active') {
+                pendingReopenId = id;
+                pendingReopenName = name;
+                document.getElementById('reopenModal').classList.add('visible');
+                return; // Para aqui
+            }
+
+            // Se não estiver ativa (ou já foi reaberta), segue normal
             currentEditingId = id;
             document.getElementById('editModalTitle').innerText = `Editando: ${name}`;
             document.getElementById('editProductsModal').classList.add('visible');
@@ -291,9 +324,24 @@
             }
         }
 
-        // --- FUNÇÕES DE SALVAMENTO E ATIVAÇÃO ---
+        // Função chamada pelo botão "Sim" do modal amarelo
+        async function confirmReopen() {
+            closeReopenModal();
+            showPopup("Reabrindo campanha...", "success");
 
-        // 1. Renderiza os produtos com IDs nos inputs
+            // Manda mudar status para 'rascunho'
+            const payload = {
+                action: "update_status",
+                id_campanha: pendingReopenId,
+                status: "rascunho"
+            };
+            await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
+
+            // Abre a edição forçando o status 'draft' para não travar de novo
+            openEditProducts(pendingReopenId, pendingReopenName, 'draft');
+            fetchDashboardData(); // Atualiza a tabela no fundo
+        }
+
         function processAndRenderProducts(productsRaw) {
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '';
@@ -309,7 +357,7 @@
             Object.values(grouped).forEach(prod => {
                 const mainImage = prod.photos[0] || 'https://via.placeholder.com/150?text=Sem+Foto';
                 const mediaCountMsg = `${prod.photos.length} Foto(s), ${prod.videos} Vídeo(s)`;
-                const pid = prod.id_grupo; // ID único do grupo para salvar
+                const pid = prod.id_grupo;
 
                 listArea.innerHTML += `
                     <div class="glass-panel p-4 rounded-2xl flex flex-col md:flex-row gap-6 items-start mb-4">
@@ -344,19 +392,16 @@
             });
         }
 
-        // 2. Salva um produto específico (Disquete)
         async function saveProduct(groupId) {
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
             
-            // Pega os valores dos inputs pelo ID
             const nome = document.getElementById(`nome_${groupId}`).value;
             const precoDe = document.getElementById(`de_${groupId}`).value;
             const precoPor = document.getElementById(`por_${groupId}`).value;
             const cor = document.getElementById(`cor_${groupId}`).value;
             const tamanho = document.getElementById(`tam_${groupId}`).value;
 
-            // Feedback visual
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             btn.disabled = true;
 
@@ -382,25 +427,21 @@
             }
         }
 
-        // 3. Botão Concluir Edição
         function concludeEdition() {
             document.getElementById('editProductsModal').classList.remove('visible');
             document.getElementById('activationModal').classList.add('visible');
         }
 
-        // 4. Resposta do Modal de Ativação
         async function handleActivation(shouldActivate) {
             document.getElementById('activationModal').classList.remove('visible');
 
             if (shouldActivate) {
                 showPopup("Ativando campanha...", "success"); 
-                
                 const payload = {
                     action: "update_status",
                     id_campanha: currentEditingId,
                     status: "ativa"
                 };
-
                 await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
                 fetchDashboardData(); 
             } else {
