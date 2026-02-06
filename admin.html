@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - Clips Papelaria</title>
+    <title>Gestão Clips - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,79 +12,7 @@
         tailwind.config = {
             theme: { 
                 extend: { 
-                    colors: { // --- 2. BUSCAR DADOS (DASHBOARD) - COM FILTRO ANTI-FANTASMA ---
-        // --- 2. BUSCAR DADOS (DASHBOARD) - COM FILTRO ANTI-FANTASMA ---
-        async function fetchDashboardData() {
-            const tbody = document.getElementById('campaignList');
-            tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin"></i> Atualizando...</td></tr>';
-
-            try {
-                const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
-                
-                // ESPIÃO: Mostra no console o que chegou (Aperte F12 para ver)
-                console.log("📦 DADOS RECEBIDOS:", res);
-
-                if(res && res.found && res.campanhas) {
-                    
-                    // --- AQUI ESTÁ A PROTEÇÃO ANTI-FANTASMA ---
-                    // Só aceita linhas que tenham "nome_campanha" preenchido
-                    const dadosValidos = res.campanhas.filter(row => row.nome_campanha && row.nome_campanha.toString().trim() !== "");
-
-                    campaignsData = dadosValidos.map((row, index) => {
-                        let st = 'draft';
-                        let statusRaw = row.status ? row.status.toString().toLowerCase() : "";
-                        
-                        if (statusRaw.includes('ativa')) st = 'active';
-                        else if (statusRaw.includes('fechada') || statusRaw.includes('encerrada')) st = 'closed';
-
-                        let dt = "-";
-                        if(row.data_hora) {
-                            try { dt = new Date(row.data_hora).toLocaleDateString('pt-BR'); } catch(e){}
-                        }
-
-                        return {
-                            id: row.id_campanha || index, 
-                            name: row.nome_campanha || "Sem Nome",
-                            date: dt,
-                            status: st,
-                            sales: row.total_vendas || 0,
-                            products: row.qtd_produtos || 0
-                        };
-                    });
-                    
-                    campaignsData.reverse(); 
-                    renderTable();
-                    updateStats();
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
-                }
-            } catch (error) {
-                console.error("Erro:", error);
-                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Erro de conexão.</td></tr>';
-            }
-        }
-
-                        return {
-                            id: row.id_campanha || index, 
-                            name: row.nome_campanha || "Sem Nome",
-                            date: dt,
-                            status: st,
-                            sales: row.total_vendas || 0,
-                            products: row.qtd_produtos || 0
-                        };
-                    });
-                    
-                    campaignsData.reverse(); 
-                    renderTable();
-                    updateStats();
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
-                }
-            } catch (error) {
-                console.error("Erro:", error);
-                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Erro de conexão.</td></tr>';
-            }
-        }
+                    colors: { 
                         dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
                         brand: { 500: '#3b82f6', 600: '#2563eb' }
                     },
@@ -94,12 +22,13 @@
         }
     </script>
     <style>
-        body { background: #0f172a; color: white; }
+        body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .status-badge { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-        .status-active { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-        .status-closed { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .status-draft { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+        
+        .status-badge { padding: 6px 14px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 6px; }
+        .status-active { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-closed { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .status-draft { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
         
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -108,19 +37,23 @@
         #custom-alert.visible, #newCampaignModal.visible { opacity: 1; pointer-events: auto; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
         .visible .modal-content { transform: scale(1); }
+        
+        .action-btn { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .action-btn:hover { transform: translateY(-2px); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900">
-        <div class="w-full max-w-md glass-panel p-8 rounded-[32px] text-center shadow-2xl">
+        <div class="w-full max-w-md glass-panel p-8 rounded-[32px] text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
             <div class="w-20 h-20 bg-brand-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <i class="fas fa-lock text-3xl text-white"></i>
             </div>
             <h2 class="text-2xl font-black mb-2">Painel Admin</h2>
-            <p class="text-slate-400 text-sm mb-8">Gestão de Campanhas e Produtos</p>
+            <p class="text-slate-400 text-sm mb-8">Gestão Centralizada</p>
             
-            <input type="tel" id="adminPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-2xl px-5 py-4 mb-4 text-white font-bold outline-none focus:border-brand-500 transition-colors" placeholder="WhatsApp Admin">
+            <input type="tel" id="adminPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-2xl px-5 py-4 mb-4 text-white font-bold outline-none focus:border-brand-500 transition-colors text-center text-lg tracking-widest placeholder:tracking-normal" placeholder="WhatsApp">
             
             <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
                 Entrar no Sistema
@@ -130,57 +63,72 @@
     </div>
 
     <div id="dashboard" class="hidden flex-1 flex flex-col max-w-7xl mx-auto w-full p-4 lg:p-8 fade-in">
-        <header class="flex justify-between items-center mb-10">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <div>
-                <h1 class="text-3xl font-black text-white">Gestão Clips 📎</h1>
-                <p class="text-slate-400 text-sm mt-1">Bem-vindo(a), <span class="text-brand-500">Admin</span></p>
+                <h1 class="text-3xl font-black text-white flex items-center gap-3">Gestão Clips <i class="fas fa-paperclip text-brand-500 transform rotate-45"></i></h1>
+                <p class="text-slate-400 text-sm mt-1">Bem-vindo(a), <span class="text-brand-500 font-bold">Admin</span></p>
             </div>
-            <button onclick="logout()" class="w-12 h-12 glass-panel rounded-2xl hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-400 transition-all flex items-center justify-center"><i class="fas fa-sign-out-alt"></i></button>
+            <button onclick="logout()" class="glass-panel px-4 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="glass-panel p-6 rounded-3xl flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-green-500/20 text-green-400 flex items-center justify-center text-xl"><i class="fas fa-dollar-sign"></i></div>
+            <div class="glass-panel p-6 rounded-3xl flex items-center gap-4 border-l-4 border-green-500 relative overflow-hidden group">
+                <div class="absolute right-[-20px] top-[-20px] w-32 h-32 bg-green-500/10 rounded-full blur-2xl group-hover:bg-green-500/20 transition-all"></div>
+                <div class="w-14 h-14 rounded-2xl bg-green-500/20 text-green-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-dollar-sign"></i></div>
                 <div>
-                    <p class="text-xs text-slate-400 font-bold uppercase">Total Vendido</p>
-                    <p class="text-2xl font-black" id="totalSalesDisplay">R$ 0,00</p>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Vendido</p>
+                    <p class="text-2xl font-black text-white" id="totalSalesDisplay">R$ 0,00</p>
                 </div>
             </div>
-            <div class="glass-panel p-6 rounded-3xl flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-xl"><i class="fas fa-bullhorn"></i></div>
+            <div class="glass-panel p-6 rounded-3xl flex items-center gap-4 border-l-4 border-blue-500 relative overflow-hidden group">
+                <div class="absolute right-[-20px] top-[-20px] w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+                <div class="w-14 h-14 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-bullhorn"></i></div>
                 <div>
-                    <p class="text-xs text-slate-400 font-bold uppercase">Campanhas</p>
-                    <p class="text-2xl font-black" id="activeCampaignsDisplay">0 Ativas</p>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Campanhas</p>
+                    <p class="text-2xl font-black text-white" id="activeCampaignsDisplay">0 Ativas</p>
                 </div>
             </div>
-            <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-center gap-3 shadow-xl shadow-blue-600/20 transition-transform hover:scale-[1.02] cursor-pointer group">
-                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors"><i class="fas fa-plus"></i></div>
-                <div class="text-left">
-                    <p class="text-sm font-bold text-blue-100">Criar Nova</p>
-                    <p class="text-xl font-black text-white">Campanha</p>
+            <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-0 rounded-3xl flex items-center justify-between shadow-xl shadow-blue-600/20 transition-all hover:scale-[1.02] cursor-pointer group overflow-hidden relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 opacity-100"></div>
+                <div class="relative z-10 p-6 flex items-center gap-4 w-full">
+                    <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-white text-xl shadow-lg backdrop-blur-sm group-hover:rotate-90 transition-transform duration-300"><i class="fas fa-plus"></i></div>
+                    <div class="text-left">
+                        <p class="text-sm font-bold text-blue-100 opacity-90">Criar Nova</p>
+                        <p class="text-2xl font-black text-white">Campanha</p>
+                    </div>
                 </div>
             </button>
         </div>
 
-        <div class="glass-panel rounded-[32px] overflow-hidden flex-1">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center">
-                <h3 class="text-xl font-bold">Histórico de Campanhas</h3>
-                <div class="flex gap-2">
-                    <button onclick="fetchDashboardData()" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors"><i class="fas fa-sync-alt text-xs"></i></button>
+        <div class="glass-panel rounded-[32px] overflow-hidden flex-1 flex flex-col">
+            <div class="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+                <h3 class="text-xl font-bold text-white">Histórico de Campanhas</h3>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <div class="relative flex-1 md:w-64">
+                        <i class="fas fa-search absolute left-4 top-3 text-slate-500"></i>
+                        <input type="text" placeholder="Buscar..." class="w-full bg-dark-900/50 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white outline-none focus:border-brand-500 transition-colors">
+                    </div>
+                    <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors text-slate-300 hover:text-white" title="Atualizar Tabela">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
             </div>
-            <div class="overflow-x-auto">
+            
+            <div class="overflow-x-auto flex-1">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-dark-900/30 text-slate-400 text-xs uppercase font-bold">
+                    <thead class="bg-dark-900/30 text-slate-400 text-xs uppercase font-bold sticky top-0 backdrop-blur-sm">
                         <tr>
-                            <th class="p-6">Status</th>
-                            <th class="p-6">Campanha</th>
-                            <th class="p-6">Vendas (R$)</th>
-                            <th class="p-6 text-center">Produtos</th>
-                            <th class="p-6 text-right">Ações</th>
+                            <th class="p-6 font-bold tracking-wider">Status</th>
+                            <th class="p-6 font-bold tracking-wider">Campanha</th>
+                            <th class="p-6 font-bold tracking-wider">Vendas (R$)</th>
+                            <th class="p-6 font-bold tracking-wider text-center">Produtos</th>
+                            <th class="p-6 font-bold tracking-wider text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
+                    <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5">
+                        </tbody>
                 </table>
             </div>
         </div>
@@ -210,7 +158,7 @@
     </div>
 
     <script>
-        // --- LINKS DO N8N ---
+        // --- LINKS DO N8N (Configurações) ---
         const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
         let adminUser = "";
@@ -266,39 +214,54 @@
             }
         }
 
-        // --- 2. BUSCAR DADOS (DASHBOARD) ---
+        // --- 2. BUSCAR DADOS (DASHBOARD) - COM FILTRO ANTI-FANTASMA ---
         async function fetchDashboardData() {
             const tbody = document.getElementById('campaignList');
             tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin"></i> Atualizando...</td></tr>';
 
-            const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
-
-            if(res && res.found && res.campanhas) {
-                // MAPEAMENTO DOS DADOS REAIS DA SUA PLANILHA
-                campaignsData = res.campanhas.map((row, index) => {
-                    let st = 'draft';
-                    if (row.status && row.status.toLowerCase().includes('ativa')) st = 'active';
-                    else if (row.status && row.status.toLowerCase().includes('fechada')) st = 'closed';
-
-                    // Tratamento de Data (Sua planilha tem ISO string)
-                    let dt = row.data_hora || "-";
-                    try { dt = new Date(row.data_hora).toLocaleDateString('pt-BR'); } catch(e){}
-
-                    return {
-                        id: row.id_campanha || index, // Usa o ID da planilha ou index se faltar
-                        name: row.nome_campanha || "Sem Nome",
-                        date: dt,
-                        status: st,
-                        sales: row.total_vendas || 0, // Lê a coluna nova
-                        products: row.qtd_produtos || 0 // Lê a coluna nova
-                    };
-                });
+            try {
+                const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
                 
-                campaignsData.reverse(); // Mostra as mais recentes primeiro
-                renderTable();
-                updateStats();
-            } else {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
+                // ESPIÃO: Mostra no console o que chegou
+                console.log("📦 DADOS RECEBIDOS:", res);
+
+                if(res && res.found && res.campanhas) {
+                    
+                    // --- FILTRO: Remove linhas vazias ---
+                    const dadosValidos = res.campanhas.filter(row => row.nome_campanha && row.nome_campanha.toString().trim() !== "");
+
+                    campaignsData = dadosValidos.map((row, index) => {
+                        let st = 'draft';
+                        let statusRaw = row.status ? row.status.toString().toLowerCase() : "";
+                        
+                        if (statusRaw.includes('ativa')) st = 'active';
+                        else if (statusRaw.includes('fechada') || statusRaw.includes('encerrada')) st = 'closed';
+
+                        // Tratamento de Data
+                        let dt = "-";
+                        if(row.data_hora) {
+                            try { dt = new Date(row.data_hora).toLocaleDateString('pt-BR'); } catch(e){}
+                        }
+
+                        return {
+                            id: row.id_campanha || index, 
+                            name: row.nome_campanha || "Sem Nome",
+                            date: dt,
+                            status: st,
+                            sales: row.total_vendas || 0,
+                            products: row.qtd_produtos || 0
+                        };
+                    });
+                    
+                    campaignsData.reverse(); 
+                    renderTable();
+                    updateStats();
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Erro de conexão.</td></tr>';
             }
         }
 
@@ -317,7 +280,7 @@
                             '<span class="status-badge status-draft">Rascunho</span>';
                 
                 let stopBtn = c.status === 'active' ? 
-                    `<button onclick="stopCampaign('${c.name}')" title="Encerrar" class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-colors"><i class="fas fa-stop"></i></button>` : '';
+                    `<button onclick="stopCampaign('${c.name}')" title="Encerrar" class="action-btn bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white"><i class="fas fa-stop"></i></button>` : '';
 
                 // Formatação de Moeda
                 let valorFmt = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -327,15 +290,15 @@
                         <td class="p-6">${badge}</td>
                         <td class="p-6">
                             <p class="font-bold text-white text-base">${c.name}</p>
-                            <p class="text-xs text-slate-500 font-mono text-[10px]">ID: ${c.id}</p>
+                            <p class="text-xs text-slate-500 font-mono text-[10px] opacity-50">ID: ${c.id}</p>
                             <p class="text-xs text-slate-500">${c.date}</p>
                         </td>
                         <td class="p-6 font-mono text-emerald-400 font-bold">${valorFmt}</td>
                         <td class="p-6 text-center"><span class="bg-slate-700 px-2 py-1 rounded text-xs font-bold text-white">${c.products}</span></td>
                         <td class="p-6 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-100">
-                                <button onclick="shareLink('${c.name}')" title="Link" class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white transition-colors"><i class="fas fa-link"></i></button>
-                                <button onclick="editProducts('${c.name}')" title="Editar" class="w-8 h-8 rounded-lg bg-slate-700 text-slate-300 hover:bg-white hover:text-slate-900 transition-colors"><i class="fas fa-pen"></i></button>
+                                <button onclick="shareLink('${c.name}')" title="Link" class="action-btn bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white"><i class="fas fa-link"></i></button>
+                                <button onclick="editProducts('${c.name}')" title="Editar" class="action-btn bg-slate-700 text-slate-300 hover:bg-white hover:text-slate-900"><i class="fas fa-pen"></i></button>
                                 ${stopBtn}
                             </div>
                         </td>
@@ -346,7 +309,6 @@
 
         function updateStats() {
             const active = campaignsData.filter(c => c.status === 'active').length;
-            // Somar vendas (precisa garantir que venha como numero na planilha)
             const total = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0);
             
             document.getElementById('activeCampaignsDisplay').innerText = `${active} Ativas`;
@@ -358,8 +320,7 @@
             const name = document.getElementById('campaignNameInput').value;
             if(!name) return showPopup("Digite o nome");
 
-            // GERAÇÃO DE CHAVE PRIMÁRIA (ID ÚNICO)
-            const newID = Math.floor(Date.now() / 1000); // Ex: 1708549922
+            const newID = Math.floor(Date.now() / 1000); // Gera ID único
 
             const btn = document.getElementById('btnStart');
             const txt = btn.innerHTML; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Iniciando...'; btn.disabled=true;
@@ -367,7 +328,7 @@
             const res = await sendN8N({ 
                 usuario_admin: adminUser, 
                 Nome_campanha: name, 
-                id_campanha: newID, // Envia o novo ID pro n8n salvar
+                id_campanha: newID, 
                 tipo_requisicao: "campanha" 
             });
 
@@ -376,7 +337,7 @@
             if(res && res.found){
                 showPopup("Campanha Iniciada! 🚀", "success");
                 closeNewCampaignModal();
-                fetchDashboardData(); // Atualiza a tabela
+                fetchDashboardData(); 
             } else {
                 showPopup("Erro ao iniciar.");
             }
