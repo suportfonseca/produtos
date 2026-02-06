@@ -315,7 +315,7 @@
             document.getElementById('totalSalesDisplay').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        // --- 3. CRIAR NOVA CAMPANHA (COM GERADOR DE ID) ---
+        // --- 3. CRIAR NOVA CAMPANHA (COM DELAY PARA ATUALIZAR) ---
         async function triggerCampaign() {
             const name = document.getElementById('campaignNameInput').value;
             if(!name) return showPopup("Digite o nome");
@@ -337,7 +337,13 @@
             if(res && res.found){
                 showPopup("Campanha Iniciada! 🚀", "success");
                 closeNewCampaignModal();
-                fetchDashboardData(); 
+                
+                // ESPERA 2 SEGUNDOS ANTES DE ATUALIZAR A TABELA
+                // (Para garantir que o Google Sheets salvou o dado)
+                setTimeout(() => {
+                    fetchDashboardData(); 
+                }, 2000);
+
             } else {
                 showPopup("Erro ao iniciar.");
             }
