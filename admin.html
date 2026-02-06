@@ -12,7 +12,79 @@
         tailwind.config = {
             theme: { 
                 extend: { 
-                    colors: { 
+                    colors: { // --- 2. BUSCAR DADOS (DASHBOARD) - COM FILTRO ANTI-FANTASMA ---
+        // --- 2. BUSCAR DADOS (DASHBOARD) - COM FILTRO ANTI-FANTASMA ---
+        async function fetchDashboardData() {
+            const tbody = document.getElementById('campaignList');
+            tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin"></i> Atualizando...</td></tr>';
+
+            try {
+                const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
+                
+                // ESPIÃO: Mostra no console o que chegou (Aperte F12 para ver)
+                console.log("📦 DADOS RECEBIDOS:", res);
+
+                if(res && res.found && res.campanhas) {
+                    
+                    // --- AQUI ESTÁ A PROTEÇÃO ANTI-FANTASMA ---
+                    // Só aceita linhas que tenham "nome_campanha" preenchido
+                    const dadosValidos = res.campanhas.filter(row => row.nome_campanha && row.nome_campanha.toString().trim() !== "");
+
+                    campaignsData = dadosValidos.map((row, index) => {
+                        let st = 'draft';
+                        let statusRaw = row.status ? row.status.toString().toLowerCase() : "";
+                        
+                        if (statusRaw.includes('ativa')) st = 'active';
+                        else if (statusRaw.includes('fechada') || statusRaw.includes('encerrada')) st = 'closed';
+
+                        let dt = "-";
+                        if(row.data_hora) {
+                            try { dt = new Date(row.data_hora).toLocaleDateString('pt-BR'); } catch(e){}
+                        }
+
+                        return {
+                            id: row.id_campanha || index, 
+                            name: row.nome_campanha || "Sem Nome",
+                            date: dt,
+                            status: st,
+                            sales: row.total_vendas || 0,
+                            products: row.qtd_produtos || 0
+                        };
+                    });
+                    
+                    campaignsData.reverse(); 
+                    renderTable();
+                    updateStats();
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Erro de conexão.</td></tr>';
+            }
+        }
+
+                        return {
+                            id: row.id_campanha || index, 
+                            name: row.nome_campanha || "Sem Nome",
+                            date: dt,
+                            status: st,
+                            sales: row.total_vendas || 0,
+                            products: row.qtd_produtos || 0
+                        };
+                    });
+                    
+                    campaignsData.reverse(); 
+                    renderTable();
+                    updateStats();
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Erro de conexão.</td></tr>';
+            }
+        }
                         dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
                         brand: { 500: '#3b82f6', 600: '#2563eb' }
                     },
