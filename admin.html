@@ -33,7 +33,6 @@
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Transições de Modais */
         #custom-alert, #newCampaignModal, #editProductsModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
         #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
@@ -42,7 +41,6 @@
         .action-btn { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .action-btn:hover { transform: translateY(-2px); }
 
-        /* Scrollbar fina para a lista de produtos */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
@@ -58,12 +56,8 @@
             </div>
             <h2 class="text-2xl font-black mb-2">Painel Admin</h2>
             <p class="text-slate-400 text-sm mb-8">Gestão Centralizada</p>
-            
             <input type="tel" id="adminPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-2xl px-5 py-4 mb-4 text-white font-bold outline-none focus:border-brand-500 transition-colors text-center text-lg tracking-widest placeholder:tracking-normal" placeholder="WhatsApp">
-            
-            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
-                Entrar no Sistema
-            </button>
+            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">Entrar no Sistema</button>
             <a href="index.html" class="text-xs text-slate-500 font-bold hover:text-white transition-colors">← Voltar para a Loja</a>
         </div>
     </div>
@@ -74,36 +68,25 @@
                 <h1 class="text-3xl font-black text-white flex items-center gap-3">Gestão Clips <i class="fas fa-paperclip text-brand-500 transform rotate-45"></i></h1>
                 <p class="text-slate-400 text-sm mt-1">Bem-vindo(a), <span class="text-brand-500 font-bold">Admin</span></p>
             </div>
-            <button onclick="logout()" class="glass-panel px-4 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </button>
+            <button onclick="logout()" class="glass-panel px-4 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div class="glass-panel p-6 rounded-3xl flex items-center gap-4 border-l-4 border-green-500 relative overflow-hidden group">
                 <div class="absolute right-[-20px] top-[-20px] w-32 h-32 bg-green-500/10 rounded-full blur-2xl group-hover:bg-green-500/20 transition-all"></div>
                 <div class="w-14 h-14 rounded-2xl bg-green-500/20 text-green-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-dollar-sign"></i></div>
-                <div>
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Vendido</p>
-                    <p class="text-2xl font-black text-white" id="totalSalesDisplay">R$ 0,00</p>
-                </div>
+                <div><p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Vendido</p><p class="text-2xl font-black text-white" id="totalSalesDisplay">R$ 0,00</p></div>
             </div>
             <div class="glass-panel p-6 rounded-3xl flex items-center gap-4 border-l-4 border-blue-500 relative overflow-hidden group">
                 <div class="absolute right-[-20px] top-[-20px] w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
                 <div class="w-14 h-14 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-bullhorn"></i></div>
-                <div>
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Campanhas</p>
-                    <p class="text-2xl font-black text-white" id="activeCampaignsDisplay">0 Ativas</p>
-                </div>
+                <div><p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Campanhas</p><p class="text-2xl font-black text-white" id="activeCampaignsDisplay">0 Ativas</p></div>
             </div>
             <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-0 rounded-3xl flex items-center justify-between shadow-xl shadow-blue-600/20 transition-all hover:scale-[1.02] cursor-pointer group overflow-hidden relative">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 opacity-100"></div>
                 <div class="relative z-10 p-6 flex items-center gap-4 w-full">
                     <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-white text-xl shadow-lg backdrop-blur-sm group-hover:rotate-90 transition-transform duration-300"><i class="fas fa-plus"></i></div>
-                    <div class="text-left">
-                        <p class="text-sm font-bold text-blue-100 opacity-90">Criar Nova</p>
-                        <p class="text-2xl font-black text-white">Campanha</p>
-                    </div>
+                    <div class="text-left"><p class="text-sm font-bold text-blue-100 opacity-90">Criar Nova</p><p class="text-2xl font-black text-white">Campanha</p></div>
                 </div>
             </button>
         </div>
@@ -116,12 +99,9 @@
                         <i class="fas fa-search absolute left-4 top-3 text-slate-500"></i>
                         <input type="text" placeholder="Buscar..." class="w-full bg-dark-900/50 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white outline-none focus:border-brand-500 transition-colors">
                     </div>
-                    <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors text-slate-300 hover:text-white" title="Atualizar Tabela">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
+                    <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors text-slate-300 hover:text-white" title="Atualizar Tabela"><i class="fas fa-sync-alt"></i></button>
                 </div>
             </div>
-            
             <div class="overflow-x-auto flex-1">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-dark-900/30 text-slate-400 text-xs uppercase font-bold sticky top-0 backdrop-blur-sm">
@@ -133,8 +113,7 @@
                             <th class="p-6 font-bold tracking-wider text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5">
-                        </tbody>
+                    <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
                 </table>
             </div>
         </div>
@@ -155,30 +134,22 @@
     </div>
 
     <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-dark-900/90 backdrop-blur-md">
-        <div class="modal-content glass-panel w-full max-w-4xl h-[90vh] flex flex-col rounded-[32px] shadow-2xl relative">
+        <div class="modal-content glass-panel w-full max-w-5xl h-[90vh] flex flex-col rounded-[32px] shadow-2xl relative">
             <div class="p-8 border-b border-white/10 flex justify-between items-center shrink-0">
                 <div>
                     <h3 class="text-2xl font-black text-white" id="editModalTitle">Editando Campanha</h3>
-                    <p class="text-slate-400 text-sm mt-1">Produtos enviados via Telegram</p>
+                    <p class="text-slate-400 text-sm mt-1">Preencha os detalhes dos produtos recebidos.</p>
                 </div>
                 <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
                     <i class="fas fa-times text-white"></i>
                 </button>
             </div>
-
             <div class="flex-1 overflow-y-auto p-6 custom-scroll">
-                <div id="productListArea" class="space-y-4">
-                    <div class="flex flex-col items-center justify-center h-64 text-slate-500">
-                        <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
-                        <p>Carregando produtos...</p>
-                    </div>
-                </div>
+                <div id="productListArea" class="space-y-4"></div>
             </div>
-
-            <div class="p-6 border-t border-white/10 shrink-0 flex justify-end">
-                <button onclick="closeEditModal()" class="bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-600/20 transition-all">
-                    Concluir Edição
-                </button>
+            <div class="p-6 border-t border-white/10 shrink-0 flex justify-end gap-3">
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-white font-bold py-3 px-6 transition-colors">Cancelar</button>
+                <button onclick="closeEditModal()" class="bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-600/20 transition-all">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -204,13 +175,8 @@
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
         function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
+        function closeEditModal() { document.getElementById('editProductsModal').classList.remove('visible'); fetchDashboardData(); }
         
-        // NOVO: Controle do Modal de Edição
-        function closeEditModal() { 
-            document.getElementById('editProductsModal').classList.remove('visible'); 
-            fetchDashboardData(); // Atualiza a dashboard ao fechar, para refletir mudanças
-        }
-
         function showPopup(msg, type='error') {
             const el = document.getElementById('custom-alert');
             const iconArea = document.getElementById('alert-icon-area');
@@ -234,18 +200,13 @@
             try { return await req(URL_PROD); } catch { try { return await req(URL_TEST); } catch { return null; } }
         }
 
-        // --- 1. LOGIN ---
         async function checkAuth() {
             const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
             if(phone.length < 8) return showPopup("Número inválido");
-            
             const btn = document.getElementById('btnLogin');
             const txt = btn.innerText; btn.innerText="Verificando..."; btn.disabled=true;
-
             const res = await sendN8N({ usuario_admin: phone, tipo_requisicao: "login" });
-
             btn.innerText = txt; btn.disabled=false;
-
             if(res && res.found){
                 adminUser = phone;
                 document.getElementById('loginScreen').classList.add('hidden');
@@ -256,30 +217,21 @@
             }
         }
 
-        // --- 2. DASHBOARD ---
         async function fetchDashboardData() {
             const tbody = document.getElementById('campaignList');
-            // Só mostra loading se a tabela estiver vazia
             if(tbody.innerHTML.trim() === "") tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin"></i> Atualizando...</td></tr>';
-
             try {
                 const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
-                console.log("📦 DADOS RECEBIDOS:", res);
-
+                console.log("📦 DADOS DASHBOARD:", res);
                 if(res && res.found && res.campanhas) {
                     const dadosValidos = res.campanhas.filter(row => row.nome_campanha && row.nome_campanha.toString().trim() !== "");
-                    
                     campaignsData = dadosValidos.map((row, index) => {
                         let st = 'draft';
                         let statusRaw = row.status ? row.status.toString().toLowerCase() : "";
                         if (statusRaw.includes('ativa')) st = 'active';
                         else if (statusRaw.includes('fechada') || statusRaw.includes('encerrada')) st = 'closed';
-
                         let dt = "-";
-                        if(row.data_hora) {
-                            try { dt = new Date(row.data_hora).toLocaleDateString('pt-BR'); } catch(e){}
-                        }
-
+                        if(row.data_hora) { try { dt = new Date(row.data_hora).toLocaleDateString('pt-BR'); } catch(e){} }
                         return {
                             id: row.id_campanha || index, 
                             name: row.nome_campanha || "Sem Nome",
@@ -289,38 +241,28 @@
                             products: row.qtd_produtos || 0
                         };
                     });
-                    
                     campaignsData.reverse(); 
                     renderTable();
                     updateStats();
                 } else {
                     if(campaignsData.length === 0) tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
                 }
-            } catch (error) {
-                console.error("Erro:", error);
-            }
+            } catch (error) { console.error("Erro:", error); }
         }
 
         function renderTable() {
             const tbody = document.getElementById('campaignList');
             tbody.innerHTML = '';
-            
             if(campaignsData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">Nenhuma campanha encontrada.</td></tr>';
                 return;
             }
-
             campaignsData.forEach(c => {
                 let badge = c.status === 'active' ? '<span class="status-badge status-active">● Ativa</span>' :
                             c.status === 'closed' ? '<span class="status-badge status-closed">Encerrada</span>' :
                             '<span class="status-badge status-draft">Rascunho</span>';
-                
-                let stopBtn = c.status === 'active' ? 
-                    `<button onclick="stopCampaign('${c.name}')" title="Encerrar" class="action-btn bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white"><i class="fas fa-stop"></i></button>` : '';
-
+                let stopBtn = c.status === 'active' ? `<button onclick="stopCampaign('${c.name}')" title="Encerrar" class="action-btn bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white"><i class="fas fa-stop"></i></button>` : '';
                 let valorFmt = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-
-                // NOTA: Adicionei c.id na função editProducts abaixo
                 const row = `
                     <tr class="hover:bg-white/5 transition-colors group border-b border-white/5 last:border-0">
                         <td class="p-6">${badge}</td>
@@ -346,30 +288,18 @@
         function updateStats() {
             const active = campaignsData.filter(c => c.status === 'active').length;
             const total = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0);
-            
             document.getElementById('activeCampaignsDisplay').innerText = `${active} Ativas`;
             document.getElementById('totalSalesDisplay').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        // --- 3. CRIAR NOVA CAMPANHA ---
         async function triggerCampaign() {
             const name = document.getElementById('campaignNameInput').value;
             if(!name) return showPopup("Digite o nome");
-
             const newID = Math.floor(Date.now() / 1000); 
-
             const btn = document.getElementById('btnStart');
             const txt = btn.innerHTML; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Iniciando...'; btn.disabled=true;
-
-            const res = await sendN8N({ 
-                usuario_admin: adminUser, 
-                Nome_campanha: name, 
-                id_campanha: newID, 
-                tipo_requisicao: "campanha" 
-            });
-
+            const res = await sendN8N({ usuario_admin: adminUser, Nome_campanha: name, id_campanha: newID, tipo_requisicao: "campanha" });
             btn.innerHTML = txt; btn.disabled=false;
-
             if(res && res.found){
                 showPopup("Campanha Iniciada! 🚀", "success");
                 closeNewCampaignModal();
@@ -379,52 +309,80 @@
             }
         }
 
-        // --- 4. NOVO: LÓGICA DE EDIÇÃO DE PRODUTOS ---
+        // --- LÓGICA DE EDIÇÃO DE PRODUTOS ---
         async function openEditProducts(id, name) {
             currentEditingId = id;
             document.getElementById('editModalTitle').innerText = `Editando: ${name}`;
             document.getElementById('editProductsModal').classList.add('visible');
-            
             const listArea = document.getElementById('productListArea');
-            listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando fotos no Telegram...</p></div>';
+            listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando produtos no n8n...</p></div>';
 
-            // SIMULAÇÃO: No futuro aqui faremos uma chamada ao n8n para buscar os produtos
-            // Por enquanto, vou simular que o Telegram mandou 2 produtos para você editar
-            setTimeout(() => {
-                renderMockProducts();
-            }, 800);
+            try {
+                // Tenta buscar no n8n (Requisição "get_products")
+                const res = await sendN8N({ usuario_admin: adminUser, id_campanha: id, tipo_requisicao: "get_products" });
+                
+                if(res && res.products && res.products.length > 0) {
+                    renderProductList(res.products);
+                } else {
+                    // Se não tiver produtos ou a rota não existir ainda, carrega o MOCK para visualizar
+                    renderProductList(getMockProducts());
+                }
+            } catch (e) {
+                renderProductList(getMockProducts());
+            }
         }
 
-        function renderMockProducts() {
+        function getMockProducts() {
+            return [
+                { id: 101, imagem_url: 'https://cdn-icons-png.flaticon.com/512/2996/2996860.png', nome_produto: '', preco_de: '', preco_por: '', cor: '', tamanho: '' },
+                { id: 102, imagem_url: 'https://cdn-icons-png.flaticon.com/512/2996/2996860.png', nome_produto: 'Vestido Florido', preco_de: '150.00', preco_por: '89.90', cor: 'Vermelho', tamanho: 'M' }
+            ];
+        }
+
+        function renderProductList(products) {
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '';
 
-            // Dados Fictícios simulando o que virá do Telegram
-            const mockProducts = [
-                { id: 1, img: 'https://cdn-icons-png.flaticon.com/512/2996/2996860.png', name: '', price: '' },
-                { id: 2, img: 'https://cdn-icons-png.flaticon.com/512/2996/2996860.png', name: 'Caderno 10 Matérias', price: '25.90' }
-            ];
+            products.forEach(p => {
+                // Se a imagem for vazia, usa placeholder
+                const imgSrc = p.imagem_url || 'https://via.placeholder.com/150?text=Foto';
 
-            mockProducts.forEach(p => {
                 const item = `
-                    <div class="glass-panel p-4 rounded-2xl flex flex-col md:flex-row gap-6 items-center">
-                        <div class="w-24 h-24 bg-dark-900 rounded-xl shrink-0 flex items-center justify-center overflow-hidden border border-slate-700">
-                            <img src="${p.img}" class="w-16 h-16 opacity-50">
+                    <div class="glass-panel p-4 rounded-2xl flex flex-col md:flex-row gap-6 items-start animate-fade-in mb-4">
+                        <div class="w-32 h-32 bg-dark-900 rounded-xl shrink-0 flex items-center justify-center overflow-hidden border border-slate-700 self-center md:self-start relative group cursor-pointer">
+                            <img src="${imgSrc}" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity">
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/50 transition-opacity">
+                                <i class="fas fa-search-plus text-white"></i>
+                            </div>
                         </div>
 
                         <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="md:col-span-2">
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Nome do Produto</label>
-                                <input type="text" value="${p.name}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none" placeholder="Ex: Mochila Azul">
+                                <input type="text" value="${p.nome_produto || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none" placeholder="Ex: Camiseta Básica">
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Preço De (R$)</label>
+                                <input type="number" step="0.01" value="${p.preco_de || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-400 focus:border-brand-500 outline-none" placeholder="0.00">
                             </div>
                             <div>
-                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Preço (R$)</label>
-                                <input type="number" value="${p.price}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none" placeholder="0,00">
+                                <label class="text-[10px] uppercase font-bold text-green-500 mb-1 block">Preço Por (R$)</label>
+                                <input type="number" step="0.01" value="${p.preco_por || ''}" class="w-full bg-dark-900 border border-green-500/30 rounded-xl px-4 py-3 text-sm text-white font-bold focus:border-green-500 outline-none" placeholder="0.00">
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Cor</label>
+                                <input type="text" value="${p.cor || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none" placeholder="Ex: Azul Marinho">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Tamanho</label>
+                                <input type="text" value="${p.tamanho || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none" placeholder="Ex: G, 42, Único">
                             </div>
                         </div>
 
-                        <button onclick="saveProduct(${p.id})" class="h-12 w-12 rounded-xl bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white flex items-center justify-center transition-all shrink-0">
-                            <i class="fas fa-check"></i>
+                        <button onclick="saveProduct(${p.id})" class="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all shrink-0 self-end md:self-center" title="Salvar Produto">
+                            <i class="fas fa-save"></i>
                         </button>
                     </div>
                 `;
@@ -433,8 +391,8 @@
         }
 
         function saveProduct(prodId) {
-            // Futuramente aqui enviaremos ao n8n para salvar no Google Sheets
-            showPopup("Produto salvo! (Simulação)", "success");
+            // Aqui futuramente enviaremos os dados daquele produto específico para o n8n atualizar
+            showPopup("Produto salvo localmente! (Simulação)", "success");
         }
 
         // --- AÇÕES GERAIS ---
