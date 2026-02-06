@@ -33,13 +33,19 @@
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        #custom-alert, #newCampaignModal { transition: opacity 0.3s ease; opacity: 0; pointer-events: none; }
-        #custom-alert.visible, #newCampaignModal.visible { opacity: 1; pointer-events: auto; }
+        /* Transições de Modais */
+        #custom-alert, #newCampaignModal, #editProductsModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
+        #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
         .visible .modal-content { transform: scale(1); }
         
         .action-btn { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .action-btn:hover { transform: translateY(-2px); }
+
+        /* Scrollbar fina para a lista de produtos */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -148,6 +154,35 @@
         </div>
     </div>
 
+    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-dark-900/90 backdrop-blur-md">
+        <div class="modal-content glass-panel w-full max-w-4xl h-[90vh] flex flex-col rounded-[32px] shadow-2xl relative">
+            <div class="p-8 border-b border-white/10 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="text-2xl font-black text-white" id="editModalTitle">Editando Campanha</h3>
+                    <p class="text-slate-400 text-sm mt-1">Produtos enviados via Telegram</p>
+                </div>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                    <i class="fas fa-times text-white"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 custom-scroll">
+                <div id="productListArea" class="space-y-4">
+                    <div class="flex flex-col items-center justify-center h-64 text-slate-500">
+                        <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+                        <p>Carregando produtos...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-white/10 shrink-0 flex justify-end">
+                <button onclick="closeEditModal()" class="bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-600/20 transition-all">
+                    Concluir Edição
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
             <div id="alert-icon-area" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100 text-red-600"><i id="alert-icon" class="fas fa-exclamation-triangle text-2xl"></i></div>
@@ -158,17 +193,24 @@
     </div>
 
     <script>
-        // --- LINKS DO N8N (Configurações) ---
+        // --- LINKS DO N8N ---
         const URL_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
         let adminUser = "";
         let campaignsData = [];
+        let currentEditingId = null;
 
         // --- UI UTILS ---
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
         function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
         
+        // NOVO: Controle do Modal de Edição
+        function closeEditModal() { 
+            document.getElementById('editProductsModal').classList.remove('visible'); 
+            fetchDashboardData(); // Atualiza a dashboard ao fechar, para refletir mudanças
+        }
+
         function showPopup(msg, type='error') {
             const el = document.getElementById('custom-alert');
             const iconArea = document.getElementById('alert-icon-area');
@@ -208,36 +250,31 @@
                 adminUser = phone;
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-                fetchDashboardData(); // Carrega os dados reais ao entrar
+                fetchDashboardData();
             } else {
                 showPopup("Admin não encontrado.");
             }
         }
 
-        // --- 2. BUSCAR DADOS (DASHBOARD) - COM FILTRO ANTI-FANTASMA ---
+        // --- 2. DASHBOARD ---
         async function fetchDashboardData() {
             const tbody = document.getElementById('campaignList');
-            tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin"></i> Atualizando...</td></tr>';
+            // Só mostra loading se a tabela estiver vazia
+            if(tbody.innerHTML.trim() === "") tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin"></i> Atualizando...</td></tr>';
 
             try {
                 const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
-                
-                // ESPIÃO: Mostra no console o que chegou
                 console.log("📦 DADOS RECEBIDOS:", res);
 
                 if(res && res.found && res.campanhas) {
-                    
-                    // --- FILTRO: Remove linhas vazias ---
                     const dadosValidos = res.campanhas.filter(row => row.nome_campanha && row.nome_campanha.toString().trim() !== "");
-
+                    
                     campaignsData = dadosValidos.map((row, index) => {
                         let st = 'draft';
                         let statusRaw = row.status ? row.status.toString().toLowerCase() : "";
-                        
                         if (statusRaw.includes('ativa')) st = 'active';
                         else if (statusRaw.includes('fechada') || statusRaw.includes('encerrada')) st = 'closed';
 
-                        // Tratamento de Data
                         let dt = "-";
                         if(row.data_hora) {
                             try { dt = new Date(row.data_hora).toLocaleDateString('pt-BR'); } catch(e){}
@@ -257,11 +294,10 @@
                     renderTable();
                     updateStats();
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
+                    if(campaignsData.length === 0) tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>';
                 }
             } catch (error) {
                 console.error("Erro:", error);
-                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Erro de conexão.</td></tr>';
             }
         }
 
@@ -282,9 +318,9 @@
                 let stopBtn = c.status === 'active' ? 
                     `<button onclick="stopCampaign('${c.name}')" title="Encerrar" class="action-btn bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white"><i class="fas fa-stop"></i></button>` : '';
 
-                // Formatação de Moeda
                 let valorFmt = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
+                // NOTA: Adicionei c.id na função editProducts abaixo
                 const row = `
                     <tr class="hover:bg-white/5 transition-colors group border-b border-white/5 last:border-0">
                         <td class="p-6">${badge}</td>
@@ -298,7 +334,7 @@
                         <td class="p-6 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-100">
                                 <button onclick="shareLink('${c.name}')" title="Link" class="action-btn bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white"><i class="fas fa-link"></i></button>
-                                <button onclick="editProducts('${c.name}')" title="Editar" class="action-btn bg-slate-700 text-slate-300 hover:bg-white hover:text-slate-900"><i class="fas fa-pen"></i></button>
+                                <button onclick="openEditProducts('${c.id}', '${c.name}')" title="Editar Produtos" class="action-btn bg-slate-700 text-slate-300 hover:bg-white hover:text-slate-900"><i class="fas fa-pen"></i></button>
                                 ${stopBtn}
                             </div>
                         </td>
@@ -315,12 +351,12 @@
             document.getElementById('totalSalesDisplay').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        // --- 3. CRIAR NOVA CAMPANHA (COM DELAY PARA ATUALIZAR) ---
+        // --- 3. CRIAR NOVA CAMPANHA ---
         async function triggerCampaign() {
             const name = document.getElementById('campaignNameInput').value;
             if(!name) return showPopup("Digite o nome");
 
-            const newID = Math.floor(Date.now() / 1000); // Gera ID único
+            const newID = Math.floor(Date.now() / 1000); 
 
             const btn = document.getElementById('btnStart');
             const txt = btn.innerHTML; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Iniciando...'; btn.disabled=true;
@@ -337,25 +373,76 @@
             if(res && res.found){
                 showPopup("Campanha Iniciada! 🚀", "success");
                 closeNewCampaignModal();
-                
-                // ESPERA 2 SEGUNDOS ANTES DE ATUALIZAR A TABELA
-                // (Para garantir que o Google Sheets salvou o dado)
-                setTimeout(() => {
-                    fetchDashboardData(); 
-                }, 2000);
-
+                setTimeout(() => { fetchDashboardData(); }, 2000);
             } else {
                 showPopup("Erro ao iniciar.");
             }
         }
 
-        // --- AÇÕES ---
+        // --- 4. NOVO: LÓGICA DE EDIÇÃO DE PRODUTOS ---
+        async function openEditProducts(id, name) {
+            currentEditingId = id;
+            document.getElementById('editModalTitle').innerText = `Editando: ${name}`;
+            document.getElementById('editProductsModal').classList.add('visible');
+            
+            const listArea = document.getElementById('productListArea');
+            listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando fotos no Telegram...</p></div>';
+
+            // SIMULAÇÃO: No futuro aqui faremos uma chamada ao n8n para buscar os produtos
+            // Por enquanto, vou simular que o Telegram mandou 2 produtos para você editar
+            setTimeout(() => {
+                renderMockProducts();
+            }, 800);
+        }
+
+        function renderMockProducts() {
+            const listArea = document.getElementById('productListArea');
+            listArea.innerHTML = '';
+
+            // Dados Fictícios simulando o que virá do Telegram
+            const mockProducts = [
+                { id: 1, img: 'https://cdn-icons-png.flaticon.com/512/2996/2996860.png', name: '', price: '' },
+                { id: 2, img: 'https://cdn-icons-png.flaticon.com/512/2996/2996860.png', name: 'Caderno 10 Matérias', price: '25.90' }
+            ];
+
+            mockProducts.forEach(p => {
+                const item = `
+                    <div class="glass-panel p-4 rounded-2xl flex flex-col md:flex-row gap-6 items-center">
+                        <div class="w-24 h-24 bg-dark-900 rounded-xl shrink-0 flex items-center justify-center overflow-hidden border border-slate-700">
+                            <img src="${p.img}" class="w-16 h-16 opacity-50">
+                        </div>
+
+                        <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Nome do Produto</label>
+                                <input type="text" value="${p.name}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none" placeholder="Ex: Mochila Azul">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Preço (R$)</label>
+                                <input type="number" value="${p.price}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none" placeholder="0,00">
+                            </div>
+                        </div>
+
+                        <button onclick="saveProduct(${p.id})" class="h-12 w-12 rounded-xl bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white flex items-center justify-center transition-all shrink-0">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                `;
+                listArea.innerHTML += item;
+            });
+        }
+
+        function saveProduct(prodId) {
+            // Futuramente aqui enviaremos ao n8n para salvar no Google Sheets
+            showPopup("Produto salvo! (Simulação)", "success");
+        }
+
+        // --- AÇÕES GERAIS ---
         function shareLink(name) {
             const link = window.location.origin + "/index.html?c=" + encodeURIComponent(name);
             navigator.clipboard.writeText(link);
             showPopup("Link copiado!", "success");
         }
-        function editProducts(name) { showPopup(`Editar ${name} (Em breve)`, "success"); }
         function stopCampaign(name) {
             if(confirm(`Encerrar campanha "${name}"?`)) showPopup("Encerrada (Simulação)", "success");
         }
