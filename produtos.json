@@ -1,22 +1,32 @@
 [
   {
-    "id": 2,
-    "name": "Controle de XBOX One",
-    "priceFrom": 697,
-    "priceTo": 397,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_59.jpg",
-    "cor": "Vermelho",
-    "tamanho": "Pequeno",
-    "category": "bazar"
+    "id": "AQADpwtrG1_VWUR-",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_87.jpg",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": 3,
-    "name": "Enfeite Buda Dourado",
-    "priceFrom": 197,
-    "priceTo": 49.9,
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_60.jpg",
-    "cor": "Dourado",
-    "tamanho": "15 cm",
-    "category": "bazar"
+    "id": "AQADqAtrG1_VWUR-",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_88.jpg",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "AQADqQtrG1_VWUR-",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_89.jpg",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
   }
 ]
