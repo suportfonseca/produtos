@@ -1,7 +1,7 @@
 [
   {
-    "id": "AQADpwtrG1_VWUR-",
-    "name": "Sem Nome",
+    "id": 1770724729,
+    "name": "",
     "priceFrom": "",
     "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_87.jpg",
@@ -10,21 +10,11 @@
     "tamanho": ""
   },
   {
-    "id": "AQADqAtrG1_VWUR-",
-    "name": "Sem Nome",
+    "id": 1770724764845,
+    "name": "",
     "priceFrom": "",
     "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_88.jpg",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "AQADqQtrG1_VWUR-",
-    "name": "Sem Nome",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_89.jpg",
     "category": "foto",
     "cor": "",
     "tamanho": ""
