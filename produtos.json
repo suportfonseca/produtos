@@ -1,13 +1,13 @@
 [
   {
     "id": 1770726915,
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "PORTA CANETA",
+    "priceFrom": "19.90",
+    "priceTo": "9.90",
     "image": "https://api.telegram.org/file/bot8362532511:AAHIfDqiqlYXzxZjShf6INdsWs1krqIsitg/photos/file_90.jpg",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "LARANJA",
+    "tamanho": "G"
   },
   {
     "id": 1770726975452,
