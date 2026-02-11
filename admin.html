@@ -33,7 +33,6 @@
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Modais */
         #custom-alert, #newCampaignModal, #editProductsModal, #activationModal, #reopenModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
         #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible, #activationModal.visible, #reopenModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
@@ -143,7 +142,7 @@
                 <i class="fas fa-lock"></i>
             </div>
             <h3 class="text-xl font-black mb-2">Campanha Ativa</h3>
-            <p class="text-sm text-slate-500 font-medium mb-6">Esta campanha já está ativa e vendendo. Para editá-la, você precisa reabrir (status mudará para Rascunho).</p>
+            <p class="text-sm text-slate-500 font-medium mb-6">Esta campanha já está ativa e vendendo. Reabra para editar (status mudará para Rascunho).</p>
             <div class="flex flex-col gap-3">
                 <button onclick="confirmReopen()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Reabrir e Editar</button>
                 <button onclick="closeReopenModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Cancelar</button>
@@ -157,10 +156,10 @@
                 <i class="fas fa-check"></i>
             </div>
             <h3 class="text-xl font-black mb-2">Edição Concluída!</h3>
-            <p class="text-sm text-slate-500 font-medium mb-6">Você deseja ativar esta campanha agora para que ela apareça no catálogo de vendas?</p>
+            <p class="text-sm text-slate-500 font-medium mb-6">Deseja ativar esta campanha agora para aparecer no catálogo?</p>
             <div class="flex flex-col gap-3">
-                <button onclick="handleActivation(true)" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Ativar Campanha</button>
-                <button onclick="handleActivation(false)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Não, manter como rascunho</button>
+                <button onclick="handleActivation(true)" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Ativar</button>
+                <button onclick="handleActivation(false)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Manter Rascunho</button>
             </div>
         </div>
     </div>
@@ -174,7 +173,6 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÕES N8N ---
         const URL_MAIN_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_MAIN_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
         const URL_PRODUCTS_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
@@ -188,7 +186,6 @@
         let pendingReopenId = null;
         let pendingReopenName = null;
 
-        // --- UI UTILS ---
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
         function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
@@ -204,11 +201,9 @@
             el.classList.add('visible');
         }
 
-        // --- CONEXÃO BLINDADA ---
         async function sendN8N(payload, customUrlProd = null, customUrlTest = null) {
             const prod = customUrlProd || URL_MAIN_PROD;
             const test = customUrlTest || URL_MAIN_TEST;
-
             const req = async(url) => {
                 const res = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
                 if(!res.ok) throw new Error(); return await res.json();
@@ -224,7 +219,6 @@
             try { return await req(URL_PRODUCTS_PROD); } catch { try { return await req(URL_PRODUCTS_TEST); } catch { return null; } }
         }
 
-        // --- SISTEMA PRINCIPAL ---
         async function checkAuth() {
             const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
             if(phone.length < 8) return showPopup("Número inválido");
@@ -245,14 +239,11 @@
             const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
             if(res && res.found && res.campanhas) {
                 const dadosValidos = res.campanhas.filter(row => row.nome_campanha && row.nome_campanha.toString().trim() !== "");
-                
-                // Mapeamento Inteligente de Status
                 campaignsData = dadosValidos.map((row, index) => {
                     let raw = row.status ? row.status.toString().toLowerCase() : '';
                     let st = 'closed';
                     if(raw.includes('ativa')) st = 'active';
                     if(raw.includes('rascunho')) st = 'draft';
-                    
                     let dt = row.data_hora ? new Date(row.data_hora).toLocaleDateString('pt-BR') : "-";
                     return { id: row.id_campanha || index, name: row.nome_campanha || "Sem Nome", date: dt, status: st, sales: row.total_vendas || 0, products: row.qtd_produtos || 0 };
                 });
@@ -268,9 +259,7 @@
                 if(c.status === 'active') badge = '<span class="status-badge status-active">● Ativa</span>';
                 else if(c.status === 'draft') badge = '<span class="status-badge status-draft">● Rascunho</span>';
                 else badge = '<span class="status-badge status-closed">Encerrada</span>';
-
                 let valorFmt = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-                
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/5 border-b border-white/5">
                         <td class="p-6">${badge}</td>
@@ -283,9 +272,8 @@
         }
 
         function updateStats() {
-            const active = campaignsDisplay = document.getElementById('activeCampaignsDisplay');
+            const active = document.getElementById('activeCampaignsDisplay');
             if(active) active.innerText = `${campaignsData.filter(c => c.status === 'active').length} Ativas`;
-            
             const sales = document.getElementById('totalSalesDisplay');
             if(sales) sales.innerText = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
@@ -299,15 +287,11 @@
             if(res && res.found){ showPopup("Campanha Iniciada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 2000); } else { showPopup("Erro ao iniciar."); }
         }
 
-        // --- SISTEMA DE EDIÇÃO COM TRAVA DE SEGURANÇA ---
         async function openEditProducts(id, name, status) {
             if (status === 'active') {
-                pendingReopenId = id;
-                pendingReopenName = name;
-                document.getElementById('reopenModal').classList.add('visible');
-                return;
+                pendingReopenId = id; pendingReopenName = name;
+                document.getElementById('reopenModal').classList.add('visible'); return;
             }
-
             currentEditingId = id;
             document.getElementById('editModalTitle').innerText = `Editando: ${name}`;
             document.getElementById('editProductsModal').classList.add('visible');
@@ -315,34 +299,32 @@
             listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando produtos...</p></div>';
 
             const data = await getProductsN8N(id);
-            if(data && data.length > 0) { 
-                processAndRenderProducts(data); // <--- Ajustado aqui: data agora é o array direto agrupado
+            // CORREÇÃO AQUI: 'data' agora já vem como a lista agrupada do n8n Code
+            if(data && Array.isArray(data) && data.length > 0) { 
+                processAndRenderProducts(data);
+            } else if (data && data.products) { // Fallback caso o n8n mude o envelope
+                 processAndRenderProducts(data.products);
             } else {
-                listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado nesta campanha ainda.</div>';
+                listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado.</div>';
             }
         }
 
         async function confirmReopen() {
-            closeReopenModal();
-            showPopup("Reabrindo campanha...", "success");
-
-            const payload = {
-                action: "update_status",
-                id_campanha: pendingReopenId,
-                status: "rascunho"
-            };
+            closeReopenModal(); showPopup("Reabrindo...", "success");
+            const payload = { action: "update_status", id_campanha: pendingReopenId, status: "rascunho" };
             await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
-            openEditProducts(pendingReopenId, pendingReopenName, 'draft');
-            fetchDashboardData();
+            openEditProducts(pendingReopenId, pendingReopenName, 'draft'); fetchDashboardData();
         }
 
         function processAndRenderProducts(productsAgrupados) {
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '';
 
-            productsAgrupados.forEach(prod => {
-                const mainImage = prod.imagens && prod.imagens[0] ? prod.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
-                const mediaCountMsg = `${prod.qtd_fotos || 0} Foto(s), 0 Vídeo(s)`;
+            productsAgrupados.forEach(prodItem => {
+                // n8n Code retorna { json: { ...campos } }
+                const prod = prodItem.json || prodItem; 
+                const mainImage = prod.imagens && prod.imagens[0] ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
+                const mediaCountMsg = `${prod.qtd_fotos || 1} Foto(s), 0 Vídeo(s)`;
                 const pid = prod.id_grupo || prod.id_produto;
 
                 listArea.innerHTML += `
@@ -354,26 +336,26 @@
                         <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Nome do Produto</label>
-                                <input type="text" id="nome_${pid}" value="${prod.nome_produto || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none" placeholder="Ex: Camiseta Básica">
+                                <input type="text" id="nome_${pid}" value="${prod.nome_produto || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none" placeholder="Ex: Camiseta">
                             </div>
                             <div>
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Preço De (R$)</label>
-                                <input type="number" id="de_${pid}" step="0.01" value="${prod.preco_de || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-400 focus:border-brand-500 outline-none" placeholder="0.00">
+                                <input type="number" id="de_${pid}" step="0.01" value="${prod.preco_de || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
                             </div>
                             <div>
                                 <label class="text-[10px] uppercase font-bold text-green-500 mb-1 block">Preço Por (R$)</label>
-                                <input type="number" id="por_${pid}" step="0.01" value="${prod.preco_por || ''}" class="w-full bg-dark-900 border border-green-500/30 rounded-xl px-4 py-3 text-sm font-bold focus:border-green-500 outline-none" placeholder="0.00">
+                                <input type="number" id="por_${pid}" step="0.01" value="${prod.preco_por || ''}" class="w-full bg-dark-900 border border-green-500/30 rounded-xl px-4 py-3 text-sm font-bold focus:border-green-500 outline-none">
                             </div>
                             <div>
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Cor</label>
-                                <input type="text" id="cor_${pid}" value="${prod.cor || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none" placeholder="Ex: Azul">
+                                <input type="text" id="cor_${pid}" value="${prod.cor || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
                             </div>
                             <div>
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Tamanho</label>
-                                <input type="text" id="tam_${pid}" value="${prod.tamanho || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none" placeholder="Ex: G">
+                                <input type="text" id="tam_${pid}" value="${prod.tamanho || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
                             </div>
                         </div>
-                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}', '${prod.id_produto}')" class="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all shrink-0 self-end md:self-center" title="Salvar Alterações"><i class="fas fa-save"></i></button>
+                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}', '${prod.id_produto}')" class="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all shrink-0 self-end md:self-center"><i class="fas fa-save"></i></button>
                     </div>`;
             });
         }
@@ -381,38 +363,23 @@
         async function saveProduct(groupId, individualId) {
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
-            
             const nome = document.getElementById(`nome_${groupId}`).value;
             const precoDe = document.getElementById(`de_${groupId}`).value;
             const precoPor = document.getElementById(`por_${groupId}`).value;
             const cor = document.getElementById(`cor_${groupId}`).value;
             const tamanho = document.getElementById(`tam_${groupId}`).value;
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btn.disabled = true;
-
-            const payload = {
-                action: "update_product",
-                id_grupo: groupId,
-                id_produto: individualId, // <--- ADICIONADO: Mantém compatibilidade
-                id_campanha: currentEditingId, 
-                nome_produto: nome,
-                preco_de: precoDe,
-                preco_por: precoPor,
-                cor: cor,
-                tamanho: tamanho
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+            const payload = { 
+                action: "update_product", id_grupo: groupId, id_produto: individualId,
+                id_campanha: currentEditingId, nome_produto: nome, preco_de: precoDe,
+                preco_por: precoPor, cor: cor, tamanho: tamanho 
             };
-
             const res = await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
-
             if(res && res.success) {
                 btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
                 setTimeout(() => { btn.innerHTML = originalIcon; btn.disabled = false; }, 2000);
-            } else {
-                showPopup("Erro ao salvar produto.");
-                btn.innerHTML = originalIcon;
-                btn.disabled = false;
-            }
+            } else { showPopup("Erro ao salvar."); btn.innerHTML = originalIcon; btn.disabled = false; }
         }
 
         function concludeEdition() {
@@ -423,12 +390,8 @@
         async function handleActivation(shouldActivate) {
             document.getElementById('activationModal').classList.remove('visible');
             if (shouldActivate) {
-                showPopup("Ativando campanha...", "success"); 
-                const payload = {
-                    action: "update_status",
-                    id_campanha: currentEditingId,
-                    status: "ativa"
-                };
+                showPopup("Ativando...", "success"); 
+                const payload = { action: "update_status", id_campanha: currentEditingId, status: "ativa" };
                 await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
             }
             fetchDashboardData(); 
