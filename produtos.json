@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "teste",
-    "priceFrom": "123.00",
+    "priceFrom": "123.06",
     "priceTo": "23.00",
     "image": "https://api.telegram.org/file/bot8362532511/photos/file_93.jpg",
     "category": "foto",
