@@ -271,7 +271,6 @@
 
                 let valorFmt = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
                 
-                // Botão de Editar agora manda o status também
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/5 border-b border-white/5">
                         <td class="p-6">${badge}</td>
@@ -284,8 +283,11 @@
         }
 
         function updateStats() {
-            document.getElementById('activeCampaignsDisplay').innerText = `${campaignsData.filter(c => c.status === 'active').length} Ativas`;
-            document.getElementById('totalSalesDisplay').innerText = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            const active = campaignsDisplay = document.getElementById('activeCampaignsDisplay');
+            if(active) active.innerText = `${campaignsData.filter(c => c.status === 'active').length} Ativas`;
+            
+            const sales = document.getElementById('totalSalesDisplay');
+            if(sales) sales.innerText = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
         async function triggerCampaign() {
@@ -298,17 +300,14 @@
         }
 
         // --- SISTEMA DE EDIÇÃO COM TRAVA DE SEGURANÇA ---
-        
         async function openEditProducts(id, name, status) {
-            // TRAVA DE SEGURANÇA: Se estiver ativa, bloqueia e pede reabertura
             if (status === 'active') {
                 pendingReopenId = id;
                 pendingReopenName = name;
                 document.getElementById('reopenModal').classList.add('visible');
-                return; // Para aqui
+                return;
             }
 
-            // Se não estiver ativa (ou já foi reaberta), segue normal
             currentEditingId = id;
             document.getElementById('editModalTitle').innerText = `Editando: ${name}`;
             document.getElementById('editProductsModal').classList.add('visible');
@@ -316,48 +315,35 @@
             listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando produtos...</p></div>';
 
             const data = await getProductsN8N(id);
-            
-            if(data && data.products && data.products.length > 0) {
-                processAndRenderProducts(data.products);
+            if(data && data.length > 0) { 
+                processAndRenderProducts(data); // <--- Ajustado aqui: data agora é o array direto agrupado
             } else {
                 listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado nesta campanha ainda.</div>';
             }
         }
 
-        // Função chamada pelo botão "Sim" do modal amarelo
         async function confirmReopen() {
             closeReopenModal();
             showPopup("Reabrindo campanha...", "success");
 
-            // Manda mudar status para 'rascunho'
             const payload = {
                 action: "update_status",
                 id_campanha: pendingReopenId,
                 status: "rascunho"
             };
             await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
-
-            // Abre a edição forçando o status 'draft' para não travar de novo
             openEditProducts(pendingReopenId, pendingReopenName, 'draft');
-            fetchDashboardData(); // Atualiza a tabela no fundo
+            fetchDashboardData();
         }
 
-        function processAndRenderProducts(productsRaw) {
+        function processAndRenderProducts(productsAgrupados) {
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '';
 
-            const grouped = {};
-            productsRaw.forEach(p => {
-                if (!p.id_grupo) return; 
-                if (!grouped[p.id_grupo]) { grouped[p.id_grupo] = { ...p, photos: [], videos: 0 }; }
-                if (p.tipo === 'foto') grouped[p.id_grupo].photos.push(p.arquivo_url);
-                if (p.tipo === 'video') grouped[p.id_grupo].videos++;
-            });
-
-            Object.values(grouped).forEach(prod => {
-                const mainImage = prod.photos[0] || 'https://via.placeholder.com/150?text=Sem+Foto';
-                const mediaCountMsg = `${prod.photos.length} Foto(s), ${prod.videos} Vídeo(s)`;
-                const pid = prod.id_grupo;
+            productsAgrupados.forEach(prod => {
+                const mainImage = prod.imagens && prod.imagens[0] ? prod.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
+                const mediaCountMsg = `${prod.qtd_fotos || 0} Foto(s), 0 Vídeo(s)`;
+                const pid = prod.id_grupo || prod.id_produto;
 
                 listArea.innerHTML += `
                     <div class="glass-panel p-4 rounded-2xl flex flex-col md:flex-row gap-6 items-start mb-4">
@@ -387,12 +373,12 @@
                                 <input type="text" id="tam_${pid}" value="${prod.tamanho || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none" placeholder="Ex: G">
                             </div>
                         </div>
-                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all shrink-0 self-end md:self-center" title="Salvar Alterações"><i class="fas fa-save"></i></button>
+                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}', '${prod.id_produto}')" class="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all shrink-0 self-end md:self-center" title="Salvar Alterações"><i class="fas fa-save"></i></button>
                     </div>`;
             });
         }
 
-        async function saveProduct(groupId) {
+        async function saveProduct(groupId, individualId) {
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
             
@@ -408,7 +394,8 @@
             const payload = {
                 action: "update_product",
                 id_grupo: groupId,
-                id_campanha: currentEditingId, // <--- ADICIONADO AQUI: ID DA CAMPANHA
+                id_produto: individualId, // <--- ADICIONADO: Mantém compatibilidade
+                id_campanha: currentEditingId, 
                 nome_produto: nome,
                 preco_de: precoDe,
                 preco_por: precoPor,
@@ -435,7 +422,6 @@
 
         async function handleActivation(shouldActivate) {
             document.getElementById('activationModal').classList.remove('visible');
-
             if (shouldActivate) {
                 showPopup("Ativando campanha...", "success"); 
                 const payload = {
@@ -444,10 +430,8 @@
                     status: "ativa"
                 };
                 await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
-                fetchDashboardData(); 
-            } else {
-                fetchDashboardData();
             }
+            fetchDashboardData(); 
         }
 
         function logout() { location.reload(); }
