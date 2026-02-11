@@ -11,9 +11,9 @@
   },
   {
     "id": "GRP110226200932",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "TESTE",
+    "priceFrom": "0.00",
+    "priceTo": "0.00",
     "image": "https://api.telegram.org/file/bot8362532511/photos/file_99.jpg",
     "category": "foto",
     "cor": "",
