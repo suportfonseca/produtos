@@ -7,9 +7,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, brand: { 500: '#3b82f6', 600: '#2563eb' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } }
+            theme: { 
+                extend: { 
+                    colors: { 
+                        dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
+                        brand: { 500: '#3b82f6', 600: '#2563eb' }
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] } 
+                } 
+            }
         }
     </script>
     <style>
@@ -124,7 +133,9 @@
 
     <div id="reopenModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
-            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl"><i class="fas fa-lock"></i></div>
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl">
+                <i class="fas fa-lock"></i>
+            </div>
             <h3 class="text-xl font-black mb-2">Campanha Ativa</h3>
             <p class="text-sm text-slate-500 mb-6">Esta campanha já está ativa. Reabra para editar (status mudará para Rascunho).</p>
             <div class="flex flex-col gap-3">
@@ -136,7 +147,9 @@
 
     <div id="activationModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl"><i class="fas fa-check"></i></div>
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl">
+                <i class="fas fa-check"></i>
+            </div>
             <h3 class="text-xl font-black mb-2">Edição Concluída!</h3>
             <p class="text-sm text-slate-500 mb-6">Deseja ativar esta campanha agora para aparecer no catálogo?</p>
             <div class="flex flex-col gap-3">
@@ -149,12 +162,13 @@
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
             <h3 id="alert-title" class="text-xl font-black mb-2">Atenção</h3>
-            <p id="alert-message" class="text-sm text-slate-500 mb-6">Msg</p>
+            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6">Msg</p>
             <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl">Entendido</button>
         </div>
     </div>
 
     <script>
+        // --- CONFIGURAÇÕES ---
         const URL_MAIN_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_MAIN_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
         const URL_PRODUCTS_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
@@ -168,6 +182,7 @@
         let pendingReopenId = null;
         let pendingReopenName = null;
 
+        // UI Helpers
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
         function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
@@ -183,6 +198,7 @@
             el.classList.add('visible');
         }
 
+        // Requisições
         async function sendN8N(payload, customUrlProd = null, customUrlTest = null) {
             const prod = customUrlProd || URL_MAIN_PROD;
             const test = customUrlTest || URL_MAIN_TEST;
@@ -201,6 +217,7 @@
             try { return await req(URL_PRODUCTS_PROD); } catch { try { return await req(URL_PRODUCTS_TEST); } catch { return null; } }
         }
 
+        // Auth
         async function checkAuth() {
             const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
             if(phone.length < 8) return showPopup("Número inválido");
@@ -235,12 +252,8 @@
 
         function renderTable() {
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
-            if(campaignsData.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">Nenhuma campanha.</td></tr>'; return; }
             campaignsData.forEach(c => {
-                let badge;
-                if(c.status === 'active') badge = '<span class="status-badge status-active">● Ativa</span>';
-                else if(c.status === 'draft') badge = '<span class="status-badge status-draft">● Rascunho</span>';
-                else badge = '<span class="status-badge status-closed">Encerrada</span>';
+                let badge = c.status === 'active' ? '<span class="status-badge status-active">● Ativa</span>' : (c.status === 'draft' ? '<span class="status-badge status-draft">● Rascunho</span>' : '<span class="status-badge status-closed">Encerrada</span>');
                 let valorFmt = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/5 border-b border-white/5">
@@ -282,44 +295,44 @@
             listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando produtos...</p></div>';
 
             const data = await getProductsN8N(id);
-            // CORREÇÃO: Lê o formato agrupado do n8n Code (item.json)
-            if(data && Array.isArray(data) && data.length > 0) { 
-                processAndRenderProducts(data);
+            
+            let produtosParaExibir = [];
+            if (Array.isArray(data)) {
+                produtosParaExibir = data;
+            } else if (data && data.products) {
+                produtosParaExibir = data.products;
+            }
+
+            if(produtosParaExibir.length > 0) { 
+                processAndRenderProducts(produtosParaExibir);
             } else {
                 listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado.</div>';
             }
         }
 
-        async function confirmReopen() {
-            closeReopenModal(); showPopup("Reabrindo...", "success");
-            const payload = { action: "update_status", id_campanha: pendingReopenId, status: "rascunho" };
-            await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
-            openEditProducts(pendingReopenId, pendingReopenName, 'draft'); fetchDashboardData();
-        }
-
-        function processAndRenderProducts(productsAgrupados) {
+        function processAndRenderProducts(lista) {
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '';
 
-            productsAgrupados.forEach(prodItem => {
-                // CORREÇÃO: O dado vem dentro de prodItem.json
-                const prod = prodItem.json || prodItem; 
-                const mainImage = prod.imagens && prod.imagens[0] ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
-                const mediaCountMsg = `${prod.qtd_fotos || 1} Foto(s), 0 Vídeo(s)`;
+            lista.forEach(item => {
+                // Lê o formato agrupado do n8n Code
+                const prod = item.json ? item.json : item;
+                const imgPath = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
+                const qtdFotos = prod.imagens ? prod.imagens.length : 1;
                 
-                // USAR O ID DO GRUPO (GRP...)
+                // O ID usado deve ser o id_grupo (GRP...) para salvar a família inteira
                 const pid = prod.id_grupo;
 
                 listArea.innerHTML += `
                     <div class="glass-panel p-4 rounded-2xl flex flex-col md:flex-row gap-6 items-start mb-4">
                         <div class="w-32 h-32 bg-dark-900 rounded-xl shrink-0 relative overflow-hidden border border-slate-700 self-center md:self-start">
-                            <img src="${mainImage}" class="object-cover w-full h-full opacity-80">
-                            <div class="absolute bottom-0 left-0 right-0 bg-black/70 text-[9px] text-center py-1 text-slate-300">${mediaCountMsg}</div>
+                            <img src="${imgPath}" class="object-cover w-full h-full opacity-80">
+                            <div class="absolute bottom-0 left-0 right-0 bg-black/70 text-[9px] text-center py-1 text-slate-300">${qtdFotos} Foto(s) Agrupadas</div>
                         </div>
                         <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Nome do Produto</label>
-                                <input type="text" id="nome_${pid}" value="${prod.nome_produto || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none" placeholder="Ex: Camiseta">
+                                <input type="text" id="nome_${pid}" value="${prod.nome_produto || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
                             </div>
                             <div>
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Preço De (R$)</label>
@@ -338,7 +351,9 @@
                                 <input type="text" id="tam_${pid}" value="${prod.tamanho || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
                             </div>
                         </div>
-                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all shrink-0 self-end md:self-center"><i class="fas fa-save"></i></button>
+                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all shrink-0 self-end md:self-center">
+                            <i class="fas fa-save"></i>
+                        </button>
                     </div>`;
             });
         }
@@ -346,30 +361,33 @@
         async function saveProduct(groupId) {
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
-            const nome = document.getElementById(`nome_${groupId}`).value;
-            const precoDe = document.getElementById(`de_${groupId}`).value;
-            const precoPor = document.getElementById(`por_${groupId}`).value;
-            const cor = document.getElementById(`cor_${groupId}`).value;
-            const tamanho = document.getElementById(`tam_${groupId}`).value;
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
-
+            
             const payload = { 
                 action: "update_product", 
                 id_grupo: groupId, 
                 id_campanha: currentEditingId, 
-                nome_produto: nome, 
-                preco_de: precoDe,
-                preco_por: precoPor, 
-                cor: cor, 
-                tamanho: tamanho 
+                nome_produto: document.getElementById(`nome_${groupId}`).value, 
+                preco_de: document.getElementById(`de_${groupId}`).value,
+                preco_por: document.getElementById(`por_${groupId}`).value, 
+                cor: document.getElementById(`cor_${groupId}`).value, 
+                tamanho: document.getElementById(`tam_${groupId}`).value 
             };
 
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
             const res = await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
+
             if(res && res.success) {
                 btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
                 setTimeout(() => { btn.innerHTML = originalIcon; btn.disabled = false; }, 2000);
-            } else { showPopup("Erro ao salvar."); btn.innerHTML = originalIcon; btn.disabled = false; }
+            } else { 
+                showPopup("Erro ao salvar."); btn.innerHTML = originalIcon; btn.disabled = false; 
+            }
+        }
+
+        async function confirmReopen() {
+            closeReopenModal();
+            await sendN8N({ action: "update_status", id_campanha: pendingReopenId, status: "rascunho" }, URL_UPDATE_PROD, URL_UPDATE_TEST);
+            openEditProducts(pendingReopenId, pendingReopenName, 'draft'); fetchDashboardData();
         }
 
         function concludeEdition() {
@@ -380,9 +398,7 @@
         async function handleActivation(shouldActivate) {
             document.getElementById('activationModal').classList.remove('visible');
             if (shouldActivate) {
-                showPopup("Ativando...", "success"); 
-                const payload = { action: "update_status", id_campanha: currentEditingId, status: "ativa" };
-                await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
+                await sendN8N({ action: "update_status", id_campanha: currentEditingId, status: "ativa" }, URL_UPDATE_PROD, URL_UPDATE_TEST);
             }
             fetchDashboardData(); 
         }
