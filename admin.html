@@ -43,7 +43,7 @@
             <h2 class="text-2xl font-black mb-2">Painel Admin</h2>
             <p class="text-slate-400 text-sm mb-8">Gestão Centralizada</p>
             <input type="tel" id="adminPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-2xl px-5 py-4 mb-4 text-white font-bold outline-none focus:border-brand-500 transition-colors text-center text-lg tracking-widest placeholder:tracking-normal" placeholder="WhatsApp">
-            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">Entrar no Sistema</button>
+            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6">Entrar no Sistema</button>
         </div>
     </div>
 
@@ -76,17 +76,17 @@
         <div class="glass-panel rounded-[32px] overflow-hidden flex-1 flex flex-col">
             <div class="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
                 <h3 class="text-xl font-bold text-white">Histórico de Campanhas</h3>
-                <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors text-slate-300 hover:text-white" title="Atualizar Tabela"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors text-slate-300 hover:text-white"><i class="fas fa-sync-alt"></i></button>
             </div>
             <div class="overflow-x-auto flex-1">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left">
                     <thead class="bg-dark-900/30 text-slate-400 text-xs uppercase font-bold sticky top-0 backdrop-blur-sm">
                         <tr>
-                            <th class="p-6 font-bold tracking-wider">Status</th>
-                            <th class="p-6 font-bold tracking-wider">Campanha</th>
-                            <th class="p-6 font-bold tracking-wider">Vendas (R$)</th>
-                            <th class="p-6 font-bold tracking-wider text-center">Produtos</th>
-                            <th class="p-6 font-bold tracking-wider text-right">Ações</th>
+                            <th class="p-6">Status</th>
+                            <th class="p-6">Campanha</th>
+                            <th class="p-6">Vendas (R$)</th>
+                            <th class="p-6 text-center">Produtos</th>
+                            <th class="p-6 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
@@ -111,25 +111,13 @@
                     <h3 class="text-2xl font-black text-white" id="editModalTitle">Editando Campanha</h3>
                     <p class="text-slate-400 text-sm mt-1">Preencha os detalhes dos produtos recebidos.</p>
                 </div>
-                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><i class="fas fa-times text-white"></i></button>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><i class="fas fa-times text-white"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-6 custom-scroll">
                 <div id="productListArea" class="space-y-4"></div>
             </div>
             <div class="p-6 border-t border-white/10 shrink-0 flex justify-end gap-3">
                 <button onclick="concludeEdition()" class="bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-8 rounded-xl transition-all">Concluir Edição</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="reopenModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
-        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
-            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl"><i class="fas fa-lock"></i></div>
-            <h3 class="text-xl font-black mb-2">Campanha Ativa</h3>
-            <p class="text-sm text-slate-500 mb-6">Esta campanha já está ativa. Reabre para editar (status mudará para Rascunho).</p>
-            <div class="flex flex-col gap-3">
-                <button onclick="confirmReopen()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Reabrir e Editar</button>
-                <button onclick="closeReopenModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Cancelar</button>
             </div>
         </div>
     </div>
@@ -146,11 +134,23 @@
         </div>
     </div>
 
-    <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
+    <div id="reopenModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl"><i class="fas fa-lock"></i></div>
+            <h3 class="text-xl font-black mb-2">Campanha Ativa</h3>
+            <p class="text-sm text-slate-500 mb-6">Esta campanha já está ativa. Reabre para editar (status mudará para Rascunho).</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="confirmReopen()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Reabrir</button>
+                <button onclick="closeReopenModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] text-center text-slate-900">
             <h3 id="alert-title" class="text-xl font-black mb-2">Atenção</h3>
-            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6">Msg</p>
-            <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl">Entendido</button>
+            <p id="alert-message" class="text-sm text-slate-500 mb-6">Msg</p>
+            <button onclick="closeAlert()" class="w-full bg-slate-100 font-bold py-3 rounded-xl">Entendido</button>
         </div>
     </div>
 
@@ -265,7 +265,6 @@
             if(res && res.found){ showPopup("Campanha Iniciada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 2000); } else { showPopup("Erro ao iniciar."); }
         }
 
-        // --- SISTEMA DE EDIÇÃO ---
         async function openEditProducts(id, name, status) {
             if (status === 'active') {
                 pendingReopenId = id; pendingReopenName = name;
@@ -278,17 +277,8 @@
             listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando produtos...</p></div>';
 
             const data = await getProductsN8N(id);
-            
-            // Garantir leitura da estrutura agrupada { json: { ... } }
-            let lista = [];
-            if(Array.isArray(data)) {
-                lista = data;
-            } else if (data && data.products) {
-                lista = data.products;
-            }
-
-            if(lista.length > 0) { 
-                processAndRenderProducts(lista);
+            if(data && Array.isArray(data) && data.length > 0) { 
+                processAndRenderProducts(data);
             } else {
                 listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado.</div>';
             }
@@ -300,17 +290,16 @@
             openEditProducts(pendingReopenId, pendingReopenName, 'draft'); fetchDashboardData();
         }
 
-        function processAndRenderProducts(productsAgrupados) {
+        function processAndRenderProducts(lista) {
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '';
 
-            productsAgrupados.forEach(item => {
-                // Desembrulhar o json: { ... } enviado pelo nó Code
+            lista.forEach(item => {
                 const prod = item.json ? item.json : item; 
                 const mainImage = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
                 const qtdFotos = prod.imagens ? prod.imagens.length : 1;
                 
-                // USAR O ID DO GRUPO (GRP...) PARA TODOS OS CAMPOS E BOTÕES
+                // O SEGREDO ESTÁ AQUI: pid recebe o id_grupo (GRP...)
                 const pid = prod.id_grupo;
 
                 listArea.innerHTML += `
@@ -352,7 +341,6 @@
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
             
-            // GARANTIR QUE OS DADOS SÃO CAPTURADOS PELO ID DO GRUPO (GRP...)
             const payload = { 
                 action: "update_product", 
                 id_grupo: groupId, 
