@@ -37,13 +37,11 @@
     <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900">
         <div class="w-full max-w-md glass-panel p-8 rounded-[32px] text-center shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
-            <div class="w-20 h-20 bg-brand-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <i class="fas fa-lock text-3xl text-white"></i>
-            </div>
+            <div class="w-20 h-20 bg-brand-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white text-3xl"><i class="fas fa-lock"></i></div>
             <h2 class="text-2xl font-black mb-2">Painel Admin</h2>
             <p class="text-slate-400 text-sm mb-8">Gestão Centralizada</p>
-            <input type="tel" id="adminPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-2xl px-5 py-4 mb-4 text-white font-bold outline-none focus:border-brand-500 transition-colors text-center text-lg tracking-widest placeholder:tracking-normal" placeholder="WhatsApp">
-            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6">Entrar no Sistema</button>
+            <input type="tel" id="adminPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-2xl px-5 py-4 mb-4 text-white font-bold outline-none focus:border-brand-500 transition-colors text-center text-lg tracking-widest" placeholder="WhatsApp">
+            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6 shadow-lg shadow-blue-600/20">Entrar no Sistema</button>
         </div>
     </div>
 
@@ -65,10 +63,10 @@
                 <div class="w-14 h-14 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-bullhorn"></i></div>
                 <div><p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Campanhas</p><p class="text-2xl font-black text-white" id="activeCampaignsDisplay">0 Ativas</p></div>
             </div>
-            <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-0 rounded-3xl flex items-center justify-between shadow-xl transition-all hover:scale-[1.02] cursor-pointer group overflow-hidden relative">
-                <div class="relative z-10 p-6 flex items-center gap-4 w-full">
-                    <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-white text-xl shadow-lg backdrop-blur-sm"><i class="fas fa-plus"></i></div>
-                    <div class="text-left"><p class="text-sm font-bold text-blue-100 opacity-90">Criar Nova</p><p class="text-2xl font-black text-white">Campanha</p></div>
+            <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-between shadow-xl transition-all hover:scale-[1.02]">
+                <div class="flex items-center gap-4 text-white">
+                    <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-xl shadow-lg backdrop-blur-sm"><i class="fas fa-plus"></i></div>
+                    <div class="text-left"><p class="text-sm font-bold text-blue-100 opacity-90">Criar Nova</p><p class="text-2xl font-black">Campanha</p></div>
                 </div>
             </button>
         </div>
@@ -76,10 +74,10 @@
         <div class="glass-panel rounded-[32px] overflow-hidden flex-1 flex flex-col">
             <div class="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
                 <h3 class="text-xl font-bold text-white">Histórico de Campanhas</h3>
-                <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors text-slate-300 hover:text-white"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors text-slate-300 hover:text-white" title="Atualizar Tabela"><i class="fas fa-sync-alt"></i></button>
             </div>
             <div class="overflow-x-auto flex-1">
-                <table class="w-full text-left">
+                <table class="w-full text-left border-collapse">
                     <thead class="bg-dark-900/30 text-slate-400 text-xs uppercase font-bold sticky top-0 backdrop-blur-sm">
                         <tr>
                             <th class="p-6">Status</th>
@@ -105,13 +103,13 @@
     </div>
 
     <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-dark-900/90 backdrop-blur-md">
-        <div class="modal-content glass-panel w-full max-w-5xl h-[90vh] flex flex-col rounded-[32px] shadow-2xl relative">
+        <div class="modal-content glass-panel w-full max-w-5xl h-[90vh] flex flex-col rounded-[32px] shadow-2xl relative text-white">
             <div class="p-8 border-b border-white/10 flex justify-between items-center shrink-0">
                 <div>
-                    <h3 class="text-2xl font-black text-white" id="editModalTitle">Editando Campanha</h3>
+                    <h3 class="text-2xl font-black" id="editModalTitle">Editando Campanha</h3>
                     <p class="text-slate-400 text-sm mt-1">Preencha os detalhes dos produtos recebidos.</p>
                 </div>
-                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><i class="fas fa-times text-white"></i></button>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-6 custom-scroll">
                 <div id="productListArea" class="space-y-4"></div>
@@ -138,19 +136,19 @@
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
             <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl"><i class="fas fa-lock"></i></div>
             <h3 class="text-xl font-black mb-2">Campanha Ativa</h3>
-            <p class="text-sm text-slate-500 mb-6">Esta campanha já está ativa. Reabre para editar (status mudará para Rascunho).</p>
+            <p class="text-sm text-slate-500 mb-6">Esta campanha já está ativa. Reabra para editar (status mudará para Rascunho).</p>
             <div class="flex flex-col gap-3">
-                <button onclick="confirmReopen()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Reabrir</button>
+                <button onclick="confirmReopen()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Reabrir e Editar</button>
                 <button onclick="closeReopenModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Cancelar</button>
             </div>
         </div>
     </div>
 
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
-        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] text-center text-slate-900">
+        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
             <h3 id="alert-title" class="text-xl font-black mb-2">Atenção</h3>
-            <p id="alert-message" class="text-sm text-slate-500 mb-6">Msg</p>
-            <button onclick="closeAlert()" class="w-full bg-slate-100 font-bold py-3 rounded-xl">Entendido</button>
+            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6">Msg</p>
+            <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl">Entendido</button>
         </div>
     </div>
 
@@ -277,8 +275,17 @@
             listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando produtos...</p></div>';
 
             const data = await getProductsN8N(id);
-            if(data && Array.isArray(data) && data.length > 0) { 
-                processAndRenderProducts(data);
+            
+            // CORREÇÃO: Lê o formato agrupado do n8n
+            let listaProdutos = [];
+            if(Array.isArray(data)) {
+                listaProdutos = data;
+            } else if (data && data.products) {
+                listaProdutos = data.products;
+            }
+
+            if(listaProdutos.length > 0) { 
+                processAndRenderProducts(listaProdutos);
             } else {
                 listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado.</div>';
             }
@@ -290,16 +297,17 @@
             openEditProducts(pendingReopenId, pendingReopenName, 'draft'); fetchDashboardData();
         }
 
-        function processAndRenderProducts(lista) {
+        function processAndRenderProducts(productsAgrupados) {
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '';
 
-            lista.forEach(item => {
+            productsAgrupados.forEach(item => {
+                // CORREÇÃO: Trata tanto item direto quanto item.json vindo do n8n
                 const prod = item.json ? item.json : item; 
                 const mainImage = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
                 const qtdFotos = prod.imagens ? prod.imagens.length : 1;
                 
-                // O SEGREDO ESTÁ AQUI: pid recebe o id_grupo (GRP...)
+                // USAR O ID DO GRUPO (GRP...) PARA TODOS OS CAMPOS E BOTÕES
                 const pid = prod.id_grupo;
 
                 listArea.innerHTML += `
@@ -341,6 +349,7 @@
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
             
+            // CAPTURA PELO ID DO GRUPO (GRP...)
             const payload = { 
                 action: "update_product", 
                 id_grupo: groupId, 
