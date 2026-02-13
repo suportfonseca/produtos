@@ -8,9 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = {
-            theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, brand: { 500: '#3b82f6', 600: '#2563eb' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } }
-        }
+        tailwind.config = { theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, brand: { 500: '#3b82f6', 600: '#2563eb' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }
     </script>
     <style>
         body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; }
@@ -153,6 +151,7 @@
     </div>
 
     <script>
+        // CONFIGURAÇÕES
         const URL_MAIN_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
         const URL_MAIN_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
         const URL_PRODUCTS_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
@@ -192,10 +191,13 @@
         }
 
         async function getProductsN8N(campaignId) {
+            // Adicionado Cache Buster (&t=) para evitar que o navegador use dados velhos
+            const cacheBuster = `&t=${Date.now()}`;
             const req = async(baseUrl) => {
-                const res = await fetch(`${baseUrl}?id_campanha=${campaignId}`);
+                const res = await fetch(`${baseUrl}?id_campanha=${campaignId}${cacheBuster}`);
                 if(!res.ok) throw new Error(); return await res.json();
             };
+            // Tenta PROD primeiro, depois TEST
             try { return await req(URL_PRODUCTS_PROD); } catch { try { return await req(URL_PRODUCTS_TEST); } catch { return null; } }
         }
 
@@ -263,7 +265,7 @@
             if(res && res.found){ showPopup("Campanha Iniciada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 2000); } else { showPopup("Erro ao iniciar."); }
         }
 
-        // --- SISTEMA DE EDIÇÃO REVISADO ---
+        // --- SISTEMA DE EDIÇÃO CORRIGIDO ---
 
         async function openEditProducts(id, name, status) {
             if (status === 'active') {
@@ -276,8 +278,10 @@
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando produtos...</p></div>';
 
+            // Busca os dados do n8n
             const data = await getProductsN8N(id);
             
+            // Tratamento robusto para lista simples ou encapsulada
             let listaProdutos = [];
             if(Array.isArray(data)) {
                 listaProdutos = data;
@@ -303,12 +307,13 @@
             listArea.innerHTML = '';
 
             productsAgrupados.forEach(item => {
-                // CORREÇÃO: Lê os dados vindo do n8n tratando item.json se necessário
+                // Desembrulha o JSON se vier do n8n Code Node
                 const prod = item.json ? item.json : item; 
+                
                 const mainImage = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
                 const qtdFotos = prod.imagens ? prod.imagens.length : 1;
                 
-                // CRUCIAL: pid obrigatoriamente recebe o código GRP...
+                // CRUCIAL: Usa o ID do Grupo. Se vier 1, é porque o n8n mandou 1 (verifique se Publicou o Fluxo)
                 const pid = prod.id_grupo;
 
                 listArea.innerHTML += `
@@ -350,7 +355,7 @@
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
             
-            // BUSCA PELO GRUPO: Garante que os campos lidos usem o código alfanumérico
+            // Busca os campos na tela usando o groupId (que deve ser GRP...)
             const payload = { 
                 action: "update_product", 
                 id_grupo: groupId, 
