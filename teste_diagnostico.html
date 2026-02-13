@@ -3,153 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Clips - DEBUG MODE</title>
+    <title>Diagnóstico Final - Raio X</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = { theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, brand: { 500: '#3b82f6', 600: '#2563eb' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }
-    </script>
-    <style>body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; } .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); } .visible { opacity: 1 !important; pointer-events: auto !important; visibility: visible !important; } #editProductsModal { transition: opacity 0.3s ease; opacity: 0; pointer-events: none; visibility: hidden; } </style>
+    <style>body { background: #111; color: #0f0; font-family: monospace; padding: 20px; }</style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
+    <h1 class="text-2xl font-bold mb-4">RAIO-X DOS DADOS RECEBIDOS</h1>
+    <p class="text-white mb-4">Este script vai mostrar exatamente o que o n8n entregou para o navegador.</p>
+    
+    <div id="debug-container" class="border border-green-500 p-4 rounded bg-black whitespace-pre-wrap">Carregando dados brutos...</div>
 
-    <div id="dashboard" class="flex-1 flex flex-col max-w-7xl mx-auto w-full p-8">
-        <header class="flex justify-between mb-10">
-            <h1 class="text-3xl font-bold">Painel de Diagnóstico</h1>
-            <button onclick="location.reload()" class="bg-red-500 px-4 py-2 rounded font-bold">Forçar Recarregamento</button>
-        </header>
-
-        <div class="glass-panel p-8 rounded-2xl">
-            <h3 class="text-xl font-bold mb-4">Teste de Edição</h3>
-            <p class="mb-4 text-slate-400">Clique no botão abaixo para simular a abertura da campanha ID 1 (onde está dando erro).</p>
-            <button onclick="openEditProducts('1', 'CAMPANHA TESTE', 'rascunho')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl">
-                ABRIR EDITAR PRODUTOS (CAMPANHA 1)
-            </button>
-        </div>
-    </div>
-
-    <div id="editProductsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/95 backdrop-blur-md">
-        <div class="w-full max-w-5xl h-[90vh] glass-panel flex flex-col rounded-3xl relative">
-            <div class="p-6 border-b border-white/10 flex justify-between">
-                <h3 class="text-2xl font-bold">Editando</h3>
-                <button onclick="document.getElementById('editProductsModal').classList.remove('visible')" class="text-2xl">&times;</button>
-            </div>
-            <div id="productListArea" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-        </div>
+    <div id="interface-preview" class="mt-8 border-t border-gray-700 pt-8">
+        <h2 class="text-white text-xl font-sans mb-4">Como o botão seria gerado:</h2>
+        <div id="buttons-area" class="flex gap-4 flex-wrap"></div>
     </div>
 
     <script>
-        // SEUS ENDPOINTS (Confirmados)
-        const URL_PRODUCTS_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
-        const URL_PRODUCTS_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
-        const URL_UPDATE_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/update-data";
-        const URL_UPDATE_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/update-data";
+        // --- ⬇️ CONFIRA SE SUAS URLS ESTÃO CERTAS AQUI ⬇️ ---
+        const URL_LISTAR = "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692"; 
+        const ID_CAMPANHA = "1"; // ID fixo para o teste
+        // -----------------------------------------------------
 
-        let currentEditingId = null;
-
-        // Função auxiliar de requisição
-        async function getProductsN8N(id) {
+        async function runDiagnosis() {
+            const container = document.getElementById('debug-container');
+            const btnArea = document.getElementById('buttons-area');
+            
             try {
-                const res = await fetch(`${URL_PRODUCTS_PROD}?id_campanha=${id}`);
-                return await res.json();
-            } catch {
-                const res = await fetch(`${URL_PRODUCTS_TEST}?id_campanha=${id}`);
-                return await res.json();
-            }
-        }
+                // Adiciona timestamp para impedir cache
+                const response = await fetch(`${URL_LISTAR}?id_campanha=${ID_CAMPANHA}&t=${Date.now()}`);
+                const data = await response.json();
 
-        async function openEditProducts(id, name, status) {
-            currentEditingId = id;
-            document.getElementById('editProductsModal').classList.add('visible');
-            const listArea = document.getElementById('productListArea');
-            listArea.innerHTML = '<p class="text-center">Carregando e Diagnosticano...</p>';
+                // 1. IMPRIME O JSON BRUTO NA TELA
+                container.textContent = JSON.stringify(data, null, 4);
 
-            console.log(">>> 1. INICIANDO BUSCA DE PRODUTOS PARA ID:", id);
-            
-            const data = await getProductsN8N(id);
-            console.log(">>> 2. DADOS BRUTOS RECEBIDOS DO N8N:", data);
-
-            let lista = Array.isArray(data) ? data : (data.products || []);
-            
-            if(lista.length > 0) {
-                renderDebug(lista);
-            } else {
-                listArea.innerHTML = '<p>Nenhum dado recebido.</p>';
-            }
-        }
-
-        function renderDebug(lista) {
-            const listArea = document.getElementById('productListArea');
-            listArea.innerHTML = '';
-
-            lista.forEach((item, index) => {
-                // RASTREAMENTO DO DADO
-                const prod = item.json ? item.json : item;
-                console.log(`>>> 3. PROCESSANDO ITEM ${index}:`, prod);
+                // 2. TENTA GERAR O BOTÃO BASEADO NO DADO
+                let lista = Array.isArray(data) ? data : (data.products || []);
                 
-                let pid = prod.id_grupo;
-                console.log(`   > ID_GRUPO extraído: "${pid}" (Tipo: ${typeof pid})`);
-
-                // ALERTA DE ERRO VISUAL
-                if (!pid || pid == "1" || pid == 1) {
-                    console.error("   !!! ALERTA: ID_GRUPO ESTÁ VINDO COMO 1 OU VAZIO !!!");
-                    console.log("   > Conteúdo completo do objeto:", prod);
+                if (lista.length === 0) {
+                    btnArea.innerHTML = "<span class='text-red-500'>Lista vazia!</span>";
+                    return;
                 }
 
-                // Renderização
-                const mainImage = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || '');
-                
-                listArea.innerHTML += `
-                    <div class="glass-panel p-4 rounded-xl flex gap-4 items-center">
-                        <img src="${mainImage}" class="w-20 h-20 object-cover rounded">
-                        <div class="flex-1 grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-xs text-slate-400">Nome (ID: nome_${pid})</label>
-                                <input type="text" id="nome_${pid}" value="${prod.nome_produto || ''}" class="w-full bg-dark-900 border border-slate-600 rounded px-2 py-1">
-                            </div>
-                            <div>
-                                <label class="text-xs text-slate-400">Preço (ID: por_${pid})</label>
-                                <input type="number" id="por_${pid}" value="${prod.preco_por || ''}" class="w-full bg-dark-900 border border-slate-600 rounded px-2 py-1">
-                            </div>
-                            <div class="col-span-2 text-xs text-yellow-400 font-mono">
-                                ID GRUPO USADO: ${pid}
-                            </div>
-                        </div>
-                        <button onclick="saveDebug('${pid}')" class="bg-green-600 hover:bg-green-500 p-3 rounded-lg text-white">
-                            <i class="fas fa-save"></i>
-                        </button>
-                    </div>`;
-            });
-        }
+                lista.forEach(item => {
+                    // Simula a lógica do seu código oficial
+                    const prod = item.json ? item.json : item;
+                    const idReal = prod.id_grupo;
+                    
+                    const div = document.createElement('div');
+                    div.className = "bg-gray-800 p-4 rounded text-white font-sans max-w-sm";
+                    
+                    // Verifica se é número 1 ou GRP
+                    let statusColor = (idReal == "1" || idReal == 1) ? "text-red-500" : "text-green-400";
+                    
+                    div.innerHTML = `
+                        <p class="font-bold text-sm text-gray-400">Produto: ${prod.nome_produto}</p>
+                        <p class="font-mono text-xl ${statusColor} break-all">id_grupo: "${idReal}"</p>
+                        <p class="text-xs mt-2 text-gray-500">HTML que seria gerado:</p>
+                        <code class="block bg-black p-2 rounded text-xs mt-1 text-blue-300">
+                            onclick="saveProduct('${idReal}')"
+                        </code>
+                    `;
+                    btnArea.appendChild(div);
+                });
 
-        async function saveDebug(groupId) {
-            console.log(">>> 4. BOTÃO CLICADO. ID RECEBIDO NA FUNÇÃO:", groupId);
-            
-            if (groupId == "1") {
-                alert("PARE! O sistema está tentando enviar o ID '1'. Verifique o console (F12) para ver por que o dado original se perdeu.");
-                return;
+            } catch (error) {
+                container.textContent = "ERRO FATAL NA REQUISIÇÃO:\n" + error.message;
             }
-
-            const payload = {
-                action: "update_product",
-                id_grupo: groupId,
-                id_campanha: currentEditingId,
-                nome_produto: document.getElementById(`nome_${groupId}`).value,
-                preco_por: document.getElementById(`por_${groupId}`).value
-            };
-
-            console.log(">>> 5. ENVIANDO PAYLOAD PARA N8N:", payload);
-
-            // Envio real
-            await fetch(URL_UPDATE_PROD, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            
-            alert("Enviado! Verifique o N8N agora. Deve ter chegado: " + groupId);
         }
+
+        runDiagnosis();
     </script>
 </body>
 </html>
