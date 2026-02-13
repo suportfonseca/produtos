@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Clips - Admin (Auto-Env)</title>
+    <title>Gestão Clips - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = { theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, brand: { 500: '#3b82f6', 600: '#2563eb' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }
+        tailwind.config = {
+            theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, brand: { 500: '#3b82f6', 600: '#2563eb' } }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } }
+        }
     </script>
     <style>
         body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; }
@@ -47,7 +49,7 @@
         <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <div>
                 <h1 class="text-3xl font-black text-white flex items-center gap-3">Gestão Clips <i class="fas fa-paperclip text-brand-500 transform rotate-45"></i></h1>
-                <p class="text-slate-400 text-sm mt-1">Bem-vindo(a), <span class="text-brand-500 font-bold">Admin</span> <span id="env-indicator" class="text-[10px] bg-slate-700 px-2 py-1 rounded ml-2">Detectando...</span></p>
+                <p class="text-slate-400 text-sm mt-1">Bem-vindo(a), <span class="text-brand-500 font-bold">Admin</span></p>
             </div>
             <button onclick="logout()" class="glass-panel px-4 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </header>
@@ -151,21 +153,12 @@
     </div>
 
     <script>
-        // CONFIGURAÇÕES DE AMBIENTE (PROD & TEST)
-        const ENDPOINTS = {
-            MAIN: {
-                prod: "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign",
-                test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign"
-            },
-            PRODUCTS: {
-                prod: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692",
-                test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/d7fa7895-7f17-45bb-95a4-92e18f1c1692"
-            },
-            UPDATE: {
-                prod: "https://n8n.srv1327557.hstgr.cloud/webhook/update-data",
-                test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/update-data"
-            }
-        };
+        const URL_MAIN_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign";
+        const URL_MAIN_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign";
+        const URL_PRODUCTS_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
+        const URL_PRODUCTS_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/d7fa7895-7f17-45bb-95a4-92e18f1c1692";
+        const URL_UPDATE_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/update-data";
+        const URL_UPDATE_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/update-data";
 
         let adminUser = "";
         let campaignsData = [];
@@ -173,7 +166,6 @@
         let pendingReopenId = null;
         let pendingReopenName = null;
 
-        // UI Helpers
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
         function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
@@ -189,48 +181,29 @@
             el.classList.add('visible');
         }
 
-        // --- SISTEMA INTELIGENTE DE REQUISIÇÃO (PROD -> TEST) ---
-        async function requestWithFallback(endpointKey, payload = null, isGet = false) {
-            const urls = ENDPOINTS[endpointKey];
-            const indicator = document.getElementById('env-indicator');
-            
-            const makeRequest = async (url) => {
-                const options = isGet ? { method: 'GET' } : { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) };
-                const res = await fetch(url, options);
-                if (!res.ok) throw new Error("Falha na requisição");
-                return await res.json();
+        async function sendN8N(payload, customUrlProd = null, customUrlTest = null) {
+            const prod = customUrlProd || URL_MAIN_PROD;
+            const test = customUrlTest || URL_MAIN_TEST;
+            const req = async(url) => {
+                const res = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+                if(!res.ok) throw new Error(); return await res.json();
             };
-
-            // 1. Tenta PRODUÇÃO
-            try {
-                const data = await makeRequest(urls.prod);
-                if(indicator) { indicator.innerText = "PROD"; indicator.classList.replace('bg-orange-500', 'bg-green-500'); }
-                return data;
-            } catch (errProd) {
-                console.warn(`Erro em PROD (${endpointKey}):`, errProd);
-                
-                // 2. Se falhar, tenta TESTE
-                try {
-                    if(indicator) { indicator.innerText = "TESTE"; indicator.classList.remove('bg-green-500'); indicator.classList.add('bg-orange-500'); }
-                    console.log(`Tentando ambiente de TESTE para ${endpointKey}...`);
-                    const data = await makeRequest(urls.test);
-                    return data;
-                } catch (errTest) {
-                    console.error("Falha em ambos ambientes:", errTest);
-                    return null;
-                }
-            }
+            try { return await req(prod); } catch { try { return await req(test); } catch { return null; } }
         }
 
-        // --- FUNÇÕES DO SISTEMA ---
+        async function getProductsN8N(campaignId) {
+            const req = async(baseUrl) => {
+                const res = await fetch(`${baseUrl}?id_campanha=${campaignId}`);
+                if(!res.ok) throw new Error(); return await res.json();
+            };
+            try { return await req(URL_PRODUCTS_PROD); } catch { try { return await req(URL_PRODUCTS_TEST); } catch { return null; } }
+        }
 
         async function checkAuth() {
             const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
             if(phone.length < 8) return showPopup("Número inválido");
             const btn = document.getElementById('btnLogin'); btn.innerText="Verificando..."; btn.disabled=true;
-            
-            const res = await requestWithFallback('MAIN', { usuario_admin: phone, tipo_requisicao: "login" });
-            
+            const res = await sendN8N({ usuario_admin: phone, tipo_requisicao: "login" });
             btn.innerText = "Entrar no Sistema"; btn.disabled=false;
             if(res && res.found){
                 adminUser = phone;
@@ -243,9 +216,7 @@
         async function fetchDashboardData() {
             const tbody = document.getElementById('campaignList');
             if(tbody.innerHTML.trim() === "") tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin"></i> Atualizando...</td></tr>';
-            
-            const res = await requestWithFallback('MAIN', { usuario_admin: adminUser, tipo_requisicao: "dashboard" });
-            
+            const res = await sendN8N({ usuario_admin: adminUser, tipo_requisicao: "dashboard" });
             if(res && res.found && res.campanhas) {
                 const dadosValidos = res.campanhas.filter(row => row.nome_campanha && row.nome_campanha.toString().trim() !== "");
                 campaignsData = dadosValidos.map((row, index) => {
@@ -257,7 +228,7 @@
                     return { id: row.id_campanha || index, name: row.nome_campanha || "Sem Nome", date: dt, status: st, sales: row.total_vendas || 0, products: row.qtd_produtos || 0 };
                 });
                 campaignsData.reverse(); renderTable(); updateStats();
-            } else { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar ou offline.</td></tr>'; }
+            } else { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar.</td></tr>'; }
         }
 
         function renderTable() {
@@ -287,14 +258,10 @@
             const name = document.getElementById('campaignNameInput').value; if(!name) return showPopup("Digite o nome");
             const newID = Math.floor(Date.now() / 1000); 
             const btn = document.getElementById('btnStart'); btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Iniciando...'; btn.disabled=true;
-            
-            const res = await requestWithFallback('MAIN', { usuario_admin: adminUser, Nome_campanha: name, id_campanha: newID, tipo_requisicao: "campanha" });
-            
+            const res = await sendN8N({ usuario_admin: adminUser, Nome_campanha: name, id_campanha: newID, tipo_requisicao: "campanha" });
             btn.innerHTML = "Disparar e Iniciar"; btn.disabled=false;
             if(res && res.found){ showPopup("Campanha Iniciada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 2000); } else { showPopup("Erro ao iniciar."); }
         }
-
-        // --- EDIÇÃO DE PRODUTOS ---
 
         async function openEditProducts(id, name, status) {
             if (status === 'active') {
@@ -307,24 +274,7 @@
             const listArea = document.getElementById('productListArea');
             listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Buscando produtos...</p></div>';
 
-            // Adiciona cache buster para garantir dados frescos
-            const urlWithParams = `${ENDPOINTS.PRODUCTS.prod}?id_campanha=${id}&t=${Date.now()}`;
-            // Hack para usar o sistema de fallback com GET e Params
-            let data = null;
-            try {
-                const res = await fetch(urlWithParams);
-                if(!res.ok) throw new Error();
-                data = await res.json();
-                document.getElementById('env-indicator').innerText = "PROD";
-            } catch {
-                console.log("Prod falhou, tentando Teste...");
-                const urlTest = `${ENDPOINTS.PRODUCTS.test}?id_campanha=${id}&t=${Date.now()}`;
-                try {
-                    const resTest = await fetch(urlTest);
-                    data = await resTest.json();
-                    document.getElementById('env-indicator').innerText = "TESTE";
-                } catch { data = null; }
-            }
+            const data = await getProductsN8N(id);
             
             let listaProdutos = [];
             if(Array.isArray(data)) {
@@ -342,7 +292,7 @@
 
         async function confirmReopen() {
             closeReopenModal();
-            await requestWithFallback('UPDATE', { action: "update_status", id_campanha: pendingReopenId, status: "rascunho" });
+            await sendN8N({ action: "update_status", id_campanha: pendingReopenId, status: "rascunho" }, URL_UPDATE_PROD, URL_UPDATE_TEST);
             openEditProducts(pendingReopenId, pendingReopenName, 'draft'); fetchDashboardData();
         }
 
@@ -351,11 +301,12 @@
             listArea.innerHTML = '';
 
             productsAgrupados.forEach(item => {
+                // CORREÇÃO: Lê o objeto 'json' ou o item direto
                 const prod = item.json ? item.json : item; 
                 const mainImage = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
                 const qtdFotos = prod.imagens ? prod.imagens.length : 1;
                 
-                // SEGURANÇA: Garante que estamos usando o GRP correto
+                // AJUSTE CRÍTICO: Garantir que pid use o id_grupo (GRP...)
                 const pid = prod.id_grupo;
 
                 listArea.innerHTML += `
@@ -399,7 +350,7 @@
             
             const payload = { 
                 action: "update_product", 
-                id_grupo: groupId, 
+                id_grupo: groupId, // Agora envia o GRP... passado pelo botão
                 id_campanha: currentEditingId, 
                 nome_produto: document.getElementById(`nome_${groupId}`).value, 
                 preco_de: document.getElementById(`de_${groupId}`).value,
@@ -409,9 +360,7 @@
             };
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
-            
-            // Usa o sistema inteligente para salvar (Prod -> Teste)
-            const res = await requestWithFallback('UPDATE', payload);
+            const res = await sendN8N(payload, URL_UPDATE_PROD, URL_UPDATE_TEST);
 
             if(res && res.success) {
                 btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
@@ -421,10 +370,15 @@
             }
         }
 
+        function concludeEdition() {
+            document.getElementById('editProductsModal').classList.remove('visible');
+            document.getElementById('activationModal').classList.add('visible');
+        }
+
         async function handleActivation(shouldActivate) {
             document.getElementById('activationModal').classList.remove('visible');
             if (shouldActivate) {
-                await requestWithFallback('UPDATE', { action: "update_status", id_campanha: currentEditingId, status: "ativa" });
+                await sendN8N({ action: "update_status", id_campanha: currentEditingId, status: "ativa" }, URL_UPDATE_PROD, URL_UPDATE_TEST);
             }
             fetchDashboardData(); 
         }
