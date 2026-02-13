@@ -52,13 +52,13 @@
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="glass-panel p-6 rounded-3xl flex items-center gap-4 border-l-4 border-green-500">
-                <div class="w-14 h-14 rounded-2xl bg-green-500/20 text-green-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-dollar-sign"></i></div>
-                <div><p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Vendido</p><p class="text-2xl font-black text-white" id="totalSalesDisplay">R$ 0,00</p></div>
+            <div class="glass-panel p-6 rounded-3xl border-l-4 border-green-500">
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Vendido</p>
+                <p class="text-2xl font-black text-white" id="totalSalesDisplay">R$ 0,00</p>
             </div>
-            <div class="glass-panel p-6 rounded-3xl flex items-center gap-4 border-l-4 border-blue-500">
-                <div class="w-14 h-14 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-bullhorn"></i></div>
-                <div><p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Campanhas</p><p class="text-2xl font-black text-white" id="activeCampaignsDisplay">0 Ativas</p></div>
+            <div class="glass-panel p-6 rounded-3xl border-l-4 border-blue-500">
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Campanhas</p>
+                <p class="text-2xl font-black text-white" id="activeCampaignsDisplay">0 Ativas</p>
             </div>
             <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-between shadow-xl transition-all hover:scale-[1.02]">
                 <div class="flex items-center gap-4 text-white text-left w-full">
@@ -106,6 +106,27 @@
         </div>
     </div>
 
+    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
+        <div class="modal-content glass-panel w-full max-w-md p-8 rounded-[32px] shadow-2xl relative">
+            <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            <h3 class="text-2xl font-black text-center mb-8">Lançar Campanha</h3>
+            <input type="text" id="campaignNameInput" class="w-full bg-dark-900 border border-slate-600 rounded-2xl px-5 py-4 mb-6 outline-none font-bold text-white focus:border-orange-500" placeholder="Nome da Campanha">
+            <button id="btnStart" onclick="triggerCampaign()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all">Disparar e Iniciar</button>
+        </div>
+    </div>
+
+    <div id="activationModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl"><i class="fas fa-check"></i></div>
+            <h3 class="text-xl font-black mb-2">Pronto!</h3>
+            <p class="text-sm text-slate-500 mb-6">Deseja ativar esta campanha agora para os clientes?</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="handleActivation(true)" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Ativar Agora</button>
+                <button onclick="handleActivation(false)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Não, manter rascunho</button>
+            </div>
+        </div>
+    </div>
+
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
             <div id="alert-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"></div>
@@ -124,11 +145,10 @@
 
         let adminUser = "", campaignsData = [], currentEditingId = null;
 
-        // UI Handlers
-        function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
-        function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
         function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
         function closeEditModal() { document.getElementById('editProductsModal').classList.remove('visible'); fetchDashboardData(); }
+        function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
+        function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
 
         function showPopup(msg, type='success') {
             const el = document.getElementById('custom-alert'), title = document.getElementById('alert-title'), icon = document.getElementById('alert-icon');
@@ -140,15 +160,13 @@
             el.classList.add('visible');
         }
 
-        // Sistema de requisição (Fallback automático)
         async function smartRequest(key, payload = null, method = 'POST', isGet = false) {
             const urls = ENDPOINTS[key], badge = document.getElementById('env-status');
             const runFetch = async (baseUrl) => {
-                const finalUrl = isGet ? `${baseUrl}?_cache=${Date.now()}` : baseUrl;
+                const finalUrl = isGet ? `${baseUrl}?id_campanha=${currentEditingId}&_t=${Date.now()}` : baseUrl;
                 const options = isGet ? { method: 'GET' } : { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) };
                 const response = await fetch(finalUrl, options);
-                if (!response.ok) throw new Error("Status " + response.status);
-                return await response.json();
+                if (!response.ok) throw new Error(); return await response.json();
             };
             try {
                 const data = await runFetch(urls.prod);
@@ -159,7 +177,7 @@
                     const data = await runFetch(urls.test);
                     if(badge) { badge.innerText = "MODO TESTE"; badge.className = "text-[10px] bg-orange-600 px-2 py-1 rounded ml-2 uppercase font-bold"; }
                     return data;
-                } catch (errorTest) { return null; }
+                } catch (e) { return null; }
             }
         }
 
@@ -197,7 +215,7 @@
                     <td class="p-6 font-bold text-white">${c.name}<p class="text-[10px] text-slate-500 font-normal">ID: ${c.id}</p></td>
                     <td class="p-6 font-mono text-emerald-400 font-bold">${currency}</td>
                     <td class="p-6 text-center"><span class="bg-slate-700/50 px-3 py-1 rounded-full text-[11px]">${c.products} itens</span></td>
-                    <td class="p-6 text-right"><button onclick="openEditProducts('${c.id}', '${c.name}', '${c.status}')" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-white hover:text-dark-900 flex items-center justify-center ml-auto transition-all"><i class="fas fa-pen"></i></button></td>
+                    <td class="p-6 text-right"><button onclick="openEditProducts('${c.id}', '${c.name}', '${c.status}')" class="action-btn bg-slate-700 hover:bg-white hover:text-dark-900 mx-auto ml-auto flex items-center justify-center w-10 h-10 rounded-xl transition-all"><i class="fas fa-pen"></i></button></td>
                 </tr>`;
             });
         }
@@ -207,24 +225,29 @@
             document.getElementById('totalSalesDisplay').innerText = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        // CARREGAMENTO DE PRODUTOS CORRIGIDO
+        async function triggerCampaign() {
+            const name = document.getElementById('campaignNameInput').value; if(!name) return;
+            const btn = document.getElementById('btnStart'); btn.innerHTML='<i class="fas fa-spinner fa-spin mr-2"></i>Iniciando...'; btn.disabled=true;
+            const res = await smartRequest('MAIN', { usuario_admin: adminUser, Nome_campanha: name, id_campanha: Math.floor(Date.now() / 1000), tipo_requisicao: "campanha" });
+            btn.innerHTML = "Disparar e Iniciar"; btn.disabled=false;
+            if(res && res.found){ showPopup("Nova campanha disparada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 1500); }
+        }
+
+        // --- SISTEMA DE EDIÇÃO RESTAURADO ---
         async function openEditProducts(id, name, status) {
             currentEditingId = id;
             document.getElementById('editModalTitle').innerText = name;
             document.getElementById('editProductsModal').classList.add('visible');
             const listArea = document.getElementById('productListArea');
-            listArea.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4 text-brand-500"></i><p>Puxando produtos do banco...</p></div>';
+            listArea.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4 text-brand-500"></i><p>Sincronizando produtos...</p></div>';
 
             const data = await smartRequest('PRODUCTS', null, 'GET', true);
-            
-            // Suporte para o novo formato direto do Respond to Webhook
             let lista = Array.isArray(data) ? data : (data && data.products ? data.products : []);
             
             if(lista.length > 0) processAndRenderProducts(lista);
             else listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado para esta campanha.</div>';
         }
 
-        // RENDERIZAÇÃO DE PRODUTOS COM PLACEHOLDERS E SWITCH
         function processAndRenderProducts(lista) {
             const listArea = document.getElementById('productListArea'); listArea.innerHTML = '';
             lista.forEach(item => {
@@ -239,14 +262,14 @@
                             </div>
                             <div class="flex flex-col items-center gap-1">
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="status_${pid}" class="sr-only peer" ${prod.ativo !== false ? 'checked' : ''} onchange="toggleStatus('${pid}', '${prod.nome_produto || 'Item'}')">
+                                    <input type="checkbox" id="status_${pid}" class="sr-only peer" ${prod.ativo !== false ? 'checked' : ''} onchange="toggleLocalStatus('${pid}', '${prod.nome_produto || 'Item'}')">
                                     <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                 </label>
                                 <span class="text-[10px] font-bold text-slate-500 uppercase">Visível</span>
                             </div>
                         </div>
-                        <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="md:col-span-2">
+                        <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="md:col-span-2 lg:col-span-3">
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Nome do Produto</label>
                                 <input type="text" id="nome_${pid}" value="${prod.nome_produto || ''}" placeholder="Digite aqui o nome do seu produto" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none transition-colors">
                             </div>
@@ -266,8 +289,10 @@
                                 <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Tamanho/Opções</label>
                                 <input type="text" id="tam_${pid}" value="${prod.tamanho || ''}" placeholder="Ex: P, M, G ou 38 ao 42" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none transition-colors">
                             </div>
+                            <div class="flex items-end justify-end">
+                                <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-full lg:w-16 rounded-xl bg-brand-600/20 text-brand-400 hover:bg-brand-600 hover:text-white flex items-center justify-center transition-all self-center shadow-lg"><i class="fas fa-save text-xl"></i></button>
+                            </div>
                         </div>
-                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-12 rounded-xl bg-brand-600/20 text-brand-400 hover:bg-brand-600 hover:text-white flex items-center justify-center transition-all self-center shadow-lg"><i class="fas fa-save text-xl"></i></button>
                     </div>`;
             });
         }
@@ -288,7 +313,7 @@
             if(res && res.success) showPopup(`${nome} salvo com sucesso!`, "success");
         }
 
-        function toggleStatus(pid, nome) {
+        function toggleLocalStatus(pid, nome) {
             const st = document.getElementById(`status_${pid}`).checked ? "ATIVADO" : "DESATIVADO";
             showPopup(`${nome} foi ${st} da campanha.`, "success");
         }
