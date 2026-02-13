@@ -24,6 +24,8 @@
         #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible, #activationModal.visible, #reopenModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
         .visible .modal-content { transform: scale(1); }
+        .action-btn { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .action-btn:hover { transform: translateY(-2px); }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
@@ -32,13 +34,13 @@
 <body class="min-h-screen flex flex-col">
 
     <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900">
-        <div class="w-full max-w-md glass-panel p-8 rounded-[32px] text-center shadow-2xl relative">
+        <div class="w-full max-w-md glass-panel p-8 rounded-[32px] text-center shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
-            <div class="w-20 h-20 bg-brand-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg text-white text-3xl shadow-blue-500/20"><i class="fas fa-lock"></i></div>
+            <div class="w-20 h-20 bg-brand-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white text-3xl"><i class="fas fa-lock"></i></div>
             <h2 class="text-2xl font-black mb-2">Painel Admin</h2>
-            <p class="text-slate-400 text-sm mb-8">Acesse sua Vitrine Digital</p>
-            <input type="tel" id="adminPhone" class="w-full bg-dark-900 border border-slate-700 rounded-2xl px-5 py-4 mb-4 text-white font-bold outline-none focus:border-brand-500 text-center text-lg tracking-widest" placeholder="WhatsApp">
-            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6">Entrar no Sistema</button>
+            <p class="text-slate-400 text-sm mb-8">Gestão Centralizada</p>
+            <input type="tel" id="adminPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-2xl px-5 py-4 mb-4 text-white font-bold outline-none focus:border-brand-500 transition-colors text-center text-lg tracking-widest" placeholder="WhatsApp">
+            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-2xl font-bold transition-all mb-6 shadow-lg shadow-blue-600/20">Entrar no Sistema</button>
         </div>
     </div>
 
@@ -46,33 +48,36 @@
         <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <div>
                 <h1 class="text-3xl font-black text-white flex items-center gap-3">Gestão Clips <i class="fas fa-paperclip text-brand-500 transform rotate-45"></i></h1>
-                <p class="text-slate-400 text-sm mt-1">Status: <span id="env-status" class="text-brand-500 font-bold">Conectando...</span></p>
+                <p class="text-slate-400 text-sm mt-1">Bem-vindo(a), <span class="text-brand-500 font-bold">Admin</span> <span id="env-status" class="text-[10px] bg-slate-700 px-2 py-1 rounded ml-2 uppercase font-bold">Detectando...</span></p>
             </div>
-            <button onclick="location.reload()" class="glass-panel px-4 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-white"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            <button onclick="logout()" class="glass-panel px-4 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="glass-panel p-6 rounded-3xl border-l-4 border-green-500">
-                <p class="text-xs text-slate-400 font-bold uppercase">Total Vendido</p>
-                <p class="text-2xl font-black text-white" id="totalSalesDisplay">R$ 0,00</p>
+            <div class="glass-panel p-6 rounded-3xl flex items-center gap-4 border-l-4 border-green-500">
+                <div class="w-14 h-14 rounded-2xl bg-green-500/20 text-green-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-dollar-sign"></i></div>
+                <div><p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Vendido</p><p class="text-2xl font-black text-white" id="totalSalesDisplay">R$ 0,00</p></div>
             </div>
-            <div class="glass-panel p-6 rounded-3xl border-l-4 border-blue-500">
-                <p class="text-xs text-slate-400 font-bold uppercase">Campanhas</p>
-                <p class="text-2xl font-black text-white" id="activeCampaignsDisplay">0 Ativas</p>
+            <div class="glass-panel p-6 rounded-3xl flex items-center gap-4 border-l-4 border-blue-500">
+                <div class="w-14 h-14 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-bullhorn"></i></div>
+                <div><p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Campanhas</p><p class="text-2xl font-black text-white" id="activeCampaignsDisplay">0 Ativas</p></div>
             </div>
-            <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-center font-bold text-xl shadow-xl transition-all hover:scale-[1.02]">
-                <i class="fas fa-plus mr-3"></i> Nova Campanha
+            <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-between shadow-xl transition-all hover:scale-[1.02]">
+                <div class="flex items-center gap-4 text-white text-left w-full">
+                    <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-xl shadow-lg backdrop-blur-sm"><i class="fas fa-plus"></i></div>
+                    <div><p class="text-sm font-bold text-blue-100 opacity-90">Criar Nova</p><p class="text-2xl font-black">Campanha</p></div>
+                </div>
             </button>
         </div>
 
-        <div class="glass-panel rounded-[32px] overflow-hidden flex-1">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center">
-                <h3 class="text-xl font-bold">Histórico de Campanhas</h3>
-                <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center"><i class="fas fa-sync-alt"></i></button>
+        <div class="glass-panel rounded-[32px] overflow-hidden flex-1 flex flex-col">
+            <div class="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+                <h3 class="text-xl font-bold text-white">Histórico de Campanhas</h3>
+                <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition-colors text-slate-300 hover:text-white"><i class="fas fa-sync-alt"></i></button>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-dark-900/30 text-slate-400 text-xs uppercase font-bold">
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-dark-900/30 text-slate-400 text-xs uppercase font-bold sticky top-0 backdrop-blur-sm">
                         <tr>
                             <th class="p-6">Status</th>
                             <th class="p-6">Campanha</th>
@@ -81,7 +86,7 @@
                             <th class="p-6 text-right">Ação</th>
                         </tr>
                     </thead>
-                    <tbody id="campaignList" class="text-sm divide-y divide-white/5"></tbody>
+                    <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
                 </table>
             </div>
         </div>
@@ -91,176 +96,269 @@
         <div class="modal-content glass-panel w-full max-w-5xl h-[90vh] flex flex-col rounded-[32px] shadow-2xl relative text-white">
             <div class="p-8 border-b border-white/10 flex justify-between items-center shrink-0">
                 <div>
-                    <h3 class="text-2xl font-black" id="editModalTitle">Editando Produtos</h3>
+                    <h3 class="text-2xl font-black" id="editModalTitle">Editando Campanha</h3>
                     <p class="text-slate-400 text-sm mt-1">Configure os detalhes e preços dos produtos recebidos.</p>
                 </div>
-                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><i class="fas fa-times"></i></button>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-6 custom-scroll" id="productListArea"></div>
-            <div class="p-6 border-t border-white/10 shrink-0 flex justify-end">
-                <button onclick="concludeEdition()" class="bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 px-12 rounded-2xl shadow-lg shadow-brand-600/20">Concluir Edição</button>
+            <div class="p-6 border-t border-white/10 shrink-0 flex justify-end gap-3">
+                <button onclick="concludeEdition()" class="bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg shadow-blue-600/20">Concluir Edição</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
+        <div class="modal-content glass-panel w-full max-w-md p-8 rounded-[32px] shadow-2xl relative">
+            <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            <h3 class="text-2xl font-black text-center mb-8">Lançar Campanha</h3>
+            <input type="text" id="campaignNameInput" class="w-full bg-dark-900 border border-slate-600 rounded-2xl px-5 py-4 mb-6 outline-none font-bold text-white focus:border-orange-500" placeholder="Nome da Campanha">
+            <button id="btnStart" onclick="triggerCampaign()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all">Disparar e Iniciar</button>
+        </div>
+    </div>
+
+    <div id="activationModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl"><i class="fas fa-check"></i></div>
+            <h3 class="text-xl font-black mb-2">Pronto!</h3>
+            <p class="text-sm text-slate-500 mb-6">Deseja ativar esta campanha agora para os clientes?</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="handleActivation(true)" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Ativar Agora</button>
+                <button onclick="handleActivation(false)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Não, manter rascunho</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reopenModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl"><i class="fas fa-lock"></i></div>
+            <h3 class="text-xl font-black mb-2">Campanha Ativa</h3>
+            <p class="text-sm text-slate-500 mb-6">Deseja reabrir esta campanha para edições? (O status voltará para Rascunho)</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="confirmReopen()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Reabrir e Editar</button>
+                <button onclick="closeReopenModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Cancelar</button>
             </div>
         </div>
     </div>
 
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
-            <div id="alert-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"></div>
-            <h3 id="alert-title" class="text-xl font-black mb-2">Sucesso!</h3>
-            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6"></p>
-            <button onclick="closeAlert()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl">Entendido</button>
-        </div>
-    </div>
-
-    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
-        <div class="modal-content glass-panel w-full max-w-md p-8 rounded-[32px] shadow-2xl relative">
-            <h3 class="text-2xl font-black text-center mb-8 text-white">Nova Campanha</h3>
-            <input type="text" id="campaignNameInput" class="w-full bg-dark-900 border border-slate-600 rounded-2xl px-5 py-4 mb-6 outline-none font-bold text-white focus:border-orange-500" placeholder="Nome da Campanha">
-            <button onclick="triggerCampaign()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg">Disparar Agora</button>
-            <button onclick="closeNewCampaignModal()" class="w-full text-slate-400 mt-4 text-sm font-bold">Cancelar</button>
+            <h3 id="alert-title" class="text-xl font-black mb-2 text-red-600">Atenção</h3>
+            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6">Msg</p>
+            <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl transition-all">Entendido</button>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÕES DE ENDPOINT (PROD + TEST)
         const ENDPOINTS = {
             MAIN: { prod: "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign", test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign" },
             PRODUCTS: { prod: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/d7fa7895-7f17-45bb-95a4-92e18f1c1692" },
             UPDATE: { prod: "https://n8n.srv1327557.hstgr.cloud/webhook/update-data", test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/update-data" }
         };
 
-        let adminUser = "", campaignsData = [], currentEditingId = null;
+        let adminUser = "", campaignsData = [], currentEditingId = null, pendingReopenId = null, pendingReopenName = null;
 
-        // UI HELPERS
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
+        function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
         function closeEditModal() { document.getElementById('editProductsModal').classList.remove('visible'); fetchDashboardData(); }
-        function closeAlert() { document.getElementById('custom-alert').classList.remove('visible'); }
-        
-        function showPopup(message, type = 'success') {
-            const alert = document.getElementById('custom-alert'), title = document.getElementById('alert-title'), msg = document.getElementById('alert-message'), icon = document.getElementById('alert-icon');
-            msg.innerText = message; title.innerText = type === 'success' ? 'Sucesso!' : 'Atenção';
-            if(type === 'success') { icon.className = "w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"; icon.innerHTML = '<i class="fas fa-check"></i>'; }
-            else { icon.className = "w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"; icon.innerHTML = '<i class="fas fa-info"></i>'; }
-            alert.classList.add('visible');
+        function closeReopenModal() { document.getElementById('reopenModal').classList.remove('visible'); }
+
+        function showPopup(msg, type='error') {
+            const el = document.getElementById('custom-alert');
+            const title = document.getElementById('alert-title');
+            document.getElementById('alert-message').innerText = msg;
+            title.innerText = type === 'success' ? "Sucesso!" : "Atenção";
+            title.className = type === 'success' ? "text-xl font-black mb-2 text-green-600" : "text-xl font-black mb-2 text-red-600";
+            el.classList.add('visible');
         }
 
-        // --- SISTEMA DE REQUISIÇÃO (Tenta Prod -> Tenta Teste) ---
-        async function smartRequest(key, payload = null, isGet = false) {
-            const urls = ENDPOINTS[key], badge = document.getElementById('env-status'), t = `?_t=${Date.now()}`;
-            const call = async (url) => {
-                const finalUrl = isGet ? url + (url.includes('?') ? '&' : '?') + `_t=${Date.now()}` : url;
-                const opt = isGet ? { method: 'GET' } : { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) };
-                const r = await fetch(finalUrl, opt); if(!r.ok) throw new Error(); return await r.json();
+        async function smartRequest(key, payload = null, method = 'POST', isGet = false) {
+            const urls = ENDPOINTS[key];
+            const badge = document.getElementById('env-status');
+            const runFetch = async (baseUrl) => {
+                const finalUrl = isGet ? `${baseUrl}?_cache=${Date.now()}` : baseUrl;
+                const options = isGet ? { method: 'GET' } : { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) };
+                const response = await fetch(finalUrl, options);
+                if (!response.ok) throw new Error("Status " + response.status);
+                return await response.json();
             };
-            try { const d = await call(urls.prod); badge.innerText = "PRODUÇÃO ONLINE"; return d; }
-            catch { try { const d = await call(urls.test); badge.innerText = "MODO TESTE ATIVO"; return d; } catch { badge.innerText = "OFFLINE"; return null; } }
-        }
-
-        async function checkAuth() {
-            const p = document.getElementById('adminPhone').value.replace(/\D/g,''); if(p.length < 8) return;
-            const res = await smartRequest('MAIN', { usuario_admin: p, tipo_requisicao: "login" });
-            if(res && res.found) { adminUser = p; document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); fetchDashboardData(); }
-            else showPopup("Admin não cadastrado.", "error");
-        }
-
-        async function fetchDashboardData() {
-            const res = await smartRequest('MAIN', { usuario_admin: adminUser, tipo_requisicao: "dashboard" });
-            const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
-            if(res && res.campanhas) {
-                campaignsData = res.campanhas.filter(c => c.nome_campanha);
-                campaignsData.slice().reverse().forEach(c => {
-                    const st = c.status.toLowerCase().includes('ativa') ? 'active' : 'draft';
-                    const badge = st === 'active' ? '<span class="status-badge status-active">● Ativa</span>' : '<span class="status-badge status-draft">● Rascunho</span>';
-                    tbody.innerHTML += `<tr class="border-b border-white/5"><td class="p-6">${badge}</td><td class="p-6 font-bold text-white">${c.nome_campanha}</td><td class="p-6 text-emerald-400 font-bold">R$ ${parseFloat(c.total_vendas||0).toFixed(2)}</td><td class="p-6 text-center">${c.qtd_produtos||0}</td><td class="p-6 text-right"><button onclick="openEditProducts('${c.id_campanha}', '${c.nome_campanha}', '${st}')" class="action-btn bg-slate-700 hover:bg-white hover:text-dark-900"><i class="fas fa-pen"></i></button></td></tr>`;
-                });
-                updateStats();
+            try {
+                const data = await runFetch(urls.prod);
+                if(badge) { badge.innerText = "PRODUÇÃO"; badge.className = "text-[10px] bg-emerald-600 px-2 py-1 rounded ml-2 uppercase font-bold"; }
+                return data;
+            } catch (error) {
+                try {
+                    const data = await runFetch(urls.test);
+                    if(badge) { badge.innerText = "MODO TESTE"; badge.className = "text-[10px] bg-orange-600 px-2 py-1 rounded ml-2 uppercase font-bold"; }
+                    return data;
+                } catch (errorTest) { return null; }
             }
         }
 
-        function updateStats() {
-            document.getElementById('activeCampaignsDisplay').innerText = `${campaignsData.filter(c => c.status.toLowerCase().includes('ativa')).length} Ativas`;
-            document.getElementById('totalSalesDisplay').innerText = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.total_vendas || 0), 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        async function checkAuth() {
+            const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
+            if(phone.length < 8) return showPopup("WhatsApp inválido");
+            const btn = document.getElementById('btnLogin'); btn.innerText="Conectando..."; btn.disabled=true;
+            const res = await smartRequest('MAIN', { usuario_admin: phone, tipo_requisicao: "login" });
+            btn.innerText = "Entrar no Sistema"; btn.disabled=false;
+            if(res && res.found){
+                adminUser = phone;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                fetchDashboardData();
+            } else { showPopup("Administrador não cadastrado."); }
         }
 
-        async function triggerCampaign() {
-            const n = document.getElementById('campaignNameInput').value; if(!n) return;
-            const res = await smartRequest('MAIN', { usuario_admin: adminUser, Nome_campanha: n, id_campanha: Math.floor(Date.now()/1000), tipo_requisicao: "campanha" });
-            if(res) { showPopup("Campanha criada!", "success"); closeNewCampaignModal(); fetchDashboardData(); }
+        async function fetchDashboardData() {
+            const tbody = document.getElementById('campaignList');
+            if(tbody.innerHTML.trim() === "") tbody.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-500"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Buscando campanhas...</td></tr>';
+            const res = await smartRequest('MAIN', { usuario_admin: adminUser, tipo_requisicao: "dashboard" });
+            if(res && res.found && res.campanhas) {
+                const validCampaigns = res.campanhas.filter(c => c.nome_campanha && c.nome_campanha.toString().trim() !== "");
+                campaignsData = validCampaigns.map((row, idx) => {
+                    let raw = row.status ? row.status.toString().toLowerCase() : 'rascunho';
+                    let st = raw.includes('ativa') ? 'active' : (raw.includes('rascunho') ? 'draft' : 'closed');
+                    return { id: row.id_campanha || idx, name: row.nome_campanha, status: st, sales: row.total_vendas || 0, products: row.qtd_produtos || 0 };
+                });
+                renderTable(); updateStats();
+            } else { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-400">Falha ao carregar dados.</td></tr>'; }
         }
 
-        // --- SISTEMA DE EDIÇÃO RESTAURADO ---
-        async function openEditProducts(id, name, status) {
-            currentEditingId = id; document.getElementById('editModalTitle').innerText = name; document.getElementById('editProductsModal').classList.add('visible');
-            const listArea = document.getElementById('productListArea'); listArea.innerHTML = '<p class="p-12 text-center">Carregando...</p>';
-            
-            const data = await smartRequest('PRODUCTS', null, true); // Get request
-            const lista = Array.isArray(data) ? data : (data.products || []);
-            
-            if(lista.length > 0) renderProducts(lista);
-            else listArea.innerHTML = '<p class="p-12 text-center text-slate-500">Nenhum produto cadastrado.</p>';
-        }
-
-        function renderProducts(lista) {
-            const area = document.getElementById('productListArea'); area.innerHTML = '';
-            lista.forEach(item => {
-                const prod = item.json || item, pid = prod.id_grupo; // GRP...
-                const img = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || '');
-                area.innerHTML += `
-                <div class="glass-panel p-5 rounded-2xl flex flex-col md:flex-row gap-6 items-start mb-4 border border-white/5 hover:border-white/10 transition-all">
-                    <div class="flex flex-col items-center gap-4">
-                        <div class="w-32 h-32 bg-dark-900 rounded-xl overflow-hidden border border-slate-700 relative">
-                            <img src="${img}" class="object-cover w-full h-full opacity-80"><div class="absolute bottom-0 left-0 right-0 bg-black/60 text-[9px] text-center py-1">${prod.qtd_fotos||1} Foto(s)</div>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="status_${pid}" class="sr-only peer" ${prod.ativo!==false?'checked':''} onchange="toggleLocalStatus('${pid}', '${prod.nome_produto||'Item'}')">
-                            <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                        </label>
-                        <span class="text-[9px] font-bold text-slate-500 uppercase">Visível</span>
-                    </div>
-                    <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="md:col-span-2 lg:col-span-3">
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Nome do Produto</label>
-                            <input type="text" id="nome_${pid}" value="${prod.nome_produto||''}" placeholder="Digite o nome..." class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Preço De</label>
-                            <input type="number" step="0.01" id="de_${pid}" value="${prod.preco_de||''}" placeholder="Ex: 99.90" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-green-500">Preço Por</label>
-                            <input type="number" step="0.01" id="por_${pid}" value="${prod.preco_por||''}" placeholder="Ex: 79.90" class="w-full bg-dark-900 border border-green-500/20 rounded-xl px-4 py-3 text-sm font-bold text-emerald-400 focus:border-green-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Cor</label>
-                            <input type="text" id="cor_${pid}" value="${prod.cor||''}" placeholder="Ex: Azul" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Tamanho</label>
-                            <input type="text" id="tam_${pid}" value="${prod.tamanho||''}" placeholder="Ex: P, M, G" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
-                        </div>
-                        <div class="flex items-end justify-end">
-                            <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-full lg:w-16 rounded-xl bg-brand-600/20 text-brand-400 hover:bg-brand-600 hover:text-white transition-all"><i class="fas fa-save text-xl"></i></button>
-                        </div>
-                    </div>
-                </div>`;
+        function renderTable() {
+            const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
+            campaignsData.slice().reverse().forEach(c => {
+                let badge = c.status === 'active' ? '<span class="status-badge status-active">● Ativa</span>' : (c.status === 'draft' ? '<span class="status-badge status-draft">● Rascunho</span>' : '<span class="status-badge status-closed">Encerrada</span>');
+                let currency = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/5 border-b border-white/5 transition-colors">
+                        <td class="p-6">${badge}</td>
+                        <td class="p-6 font-bold text-white">${c.name}<p class="text-[10px] text-slate-500 font-normal mt-0.5">ID: ${c.id}</p></td>
+                        <td class="p-6 font-mono text-emerald-400 font-bold">${currency}</td>
+                        <td class="p-6 text-center"><span class="bg-slate-700/50 px-3 py-1 rounded-full text-[11px] border border-white/5">${c.products} itens</span></td>
+                        <td class="p-6 text-right"><button onclick="openEditProducts('${c.id}', '${c.name}', '${c.status}')" class="action-btn bg-slate-700 hover:bg-white hover:text-dark-900 mx-auto ml-auto"><i class="fas fa-pen"></i></button></td>
+                    </tr>`;
             });
         }
 
-        async function saveProduct(pid) {
-            const btn = document.getElementById(`btn_save_${pid}`), old = btn.innerHTML, nome = document.getElementById(`nome_${pid}`).value || "Produto";
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            const payload = { action: "update_product", id_grupo: pid, id_campanha: currentEditingId, nome_produto: nome, preco_de: document.getElementById(`de_${pid}`).value, preco_por: document.getElementById(`por_${pid}`).value, cor: document.getElementById(`cor_${pid}`).value, tamanho: document.getElementById(`tam_${pid}`).value, ativo: document.getElementById(`status_${pid}`).checked };
+        function updateStats() {
+            document.getElementById('activeCampaignsDisplay').innerText = `${campaignsData.filter(c => c.status === 'active').length} Ativas`;
+            document.getElementById('totalSalesDisplay').innerText = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        }
+
+        async function triggerCampaign() {
+            const name = document.getElementById('campaignNameInput').value; if(!name) return showPopup("Preencha o nome da campanha");
+            const btn = document.getElementById('btnStart'); btn.innerHTML='<i class="fas fa-spinner fa-spin mr-2"></i>Iniciando...'; btn.disabled=true;
+            const res = await smartRequest('MAIN', { usuario_admin: adminUser, Nome_campanha: name, id_campanha: Math.floor(Date.now() / 1000), tipo_requisicao: "campanha" });
+            btn.innerHTML = "Disparar e Iniciar"; btn.disabled=false;
+            if(res && res.found){ showPopup("Nova campanha disparada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 1500); } else { showPopup("Erro ao criar campanha."); }
+        }
+
+        async function openEditProducts(id, name, status) {
+            if (status === 'active') { pendingReopenId = id; pendingReopenName = name; document.getElementById('reopenModal').classList.add('visible'); return; }
+            currentEditingId = id;
+            document.getElementById('editModalTitle').innerText = name;
+            document.getElementById('editProductsModal').classList.add('visible');
+            const listArea = document.getElementById('productListArea');
+            listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Puxando produtos do banco...</p></div>';
+            let data = null;
+            try {
+                data = await smartRequest('PRODUCTS', null, 'GET', true);
+            } catch (err) { data = null; }
+            let lista = Array.isArray(data) ? data : (data && data.products ? data.products : []);
+            if(lista.length > 0) processAndRenderProducts(lista);
+            else listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado para esta campanha.</div>';
+        }
+
+        function processAndRenderProducts(listaProdutos) {
+            const listArea = document.getElementById('productListArea');
+            listArea.innerHTML = '';
+            listaProdutos.forEach(item => {
+                const prod = item.json ? item.json : item; 
+                const pid = prod.id_grupo; 
+                const mainImg = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || '');
+                listArea.innerHTML += `
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col md:flex-row gap-6 items-start mb-4 group hover:border-white/20 transition-all">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-32 h-32 bg-dark-900 rounded-xl shrink-0 overflow-hidden border border-slate-700 relative">
+                                <img src="${mainImg}" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-[9px] text-center py-1 text-slate-300 backdrop-blur-sm">${prod.qtd_fotos || 1} Foto(s)</div>
+                            </div>
+                            <div class="flex flex-col items-center gap-1">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="status_${pid}" class="sr-only peer" ${prod.ativo !== false ? 'checked' : ''} onchange="toggleLocalStatus('${pid}', '${prod.nome_produto || 'Item'}')">
+                                    <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                </label>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase">Visível</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Nome do Produto</label>
+                                <input type="text" id="nome_${pid}" value="${prod.nome_produto || ''}" placeholder="Digite aqui o nome do seu produto" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Preço De (R$)</label>
+                                <input type="number" step="0.01" id="de_${pid}" value="${prod.preco_de || ''}" placeholder="Ex: 99.90" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-green-500 mb-1 block">Preço Promocional (R$)</label>
+                                <input type="number" step="0.01" id="por_${pid}" value="${prod.preco_por || ''}" placeholder="Ex: 79.90" class="w-full bg-dark-900 border border-green-500/20 rounded-xl px-4 py-3 text-sm font-bold focus:border-green-500 outline-none text-emerald-400">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Cor</label>
+                                <input type="text" id="cor_${pid}" value="${prod.cor || ''}" placeholder="Ex: Azul ou Única" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Tamanho/Opções</label>
+                                <input type="text" id="tam_${pid}" value="${prod.tamanho || ''}" placeholder="Ex: P, M, G ou 38 ao 42" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none transition-colors">
+                            </div>
+                        </div>
+                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-12 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white flex items-center justify-center transition-all self-center shadow-lg shadow-emerald-500/10">
+                            <i class="fas fa-save text-xl"></i>
+                        </button>
+                    </div>`;
+            });
+        }
+
+        async function saveProduct(groupId) {
+            const btn = document.getElementById(`btn_save_${groupId}`);
+            const originalIcon = btn.innerHTML;
+            const nome = document.getElementById(`nome_${groupId}`).value || "Produto";
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+            const payload = { 
+                action: "update_product", id_grupo: groupId, id_campanha: currentEditingId, 
+                nome_produto: nome, preco_de: document.getElementById(`de_${groupId}`).value,
+                preco_por: document.getElementById(`por_${groupId}`).value, 
+                cor: document.getElementById(`cor_${groupId}`).value, 
+                tamanho: document.getElementById(`tam_${groupId}`).value,
+                ativo: document.getElementById(`status_${groupId}`).checked
+            };
             const res = await smartRequest('UPDATE', payload);
-            btn.innerHTML = old; if(res && res.success) showPopup(`${nome} salvo com sucesso!`, 'success');
+            btn.innerHTML = originalIcon; btn.disabled = false;
+            if(res && res.success) showPopup(`${nome} salvo com sucesso!`, "success");
+            else showPopup("Não foi possível salvar o produto.");
         }
 
         function toggleLocalStatus(pid, nome) {
             const st = document.getElementById(`status_${pid}`).checked ? "ATIVADO" : "DESATIVADO";
-            showPopup(`${nome} agora está ${st}.`, 'success');
+            showPopup(`${nome} foi ${st} da campanha.`, "success");
         }
 
-        function concludeEdition() { closeEditModal(); showPopup("Alterações da campanha finalizadas!", 'success'); }
+        async function confirmReopen() {
+            closeReopenModal();
+            await smartRequest('UPDATE', { action: "update_status", id_campanha: pendingReopenId, status: "rascunho" });
+            openEditProducts(pendingReopenId, pendingReopenName, 'draft'); fetchDashboardData();
+        }
+
+        function concludeEdition() { document.getElementById('editProductsModal').classList.remove('visible'); document.getElementById('activationModal').classList.add('visible'); }
+
+        async function handleActivation(shouldActivate) {
+            document.getElementById('activationModal').classList.remove('visible');
+            if (shouldActivate) await smartRequest('UPDATE', { action: "update_status", id_campanha: currentEditingId, status: "ativa" });
+            fetchDashboardData(); 
+        }
+
         function logout() { location.reload(); }
     </script>
 </body>
