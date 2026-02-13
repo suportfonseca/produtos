@@ -12,11 +12,11 @@
   {
     "id": "GRP130226171724",
     "name": "123123123",
-    "priceFrom": "0.00",
-    "priceTo": "0.00",
+    "priceFrom": "190.00",
+    "priceTo": "20.00",
     "image": "https://api.telegram.org/file/bot8362532511/photos/file_103.jpg",
     "category": "video",
-    "cor": "",
-    "tamanho": ""
+    "cor": "PRETO",
+    "tamanho": "G"
   }
 ]
