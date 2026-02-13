@@ -3,75 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagnóstico Final - Raio X</title>
+    <title>TESTE DE DIAGNÓSTICO - Gestão Clips</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { background: #111; color: #0f0; font-family: monospace; padding: 20px; }</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .visible { opacity: 1 !important; pointer-events: auto !important; visibility: visible !important; }
+        #editProductsModal { transition: opacity 0.3s ease; opacity: 0; pointer-events: none; visibility: hidden; }
+    </style>
 </head>
-<body>
-    <h1 class="text-2xl font-bold mb-4">RAIO-X DOS DADOS RECEBIDOS</h1>
-    <p class="text-white mb-4">Este script vai mostrar exatamente o que o n8n entregou para o navegador.</p>
-    
-    <div id="debug-container" class="border border-green-500 p-4 rounded bg-black whitespace-pre-wrap">Carregando dados brutos...</div>
+<body class="min-h-screen flex flex-col p-8">
 
-    <div id="interface-preview" class="mt-8 border-t border-gray-700 pt-8">
-        <h2 class="text-white text-xl font-sans mb-4">Como o botão seria gerado:</h2>
-        <div id="buttons-area" class="flex gap-4 flex-wrap"></div>
+    <div class="max-w-4xl mx-auto w-full">
+        <div class="glass-panel p-8 rounded-[32px] text-center mb-8">
+            <h1 class="text-3xl font-black mb-4">🔬 Modo de Diagnóstico</h1>
+            <p class="text-slate-400 mb-6">Este arquivo serve para identificar por que o Webhook recebe ID 1.</p>
+            
+            <div class="flex gap-4 justify-center">
+                <button onclick="runTest()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg">
+                    BUSCAR PRODUTOS (CAMPANHA 1)
+                </button>
+                <button onclick="location.reload()" class="bg-slate-700 py-4 px-6 rounded-2xl font-bold">LIMPAR TUDO</button>
+            </div>
+        </div>
+
+        <div id="debug-log" class="hidden glass-panel p-6 rounded-2xl border-l-4 border-yellow-500 mb-8 font-mono text-xs text-yellow-200">
+            <p class="font-bold mb-2 underline">CONSOLE DE RASTREIO:</p>
+            <div id="log-content"></div>
+        </div>
+
+        <div id="productListArea" class="space-y-4"></div>
+    </div>
+
+    <div id="editProductsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/95 backdrop-blur-md visible">
+        <div class="w-full max-w-5xl h-[90vh] glass-panel flex flex-col rounded-3xl relative">
+            <div class="p-8 border-b border-white/10 flex justify-between items-center">
+                <h3 class="text-2xl font-black">Área de Teste de Salvamento</h3>
+                <span id="env-badge" class="bg-slate-800 text-[10px] px-2 py-1 rounded">AGUARDANDO...</span>
+            </div>
+            <div id="modal-list-area" class="flex-1 overflow-y-auto p-8 space-y-4">
+                <p class="text-slate-500 text-center mt-20">Clique no botão azul atrás deste modal para carregar os dados.</p>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- ⬇️ CONFIRA SE SUAS URLS ESTÃO CERTAS AQUI ⬇️ ---
-        const URL_LISTAR = "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692"; 
-        const ID_CAMPANHA = "1"; // ID fixo para o teste
-        // -----------------------------------------------------
+        const ENDPOINTS = {
+            PRODUCTS: {
+                prod: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692",
+                test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/d7fa7895-7f17-45bb-95a4-92e18f1c1692"
+            },
+            UPDATE: {
+                prod: "https://n8n.srv1327557.hstgr.cloud/webhook/update-data",
+                test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/update-data"
+            }
+        };
 
-        async function runDiagnosis() {
-            const container = document.getElementById('debug-container');
-            const btnArea = document.getElementById('buttons-area');
+        function addLog(msg, type = "info") {
+            const container = document.getElementById('debug-log');
+            const content = document.getElementById('log-content');
+            container.classList.remove('hidden');
+            const color = type === "error" ? "text-red-400" : (type === "success" ? "text-green-400" : "text-yellow-200");
+            content.innerHTML += `<p class="${color}">[${new Date().toLocaleTimeString()}] ${msg}</p>`;
+        }
+
+        async function runTest() {
+            const listArea = document.getElementById('modal-list-area');
+            const badge = document.getElementById('env-badge');
+            listArea.innerHTML = '<p class="text-center">Interrogando o n8n...</p>';
             
+            addLog("Iniciando requisição ao Fluxo 03...");
+
             try {
-                // Adiciona timestamp para impedir cache
-                const response = await fetch(`${URL_LISTAR}?id_campanha=${ID_CAMPANHA}&t=${Date.now()}`);
+                // Força o navegador a buscar dado novo com timestamp
+                const response = await fetch(`${ENDPOINTS.PRODUCTS.prod}?id_campanha=1&nocache=${Date.now()}`);
                 const data = await response.json();
-
-                // 1. IMPRIME O JSON BRUTO NA TELA
-                container.textContent = JSON.stringify(data, null, 4);
-
-                // 2. TENTA GERAR O BOTÃO BASEADO NO DADO
-                let lista = Array.isArray(data) ? data : (data.products || []);
                 
-                if (lista.length === 0) {
-                    btnArea.innerHTML = "<span class='text-red-500'>Lista vazia!</span>";
-                    return;
+                addLog("Dados brutos recebidos com sucesso.");
+                badge.innerText = "CONECTADO A PRODUÇÃO";
+                badge.className = "bg-green-900 text-green-300 text-[10px] px-2 py-1 rounded";
+
+                let lista = Array.isArray(data) ? data : (data.products || []);
+                renderProducts(lista);
+
+            } catch (err) {
+                addLog("Falha em Produção, tentando URL de Teste...", "error");
+                try {
+                    const resTest = await fetch(`${ENDPOINTS.PRODUCTS.test}?id_campanha=1&t=${Date.now()}`);
+                    const dataTest = await resTest.json();
+                    badge.innerText = "CONECTADO AO MODO TESTE";
+                    badge.className = "bg-orange-900 text-orange-300 text-[10px] px-2 py-1 rounded";
+                    renderProducts(Array.isArray(dataTest) ? dataTest : (dataTest.products || []));
+                } catch (e) {
+                    addLog("ERRO CRÍTICO: Ambos ambientes falharam.", "error");
                 }
-
-                lista.forEach(item => {
-                    // Simula a lógica do seu código oficial
-                    const prod = item.json ? item.json : item;
-                    const idReal = prod.id_grupo;
-                    
-                    const div = document.createElement('div');
-                    div.className = "bg-gray-800 p-4 rounded text-white font-sans max-w-sm";
-                    
-                    // Verifica se é número 1 ou GRP
-                    let statusColor = (idReal == "1" || idReal == 1) ? "text-red-500" : "text-green-400";
-                    
-                    div.innerHTML = `
-                        <p class="font-bold text-sm text-gray-400">Produto: ${prod.nome_produto}</p>
-                        <p class="font-mono text-xl ${statusColor} break-all">id_grupo: "${idReal}"</p>
-                        <p class="text-xs mt-2 text-gray-500">HTML que seria gerado:</p>
-                        <code class="block bg-black p-2 rounded text-xs mt-1 text-blue-300">
-                            onclick="saveProduct('${idReal}')"
-                        </code>
-                    `;
-                    btnArea.appendChild(div);
-                });
-
-            } catch (error) {
-                container.textContent = "ERRO FATAL NA REQUISIÇÃO:\n" + error.message;
             }
         }
 
-        runDiagnosis();
+        function renderProducts(lista) {
+            const listArea = document.getElementById('modal-list-area');
+            listArea.innerHTML = '';
+
+            if(lista.length === 0) {
+                addLog("A lista voltou vazia do n8n.", "error");
+                return;
+            }
+
+            lista.forEach((item, idx) => {
+                const prod = item.json || item;
+                const pid = prod.id_grupo;
+                
+                addLog(`Produto ${idx}: Detectado id_grupo = "${pid}"`);
+
+                // Alerta Visual se o ID for 1
+                const errorClass = (pid == "1" || pid == 1) ? "border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]" : "border-slate-700";
+
+                listArea.innerHTML += `
+                    <div class="glass-panel p-6 rounded-2xl flex gap-6 items-center border-2 ${errorClass}">
+                        <div class="flex-1">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase">Valor no Banco (GRP)</p>
+                            <p class="text-xl font-mono text-emerald-400">${pid}</p>
+                            
+                            <div class="mt-4 grid grid-cols-2 gap-4">
+                                <input type="text" id="nome_${pid}" value="${prod.nome_produto || 'SEM NOME'}" class="bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm">
+                                <input type="number" id="por_${pid}" value="${prod.preco_por || 0}" class="bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm">
+                            </div>
+                        </div>
+                        <button onclick="saveTest('${pid}')" class="bg-emerald-600 hover:bg-emerald-500 h-16 w-16 rounded-2xl transition-all flex items-center justify-center">
+                            <i class="fas fa-save text-xl"></i>
+                        </button>
+                    </div>`;
+            });
+        }
+
+        async function saveTest(groupId) {
+            addLog(`>>> CLIQUE NO DISQUETE: Preparando envio do ID: ${groupId}`, "success");
+
+            const payload = {
+                action: "update_product",
+                id_grupo: groupId,
+                id_campanha: "1",
+                nome_produto: document.getElementById(`nome_${groupId}`).value,
+                preco_por: document.getElementById(`por_${groupId}`).value,
+                tamanho: "TESTE_DEBUG"
+            };
+
+            addLog(`Enviando para o Webhook (Fluxo 4)...`);
+
+            try {
+                // Tenta enviar para o ambiente que estiver ativo
+                const url = document.getElementById('env-badge').innerText.includes('TESTE') ? ENDPOINTS.UPDATE.test : ENDPOINTS.UPDATE.prod;
+                
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                if(res.ok) {
+                    addLog(`SUCESSO! O Webhook recebeu o ID: ${groupId}`, "success");
+                    alert("Enviado com sucesso! Verifique o Fluxo 4 agora.");
+                } else {
+                    addLog("Erro na resposta do Webhook.", "error");
+                }
+            } catch (e) {
+                addLog("Falha na conexão de envio.", "error");
+            }
+        }
     </script>
 </body>
 </html>
