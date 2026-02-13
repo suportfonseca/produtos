@@ -24,8 +24,6 @@
         #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible, #activationModal.visible, #reopenModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
         .visible .modal-content { transform: scale(1); }
-        .action-btn { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .action-btn:hover { transform: translateY(-2px); }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
@@ -108,41 +106,9 @@
         </div>
     </div>
 
-    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
-        <div class="modal-content glass-panel w-full max-w-md p-8 rounded-[32px] shadow-2xl relative">
-            <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
-            <h3 class="text-2xl font-black text-center mb-8">Lançar Campanha</h3>
-            <input type="text" id="campaignNameInput" class="w-full bg-dark-900 border border-slate-600 rounded-2xl px-5 py-4 mb-6 outline-none font-bold text-white focus:border-orange-500" placeholder="Nome da Campanha">
-            <button id="btnStart" onclick="triggerCampaign()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all">Disparar e Iniciar</button>
-        </div>
-    </div>
-
-    <div id="activationModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
-        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl"><i class="fas fa-check"></i></div>
-            <h3 class="text-xl font-black mb-2">Pronto!</h3>
-            <p class="text-sm text-slate-500 mb-6">Deseja ativar esta campanha agora para os clientes?</p>
-            <div class="flex flex-col gap-3">
-                <button onclick="handleActivation(true)" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Ativar Agora</button>
-                <button onclick="handleActivation(false)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Não, manter rascunho</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="reopenModal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-sm">
-        <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
-            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl"><i class="fas fa-lock"></i></div>
-            <h3 class="text-xl font-black mb-2">Campanha Ativa</h3>
-            <p class="text-sm text-slate-500 mb-6">Deseja reabrir esta campanha para edições? (O status voltará para Rascunho)</p>
-            <div class="flex flex-col gap-3">
-                <button onclick="confirmReopen()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-all">Sim, Reabrir e Editar</button>
-                <button onclick="closeReopenModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark-900/60 backdrop-blur-sm">
         <div class="modal-content bg-white w-full max-w-sm p-6 rounded-[24px] shadow-2xl text-center text-slate-900">
+            <div id="alert-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"></div>
             <h3 id="alert-title" class="text-xl font-black mb-2 text-red-600">Atenção</h3>
             <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6">Msg</p>
             <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl transition-all">Entendido</button>
@@ -156,26 +122,27 @@
             UPDATE: { prod: "https://n8n.srv1327557.hstgr.cloud/webhook/update-data", test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/update-data" }
         };
 
-        let adminUser = "", campaignsData = [], currentEditingId = null, pendingReopenId = null, pendingReopenName = null;
+        let adminUser = "", campaignsData = [], currentEditingId = null;
 
+        // UI Handlers
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
         function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
         function closeEditModal() { document.getElementById('editProductsModal').classList.remove('visible'); fetchDashboardData(); }
-        function closeReopenModal() { document.getElementById('reopenModal').classList.remove('visible'); }
 
-        function showPopup(msg, type='error') {
-            const el = document.getElementById('custom-alert');
-            const title = document.getElementById('alert-title');
+        function showPopup(msg, type='success') {
+            const el = document.getElementById('custom-alert'), title = document.getElementById('alert-title'), icon = document.getElementById('alert-icon');
             document.getElementById('alert-message').innerText = msg;
             title.innerText = type === 'success' ? "Sucesso!" : "Atenção";
             title.className = type === 'success' ? "text-xl font-black mb-2 text-green-600" : "text-xl font-black mb-2 text-red-600";
+            icon.className = `w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl ${type === 'success' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`;
+            icon.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'info'}"></i>`;
             el.classList.add('visible');
         }
 
+        // Sistema de requisição (Fallback automático)
         async function smartRequest(key, payload = null, method = 'POST', isGet = false) {
-            const urls = ENDPOINTS[key];
-            const badge = document.getElementById('env-status');
+            const urls = ENDPOINTS[key], badge = document.getElementById('env-status');
             const runFetch = async (baseUrl) => {
                 const finalUrl = isGet ? `${baseUrl}?_cache=${Date.now()}` : baseUrl;
                 const options = isGet ? { method: 'GET' } : { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) };
@@ -199,15 +166,11 @@
         async function checkAuth() {
             const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
             if(phone.length < 8) return showPopup("WhatsApp inválido");
-            const btn = document.getElementById('btnLogin'); btn.innerText="Conectando..."; btn.disabled=true;
+            const btn = document.getElementById('btnLogin'); btn.innerText="Aguarde..."; btn.disabled=true;
             const res = await smartRequest('MAIN', { usuario_admin: phone, tipo_requisicao: "login" });
             btn.innerText = "Entrar no Sistema"; btn.disabled=false;
-            if(res && res.found){
-                adminUser = phone;
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                fetchDashboardData();
-            } else { showPopup("Administrador não cadastrado."); }
+            if(res && res.found){ adminUser = phone; document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); fetchDashboardData(); }
+            else { showPopup("Administrador não cadastrado."); }
         }
 
         async function fetchDashboardData() {
@@ -215,10 +178,9 @@
             if(tbody.innerHTML.trim() === "") tbody.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-500"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Buscando campanhas...</td></tr>';
             const res = await smartRequest('MAIN', { usuario_admin: adminUser, tipo_requisicao: "dashboard" });
             if(res && res.found && res.campanhas) {
-                const validCampaigns = res.campanhas.filter(c => c.nome_campanha && c.nome_campanha.toString().trim() !== "");
-                campaignsData = validCampaigns.map((row, idx) => {
+                campaignsData = res.campanhas.filter(c => c.nome_campanha).map((row, idx) => {
                     let raw = row.status ? row.status.toString().toLowerCase() : 'rascunho';
-                    let st = raw.includes('ativa') ? 'active' : (raw.includes('rascunho') ? 'draft' : 'closed');
+                    let st = raw.includes('ativa') ? 'active' : 'draft';
                     return { id: row.id_campanha || idx, name: row.nome_campanha, status: st, sales: row.total_vendas || 0, products: row.qtd_produtos || 0 };
                 });
                 renderTable(); updateStats();
@@ -228,16 +190,15 @@
         function renderTable() {
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
             campaignsData.slice().reverse().forEach(c => {
-                let badge = c.status === 'active' ? '<span class="status-badge status-active">● Ativa</span>' : (c.status === 'draft' ? '<span class="status-badge status-draft">● Rascunho</span>' : '<span class="status-badge status-closed">Encerrada</span>');
+                let badge = c.status === 'active' ? '<span class="status-badge status-active">● Ativa</span>' : '<span class="status-badge status-draft">● Rascunho</span>';
                 let currency = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-                tbody.innerHTML += `
-                    <tr class="hover:bg-white/5 border-b border-white/5 transition-colors">
-                        <td class="p-6">${badge}</td>
-                        <td class="p-6 font-bold text-white">${c.name}<p class="text-[10px] text-slate-500 font-normal mt-0.5">ID: ${c.id}</p></td>
-                        <td class="p-6 font-mono text-emerald-400 font-bold">${currency}</td>
-                        <td class="p-6 text-center"><span class="bg-slate-700/50 px-3 py-1 rounded-full text-[11px] border border-white/5">${c.products} itens</span></td>
-                        <td class="p-6 text-right"><button onclick="openEditProducts('${c.id}', '${c.name}', '${c.status}')" class="action-btn bg-slate-700 hover:bg-white hover:text-dark-900 mx-auto ml-auto"><i class="fas fa-pen"></i></button></td>
-                    </tr>`;
+                tbody.innerHTML += `<tr class="hover:bg-white/5 border-b border-white/5 transition-all">
+                    <td class="p-6">${badge}</td>
+                    <td class="p-6 font-bold text-white">${c.name}<p class="text-[10px] text-slate-500 font-normal">ID: ${c.id}</p></td>
+                    <td class="p-6 font-mono text-emerald-400 font-bold">${currency}</td>
+                    <td class="p-6 text-center"><span class="bg-slate-700/50 px-3 py-1 rounded-full text-[11px]">${c.products} itens</span></td>
+                    <td class="p-6 text-right"><button onclick="openEditProducts('${c.id}', '${c.name}', '${c.status}')" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-white hover:text-dark-900 flex items-center justify-center ml-auto transition-all"><i class="fas fa-pen"></i></button></td>
+                </tr>`;
             });
         }
 
@@ -246,47 +207,39 @@
             document.getElementById('totalSalesDisplay').innerText = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         }
 
-        async function triggerCampaign() {
-            const name = document.getElementById('campaignNameInput').value; if(!name) return showPopup("Preencha o nome da campanha");
-            const btn = document.getElementById('btnStart'); btn.innerHTML='<i class="fas fa-spinner fa-spin mr-2"></i>Iniciando...'; btn.disabled=true;
-            const res = await smartRequest('MAIN', { usuario_admin: adminUser, Nome_campanha: name, id_campanha: Math.floor(Date.now() / 1000), tipo_requisicao: "campanha" });
-            btn.innerHTML = "Disparar e Iniciar"; btn.disabled=false;
-            if(res && res.found){ showPopup("Nova campanha disparada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 1500); } else { showPopup("Erro ao criar campanha."); }
-        }
-
+        // CARREGAMENTO DE PRODUTOS CORRIGIDO
         async function openEditProducts(id, name, status) {
-            if (status === 'active') { pendingReopenId = id; pendingReopenName = name; document.getElementById('reopenModal').classList.add('visible'); return; }
             currentEditingId = id;
             document.getElementById('editModalTitle').innerText = name;
             document.getElementById('editProductsModal').classList.add('visible');
             const listArea = document.getElementById('productListArea');
-            listArea.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><p>Puxando produtos do banco...</p></div>';
-            let data = null;
-            try {
-                data = await smartRequest('PRODUCTS', null, 'GET', true);
-            } catch (err) { data = null; }
+            listArea.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-slate-500"><i class="fas fa-spinner fa-spin text-3xl mb-4 text-brand-500"></i><p>Puxando produtos do banco...</p></div>';
+
+            const data = await smartRequest('PRODUCTS', null, 'GET', true);
+            
+            // Suporte para o novo formato direto do Respond to Webhook
             let lista = Array.isArray(data) ? data : (data && data.products ? data.products : []);
+            
             if(lista.length > 0) processAndRenderProducts(lista);
             else listArea.innerHTML = '<div class="h-64 flex items-center justify-center text-slate-500">Nenhum produto cadastrado para esta campanha.</div>';
         }
 
-        function processAndRenderProducts(listaProdutos) {
-            const listArea = document.getElementById('productListArea');
-            listArea.innerHTML = '';
-            listaProdutos.forEach(item => {
+        // RENDERIZAÇÃO DE PRODUTOS COM PLACEHOLDERS E SWITCH
+        function processAndRenderProducts(lista) {
+            const listArea = document.getElementById('productListArea'); listArea.innerHTML = '';
+            lista.forEach(item => {
                 const prod = item.json ? item.json : item; 
-                const pid = prod.id_grupo; 
-                const mainImg = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || '');
+                const pid = prod.id_grupo, img = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || '');
                 listArea.innerHTML += `
                     <div class="glass-panel p-5 rounded-2xl flex flex-col md:flex-row gap-6 items-start mb-4 group hover:border-white/20 transition-all">
                         <div class="flex flex-col items-center gap-3">
-                            <div class="w-32 h-32 bg-dark-900 rounded-xl shrink-0 overflow-hidden border border-slate-700 relative">
-                                <img src="${mainImg}" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity">
-                                <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-[9px] text-center py-1 text-slate-300 backdrop-blur-sm">${prod.qtd_fotos || 1} Foto(s)</div>
+                            <div class="w-32 h-32 bg-dark-900 rounded-xl overflow-hidden border border-slate-700 relative">
+                                <img src="${img}" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-[9px] text-center py-1 font-bold">${prod.qtd_fotos || 1} FOTO(S)</div>
                             </div>
                             <div class="flex flex-col items-center gap-1">
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="status_${pid}" class="sr-only peer" ${prod.ativo !== false ? 'checked' : ''} onchange="toggleLocalStatus('${pid}', '${prod.nome_produto || 'Item'}')">
+                                    <input type="checkbox" id="status_${pid}" class="sr-only peer" ${prod.ativo !== false ? 'checked' : ''} onchange="toggleStatus('${pid}', '${prod.nome_produto || 'Item'}')">
                                     <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                 </label>
                                 <span class="text-[10px] font-bold text-slate-500 uppercase">Visível</span>
@@ -314,49 +267,37 @@
                                 <input type="text" id="tam_${pid}" value="${prod.tamanho || ''}" placeholder="Ex: P, M, G ou 38 ao 42" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-brand-500 outline-none transition-colors">
                             </div>
                         </div>
-                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-12 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white flex items-center justify-center transition-all self-center shadow-lg shadow-emerald-500/10">
-                            <i class="fas fa-save text-xl"></i>
-                        </button>
+                        <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="h-12 w-12 rounded-xl bg-brand-600/20 text-brand-400 hover:bg-brand-600 hover:text-white flex items-center justify-center transition-all self-center shadow-lg"><i class="fas fa-save text-xl"></i></button>
                     </div>`;
             });
         }
 
-        async function saveProduct(groupId) {
-            const btn = document.getElementById(`btn_save_${groupId}`);
-            const originalIcon = btn.innerHTML;
-            const nome = document.getElementById(`nome_${groupId}`).value || "Produto";
+        async function saveProduct(pid) {
+            const btn = document.getElementById(`btn_save_${pid}`), icon = btn.innerHTML, nome = document.getElementById(`nome_${pid}`).value || "Produto";
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
             const payload = { 
-                action: "update_product", id_grupo: groupId, id_campanha: currentEditingId, 
-                nome_produto: nome, preco_de: document.getElementById(`de_${groupId}`).value,
-                preco_por: document.getElementById(`por_${groupId}`).value, 
-                cor: document.getElementById(`cor_${groupId}`).value, 
-                tamanho: document.getElementById(`tam_${groupId}`).value,
-                ativo: document.getElementById(`status_${groupId}`).checked
+                action: "update_product", id_grupo: pid, id_campanha: currentEditingId, 
+                nome_produto: nome, preco_de: document.getElementById(`de_${pid}`).value,
+                preco_por: document.getElementById(`por_${pid}`).value, 
+                cor: document.getElementById(`cor_${pid}`).value, 
+                tamanho: document.getElementById(`tam_${pid}`).value,
+                ativo: document.getElementById(`status_${pid}`).checked
             };
             const res = await smartRequest('UPDATE', payload);
-            btn.innerHTML = originalIcon; btn.disabled = false;
+            btn.innerHTML = icon; btn.disabled = false;
             if(res && res.success) showPopup(`${nome} salvo com sucesso!`, "success");
-            else showPopup("Não foi possível salvar o produto.");
         }
 
-        function toggleLocalStatus(pid, nome) {
+        function toggleStatus(pid, nome) {
             const st = document.getElementById(`status_${pid}`).checked ? "ATIVADO" : "DESATIVADO";
             showPopup(`${nome} foi ${st} da campanha.`, "success");
         }
 
-        async function confirmReopen() {
-            closeReopenModal();
-            await smartRequest('UPDATE', { action: "update_status", id_campanha: pendingReopenId, status: "rascunho" });
-            openEditProducts(pendingReopenId, pendingReopenName, 'draft'); fetchDashboardData();
-        }
-
-        function concludeEdition() { document.getElementById('editProductsModal').classList.remove('visible'); document.getElementById('activationModal').classList.add('visible'); }
-
-        async function handleActivation(shouldActivate) {
-            document.getElementById('activationModal').classList.remove('visible');
-            if (shouldActivate) await smartRequest('UPDATE', { action: "update_status", id_campanha: currentEditingId, status: "ativa" });
-            fetchDashboardData(); 
+        async function concludeEdition() {
+            await smartRequest('UPDATE', { action: "update_status", id_campanha: currentEditingId, status: "ativa" });
+            document.getElementById('editProductsModal').classList.remove('visible');
+            showPopup("Edição finalizada com sucesso!", "success");
+            fetchDashboardData();
         }
 
         function logout() { location.reload(); }
