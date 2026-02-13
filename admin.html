@@ -276,7 +276,7 @@
 
             const data = await getProductsN8N(id);
             
-            // CORREÇÃO: Lê o formato agrupado do n8n
+            // CORREÇÃO: Aceita o formato do n8n (puro ou item.json)
             let listaProdutos = [];
             if(Array.isArray(data)) {
                 listaProdutos = data;
@@ -302,12 +302,12 @@
             listArea.innerHTML = '';
 
             productsAgrupados.forEach(item => {
-                // CORREÇÃO: Trata tanto item direto quanto item.json vindo do n8n
+                // CORREÇÃO: Desembrulha o JSON do n8n
                 const prod = item.json ? item.json : item; 
                 const mainImage = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
                 const qtdFotos = prod.imagens ? prod.imagens.length : 1;
                 
-                // USAR O ID DO GRUPO (GRP...) PARA TODOS OS CAMPOS E BOTÕES
+                // CORREÇÃO: pid obrigatoriamente recebe o id_grupo (GRP...)
                 const pid = prod.id_grupo;
 
                 listArea.innerHTML += `
@@ -349,7 +349,7 @@
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
             
-            // CAPTURA PELO ID DO GRUPO (GRP...)
+            // CORREÇÃO: Busca os elementos pelo ID que agora contém o GRP...
             const payload = { 
                 action: "update_product", 
                 id_grupo: groupId, 
