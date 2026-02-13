@@ -10,8 +10,21 @@
     <style>
         body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .visible { opacity: 1 !important; pointer-events: auto !important; visibility: visible !important; }
-        #editProductsModal { transition: opacity 0.3s ease; opacity: 0; pointer-events: none; visibility: hidden; }
+        /* Modal escondido por padrão */
+        #editProductsModal { 
+            transition: opacity 0.3s ease, visibility 0.3s; 
+            opacity: 0; 
+            pointer-events: none; 
+            visibility: hidden; 
+        }
+        /* Classe para mostrar o modal */
+        #editProductsModal.visible { 
+            opacity: 1 !important; 
+            pointer-events: auto !important; 
+            visibility: visible !important; 
+        }
+        .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
+        .visible .modal-content { transform: scale(1); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col p-8">
@@ -19,32 +32,39 @@
     <div class="max-w-4xl mx-auto w-full">
         <div class="glass-panel p-8 rounded-[32px] text-center mb-8">
             <h1 class="text-3xl font-black mb-4">🔬 Modo de Diagnóstico</h1>
-            <p class="text-slate-400 mb-6">Este arquivo serve para identificar por que o Webhook recebe ID 1.</p>
+            <p class="text-slate-400 mb-6">O modal agora está escondido. Clique no botão abaixo para iniciar o teste.</p>
             
             <div class="flex gap-4 justify-center">
-                <button onclick="runTest()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg">
-                    BUSCAR PRODUTOS (CAMPANHA 1)
+                <button id="btnMainTest" onclick="runTest()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg shadow-blue-600/20">
+                    <i class="fas fa-search mr-2"></i> BUSCAR PRODUTOS (CAMPANHA 1)
                 </button>
-                <button onclick="location.reload()" class="bg-slate-700 py-4 px-6 rounded-2xl font-bold">LIMPAR TUDO</button>
+                <button onclick="location.reload()" class="bg-slate-700 py-4 px-6 rounded-2xl font-bold hover:bg-slate-600 transition-all">
+                    <i class="fas fa-sync-alt"></i> RESETAR
+                </button>
             </div>
         </div>
 
         <div id="debug-log" class="hidden glass-panel p-6 rounded-2xl border-l-4 border-yellow-500 mb-8 font-mono text-xs text-yellow-200">
             <p class="font-bold mb-2 underline">CONSOLE DE RASTREIO:</p>
-            <div id="log-content"></div>
+            <div id="log-content" class="space-y-1"></div>
         </div>
-
-        <div id="productListArea" class="space-y-4"></div>
     </div>
 
-    <div id="editProductsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/95 backdrop-blur-md visible">
-        <div class="w-full max-w-5xl h-[90vh] glass-panel flex flex-col rounded-3xl relative">
-            <div class="p-8 border-b border-white/10 flex justify-between items-center">
-                <h3 class="text-2xl font-black">Área de Teste de Salvamento</h3>
-                <span id="env-badge" class="bg-slate-800 text-[10px] px-2 py-1 rounded">AGUARDANDO...</span>
+    <div id="editProductsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/95 backdrop-blur-md">
+        <div class="modal-content w-full max-w-5xl h-[90vh] glass-panel flex flex-col rounded-3xl relative">
+            <div class="p-8 border-b border-white/10 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="text-2xl font-black">Área de Teste de Salvamento</h3>
+                    <p class="text-slate-400 text-sm">Verifique se os IDs abaixo são GRP ou números.</p>
+                </div>
+                <div id="env-badge" class="bg-slate-800 text-[10px] px-3 py-1 rounded-full border border-white/10">AGUARDANDO...</div>
             </div>
-            <div id="modal-list-area" class="flex-1 overflow-y-auto p-8 space-y-4">
-                <p class="text-slate-500 text-center mt-20">Clique no botão azul atrás deste modal para carregar os dados.</p>
+            
+            <div id="modal-list-area" class="flex-1 overflow-y-auto p-8 space-y-4 custom-scroll">
+                </div>
+
+            <div class="p-6 border-t border-white/10 flex justify-end">
+                <button onclick="document.getElementById('editProductsModal').classList.remove('visible')" class="bg-slate-700 px-6 py-2 rounded-xl font-bold">FECHAR TESTE</button>
             </div>
         </div>
     </div>
@@ -67,39 +87,55 @@
             container.classList.remove('hidden');
             const color = type === "error" ? "text-red-400" : (type === "success" ? "text-green-400" : "text-yellow-200");
             content.innerHTML += `<p class="${color}">[${new Date().toLocaleTimeString()}] ${msg}</p>`;
+            console.log(`[LOG] ${msg}`);
         }
 
         async function runTest() {
             const listArea = document.getElementById('modal-list-area');
             const badge = document.getElementById('env-badge');
-            listArea.innerHTML = '<p class="text-center">Interrogando o n8n...</p>';
+            const btn = document.getElementById('btnMainTest');
             
-            addLog("Iniciando requisição ao Fluxo 03...");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> PROCESSANDO...';
+            listArea.innerHTML = '<div class="text-center py-20"><i class="fas fa-spinner fa-spin text-4xl mb-4"></i><p>Interrogando o n8n...</p></div>';
+            
+            addLog("Iniciando requisição ao Fluxo 03 (Listar)...");
 
             try {
-                // Força o navegador a buscar dado novo com timestamp
+                // Força o navegador a ignorar cache
                 const response = await fetch(`${ENDPOINTS.PRODUCTS.prod}?id_campanha=1&nocache=${Date.now()}`);
+                if(!response.ok) throw new Error("Prod offline");
                 const data = await response.json();
                 
-                addLog("Dados brutos recebidos com sucesso.");
-                badge.innerText = "CONECTADO A PRODUÇÃO";
-                badge.className = "bg-green-900 text-green-300 text-[10px] px-2 py-1 rounded";
+                addLog("Dados recebidos da URL de PRODUÇÃO.");
+                badge.innerText = "PRODUÇÃO ATIVA";
+                badge.className = "bg-green-900 text-green-300 text-[10px] px-3 py-1 rounded-full border border-green-500/30";
 
-                let lista = Array.isArray(data) ? data : (data.products || []);
-                renderProducts(lista);
-
+                processData(data);
             } catch (err) {
-                addLog("Falha em Produção, tentando URL de Teste...", "error");
+                addLog("Produção falhou, tentando URL de TESTE...", "error");
                 try {
                     const resTest = await fetch(`${ENDPOINTS.PRODUCTS.test}?id_campanha=1&t=${Date.now()}`);
                     const dataTest = await resTest.json();
-                    badge.innerText = "CONECTADO AO MODO TESTE";
-                    badge.className = "bg-orange-900 text-orange-300 text-[10px] px-2 py-1 rounded";
-                    renderProducts(Array.isArray(dataTest) ? dataTest : (dataTest.products || []));
+                    badge.innerText = "AMBIENTE DE TESTE";
+                    badge.className = "bg-orange-900 text-orange-300 text-[10px] px-3 py-1 rounded-full border border-orange-500/30";
+                    processData(dataTest);
                 } catch (e) {
-                    addLog("ERRO CRÍTICO: Ambos ambientes falharam.", "error");
+                    addLog("ERRO CRÍTICO: Não foi possível conectar ao n8n.", "error");
+                    listArea.innerHTML = '<p class="text-red-500 text-center py-20">Erro de conexão. Verifique se o n8n está rodando.</p>';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-search mr-2"></i> TENTAR NOVAMENTE';
                 }
             }
+        }
+
+        function processData(data) {
+            const lista = Array.isArray(data) ? data : (data.products || []);
+            renderProducts(lista);
+            // Abre o modal somente após carregar os dados
+            document.getElementById('editProductsModal').classList.add('visible');
+            document.getElementById('btnMainTest').disabled = false;
+            document.getElementById('btnMainTest').innerHTML = '<i class="fas fa-search mr-2"></i> BUSCAR PRODUTOS (CAMPANHA 1)';
         }
 
         function renderProducts(lista) {
@@ -107,7 +143,8 @@
             listArea.innerHTML = '';
 
             if(lista.length === 0) {
-                addLog("A lista voltou vazia do n8n.", "error");
+                addLog("O n8n retornou uma lista vazia.", "error");
+                listArea.innerHTML = '<p class="text-center py-20 text-slate-500">Nenhum produto encontrado no banco.</p>';
                 return;
             }
 
@@ -115,47 +152,58 @@
                 const prod = item.json || item;
                 const pid = prod.id_grupo;
                 
-                addLog(`Produto ${idx}: Detectado id_grupo = "${pid}"`);
+                addLog(`Item [${idx}]: id_grupo detectado como "${pid}" (Tipo: ${typeof pid})`);
 
-                // Alerta Visual se o ID for 1
-                const errorClass = (pid == "1" || pid == 1) ? "border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]" : "border-slate-700";
+                const isError = (pid == "1" || pid == 1 || pid == "3" || pid == 3);
+                const statusColor = isError ? "text-red-500" : "text-emerald-400";
+                const borderClass = isError ? "border-red-500/50 bg-red-500/5" : "border-white/10";
 
                 listArea.innerHTML += `
-                    <div class="glass-panel p-6 rounded-2xl flex gap-6 items-center border-2 ${errorClass}">
-                        <div class="flex-1">
-                            <p class="text-[10px] font-bold text-slate-500 uppercase">Valor no Banco (GRP)</p>
-                            <p class="text-xl font-mono text-emerald-400">${pid}</p>
+                    <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row gap-6 items-center border ${borderClass}">
+                        <div class="flex-1 w-full">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Identificador do Grupo</p>
+                                    <p class="text-2xl font-mono font-black ${statusColor}">${pid}</p>
+                                </div>
+                                ${isError ? '<span class="bg-red-500 text-[10px] px-2 py-1 rounded font-bold">ERRO: ID NUMÉRICO</span>' : '<span class="bg-emerald-500 text-[10px] px-2 py-1 rounded font-bold">GRP OK</span>'}
+                            </div>
                             
-                            <div class="mt-4 grid grid-cols-2 gap-4">
-                                <input type="text" id="nome_${pid}" value="${prod.nome_produto || 'SEM NOME'}" class="bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm">
-                                <input type="number" id="por_${pid}" value="${prod.preco_por || 0}" class="bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] text-slate-500 uppercase font-bold">Nome do Produto</label>
+                                    <input type="text" id="nome_${pid}" value="${prod.nome_produto || 'Produto Teste'}" class="w-full bg-dark-900 border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-slate-500 uppercase font-bold">Preço</label>
+                                    <input type="number" id="por_${pid}" value="${prod.preco_por || 0}" class="w-full bg-dark-900 border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-blue-500">
+                                </div>
                             </div>
                         </div>
-                        <button onclick="saveTest('${pid}')" class="bg-emerald-600 hover:bg-emerald-500 h-16 w-16 rounded-2xl transition-all flex items-center justify-center">
-                            <i class="fas fa-save text-xl"></i>
+                        <button onclick="saveTest('${pid}')" class="bg-emerald-600 hover:bg-emerald-500 h-14 w-full md:w-14 rounded-xl transition-all flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                            <i class="fas fa-save text-xl text-white"></i>
                         </button>
                     </div>`;
             });
         }
 
         async function saveTest(groupId) {
-            addLog(`>>> CLIQUE NO DISQUETE: Preparando envio do ID: ${groupId}`, "success");
+            addLog(`>>> TESTE DE SALVAMENTO: Enviando ID "${groupId}"...`, "success");
 
             const payload = {
                 action: "update_product",
-                id_grupo: groupId,
+                id_grupo: groupId.toString(),
                 id_campanha: "1",
                 nome_produto: document.getElementById(`nome_${groupId}`).value,
                 preco_por: document.getElementById(`por_${groupId}`).value,
-                tamanho: "TESTE_DEBUG"
+                tamanho: "DEBUG_TEST"
             };
 
-            addLog(`Enviando para o Webhook (Fluxo 4)...`);
-
             try {
-                // Tenta enviar para o ambiente que estiver ativo
                 const url = document.getElementById('env-badge').innerText.includes('TESTE') ? ENDPOINTS.UPDATE.test : ENDPOINTS.UPDATE.prod;
                 
+                addLog(`Destino: ${url}`);
+
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -163,14 +211,20 @@
                 });
 
                 if(res.ok) {
-                    addLog(`SUCESSO! O Webhook recebeu o ID: ${groupId}`, "success");
-                    alert("Enviado com sucesso! Verifique o Fluxo 4 agora.");
+                    addLog(`WEBHOOK RECEBEU COM SUCESSO! Valor enviado: ${groupId}`, "success");
+                    showPopupDiag(`O n8n recebeu o ID: ${groupId}`, "success");
                 } else {
-                    addLog("Erro na resposta do Webhook.", "error");
+                    addLog(`ERRO NO WEBHOOK: Status ${res.status}`, "error");
+                    showPopupDiag(`Erro no n8n: ${res.status}`, "error");
                 }
             } catch (e) {
-                addLog("Falha na conexão de envio.", "error");
+                addLog("FALHA DE CONEXÃO AO ENVIAR.", "error");
             }
+        }
+
+        function showPopupDiag(m, t) {
+            document.getElementById('alert-message').innerText = m;
+            document.getElementById('custom-alert').classList.add('visible');
         }
     </script>
 </body>
