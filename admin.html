@@ -263,7 +263,7 @@
             if(res && res.found){ showPopup("Campanha Iniciada!", "success"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 2000); } else { showPopup("Erro ao iniciar."); }
         }
 
-        // --- 🚨 PARTE REVISADA: LÓGICA DE PRODUTOS ---
+        // --- SISTEMA DE EDIÇÃO REVISADO ---
 
         async function openEditProducts(id, name, status) {
             if (status === 'active') {
@@ -303,12 +303,12 @@
             listArea.innerHTML = '';
 
             productsAgrupados.forEach(item => {
-                // CORREÇÃO: Lê os dados do n8n (puro ou agrupado)
+                // CORREÇÃO: Lê os dados vindo do n8n tratando item.json se necessário
                 const prod = item.json ? item.json : item; 
                 const mainImage = (prod.imagens && prod.imagens[0]) ? prod.imagens[0] : (prod.arquivo_url || 'https://via.placeholder.com/150');
                 const qtdFotos = prod.imagens ? prod.imagens.length : 1;
                 
-                // 🛑 A CHAVE DO SUCESSO: pid recebe obrigatoriamente o código GRP...
+                // CRUCIAL: pid obrigatoriamente recebe o código GRP...
                 const pid = prod.id_grupo;
 
                 listArea.innerHTML += `
@@ -350,7 +350,7 @@
             const btn = document.getElementById(`btn_save_${groupId}`);
             const originalIcon = btn.innerHTML;
             
-            // CORREÇÃO: Busca os campos usando o groupId (GRP...)
+            // BUSCA PELO GRUPO: Garante que os campos lidos usem o código alfanumérico
             const payload = { 
                 action: "update_product", 
                 id_grupo: groupId, 
