@@ -203,9 +203,14 @@
         // --- CONFIGURAÇÃO DA LOJA ---
         const CONFIG = {
             storeName: "Clips Papelaria",
-            campaignName: "Volta às Aulas 2026", // NOME DA CAMPANHA AQUI
-            whatsappNumber: "5511999999999", // SEU NÚMERO AQUI
-            jsonUrl: "https://raw.githubusercontent.com/suportfonseca/produtos/main/produtos.json"
+            campaignName: "Ofertas Especiais", 
+            whatsappNumber: "5511999999999", // SEU NÚMERO DE WHATSAPP AQUI
+            
+            // LINK DO SEU N8N (WEBHOOK DE LEITURA DE PRODUTOS)
+            apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692",
+            
+            // >>> IMPORTANTE: COLOQUE AQUI O ID DA SUA CAMPANHA <<<
+            campaignId: "XXX" 
         };
 
         // --- ESTADO ---
@@ -246,43 +251,81 @@
             setTimeout(() => overlay.classList.add('hidden'), 300);
         }
 
-        // --- CORE FUNCTIONS ---
+        // --- FUNÇÕES PRINCIPAIS ---
         async function loadProducts() {
             try {
-                // Tenta carregar do GitHub, se falhar usa fallback
-                const res = await fetch(CONFIG.jsonUrl + '?t=' + Date.now());
-                if (!res.ok) throw new Error();
-                const data = await res.json();
+                // Monta a URL com o ID da campanha
+                let fetchUrl = CONFIG.apiUrl;
+                if(CONFIG.campaignId && CONFIG.campaignId !== "XXX") {
+                    fetchUrl += `?id_campanha=${CONFIG.campaignId}`;
+                }
+
+                console.log("Conectando ao n8n:", fetchUrl);
+                const res = await fetch(fetchUrl);
                 
-                products = data.map((p, i) => ({
-                    id: p.id || i,
-                    name: p.name || p.nome_produto,
-                    priceFrom: p.priceFrom || p.preco_de,
-                    priceTo: p.priceTo || p.preco_por,
-                    image: p.image || p.temp_foto,
-                    category: p.category || 'geral',
-                    cor: p.cor,
-                    tamanho: p.tamanho
-                }));
+                if (!res.ok) throw new Error("Erro de conexão");
+                
+                // O n8n pode retornar array ou objeto. Tratamos ambos.
+                let data = await res.json();
+                let rawList = Array.isArray(data) ? data : (data.products || []);
+
+                products = rawList.map((item, i) => {
+                    // Normalização dos dados vindos do N8N/Postgres
+                    const p = item.json ? item.json : item;
+                    
+                    // LÓGICA DE IMAGEM (Mesma do Admin)
+                    // 1. Tenta url_publica (Google)
+                    // 2. Tenta arquivo_url (Backup)
+                    // 3. Tenta primeira foto do array de imagens
+                    // 4. Placeholder
+                    let img = p.url_publica || p.arquivo_url;
+                    if (!img && Array.isArray(p.imagens) && p.imagens.length > 0) {
+                        img = p.imagens[0];
+                    }
+                    if (!img) img = 'https://placehold.co/600?text=Sem+Foto';
+
+                    return {
+                        id: p.id_grupo || p.id || i,
+                        name: p.nome_produto || "Produto sem nome",
+                        priceFrom: p.preco_de || null,
+                        priceTo: p.preco_por || "0.00",
+                        image: img,
+                        category: p.category || 'Geral',
+                        cor: p.cor,
+                        tamanho: p.tamanho,
+                        active: p.ativo !== false 
+                    };
+                }).filter(p => p.active); // Remove ocultos
+
+                renderProducts('todos');
+
             } catch (e) {
-                // Fallback para teste
-                products = [
-                    { id: 1, name: "Mochila Escolar Premium", priceFrom: "250.00", priceTo: "199.90", image: "https://placehold.co/600", category: "escolar", cor: "Azul Marinho" },
-                    { id: 2, name: "Kit Canetas Gel", priceFrom: "45.00", priceTo: "29.90", image: "https://placehold.co/600", category: "escritorio", cor: "Colorido" },
-                    { id: 3, name: "Caderno Inteligente", priceTo: "89.90", image: "https://placehold.co/600", category: "escolar", tamanho: "A4" }
-                ];
+                console.error("Erro:", e);
+                showPopup("Não foi possível carregar a campanha. Verifique o ID.", "error");
             }
-            renderProducts('todos');
         }
 
-        function getPrice(val) { return parseFloat(String(val).replace(',', '.')); }
-        function formatPrice(val) { return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        function getPrice(val) { 
+            if(!val) return 0;
+            return parseFloat(String(val).replace(',', '.')); 
+        }
+        
+        function formatPrice(val) { 
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); 
+        }
 
         function renderProducts(filter) {
             const grid = document.getElementById('productsGrid');
             grid.innerHTML = '';
             
-            const filtered = filter === 'todos' ? products : products.filter(p => p.category.toLowerCase().includes(filter));
+            const filtered = filter === 'todos' 
+                ? products 
+                : products.filter(p => p.category.toLowerCase().includes(filter));
+
+            if(filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10 flex flex-col items-center"><i class="fas fa-box-open text-4xl mb-3 opacity-50"></i><p>Nenhum produto encontrado nesta categoria.</p></div>';
+                return;
+            }
 
             filtered.forEach(p => {
                 const price = getPrice(p.priceTo);
@@ -295,7 +338,7 @@
 
                 card.innerHTML = `
                     <div class="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-slate-50">
-                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/400?text=Sem+Foto'">
+                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         ${discount > 0 ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">-${discount}%</div>` : ''}
                         <div class="absolute bottom-2 right-2 bg-white/90 backdrop-blur rounded-full w-8 h-8 flex items-center justify-center text-brand-600 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
                             <i class="fas fa-plus"></i>
