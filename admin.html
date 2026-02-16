@@ -21,7 +21,9 @@
         }
     </script>
     <style>
-        body { background: #020617; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        /* REMOVIDO O EFEITO DE RUÍDO (NOISE) - AGORA É FUNDO LIMPO */
+        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        
         .glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
         .input-group { position: relative; transition: all 0.3s ease; }
         .input-group:focus-within { transform: translateY(-2px); }
@@ -34,7 +36,6 @@
         .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Modais */
         #custom-alert, #newCampaignModal, #editProductsModal, #activationModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
         #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible, #activationModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         
@@ -47,7 +48,7 @@
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-safe bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+<body class="min-h-screen flex flex-col pb-safe bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950">
 
     <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-dark-950">
         <div class="w-full max-w-sm glass-panel p-10 rounded-[2rem] text-center shadow-2xl relative overflow-hidden">
