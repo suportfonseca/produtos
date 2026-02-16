@@ -51,6 +51,14 @@
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
+    <div id="errorScreen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center p-6 bg-slate-900 text-white text-center hidden">
+        <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6">
+            <i class="fas fa-link-slash text-3xl text-slate-500"></i>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">Link Inválido</h1>
+        <p class="text-slate-400 max-w-xs mx-auto">Você precisa acessar este catálogo através de um link de campanha específico da loja.</p>
+    </div>
+
     <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-brand-600">
         <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
         <div class="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-2xl relative overflow-hidden text-center fade-in">
@@ -200,27 +208,38 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO DA LOJA ---
+        // --- 1. LÓGICA DE URL DINÂMICA (O SEGREDO) ---
+        // Aqui ele lê o que vem depois de "?id=" no link do site
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlCampaignId = urlParams.get('id');
+
+        // --- 2. CONFIGURAÇÃO DA LOJA ---
         const CONFIG = {
             storeName: "Clips Papelaria",
-            campaignName: "Ofertas Especiais", 
-            whatsappNumber: "5511999999999", // SEU NÚMERO DE WHATSAPP AQUI
+            campaignName: "Carregando...", 
+            whatsappNumber: "5511999999999", // SEU WHATSAPP AQUI
             
-            // LINK DO SEU N8N (WEBHOOK DE LEITURA DE PRODUTOS)
+            // WEBHOOK DO N8N (O mesmo que você usa no Admin para listar)
             apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692",
             
-            // >>> IMPORTANTE: COLOQUE AQUI O ID DA SUA CAMPANHA <<<
-            campaignId: "XXX" 
+            // ID da campanha pego da URL
+            campaignId: urlCampaignId 
         };
+
+        // --- 3. VALIDAÇÃO DE SEGURANÇA ---
+        // Se a pessoa entrar sem link (index.html direto), mostra erro
+        if (!CONFIG.campaignId) {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('errorScreen').classList.remove('hidden');
+            // Interrompe o script para não carregar nada
+            throw new Error("Acesso negado: ID de campanha ausente.");
+        }
 
         // --- ESTADO ---
         let products = [];
         let cart = {};
         let tempQty = 1;
         let currentModalProductId = null;
-
-        // --- INICIALIZAÇÃO ---
-        document.getElementById('campaignTitleDisplay').innerText = CONFIG.campaignName;
 
         // --- SISTEMA DE ALERTA ---
         function showPopup(msg, type = 'error') {
@@ -254,39 +273,38 @@
         // --- FUNÇÕES PRINCIPAIS ---
         async function loadProducts() {
             try {
-                // Monta a URL com o ID da campanha
-                let fetchUrl = CONFIG.apiUrl;
-                if(CONFIG.campaignId && CONFIG.campaignId !== "XXX") {
-                    fetchUrl += `?id_campanha=${CONFIG.campaignId}`;
-                }
-
-                console.log("Conectando ao n8n:", fetchUrl);
+                // Monta a URL enviando o ID para o n8n
+                const fetchUrl = `${CONFIG.apiUrl}?id_campanha=${CONFIG.campaignId}`;
+                console.log("Buscando campanha:", CONFIG.campaignId);
+                
                 const res = await fetch(fetchUrl);
+                if (!res.ok) throw new Error("Erro de conexão com o servidor");
                 
-                if (!res.ok) throw new Error("Erro de conexão");
-                
-                // O n8n pode retornar array ou objeto. Tratamos ambos.
                 let data = await res.json();
+                
+                // Normaliza (n8n pode mandar array ou objeto)
                 let rawList = Array.isArray(data) ? data : (data.products || []);
 
+                // Se a lista vier vazia, a campanha não existe ou está vazia
+                if (rawList.length === 0) {
+                    showPopup("Esta campanha não está disponível ou foi encerrada.", "error");
+                    document.getElementById('productsGrid').innerHTML = '<div class="col-span-full text-center py-20 opacity-50"><i class="fas fa-store-slash text-4xl mb-2"></i><br>Campanha Indisponível</div>';
+                    document.getElementById('campaignTitleDisplay').innerText = "Indisponível";
+                    return;
+                }
+
+                // Processa os produtos
                 products = rawList.map((item, i) => {
-                    // Normalização dos dados vindos do N8N/Postgres
                     const p = item.json ? item.json : item;
                     
-                    // LÓGICA DE IMAGEM (Mesma do Admin)
-                    // 1. Tenta url_publica (Google)
-                    // 2. Tenta arquivo_url (Backup)
-                    // 3. Tenta primeira foto do array de imagens
-                    // 4. Placeholder
+                    // Lógica de Imagem (Prioridade: Google > Backup > Array > Placeholder)
                     let img = p.url_publica || p.arquivo_url;
-                    if (!img && Array.isArray(p.imagens) && p.imagens.length > 0) {
-                        img = p.imagens[0];
-                    }
+                    if (!img && Array.isArray(p.imagens) && p.imagens.length > 0) img = p.imagens[0];
                     if (!img) img = 'https://placehold.co/600?text=Sem+Foto';
 
                     return {
                         id: p.id_grupo || p.id || i,
-                        name: p.nome_produto || "Produto sem nome",
+                        name: p.nome_produto || "Produto",
                         priceFrom: p.preco_de || null,
                         priceTo: p.preco_por || "0.00",
                         image: img,
@@ -295,32 +313,25 @@
                         tamanho: p.tamanho,
                         active: p.ativo !== false 
                     };
-                }).filter(p => p.active); // Remove ocultos
+                }).filter(p => p.active);
 
                 renderProducts('todos');
+                document.getElementById('campaignTitleDisplay').innerText = "Ofertas Disponíveis"; 
 
             } catch (e) {
-                console.error("Erro:", e);
-                showPopup("Não foi possível carregar a campanha. Verifique o ID.", "error");
+                console.error(e);
+                showPopup("Não foi possível carregar a loja. Verifique sua conexão.", "error");
             }
         }
 
-        function getPrice(val) { 
-            if(!val) return 0;
-            return parseFloat(String(val).replace(',', '.')); 
-        }
-        
-        function formatPrice(val) { 
-            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); 
-        }
+        function getPrice(val) { if(!val) return 0; return parseFloat(String(val).replace(',', '.')); }
+        function formatPrice(val) { return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
         function renderProducts(filter) {
             const grid = document.getElementById('productsGrid');
             grid.innerHTML = '';
             
-            const filtered = filter === 'todos' 
-                ? products 
-                : products.filter(p => p.category.toLowerCase().includes(filter));
+            const filtered = filter === 'todos' ? products : products.filter(p => p.category.toLowerCase().includes(filter));
 
             if(filtered.length === 0) {
                 grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10 flex flex-col items-center"><i class="fas fa-box-open text-4xl mb-3 opacity-50"></i><p>Nenhum produto encontrado nesta categoria.</p></div>';
@@ -363,7 +374,6 @@
         function openModal(p) {
             currentModalProductId = p.id;
             tempQty = 1;
-            
             document.getElementById('modalImg').src = p.image;
             document.getElementById('modalCategory').innerText = p.category;
             document.getElementById('modalTitle').innerText = p.name;
@@ -371,21 +381,18 @@
             document.getElementById('tempQtyDisplay').innerText = "1";
             document.getElementById('modalColor').innerText = p.cor || 'Padrão';
             document.getElementById('modalSize').innerText = p.tamanho || 'Único';
-
-            const oldPrice = p.priceFrom ? getPrice(p.priceFrom) : null;
-            const price = getPrice(p.priceTo);
             
-            if (oldPrice && oldPrice > price) {
-                document.getElementById('modalOldPrice').innerText = formatPrice(oldPrice);
-                document.getElementById('modalOldPrice').classList.remove('hidden');
-                
-                const disc = Math.round(((oldPrice - price) / oldPrice) * 100);
-                const tag = document.getElementById('modalDiscountTag');
-                tag.innerText = `🔥 -${disc}% OFF`;
-                tag.classList.remove('hidden');
+            const old = p.priceFrom ? getPrice(p.priceFrom) : 0;
+            const current = getPrice(p.priceTo);
+            if(old > current) {
+                 document.getElementById('modalOldPrice').innerText = formatPrice(old);
+                 document.getElementById('modalOldPrice').classList.remove('hidden');
+                 const disc = Math.round(((old - current) / old) * 100);
+                 document.getElementById('modalDiscountTag').innerText = `🔥 -${disc}% OFF`;
+                 document.getElementById('modalDiscountTag').classList.remove('hidden');
             } else {
-                document.getElementById('modalOldPrice').classList.add('hidden');
-                document.getElementById('modalDiscountTag').classList.add('hidden');
+                 document.getElementById('modalOldPrice').classList.add('hidden');
+                 document.getElementById('modalDiscountTag').classList.add('hidden');
             }
 
             document.getElementById('modalAddBtn').onclick = () => {
@@ -393,39 +400,21 @@
                 closeModal();
                 showPopup(`+${tempQty} ${p.name} adicionado!`, 'success');
             };
-
             document.getElementById('productModal').classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('productModal').classList.add('hidden');
-        }
-
-        function updateTempQty(change) {
-            const newQty = tempQty + change;
-            if (newQty >= 1) {
-                tempQty = newQty;
-                document.getElementById('tempQtyDisplay').innerText = tempQty;
-            }
-        }
-
-        function addToCart(id, qty) {
-            cart[id] = (cart[id] || 0) + qty;
-            updateCartBar();
-        }
-
+        function closeModal() { document.getElementById('productModal').classList.add('hidden'); }
+        function updateTempQty(val) { const n = tempQty + val; if(n >= 1) { tempQty = n; document.getElementById('tempQtyDisplay').innerText = tempQty; } }
+        
+        function addToCart(id, qty) { cart[id] = (cart[id] || 0) + qty; updateCartBar(); }
+        
         function updateCartBar() {
-            let total = 0;
-            let count = 0;
+            let total = 0, count = 0;
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
-                if (p) {
-                    total += getPrice(p.priceTo) * qty;
-                    count += qty;
-                }
+                if(p) { total += getPrice(p.priceTo) * qty; count += qty; }
             });
-
-            if (count > 0) {
+            if(count > 0) {
                 document.getElementById('cartTotal').innerText = formatPrice(total);
                 document.getElementById('cartBar').classList.remove('hidden');
             } else {
@@ -434,67 +423,60 @@
         }
 
         function checkout() {
-            if (Object.keys(cart).length === 0) return;
-
-            let msg = `👋 Olá! Vim do Catálogo Digital *${CONFIG.storeName}*.\n`;
-            msg += `📋 *PEDIDO DA CAMPANHA: ${CONFIG.campaignName}*\n\n`;
-
+            if(Object.keys(cart).length === 0) return;
+            let msg = `👋 Olá! Pedido da campanha *#${CONFIG.campaignId}*:\n\n`;
             let total = 0;
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
-                if (p) {
-                    const subtotal = getPrice(p.priceTo) * qty;
-                    total += subtotal;
+                if(p) {
+                    const sub = getPrice(p.priceTo) * qty;
+                    total += sub;
                     msg += `▫️ *${qty}x ${p.name}*\n`;
-                    if(p.cor) msg += `   Cor: ${p.cor} | Tam: ${p.tamanho || 'Único'}\n`;
-                    msg += `   Valor: ${formatPrice(subtotal)}\n\n`;
+                    if(p.cor) msg += `   Cor: ${p.cor} | Tam: ${p.tamanho || '-'}\n`;
+                    msg += `   Subtotal: ${formatPrice(sub)}\n\n`;
                 }
             });
-
             msg += `💰 *TOTAL FINAL: ${formatPrice(total)}*\n`;
-            msg += `📍 *Aguardo confirmação!*`;
-
-            const link = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
-            window.open(link, '_blank');
+            msg += `📍 *Aguardo confirmação de estoque e entrega!*`;
+            window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- SISTEMA ---
-        // Login
+        // --- LOGIN ---
         document.getElementById('loginButton').onclick = () => {
             const phone = document.getElementById('phoneInput').value;
-            if (phone.length < 8) return showPopup("Por favor, digite seu WhatsApp.", "error");
+            if(phone.length < 8) return showPopup("Digite um WhatsApp válido.", "error");
+            
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Inicia o carregamento
             loadProducts();
             initSocialProof();
         };
 
-        // Filtros
-        document.querySelectorAll('.filter-tab').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.filter-tab').forEach(b => {
-                    b.classList.remove('active', 'bg-slate-900', 'text-white', 'shadow-md');
-                    b.classList.add('bg-white', 'text-slate-600', 'border');
+        // Filtros e Prova Social
+        document.querySelectorAll('.filter-tab').forEach(b => {
+            b.onclick = () => {
+                document.querySelectorAll('.filter-tab').forEach(x => {
+                    x.classList.remove('active', 'bg-slate-900', 'text-white', 'shadow-md');
+                    x.classList.add('bg-white', 'text-slate-600', 'border');
                 });
-                btn.classList.remove('bg-white', 'text-slate-600', 'border');
-                btn.classList.add('active', 'bg-slate-900', 'text-white', 'shadow-md');
-                renderProducts(btn.dataset.category);
+                b.classList.remove('bg-white', 'text-slate-600', 'border');
+                b.classList.add('active', 'bg-slate-900', 'text-white', 'shadow-md');
+                renderProducts(b.dataset.category);
             };
         });
-
-        // Prova Social Fake
+        
         function initSocialProof() {
-            const names = ["Ana", "João", "Carla", "Lucas", "Beatriz", "Felipe", "Mariana"];
-            const toast = document.getElementById('social-toast');
-            
-            function show() {
-                const name = names[Math.floor(Math.random() * names.length)];
-                document.getElementById('social-name').innerText = name;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 3000);
-                setTimeout(show, Math.random() * 10000 + 8000);
-            }
-            setTimeout(show, 5000);
+             const names = ["Ana", "Carlos", "Beatriz", "João", "Mariana", "Lucas"];
+             const toast = document.getElementById('social-toast');
+             function show() {
+                 document.getElementById('social-name').innerText = names[Math.floor(Math.random()*names.length)];
+                 toast.classList.add('show');
+                 setTimeout(()=>toast.classList.remove('show'), 3000);
+                 setTimeout(show, Math.random() * 10000 + 10000);
+             }
+             setTimeout(show, 5000);
         }
     </script>
 </body>
