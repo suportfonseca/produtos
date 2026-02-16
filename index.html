@@ -24,29 +24,21 @@
     </script>
     <style>
         body { background-color: #f8fafc; color: #0f172a; -webkit-tap-highlight-color: transparent; }
-        
-        /* Glassmorphism */
-        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .glass-dark { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-
-        /* Scrollbar Invisível */
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .glass-dark { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Animações */
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        /* Cartão de Produto */
         .product-card { transition: transform 0.2s; }
         .product-card:active { transform: scale(0.98); }
-        
-        /* Toast Social */
         #social-toast { transform: translateY(150%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #social-toast.show { transform: translateY(0); }
+        
+        /* Ajuste para imagens no carrossel */
+        .carousel-image { transition: opacity 0.5s ease-in-out; }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -67,28 +59,21 @@
             </div>
             <h1 class="text-2xl font-display font-black text-slate-800 mb-1">Clips Papelaria</h1>
             <p class="text-slate-400 text-sm font-medium mb-8">Acesse nosso catálogo exclusivo</p>
-            
             <div class="relative mb-4">
                 <i class="fas fa-phone-alt absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <input type="tel" id="phoneInput" class="w-full bg-slate-50 border border-slate-100 rounded-xl py-4 pl-10 pr-4 font-bold text-slate-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-all placeholder:text-slate-400" placeholder="Seu WhatsApp">
             </div>
-            
-            <button id="loginButton" class="w-full bg-brand-600 hover:bg-brand-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-500/30 transition-all active:scale-95">
-                Ver Produtos
-            </button>
+            <button id="loginButton" class="w-full bg-brand-600 hover:bg-brand-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-500/30 transition-all active:scale-95">Ver Produtos</button>
         </div>
         <p class="absolute bottom-6 text-white/50 text-xs font-medium">Ambiente Seguro &copy; 2026</p>
     </div>
 
     <div id="mainApp" class="hidden flex-1 pb-32">
-        
         <header class="glass sticky top-0 z-40">
-            <div class="max-w-5xl mx-auto px-4 py-3">
+            <div class="max-w-6xl mx-auto px-4 py-3">
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
-                            <i class="fas fa-paperclip"></i>
-                        </div>
+                        <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20"><i class="fas fa-paperclip"></i></div>
                         <div>
                             <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Loja Oficial</p>
                             <h1 class="font-display font-black text-lg leading-none text-slate-800">Clips Papelaria</h1>
@@ -99,15 +84,11 @@
                         <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                     </div>
                 </div>
-
-                <div class="bg-gradient-to-r from-brand-900 to-brand-600 rounded-2xl p-4 text-white shadow-lg mb-4 relative overflow-hidden">
-                    <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-2">
-                        <i class="fas fa-tags text-8xl"></i>
-                    </div>
-                    <p class="text-xs font-medium text-blue-200 mb-1 opacity-90"><i class="fas fa-fire mr-1"></i> Destaque do Mês</p>
-                    <h2 id="campaignTitleDisplay" class="text-2xl font-display font-black tracking-tight">Carregando Ofertas...</h2>
+                <div class="bg-gradient-to-r from-brand-900 to-brand-600 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-2"><i class="fas fa-tags text-9xl"></i></div>
+                    <p class="text-xs font-medium text-blue-200 mb-1 opacity-90"><i class="fas fa-fire mr-1"></i> Seleção Exclusiva</p>
+                    <h2 id="campaignTitleDisplay" class="text-3xl font-display font-black tracking-tight">Carregando Ofertas...</h2>
                 </div>
-
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     <button class="filter-tab active bg-slate-900 text-white px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-md transition-all" data-category="todos">Tudo</button>
                     <button class="filter-tab bg-white border border-slate-200 text-slate-600 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all" data-category="escolar">🎒 Escolar</button>
@@ -117,83 +98,93 @@
             </div>
         </header>
 
-        <main class="max-w-5xl mx-auto p-4 pt-6">
+        <main class="max-w-6xl mx-auto p-4 pt-6">
             <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 </div>
         </main>
     </div>
 
     <div id="productModal" class="fixed inset-0 z-[60] hidden transition-opacity duration-300">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
-        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] slide-up max-h-[90vh] overflow-y-auto shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
-            
-            <div class="relative h-72 md:h-96 bg-slate-100 w-full group">
-                <img id="modalImg" src="" class="w-full h-full object-cover">
-                <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-slate-800 shadow-sm z-10">
+        <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        
+        <div class="absolute inset-0 flex items-end md:items-center justify-center pointer-events-none">
+            <div class="bg-white w-full md:w-[900px] md:max-h-[85vh] md:rounded-[2rem] rounded-t-[2.5rem] shadow-2xl pointer-events-auto overflow-hidden flex flex-col md:flex-row slide-up relative h-[90vh] md:h-auto">
+                
+                <button onclick="closeModal()" class="absolute top-4 right-4 z-50 w-10 h-10 bg-black/10 hover:bg-black/20 backdrop-blur rounded-full flex items-center justify-center text-slate-800 transition-all">
                     <i class="fas fa-times"></i>
                 </button>
-                <div id="modalDiscountTag" class="hidden absolute bottom-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg">
-                    -% OFF
-                </div>
-            </div>
 
-            <div class="p-6 md:p-10 pb-28">
-                <div class="flex justify-between items-start mb-2">
-                    <span id="modalCategory" class="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-1 rounded-md">Categoria</span>
-                </div>
-                
-                <h2 id="modalTitle" class="text-2xl font-display font-black text-slate-900 leading-tight mb-4">Nome do Produto</h2>
-                
-                <div class="flex items-center justify-between mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <div>
-                        <p id="modalOldPrice" class="text-xs text-slate-400 line-through font-medium hidden">R$ 0,00</p>
-                        <p id="modalPrice" class="text-3xl font-display font-black text-brand-600">R$ 0,00</p>
+                <div class="w-full md:w-1/2 bg-slate-50 relative h-[45%] md:h-auto flex items-center justify-center group overflow-hidden">
+                    <div id="modalCarouselContainer" class="w-full h-full relative">
+                        </div>
+                    
+                    <div id="carouselControls" class="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-20 hidden">
+                        <button onclick="prevModalImage()" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur shadow-md flex items-center justify-center hover:bg-white transition-all text-slate-800"><i class="fas fa-chevron-left"></i></button>
+                        <button onclick="nextModalImage()" class="w-10 h-10 rounded-full bg-white/80 backdrop-blur shadow-md flex items-center justify-center hover:bg-white transition-all text-slate-800"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <div class="flex items-center gap-3 bg-white px-3 py-2 rounded-xl shadow-sm border border-slate-200">
-                        <button onclick="updateTempQty(-1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"><i class="fas fa-minus text-xs"></i></button>
-                        <span id="tempQtyDisplay" class="font-bold text-lg w-6 text-center text-slate-800">1</span>
-                        <button onclick="updateTempQty(1)" class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/30 active:scale-90 transition-transform"><i class="fas fa-plus text-xs"></i></button>
-                    </div>
+                    <div id="imageCounter" class="absolute top-4 left-4 bg-black/60 text-white text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md hidden">1/1</div>
+                    <div id="modalDiscountTag" class="absolute bottom-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg z-20 hidden">-% OFF</div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="p-4 rounded-2xl border border-slate-100 bg-white text-center">
-                        <p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Cor / Tipo</p>
-                        <p id="modalColor" class="font-bold text-slate-800">-</p>
+                <div class="w-full md:w-1/2 p-6 md:p-10 flex flex-col h-[55%] md:h-auto overflow-y-auto bg-white">
+                    <div class="flex-1">
+                        <span id="modalCategory" class="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-1 rounded-md inline-block mb-3">Categoria</span>
+                        <h2 id="modalTitle" class="text-2xl md:text-3xl font-display font-black text-slate-900 leading-tight mb-6">Nome do Produto</h2>
+                        
+                        <div class="flex items-end gap-3 mb-8">
+                            <div class="flex flex-col">
+                                <p class="text-xs text-slate-400 font-bold uppercase tracking-wide mb-1">Valor Unitário</p>
+                                <div class="flex items-baseline gap-3">
+                                    <p id="modalPrice" class="text-4xl font-display font-black text-brand-600">R$ 0,00</p>
+                                    <p id="modalOldPrice" class="text-lg text-slate-400 line-through font-medium hidden">R$ 0,00</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50">
+                                <p class="text-[10px] uppercase text-slate-400 font-bold mb-1"><i class="fas fa-palette mr-1"></i> Cor</p>
+                                <p id="modalColor" class="font-bold text-slate-800 text-sm">-</p>
+                            </div>
+                            <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50">
+                                <p class="text-[10px] uppercase text-slate-400 font-bold mb-1"><i class="fas fa-ruler mr-1"></i> Tamanho</p>
+                                <p id="modalSize" class="font-bold text-slate-800 text-sm">-</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-4 rounded-2xl border border-slate-100 bg-white text-center">
-                        <p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Tamanho</p>
-                        <p id="modalSize" class="font-bold text-slate-800">-</p>
+
+                    <div class="pt-4 border-t border-slate-100 mt-auto">
+                        <div class="flex gap-4">
+                            <div class="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-xl border border-slate-200">
+                                <button onclick="updateTempQty(-1)" class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-brand-600 transition-colors"><i class="fas fa-minus text-xs"></i></button>
+                                <span id="tempQtyDisplay" class="font-bold text-lg w-6 text-center text-slate-800">1</span>
+                                <button onclick="updateTempQty(1)" class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-brand-600 transition-colors"><i class="fas fa-plus text-xs"></i></button>
+                            </div>
+                            <button id="modalAddBtn" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-xl shadow-brand-600/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <span>Adicionar</span> <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <button id="modalAddBtn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-xl shadow-slate-900/20 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg">
-                    Adicionar ao Carrinho <i class="fas fa-arrow-right text-sm"></i>
-                </button>
             </div>
         </div>
     </div>
 
     <div id="social-toast" class="fixed bottom-28 left-4 right-4 z-40 flex justify-center pointer-events-none">
-        <div class="bg-slate-900/90 backdrop-blur text-white px-4 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs pr-6 border border-white/10">
-            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shrink-0 animate-pulse">
-                <i class="fas fa-shopping-bag text-white text-xs"></i>
-            </div>
-            <div>
-                <p class="font-bold text-white"><span id="social-name">Maria</span> comprou agora</p>
-                <p class="text-slate-300 text-[10px]">há alguns segundos</p>
-            </div>
+        <div class="bg-slate-900/90 backdrop-blur text-white px-4 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs border border-white/10">
+            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shrink-0 animate-pulse"><i class="fas fa-shopping-bag"></i></div>
+            <div><p class="font-bold text-white"><span id="social-name">Maria</span> comprou agora</p></div>
         </div>
     </div>
 
     <div id="cartBar" class="fixed bottom-6 left-4 right-4 z-50 hidden">
         <div class="glass-dark rounded-2xl p-4 shadow-2xl flex justify-between items-center border border-white/10 backdrop-blur-xl">
             <div class="pl-2">
-                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total</p>
+                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total do Pedido</p>
                 <p id="cartTotal" class="text-xl font-display font-black text-white">R$ 0,00</p>
             </div>
-            <button onclick="checkout()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/30 transition-all flex items-center gap-2">
-                Finalizar <i class="fab fa-whatsapp text-lg"></i>
+            <button onclick="checkout()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-green-500/30 transition-all flex items-center gap-2">
+                Enviar Pedido <i class="fab fa-whatsapp text-lg"></i>
             </button>
         </div>
     </div>
@@ -201,113 +192,77 @@
     <div id="custom-alert" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white w-full max-w-xs p-6 rounded-[2rem] text-center shadow-2xl scale-95 transition-transform duration-300" id="alert-box">
             <div id="alert-icon-wrapper" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"></div>
-            <h3 id="alert-title" class="text-xl font-black text-slate-800 mb-2">Titulo</h3>
-            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6 leading-relaxed">Mensagem</p>
-            <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-3 rounded-xl transition-colors">OK</button>
+            <h3 id="alert-title" class="text-xl font-black text-slate-800 mb-2">Atenção</h3>
+            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-6">Msg</p>
+            <button onclick="closeAlert()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-3 rounded-xl">OK</button>
         </div>
     </div>
 
     <script>
-        // --- 1. LÓGICA DE URL DINÂMICA (O SEGREDO) ---
-        // Aqui ele lê o que vem depois de "?id=" no link do site
+        // --- CONFIGURAÇÃO ---
         const urlParams = new URLSearchParams(window.location.search);
-        const urlCampaignId = urlParams.get('id');
-
-        // --- 2. CONFIGURAÇÃO DA LOJA ---
         const CONFIG = {
-            storeName: "Clips Papelaria",
-            campaignName: "Carregando...", 
             whatsappNumber: "5511999999999", // SEU WHATSAPP AQUI
-            
-            // WEBHOOK DO N8N (O mesmo que você usa no Admin para listar)
             apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692",
-            
-            // ID da campanha pego da URL
-            campaignId: urlCampaignId 
+            campaignId: urlParams.get('id')
         };
 
-        // --- 3. VALIDAÇÃO DE SEGURANÇA ---
-        // Se a pessoa entrar sem link (index.html direto), mostra erro
         if (!CONFIG.campaignId) {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('errorScreen').classList.remove('hidden');
-            // Interrompe o script para não carregar nada
-            throw new Error("Acesso negado: ID de campanha ausente.");
+            throw new Error("ID de campanha ausente.");
         }
 
         // --- ESTADO ---
-        let products = [];
-        let cart = {};
-        let tempQty = 1;
-        let currentModalProductId = null;
+        let products = [], cart = {}, tempQty = 1, currentProductId = null;
+        let currentImages = [], currentImgIdx = 0, autoSlideInterval = null;
 
         // --- SISTEMA DE ALERTA ---
-        function showPopup(msg, type = 'error') {
-            const overlay = document.getElementById('custom-alert');
-            const box = document.getElementById('alert-box');
-            const iconWrap = document.getElementById('alert-icon-wrapper');
-            const title = document.getElementById('alert-title');
-            
+        function showPopup(msg, type='error') {
+            const overlay = document.getElementById('custom-alert'), box = document.getElementById('alert-box');
+            const icon = document.getElementById('alert-icon-wrapper'), title = document.getElementById('alert-title');
             document.getElementById('alert-message').innerText = msg;
-            overlay.classList.remove('hidden');
-            setTimeout(() => { overlay.classList.remove('opacity-0'); box.classList.remove('scale-95'); }, 10);
-
-            if(type === 'success') {
-                title.innerText = "Sucesso!";
-                iconWrap.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-green-100 text-green-600";
-                iconWrap.innerHTML = '<i class="fas fa-check"></i>';
-            } else {
-                title.innerText = "Atenção";
-                iconWrap.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-red-100 text-red-600";
-                iconWrap.innerHTML = '<i class="fas fa-exclamation"></i>';
-            }
+            overlay.classList.remove('hidden'); setTimeout(() => { overlay.classList.remove('opacity-0'); box.classList.remove('scale-95'); }, 10);
+            if(type === 'success') { title.innerText = "Sucesso!"; icon.className = "w-16 h-16 rounded-full flex justify-center items-center mx-auto mb-4 text-2xl bg-green-100 text-green-600"; icon.innerHTML = '<i class="fas fa-check"></i>'; }
+            else { title.innerText = "Atenção"; icon.className = "w-16 h-16 rounded-full flex justify-center items-center mx-auto mb-4 text-2xl bg-red-100 text-red-600"; icon.innerHTML = '<i class="fas fa-exclamation"></i>'; }
         }
-        function closeAlert() {
-            const overlay = document.getElementById('custom-alert');
-            const box = document.getElementById('alert-box');
-            overlay.classList.add('opacity-0');
-            box.classList.add('scale-95');
-            setTimeout(() => overlay.classList.add('hidden'), 300);
-        }
+        function closeAlert() { const overlay = document.getElementById('custom-alert'), box = document.getElementById('alert-box'); overlay.classList.add('opacity-0'); box.classList.add('scale-95'); setTimeout(() => overlay.classList.add('hidden'), 300); }
 
-        // --- FUNÇÕES PRINCIPAIS ---
+        // --- CARREGAMENTO ---
         async function loadProducts() {
             try {
-                // Monta a URL enviando o ID para o n8n
-                const fetchUrl = `${CONFIG.apiUrl}?id_campanha=${CONFIG.campaignId}`;
-                console.log("Buscando campanha:", CONFIG.campaignId);
-                
-                const res = await fetch(fetchUrl);
-                if (!res.ok) throw new Error("Erro de conexão com o servidor");
-                
-                let data = await res.json();
-                
-                // Normaliza (n8n pode mandar array ou objeto)
+                const res = await fetch(`${CONFIG.apiUrl}?id_campanha=${CONFIG.campaignId}`);
+                if (!res.ok) throw new Error("Erro API");
+                const data = await res.json();
                 let rawList = Array.isArray(data) ? data : (data.products || []);
 
-                // Se a lista vier vazia, a campanha não existe ou está vazia
                 if (rawList.length === 0) {
-                    showPopup("Esta campanha não está disponível ou foi encerrada.", "error");
-                    document.getElementById('productsGrid').innerHTML = '<div class="col-span-full text-center py-20 opacity-50"><i class="fas fa-store-slash text-4xl mb-2"></i><br>Campanha Indisponível</div>';
+                    showPopup("Campanha indisponível.", "error");
+                    document.getElementById('productsGrid').innerHTML = '<div class="col-span-full text-center py-20 opacity-50">Campanha Encerrada</div>';
                     document.getElementById('campaignTitleDisplay').innerText = "Indisponível";
                     return;
                 }
 
-                // Processa os produtos
                 products = rawList.map((item, i) => {
                     const p = item.json ? item.json : item;
-                    
-                    // Lógica de Imagem (Prioridade: Google > Backup > Array > Placeholder)
-                    let img = p.url_publica || p.arquivo_url;
-                    if (!img && Array.isArray(p.imagens) && p.imagens.length > 0) img = p.imagens[0];
-                    if (!img) img = 'https://placehold.co/600?text=Sem+Foto';
+                    // Lógica de Múltiplas Imagens
+                    let imgs = [];
+                    // Adiciona url_publica se existir
+                    if (p.url_publica) imgs.push(p.url_publica);
+                    // Adiciona arquivo_url se existir e for diferente
+                    if (p.arquivo_url && !imgs.includes(p.arquivo_url)) imgs.push(p.arquivo_url);
+                    // Adiciona array de imagens se existir
+                    if (Array.isArray(p.imagens)) {
+                        p.imagens.forEach(url => { if (url && !imgs.includes(url)) imgs.push(url); });
+                    }
+                    if (imgs.length === 0) imgs.push('https://placehold.co/600?text=Sem+Foto');
 
                     return {
                         id: p.id_grupo || p.id || i,
                         name: p.nome_produto || "Produto",
                         priceFrom: p.preco_de || null,
                         priceTo: p.preco_por || "0.00",
-                        image: img,
+                        images: imgs, // ARRAY COMPLETO DE FOTOS
                         category: p.category || 'Geral',
                         cor: p.cor,
                         tamanho: p.tamanho,
@@ -316,79 +271,101 @@
                 }).filter(p => p.active);
 
                 renderProducts('todos');
-                document.getElementById('campaignTitleDisplay').innerText = "Ofertas Disponíveis"; 
-
-            } catch (e) {
-                console.error(e);
-                showPopup("Não foi possível carregar a loja. Verifique sua conexão.", "error");
-            }
+                document.getElementById('campaignTitleDisplay').innerText = "Ofertas Disponíveis";
+            } catch (e) { console.error(e); showPopup("Erro ao carregar.", "error"); }
         }
 
         function getPrice(val) { if(!val) return 0; return parseFloat(String(val).replace(',', '.')); }
         function formatPrice(val) { return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
         function renderProducts(filter) {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = '';
-            
+            const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
             const filtered = filter === 'todos' ? products : products.filter(p => p.category.toLowerCase().includes(filter));
-
-            if(filtered.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10 flex flex-col items-center"><i class="fas fa-box-open text-4xl mb-3 opacity-50"></i><p>Nenhum produto encontrado nesta categoria.</p></div>';
-                return;
-            }
+            if(filtered.length === 0) { grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400">Nada encontrado.</div>'; return; }
 
             filtered.forEach(p => {
-                const price = getPrice(p.priceTo);
-                const oldPrice = p.priceFrom ? getPrice(p.priceFrom) : null;
+                const price = getPrice(p.priceTo), oldPrice = p.priceFrom ? getPrice(p.priceFrom) : null;
                 const discount = oldPrice && oldPrice > price ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
-
                 const card = document.createElement('div');
                 card.className = 'product-card bg-white rounded-3xl p-3 shadow-soft border border-slate-100 flex flex-col h-full cursor-pointer relative overflow-hidden group';
                 card.onclick = () => openModal(p);
-
                 card.innerHTML = `
                     <div class="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-slate-50">
-                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                        ${discount > 0 ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">-${discount}%</div>` : ''}
-                        <div class="absolute bottom-2 right-2 bg-white/90 backdrop-blur rounded-full w-8 h-8 flex items-center justify-center text-brand-600 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
-                            <i class="fas fa-plus"></i>
-                        </div>
+                        <img src="${p.images[0]}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        ${discount > 0 ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg">-${discount}%</div>` : ''}
+                        ${p.images.length > 1 ? `<div class="absolute top-2 right-2 bg-black/50 text-white text-[9px] px-2 py-1 rounded-full backdrop-blur-sm"><i class="fas fa-images"></i> ${p.images.length}</div>` : ''}
                     </div>
                     <div class="flex-1 flex flex-col">
-                        <p class="text-[10px] text-slate-400 font-bold uppercase mb-1 tracking-wide line-clamp-1">${p.category}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mb-1 line-clamp-1">${p.category}</p>
                         <h3 class="text-sm font-bold text-slate-800 leading-snug line-clamp-2 mb-auto">${p.name}</h3>
-                        <div class="mt-3 pt-3 border-t border-slate-50 flex items-end justify-between">
-                            <div>
-                                ${oldPrice ? `<span class="text-[10px] text-slate-400 line-through block">R$ ${oldPrice.toFixed(2)}</span>` : ''}
-                                <span class="text-lg font-black text-brand-600 leading-none">R$ ${price.toFixed(2)}</span>
-                            </div>
+                        <div class="mt-3 pt-3 border-t border-slate-50">
+                            ${oldPrice ? `<span class="text-[10px] text-slate-400 line-through block">R$ ${oldPrice.toFixed(2)}</span>` : ''}
+                            <span class="text-lg font-black text-brand-600">R$ ${price.toFixed(2)}</span>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 grid.appendChild(card);
             });
         }
 
-        // --- MODAL & CARRINHO ---
+        // --- CARROSSEL MODAL ---
+        function renderModalImage() {
+            const container = document.getElementById('modalCarouselContainer');
+            container.innerHTML = '';
+            currentImages.forEach((url, idx) => {
+                const img = document.createElement('img');
+                img.src = url;
+                // object-contain garante que a foto apareça inteira (não cortada)
+                img.className = `absolute inset-0 w-full h-full object-contain transition-opacity duration-300 ${idx === currentImgIdx ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
+                container.appendChild(img);
+            });
+            document.getElementById('imageCounter').innerText = `${currentImgIdx + 1}/${currentImages.length}`;
+        }
+
+        function nextModalImage() {
+            currentImgIdx = (currentImgIdx + 1) % currentImages.length;
+            renderModalImage();
+        }
+        function prevModalImage() {
+            currentImgIdx = (currentImgIdx - 1 + currentImages.length) % currentImages.length;
+            renderModalImage();
+        }
+
         function openModal(p) {
-            currentModalProductId = p.id;
+            currentProductId = p.id;
             tempQty = 1;
-            document.getElementById('modalImg').src = p.image;
+            currentImages = p.images;
+            currentImgIdx = 0;
+
+            // Renderiza carrossel
+            renderModalImage();
+            
+            // Controles do carrossel
+            const controls = document.getElementById('carouselControls');
+            const counter = document.getElementById('imageCounter');
+            if (currentImages.length > 1) {
+                controls.classList.remove('hidden');
+                counter.classList.remove('hidden');
+                if(autoSlideInterval) clearInterval(autoSlideInterval);
+                autoSlideInterval = setInterval(nextModalImage, 3000);
+            } else {
+                controls.classList.add('hidden');
+                counter.classList.add('hidden');
+            }
+
             document.getElementById('modalCategory').innerText = p.category;
             document.getElementById('modalTitle').innerText = p.name;
             document.getElementById('modalPrice').innerText = formatPrice(getPrice(p.priceTo));
             document.getElementById('tempQtyDisplay').innerText = "1";
-            document.getElementById('modalColor').innerText = p.cor || 'Padrão';
-            document.getElementById('modalSize').innerText = p.tamanho || 'Único';
-            
+            document.getElementById('modalColor').innerText = p.cor || '-';
+            document.getElementById('modalSize').innerText = p.tamanho || '-';
+
             const old = p.priceFrom ? getPrice(p.priceFrom) : 0;
             const current = getPrice(p.priceTo);
             if(old > current) {
                  document.getElementById('modalOldPrice').innerText = formatPrice(old);
                  document.getElementById('modalOldPrice').classList.remove('hidden');
                  const disc = Math.round(((old - current) / old) * 100);
-                 document.getElementById('modalDiscountTag').innerText = `🔥 -${disc}% OFF`;
+                 document.getElementById('modalDiscountTag').innerText = `-${disc}%`;
                  document.getElementById('modalDiscountTag').classList.remove('hidden');
             } else {
                  document.getElementById('modalOldPrice').classList.add('hidden');
@@ -398,14 +375,17 @@
             document.getElementById('modalAddBtn').onclick = () => {
                 addToCart(p.id, tempQty);
                 closeModal();
-                showPopup(`+${tempQty} ${p.name} adicionado!`, 'success');
+                showPopup("Adicionado ao carrinho!", "success");
             };
             document.getElementById('productModal').classList.remove('hidden');
         }
 
-        function closeModal() { document.getElementById('productModal').classList.add('hidden'); }
-        function updateTempQty(val) { const n = tempQty + val; if(n >= 1) { tempQty = n; document.getElementById('tempQtyDisplay').innerText = tempQty; } }
+        function closeModal() { 
+            document.getElementById('productModal').classList.add('hidden'); 
+            if(autoSlideInterval) clearInterval(autoSlideInterval);
+        }
         
+        function updateTempQty(val) { const n = tempQty + val; if(n >= 1) { tempQty = n; document.getElementById('tempQtyDisplay').innerText = tempQty; } }
         function addToCart(id, qty) { cart[id] = (cart[id] || 0) + qty; updateCartBar(); }
         
         function updateCartBar() {
@@ -417,64 +397,49 @@
             if(count > 0) {
                 document.getElementById('cartTotal').innerText = formatPrice(total);
                 document.getElementById('cartBar').classList.remove('hidden');
-            } else {
-                document.getElementById('cartBar').classList.add('hidden');
-            }
+            } else { document.getElementById('cartBar').classList.add('hidden'); }
         }
 
         function checkout() {
             if(Object.keys(cart).length === 0) return;
-            let msg = `👋 Olá! Pedido da campanha *#${CONFIG.campaignId}*:\n\n`;
+            let msg = `Olá! Pedido da campanha *#${CONFIG.campaignId}*:\n\n`;
             let total = 0;
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
                 if(p) {
                     const sub = getPrice(p.priceTo) * qty;
                     total += sub;
-                    msg += `▫️ *${qty}x ${p.name}*\n`;
-                    if(p.cor) msg += `   Cor: ${p.cor} | Tam: ${p.tamanho || '-'}\n`;
-                    msg += `   Subtotal: ${formatPrice(sub)}\n\n`;
+                    msg += `${qty}x ${p.name}\n   (Opção: ${p.cor || '-'} / ${p.tamanho || '-'})\n`;
                 }
             });
-            msg += `💰 *TOTAL FINAL: ${formatPrice(total)}*\n`;
-            msg += `📍 *Aguardo confirmação de estoque e entrega!*`;
+            msg += `\n*TOTAL: ${formatPrice(total)}*`;
             window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- LOGIN ---
+        // --- LOGIN & INICIALIZAÇÃO ---
         document.getElementById('loginButton').onclick = () => {
             const phone = document.getElementById('phoneInput').value;
-            if(phone.length < 8) return showPopup("Digite um WhatsApp válido.", "error");
-            
+            if(phone.length < 8) return showPopup("Telefone inválido");
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            
-            // Inicia o carregamento
             loadProducts();
             initSocialProof();
         };
 
-        // Filtros e Prova Social
-        document.querySelectorAll('.filter-tab').forEach(b => {
-            b.onclick = () => {
-                document.querySelectorAll('.filter-tab').forEach(x => {
-                    x.classList.remove('active', 'bg-slate-900', 'text-white', 'shadow-md');
-                    x.classList.add('bg-white', 'text-slate-600', 'border');
-                });
-                b.classList.remove('bg-white', 'text-slate-600', 'border');
-                b.classList.add('active', 'bg-slate-900', 'text-white', 'shadow-md');
-                renderProducts(b.dataset.category);
-            };
+        document.querySelectorAll('.filter-tab').forEach(b => b.onclick = () => {
+            document.querySelectorAll('.filter-tab').forEach(x => { x.classList.remove('active', 'bg-slate-900', 'text-white'); x.classList.add('bg-white', 'text-slate-600'); });
+            b.classList.remove('bg-white', 'text-slate-600'); b.classList.add('active', 'bg-slate-900', 'text-white');
+            renderProducts(b.dataset.category);
         });
-        
+
         function initSocialProof() {
-             const names = ["Ana", "Carlos", "Beatriz", "João", "Mariana", "Lucas"];
+             const names = ["Ana", "Carlos", "Beatriz", "João"];
              const toast = document.getElementById('social-toast');
              function show() {
                  document.getElementById('social-name').innerText = names[Math.floor(Math.random()*names.length)];
                  toast.classList.add('show');
                  setTimeout(()=>toast.classList.remove('show'), 3000);
-                 setTimeout(show, Math.random() * 10000 + 10000);
+                 setTimeout(show, 15000);
              }
              setTimeout(show, 5000);
         }
