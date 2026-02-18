@@ -167,6 +167,32 @@
         console.log("Modo N8N ativo:", MODO_TESTE ? "TESTE (webhook-test)" : "PRODUÇÃO (webhook)");
         // =====================================================================
 
+        // =====================================================================
+        // --- NOVO: SISTEMA DE IDENTIFICAÇÃO DE VÍDEO BLINDADO ---
+        // =====================================================================
+        function isVideo(url) {
+            if (!url) return false;
+            // Transforma em minúsculas e ignora tudo o que vem depois do "?" (como os parâmetros do Google Storage)
+            const cleanUrl = url.split('?')[0].toLowerCase();
+            return cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.mov') || 
+                   cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg') || cleanUrl.endsWith('.m4v');
+        }
+
+        function buildMediaTag(url, classes) {
+            if (isVideo(url)) {
+                return `<video src="${url}" class="${classes}" autoplay loop muted playsinline></video>`;
+            }
+            return `<img src="${url}" class="${classes}">`;
+        }
+
+        window.changeMainMedia = function(pid, url) {
+            const container = document.getElementById(`main-media-container-${pid}`);
+            if(container) {
+                container.innerHTML = buildMediaTag(url, "w-full h-full object-cover transition-opacity duration-300");
+            }
+        }
+        // =====================================================================
+
         let currentUser = null;
         let currentCampaignId = null;
         let unsavedChanges = false;
@@ -175,28 +201,7 @@
             if (unsavedChanges) return "Você tem alterações não salvas. Deseja sair?";
         };
 
-        // --- SISTEMA DE IDENTIFICAÇÃO DE VÍDEO ---
-        // Retorna true se a URL terminar em extensão de vídeo conhecida
-        function isVideo(url) {
-            if (!url) return false;
-            return !!url.match(/\.(mp4|mov|webm|ogg|m4v)$/i);
-        }
-
-        // Constrói a tag HTML correta (img ou video) baseada no link
-        function buildMediaTag(url, classes) {
-            if (isVideo(url)) {
-                return `<video src="${url}" class="${classes}" autoplay loop muted playsinline></video>`;
-            }
-            return `<img src="${url}" class="${classes}">`;
-        }
-
-        // Função global para trocar a mídia no quadro principal
-        window.changeMainMedia = function(pid, url) {
-            const container = document.getElementById(`main-media-container-${pid}`);
-            container.innerHTML = buildMediaTag(url, "w-full h-full object-cover transition-opacity duration-300");
-        }
-
-        // --- LOGIN E DASHBOARD ---
+        // --- LOGIN E DASHBOARD (SEM ALTERAÇÕES) ---
         async function doLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value;
@@ -272,7 +277,7 @@
         function renderTable(list) {
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
             
-            // Alterado de index.html para catalogo.html
+            // CORRIGIDO: Agora aponta para catalogo.html para funcionar com o seu novo sistema!
             const baseUrl = window.location.href.replace('admin.html', 'catalogo.html');
 
             list.forEach(c => {
@@ -298,6 +303,7 @@
             });
         }
 
+        // --- CRIAÇÃO DE CAMPANHA ---
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); document.getElementById('newCampaignName').focus(); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
 
@@ -335,7 +341,7 @@
             }
         }
 
-        // --- EDITOR DE PRODUTOS ---
+        // --- NOVO: EDITOR DE PRODUTOS COM CARROSSEL E CAMPOS COMPLETOS ---
         async function openEditor(id, name) {
             currentCampaignId = id;
             document.getElementById('editModalTitle').innerText = name;
@@ -364,17 +370,17 @@
             list.forEach(p => {
                 const pid = p.id_grupo || p.id;
                 
-                // Mapeia todas as imagens
+                // Mapeia todas as imagens de forma segura, venham do jeito que vierem do n8n
                 let imgs = [];
                 if (p.imagens && Array.isArray(p.imagens)) imgs = p.imagens;
-                else if (p.url_publica) imgs = [p.url_publica];
+                else if (p.url_publica) imgs = [p.url_publica]; // fallback
                 else if (p.midias && Array.isArray(p.midias)) imgs = p.midias.map(m => m.url_publica || m.url);
                 
                 if (imgs.length === 0) imgs = ['https://placehold.co/400?text=Sem+Foto'];
 
                 const primeiraImg = imgs[0];
                 
-                // Cria as miniaturas e os checkboxes
+                // Cria as miniaturas e os checkboxes se houver imagens
                 let miniaturasHTML = '';
                 if (imgs.length > 0 && imgs[0] !== 'https://placehold.co/400?text=Sem+Foto') {
                     miniaturasHTML = `<div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2">`;
@@ -402,11 +408,14 @@
                         
                         <div class="w-full xl:w-80 p-4 bg-dark-900 border-r border-white/5 relative shrink-0 flex flex-col justify-center">
                             
-                            <div id="main-media-container-${pid}" class="w-full aspect-square rounded-xl overflow-hidden bg-dark-950 relative shadow-inner">
-                                ${buildMediaTag(primeiraImg, "w-full h-full object-cover transition-opacity duration-300")}
+                            <div class="w-full aspect-square rounded-xl overflow-hidden bg-dark-950 relative shadow-inner">
+                                <div id="main-media-container-${pid}" class="w-full h-full">
+                                    ${buildMediaTag(primeiraImg, "w-full h-full object-cover transition-opacity duration-300")}
+                                </div>
+                                <div class="absolute bottom-2 left-2 bg-black/70 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded border border-white/10 z-10">
+                                    ${imgs.length > 1 ? imgs.length + ' ARQUIVOS' : '1 ARQUIVO'}
+                                </div>
                             </div>
-                            
-                            <div class="mt-2 text-center w-full"><span class="bg-black/70 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded border border-white/10">${imgs.length > 1 ? imgs.length + ' ARQUIVOS' : '1 ARQUIVO'}</span></div>
                             
                             ${miniaturasHTML}
                         </div>
@@ -476,6 +485,7 @@
             const size = sizeField.value.trim();
             const active = document.getElementById(`active-${pid}`).checked;
 
+            // Pega apenas as imagens que o lojista deixou com o "vezinho" (checked)
             const checkboxFotos = document.querySelectorAll(`.img-check-${pid}:checked`);
             const fotosSelecionadas = Array.from(checkboxFotos).map(cb => cb.value);
 
@@ -508,6 +518,7 @@
             btn.classList.add('bg-brand-600');
 
             try {
+                // Aqui estão todas as informações embaladas para o n8n
                 const res = await fetch(ENDPOINTS.UPDATE, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -520,7 +531,7 @@
                         cor: color,
                         tamanho: size,
                         ativo: active,
-                        imagens_selecionadas: fotosSelecionadas 
+                        imagens_selecionadas: fotosSelecionadas // ARRAY COM OS LINKS ESCOLHIDOS
                     })
                 });
                 
