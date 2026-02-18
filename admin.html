@@ -3,115 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestão Clips - Painel Admin</title>
+    <title>Painel Lojista - Gestão Clips</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: { 
                 extend: { 
                     colors: { 
-                        dark: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155', surface: '#131c31' }, 
+                        dark: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, 
                         brand: { 500: '#3b82f6', 600: '#2563eb', glow: 'rgba(59, 130, 246, 0.5)' } 
                     }, 
-                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Poppins', 'sans-serif'] } 
+                    fontFamily: { sans: ['Inter', 'sans-serif'] } 
                 } 
             }
         }
     </script>
     <style>
-        /* REMOVIDO O EFEITO DE RUÍDO (NOISE) - AGORA É FUNDO LIMPO */
-        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        
-        .glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
-        .input-group { position: relative; transition: all 0.3s ease; }
-        .input-group:focus-within { transform: translateY(-2px); }
-        .input-group i { pointer-events: none; }
-        
-        .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px; }
-        .status-active { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
-        .status-draft { background: rgba(234, 179, 8, 0.1); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); }
-        
-        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass-panel { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        #custom-alert, #newCampaignModal, #editProductsModal, #activationModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
-        #custom-alert.visible, #newCampaignModal.visible, #editProductsModal.visible, #activationModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
-        
-        .modal-content { transform: scale(0.98); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .visible .modal-content { transform: scale(1); }
-        
+        #editProductsModal, #newCampaignModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
+        #editProductsModal.visible, #newCampaignModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+        
+        /* Validação Visual de Erro */
+        .input-error { border-color: #ef4444 !important; animation: shake 0.3s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-safe bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950">
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950">
 
     <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-dark-950">
-        <div class="w-full max-w-sm glass-panel p-10 rounded-[2rem] text-center shadow-2xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-            <div class="w-20 h-20 bg-gradient-to-br from-brand-500 to-purple-600 rounded-2xl mx-auto mb-8 flex items-center justify-center shadow-lg shadow-brand-500/20 text-white text-3xl transform rotate-3"><i class="fas fa-lock"></i></div>
-            <h2 class="text-2xl font-display font-bold mb-2 tracking-tight">Painel Admin</h2>
-            <p class="text-slate-400 text-sm mb-8 font-medium">Acesso Seguro</p>
-            <div class="input-group mb-4">
-                <i class="fas fa-mobile-alt absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                <input type="tel" id="adminPhone" class="w-full bg-dark-900/50 border border-slate-700/50 rounded-xl px-5 py-4 pl-12 text-white font-bold outline-none focus:border-brand-500 focus:bg-dark-900 transition-all placeholder:text-slate-600 tracking-widest" placeholder="(00) 00000-0000">
+        <div class="w-full max-w-sm glass-panel p-10 rounded-[2rem] text-center shadow-2xl relative">
+            <div class="w-20 h-20 bg-brand-600 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl shadow-lg"><i class="fas fa-store"></i></div>
+            <h2 class="text-2xl font-bold mb-2">Painel do Lojista</h2>
+            <p class="text-slate-400 text-sm mb-8">Faça login para gerenciar sua loja</p>
+            
+            <div class="space-y-4">
+                <input type="tel" id="loginPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center tracking-widest placeholder:text-slate-600" placeholder="WhatsApp">
+                <input type="password" id="loginPass" class="w-full bg-dark-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-slate-600" placeholder="Senha">
             </div>
-            <button id="btnLogin" onclick="checkAuth()" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-xl font-bold transition-all mb-6 shadow-lg shadow-brand-600/20 active:scale-95">Acessar Painel</button>
+            
+            <button onclick="doLogin()" id="btnLogin" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 mt-6 active:scale-95">
+                Entrar no Sistema
+            </button>
         </div>
     </div>
 
-    <div id="dashboard" class="hidden flex-1 flex flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 fade-in pb-20 md:pb-8">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+    <div id="dashboard" class="hidden flex-1 flex flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 fade-in pb-20">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div class="text-center md:text-left">
-                <h1 class="text-2xl md:text-3xl font-display font-black text-white flex items-center justify-center md:justify-start gap-3">Gestão Clips <span class="bg-brand-600 text-xs px-2 py-1 rounded-md transform -rotate-6 shadow-lg">PRO</span></h1>
-                <p class="text-slate-400 text-xs md:text-sm mt-2 font-medium">Bem-vindo, <span class="text-white">Administrador</span> <span id="env-status" class="ml-2 opacity-50 text-[10px] uppercase tracking-widest border border-white/20 px-2 rounded-full">...</span></p>
+                <h1 class="text-2xl font-black text-white">Gestão Clips <span class="text-brand-500 text-sm bg-brand-500/10 px-2 py-1 rounded ml-2">BETA</span></h1>
+                <p class="text-slate-400 text-xs mt-1 font-bold">Loja: <span id="storeNameDisplay" class="text-white">...</span></p>
             </div>
-            <button onclick="logout()" class="group glass-panel px-5 py-2.5 rounded-full text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-all flex items-center gap-3 border border-white/5">
-                <span>Sair</span>
-                <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-red-500/20 group-hover:text-red-400 transition-colors"><i class="fas fa-power-off text-xs"></i></div>
+            <button onclick="logout()" class="glass-panel px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 flex items-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> Sair
             </button>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-            <div class="glass-panel p-6 rounded-3xl relative overflow-hidden group">
-                <div class="absolute right-0 top-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity"><i class="fas fa-wallet text-6xl text-green-500"></i></div>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Total Vendido</p>
-                <p class="text-2xl md:text-3xl font-display font-bold text-white tracking-tight" id="totalSalesDisplay">R$ 0,00</p>
-                <div class="w-full h-1 bg-slate-700/50 mt-4 rounded-full overflow-hidden"><div class="h-full bg-green-500 w-3/4"></div></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div class="glass-panel p-6 rounded-3xl border-l-4 border-brand-500 relative overflow-hidden">
+                <div class="absolute right-4 top-4 opacity-10"><i class="fas fa-layer-group text-6xl"></i></div>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Minhas Campanhas</p>
+                <p class="text-3xl font-bold text-white mt-1" id="campaignCount">0</p>
             </div>
-            <div class="glass-panel p-6 rounded-3xl relative overflow-hidden group">
-                <div class="absolute right-0 top-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity"><i class="fas fa-layer-group text-6xl text-blue-500"></i></div>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Campanhas</p>
-                <p class="text-2xl md:text-3xl font-display font-bold text-white tracking-tight" id="activeCampaignsDisplay">0 Ativas</p>
-                <div class="w-full h-1 bg-slate-700/50 mt-4 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-1/2"></div></div>
-            </div>
-            <button onclick="openNewCampaignModal()" class="bg-gradient-to-br from-brand-600 to-brand-500 hover:to-brand-400 p-6 rounded-3xl flex items-center justify-between shadow-xl shadow-brand-600/20 transition-all active:scale-95 group relative overflow-hidden">
-                <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                <div class="flex items-center gap-5 text-white text-left w-full relative z-10">
-                    <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl shadow-inner backdrop-blur-sm border border-white/20"><i class="fas fa-plus"></i></div>
-                    <div><p class="text-xs font-bold text-blue-100 opacity-80 uppercase tracking-wide">Nova Ação</p><p class="text-xl font-display font-bold leading-tight">Criar Campanha</p></div>
+            <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95 group border border-white/10">
+                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fas fa-plus"></i></div>
+                <div class="text-left">
+                    <p class="text-xs font-bold text-blue-100 uppercase opacity-80">Criar Nova</p>
+                    <span class="font-bold text-xl">Campanha</span>
                 </div>
             </button>
         </div>
 
-        <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5">
+        <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl">
             <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                <h3 class="text-lg font-bold text-white font-display">Histórico Recente</h3>
-                <button onclick="fetchDashboardData()" class="w-10 h-10 rounded-xl bg-dark-800 hover:bg-brand-600 flex items-center justify-center transition-colors text-slate-400 hover:text-white border border-white/5"><i class="fas fa-sync-alt"></i></button>
+                <h3 class="font-bold text-white flex items-center gap-2"><i class="fas fa-history text-slate-500"></i> Histórico</h3>
+                <button onclick="fetchDashboard()" class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all"><i class="fas fa-sync-alt text-xs"></i></button>
             </div>
-            <div class="overflow-x-auto flex-1 custom-scroll">
-                <table class="w-full text-left border-collapse min-w-[700px] md:min-w-full">
-                    <thead class="bg-dark-900/50 text-slate-500 text-[10px] uppercase font-bold sticky top-0 backdrop-blur-md z-10">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[600px]">
+                    <thead class="bg-dark-900/50 text-slate-500 text-[10px] uppercase font-bold">
                         <tr>
-                            <th class="p-5 tracking-wider">Status</th>
-                            <th class="p-5 tracking-wider">Campanha / ID</th>
-                            <th class="p-5 tracking-wider">Vendas</th>
-                            <th class="p-5 tracking-wider text-center">Itens</th>
-                            <th class="p-5 tracking-wider text-right">Gerenciar</th>
+                            <th class="p-5">Status</th>
+                            <th class="p-5">Campanha</th>
+                            <th class="p-5 text-right">Link / Editar</th>
                         </tr>
                     </thead>
                     <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
@@ -120,373 +100,419 @@
         </div>
     </div>
 
-    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/90 backdrop-blur-xl md:p-6 overflow-hidden">
-        <div class="modal-content glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative text-white bg-dark-900/80 border border-white/10 md:max-w-7xl">
-            
-            <div class="px-6 py-5 md:px-10 md:py-8 border-b border-white/5 flex justify-between items-center shrink-0 bg-dark-900/50 backdrop-blur-md z-30">
-                <div>
-                    <h3 class="text-xl md:text-3xl font-display font-bold leading-tight tracking-tight text-white" id="editModalTitle">Editando Produtos</h3>
-                    <div class="flex items-center gap-2 mt-2">
-                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        <p class="text-slate-400 text-xs font-medium">Alterações salvas em tempo real no banco</p>
-                    </div>
-                </div>
-                <button onclick="closeEditModal()" class="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all text-slate-300 hover:text-white border border-white/5"><i class="fas fa-times text-lg"></i></button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-4 md:p-10 custom-scroll bg-gradient-to-b from-dark-900/50 to-dark-950/50" id="productListArea">
-                </div>
-
-            <div class="p-5 md:p-8 border-t border-white/5 shrink-0 flex justify-end gap-4 bg-dark-900/80 backdrop-blur-md z-30">
-                <button onclick="concludeEdition()" class="w-full md:w-auto bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 px-10 rounded-2xl transition-all shadow-xl shadow-brand-600/20 active:scale-95 text-sm md:text-base tracking-wide uppercase flex items-center justify-center gap-3">
-                    <i class="fas fa-check-circle"></i> Publicar Alterações
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-dark-950/80 backdrop-blur-sm">
-        <div class="modal-content glass-panel w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative border border-white/10">
+    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/80 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
             <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
-            <div class="w-16 h-16 bg-brand-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-brand-500 text-2xl"><i class="fas fa-rocket"></i></div>
-            <h3 class="text-2xl font-display font-bold text-center mb-2">Lançar Campanha</h3>
-            <p class="text-slate-400 text-sm text-center mb-8">Dê um nome para identificar esta venda.</p>
-            <div class="input-group mb-6">
-                <i class="fas fa-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                <input type="text" id="campaignNameInput" class="w-full bg-dark-800 border border-slate-700 rounded-xl px-4 py-4 pl-10 outline-none font-bold text-white focus:border-brand-500 transition-all placeholder:text-slate-600" placeholder="Ex: Coleção Verão 2026">
-            </div>
-            <button id="btnStart" onclick="triggerCampaign()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95">Disparar Agora</button>
+            <h3 class="text-xl font-bold text-center mb-1">Nova Campanha</h3>
+            <p class="text-center text-slate-400 text-xs mb-6">Dê um nome para identificar esta venda</p>
+            
+            <input type="text" id="newCampaignName" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-5 py-4 mb-6 text-white outline-none focus:border-brand-500 transition-all font-bold placeholder:font-normal" placeholder="Ex: Queima de Estoque">
+            
+            <button onclick="createCampaign()" id="btnCreateCamp" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all">
+                Criar Agora
+            </button>
         </div>
     </div>
 
-    <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-dark-950/80 backdrop-blur-md">
-        <div class="modal-content bg-dark-800 w-full max-w-sm p-6 rounded-[2rem] shadow-2xl text-center border border-white/10">
-            <div id="alert-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-dark-900 border border-white/5"></div>
-            <h3 id="alert-title" class="text-xl font-bold mb-2 text-white">Atenção</h3>
-            <p id="alert-message" class="text-sm text-slate-400 font-medium mb-6 leading-relaxed">Msg</p>
-            <button onclick="closeAlert()" class="w-full bg-white text-dark-950 hover:bg-slate-200 font-bold py-3.5 rounded-xl transition-all">Entendido</button>
+    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/90 backdrop-blur-xl md:p-6">
+        <div class="glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative border border-white/10 md:max-w-6xl bg-dark-900">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-dark-900/50 backdrop-blur-md z-10">
+                <div>
+                    <h3 class="text-xl font-bold text-white" id="editModalTitle">...</h3>
+                    <p class="text-slate-400 text-xs mt-1 flex items-center gap-1"><i class="fas fa-shield-alt text-green-500"></i> Modo de edição segura ativo</p>
+                </div>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 custom-scroll bg-gradient-to-b from-dark-900 to-dark-950" id="productListArea"></div>
+            
+            <div class="p-6 border-t border-white/5 flex justify-between items-center bg-dark-900/80 backdrop-blur-md z-10">
+                <p class="text-xs text-slate-500 hidden md:block">Lembre-se de salvar cada item individualmente.</p>
+                <div class="flex gap-3">
+                    <button onclick="closeEditModal()" class="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold text-sm transition-colors">Voltar</button>
+                    <button onclick="activateCampaign()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95 flex items-center gap-2">
+                        <i class="fas fa-check-circle"></i> Publicar Campanha
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-dark-950/80 hidden">
+        <div class="bg-white w-full max-w-xs p-6 rounded-2xl text-center shadow-2xl transform transition-all scale-100">
+            <div id="alert-icon" class="text-3xl mb-3">⚠️</div>
+            <p id="alert-msg" class="text-slate-800 font-bold mb-4">Mensagem</p>
+            <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-3 rounded-xl">OK</button>
         </div>
     </div>
 
     <script>
+        // --- CONFIGURAÇÃO DA API ---
+        // IMPORTANTE: Configure estes links no seu n8n
         const ENDPOINTS = {
-            MAIN: { prod: "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign", test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/start-campaign" },
-            PRODUCTS: { prod: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/d7fa7895-7f17-45bb-95a4-92e18f1c1692" },
-            UPDATE: { prod: "https://n8n.srv1327557.hstgr.cloud/webhook/update-data", test: "https://n8n.srv1327557.hstgr.cloud/webhook-test/update-data" }
+            // Rota principal (Login, Dashboard, Criar Campanha)
+            MAIN: "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign",
+            // Rota de Produtos (Listar)
+            PRODUCTS: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692",
+            // Rota de Edição (Update)
+            UPDATE: "https://n8n.srv1327557.hstgr.cloud/webhook/update-data"
         };
 
-        let adminUser = "", campaignsData = [], currentEditingId = null, autoPlayIntervals = {};
+        let currentUser = null;
+        let currentCampaignId = null;
+        let unsavedChanges = false;
 
-        function closeAlert(){ document.getElementById('custom-alert').classList.remove('visible'); }
-        function closeEditModal() { 
-            document.getElementById('editProductsModal').classList.remove('visible'); 
-            Object.values(autoPlayIntervals).forEach(clearInterval); autoPlayIntervals = {};
-            fetchDashboardData(); 
-        }
-        function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); document.getElementById('campaignNameInput').focus(); }
-        function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
+        // --- TRAVA DE SEGURANÇA: Previne fechar com dados não salvos ---
+        window.onbeforeunload = function() {
+            if (unsavedChanges) return "Você tem alterações não salvas. Deseja sair?";
+        };
 
-        function showPopup(msg, type='success') {
-            const el = document.getElementById('custom-alert'), title = document.getElementById('alert-title'), icon = document.getElementById('alert-icon');
-            document.getElementById('alert-message').innerText = msg;
-            title.innerText = type === 'success' ? "Sucesso" : "Aviso";
-            title.className = type === 'success' ? "text-xl font-bold mb-2 text-green-400" : "text-xl font-bold mb-2 text-white";
-            icon.className = `w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl ${type === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`;
-            icon.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'info'}"></i>`;
-            el.classList.add('visible');
-        }
+        // --- LOGIN E SESSÃO ---
+        async function doLogin() {
+            const phone = document.getElementById('loginPhone').value.replace(/\D/g, '');
+            const pass = document.getElementById('loginPass').value;
+            const btn = document.getElementById('btnLogin');
 
-        async function smartRequest(key, payload = null, method = 'POST', isGet = false) {
-            const urls = ENDPOINTS[key], badge = document.getElementById('env-status');
-            const runFetch = async (baseUrl) => {
-                const finalUrl = isGet ? `${baseUrl}?id_campanha=${currentEditingId}&_t=${Date.now()}` : baseUrl;
-                const options = isGet ? { method: 'GET' } : { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) };
-                const response = await fetch(finalUrl, options);
-                if (!response.ok) throw new Error(); return await response.json();
-            };
+            if (!phone || !pass) return showAlert("Por favor, preencha whatsapp e senha.");
+
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando...'; 
+            btn.disabled = true;
+
             try {
-                const data = await runFetch(urls.prod);
-                if(badge) { badge.innerText = "ONLINE"; badge.className = "ml-2 text-[9px] uppercase tracking-widest text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full bg-emerald-500/10"; }
-                return data;
-            } catch (error) {
-                try {
-                    const data = await runFetch(urls.test);
-                    if(badge) { badge.innerText = "TESTE"; badge.className = "ml-2 text-[9px] uppercase tracking-widest text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full bg-orange-500/10"; }
-                    return data;
-                } catch (e) { return null; }
+                // Chama n8n para validar no banco
+                const res = await fetch(ENDPOINTS.MAIN, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        tipo_requisicao: "login", 
+                        usuario: phone, 
+                        senha: pass 
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success || data.found) { // Aceita success ou found dependendo do n8n
+                    currentUser = { 
+                        id: data.id_usuario, // O ID VEM DO BANCO
+                        nome: data.nome_loja || "Minha Loja", 
+                        phone: phone 
+                    };
+                    localStorage.setItem('user_session', JSON.stringify(currentUser));
+                    initDashboard();
+                } else {
+                    showAlert("Dados incorretos. Verifique e tente novamente.");
+                }
+            } catch (e) {
+                console.error(e);
+                showAlert("Erro de conexão. Verifique sua internet.");
+            } finally {
+                btn.innerHTML = 'Entrar no Sistema'; btn.disabled = false;
             }
         }
 
-        async function checkAuth() {
-            const phone = document.getElementById('adminPhone').value.replace(/\D/g,'');
-            if(phone.length < 8) return showPopup("Número inválido");
-            const btn = document.getElementById('btnLogin'); btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled=true;
-            const res = await smartRequest('MAIN', { usuario_admin: phone, tipo_requisicao: "login" });
-            btn.innerText = "Acessar Painel"; btn.disabled=false;
-            if(res && res.found){ adminUser = phone; document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); fetchDashboardData(); }
-            else { showPopup("Acesso não autorizado."); }
+        function initDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            if(!currentUser) currentUser = JSON.parse(localStorage.getItem('user_session'));
+            
+            document.getElementById('storeNameDisplay').innerText = currentUser.nome;
+            fetchDashboard();
         }
 
-        async function fetchDashboardData() {
+        if(localStorage.getItem('user_session')) initDashboard();
+
+        function logout() {
+            localStorage.removeItem('user_session');
+            location.reload();
+        }
+
+        // --- DASHBOARD BLINDADO (FILTRADO POR USUÁRIO) ---
+        async function fetchDashboard() {
             const tbody = document.getElementById('campaignList');
-            if(tbody.innerHTML.trim() === "") tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500"><i class="fas fa-circle-notch fa-spin text-2xl mb-3 text-brand-500"></i><br>Sincronizando dados...</td></tr>';
-            const res = await smartRequest('MAIN', { usuario_admin: adminUser, tipo_requisicao: "dashboard" });
-            if(res && res.found && res.campanhas) {
-                campaignsData = res.campanhas.filter(c => c.nome_campanha).map((row, idx) => {
-                    let raw = row.status ? row.status.toString().toLowerCase() : 'rascunho';
-                    return { id: row.id_campanha || idx, name: row.nome_campanha, status: raw.includes('ativa') ? 'active' : 'draft', sales: row.total_vendas || 0, products: row.qtd_produtos || 0 };
+            tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500"><i class="fas fa-circle-notch fa-spin"></i> Carregando...</td></tr>';
+
+            try {
+                const res = await fetch(ENDPOINTS.MAIN, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        tipo_requisicao: "dashboard", 
+                        id_usuario: currentUser.id // Segurança: Filtra pelo ID
+                    })
                 });
-                renderTable(); updateStats();
-            } else { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">Nenhuma campanha encontrada.</td></tr>'; }
+                const data = await res.json();
+
+                if (data.campanhas && data.campanhas.length > 0) {
+                    document.getElementById('campaignCount').innerText = data.campanhas.length;
+                    renderTable(data.campanhas);
+                } else {
+                    document.getElementById('campaignCount').innerText = "0";
+                    tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500">Nenhuma campanha encontrada. Crie a primeira!</td></tr>';
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-400">Erro ao carregar dados.</td></tr>';
+            }
         }
 
-        function renderTable() {
+        function renderTable(list) {
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
-            campaignsData.slice().reverse().forEach(c => {
-                let badge = c.status === 'active' ? '<span class="status-badge status-active"><i class="fas fa-circle text-[6px]"></i> Ativa</span>' : '<span class="status-badge status-draft"><i class="fas fa-circle text-[6px]"></i> Rascunho</span>';
-                let currency = parseFloat(c.sales).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-                tbody.innerHTML += `<tr class="hover:bg-white/5 border-b border-white/5 transition-all group">
-                    <td class="p-5">${badge}</td>
-                    <td class="p-5">
-                        <p class="font-bold text-white text-base">${c.name}</p>
-                        <p class="text-xs text-slate-500 font-mono mt-0.5 opacity-50">#${c.id}</p>
-                    </td>
-                    <td class="p-5 font-mono text-emerald-400 font-bold hidden md:table-cell text-base tracking-tight">${currency}</td>
-                    <td class="p-5 text-center"><span class="bg-dark-800 border border-white/10 px-3 py-1 rounded-lg text-xs font-bold text-slate-300 shadow-sm">${c.products}</span></td>
-                    <td class="p-5 text-right">
-                        <button onclick="openEditProducts('${c.id}', '${c.name}', '${c.status}')" class="bg-dark-800 hover:bg-brand-600 hover:text-white text-slate-400 border border-white/10 mx-auto ml-auto flex items-center justify-center w-10 h-10 rounded-xl transition-all shadow-md group-hover:scale-105">
-                            <i class="fas fa-pen text-sm"></i>
-                        </button>
-                    </td>
-                </tr>`;
+            const baseUrl = window.location.href.replace('admin.html', 'index.html');
+
+            list.forEach(c => {
+                const isActive = c.status && c.status.toLowerCase() === 'ativa';
+                const statusBadge = isActive 
+                    ? '<span class="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide">● Ativa</span>' 
+                    : '<span class="text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide">● Rascunho</span>';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
+                        <td class="p-5">${statusBadge}</td>
+                        <td class="p-5">
+                            <p class="font-bold text-white text-base">${c.nome_campanha}</p>
+                            <p class="text-xs text-slate-500 font-mono mt-0.5 opacity-50 group-hover:opacity-100 transition-opacity">ID: ${c.id_campanha}</p>
+                        </td>
+                        <td class="p-5 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button onclick="copyLink('${baseUrl}?id=${c.id_campanha}')" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-brand-600 text-slate-400 hover:text-white border border-white/5 transition-all shadow-md flex items-center justify-center" title="Copiar Link"><i class="fas fa-link"></i></button>
+                                <button onclick="openEditor(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-white hover:text-dark-900 text-slate-400 border border-white/5 transition-all shadow-md flex items-center justify-center" title="Editar Produtos"><i class="fas fa-pen text-sm"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
             });
         }
 
-        function updateStats() {
-            document.getElementById('activeCampaignsDisplay').innerText = `${campaignsData.filter(c => c.status === 'active').length} Ativas`;
-            document.getElementById('totalSalesDisplay').innerText = campaignsData.reduce((acc, curr) => acc + parseFloat(curr.sales || 0), 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        // --- CRIAÇÃO DE CAMPANHA ---
+        function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); document.getElementById('newCampaignName').focus(); }
+        function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
+
+        async function createCampaign() {
+            const name = document.getElementById('newCampaignName').value;
+            const btn = document.getElementById('btnCreateCamp');
+            
+            if(!name.trim()) {
+                document.getElementById('newCampaignName').classList.add('input-error');
+                setTimeout(()=>document.getElementById('newCampaignName').classList.remove('input-error'), 500);
+                return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Criando...'; btn.disabled = true;
+
+            try {
+                await fetch(ENDPOINTS.MAIN, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        tipo_requisicao: "campanha", 
+                        Nome_campanha: name, 
+                        id_usuario: currentUser.id, // VINCULO OBRIGATÓRIO
+                        id_campanha: Date.now() // Fallback
+                    })
+                });
+                closeNewCampaignModal();
+                fetchDashboard();
+                showAlert("Campanha criada com sucesso!", "success");
+            } catch (e) {
+                showAlert("Erro ao criar campanha.");
+            } finally {
+                btn.innerHTML = 'Criar Agora'; btn.disabled = false;
+                document.getElementById('newCampaignName').value = '';
+            }
         }
 
-        async function triggerCampaign() {
-            const name = document.getElementById('campaignNameInput').value; if(!name) return;
-            const btn = document.getElementById('btnStart'); btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled=true;
-            const res = await smartRequest('MAIN', { usuario_admin: adminUser, Nome_campanha: name, id_campanha: Math.floor(Date.now() / 1000), tipo_requisicao: "campanha" });
-            btn.innerHTML = "Disparar Agora"; btn.disabled=false;
-            if(res && res.found){ showPopup("Campanha criada com sucesso!"); closeNewCampaignModal(); setTimeout(fetchDashboardData, 1500); }
-        }
-
-        async function openEditProducts(id, name, status) {
-            currentEditingId = id;
+        // --- EDITOR DE PRODUTOS (COM TRAVAS DE ERRO HUMANO) ---
+        async function openEditor(id, name) {
+            currentCampaignId = id;
             document.getElementById('editModalTitle').innerText = name;
             document.getElementById('editProductsModal').classList.add('visible');
-            const listArea = document.getElementById('productListArea');
-            listArea.innerHTML = '<div class="h-96 flex flex-col items-center justify-center text-slate-500 gap-4"><div class="w-16 h-16 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin"></div><p class="animate-pulse font-medium">Carregando catálogo...</p></div>';
+            const area = document.getElementById('productListArea');
+            area.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-slate-500 gap-3"><i class="fas fa-spinner fa-spin text-3xl text-brand-500"></i><p class="animate-pulse">Sincronizando catálogo...</p></div>';
 
-            const data = await smartRequest('PRODUCTS', null, 'GET', true);
-            console.log("PRODUTOS:", data);
-
-            let lista = Array.isArray(data) ? data : (data && data.products ? data.products : []);
-            
-            if(lista.length > 0) processAndRenderProducts(lista);
-            else listArea.innerHTML = '<div class="h-96 flex flex-col items-center justify-center text-slate-500 bg-white/5 rounded-3xl border border-white/5 border-dashed"><i class="fas fa-box-open text-5xl mb-4 opacity-50"></i><p>Ainda não recebemos produtos nesta campanha.</p></div>';
+            try {
+                const res = await fetch(`${ENDPOINTS.PRODUCTS}?id_campanha=${id}`);
+                const data = await res.json();
+                const list = Array.isArray(data) ? data : (data.products || []);
+                renderProducts(list);
+            } catch (e) {
+                area.innerHTML = '<div class="text-center py-20 text-red-400">Falha ao carregar produtos.</div>';
+            }
         }
 
-        // --- RENDERIZAÇÃO PRO (CARTÕES HERO) ---
-        function processAndRenderProducts(lista) {
-            const listArea = document.getElementById('productListArea'); listArea.innerHTML = '';
+        function renderProducts(list) {
+            const area = document.getElementById('productListArea'); area.innerHTML = '';
             
-            lista.forEach(item => {
-                const prod = item.json ? item.json : item; 
-                const pid = prod.id_grupo;
+            if(list.length === 0) {
+                area.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500 border-2 border-dashed border-white/5 rounded-3xl bg-white/5"><i class="fas fa-camera text-4xl mb-4 opacity-50"></i><p class="font-bold">Nenhum produto ainda.</p><p class="text-xs mt-1">Envie fotos no Telegram para começar.</p></div>';
+                return;
+            }
 
-                let imagens = [];
-                if (Array.isArray(prod.imagens) && prod.imagens.length > 0) imagens = prod.imagens.filter(url => url); 
-                else if (prod.url_publica) imagens = [prod.url_publica];
-                else if (prod.arquivo_url) imagens = [prod.arquivo_url];
-                else imagens = ['https://placehold.co/800x800/1e293b/ffffff?text=Sem+Foto'];
+            list.forEach(p => {
+                const pid = p.id_grupo || p.id;
+                let img = p.url_publica || (p.imagens && p.imagens[0]) || 'https://placehold.co/400?text=Sem+Foto';
 
-                let imagesHtml = '';
-                imagens.forEach((imgUrl, index) => {
-                    let opacityClass = index === 0 ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105';
-                    imagesHtml += `<img src="${imgUrl}" class="product-img-${pid} absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out ${opacityClass}" data-index="${index}">`;
-                });
-
-                let navHtml = '';
-                if (imagens.length > 1) {
-                    navHtml = `
-                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-                             <button onclick="changeSlide('${pid}', -1, ${imagens.length})" class="w-10 h-10 rounded-full bg-black/40 hover:bg-brand-600 text-white backdrop-blur-md flex items-center justify-center transition-all border border-white/10"><i class="fas fa-chevron-left"></i></button>
-                             <button onclick="changeSlide('${pid}', 1, ${imagens.length})" class="w-10 h-10 rounded-full bg-black/40 hover:bg-brand-600 text-white backdrop-blur-md flex items-center justify-center transition-all border border-white/10"><i class="fas fa-chevron-right"></i></button>
+                area.innerHTML += `
+                    <div class="glass-panel p-0 rounded-2xl mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
+                        
+                        <div class="w-full xl:w-64 h-64 xl:h-auto bg-dark-900 relative shrink-0">
+                            <img src="${img}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                            <div class="absolute inset-0 bg-gradient-to-t from-dark-950 to-transparent opacity-60"></div>
+                            <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                                <span class="bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded border border-white/10">${p.qtd_fotos || 1} FOTOS</span>
+                            </div>
                         </div>
-                        <div class="absolute top-4 right-4 bg-black/60 text-white text-[10px] px-3 py-1.5 rounded-full font-bold backdrop-blur-md z-20 border border-white/10 tracking-widest">
-                            <span id="counter-${pid}">1</span> / ${imagens.length} FOTOS
-                        </div>
-                    `;
-                    startAutoSlide(pid, imagens.length);
-                }
 
-                // NOVO LAYOUT DE CARD HERO
-                listArea.innerHTML += `
-                    <div class="glass-panel rounded-[2rem] p-0 mb-8 border border-white/10 shadow-2xl overflow-hidden bg-dark-900 group">
-                        <div class="flex flex-col xl:flex-row h-auto xl:h-[500px]">
+                        <div class="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 gap-5 relative">
+                            <div class="md:col-span-2">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Nome do Produto <span class="text-red-500">*</span></label>
+                                <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all placeholder:text-slate-600" placeholder="Obrigatório" onchange="markUnsaved()">
+                            </div>
                             
-                            <div class="w-full xl:w-[45%] h-[400px] xl:h-full relative bg-dark-950 overflow-hidden" onmouseenter="stopAutoSlide('${pid}')" onmouseleave="startAutoSlide('${pid}', ${imagens.length})">
-                                ${imagesHtml}
-                                ${navHtml}
-                                <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-transparent to-transparent opacity-80 xl:opacity-40 pointer-events-none z-10"></div>
-                                
-                                <div class="absolute bottom-6 left-6 z-20 xl:hidden">
-                                     <label class="inline-flex items-center gap-3 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-                                        <input type="checkbox" id="status_mob_${pid}" class="accent-brand-500 w-5 h-5" ${prod.ativo !== false ? 'checked' : ''} onchange="syncStatus('${pid}', this.checked)">
-                                        <span class="text-xs font-bold text-white uppercase tracking-wide status-text-${pid}">${prod.ativo !== false ? 'Visível' : 'Oculto'}</span>
-                                    </label>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Preço Original (R$)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-3.5 text-slate-500 text-xs">R$</span>
+                                    <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white focus:border-brand-500 outline-none transition-all font-mono" placeholder="0.00" onchange="markUnsaved()">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="text-[10px] font-bold text-emerald-500 uppercase mb-1 block">Preço Promo (R$)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-3.5 text-emerald-600 text-xs">R$</span>
+                                    <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-dark-900 border border-emerald-900/50 rounded-xl pl-10 pr-4 py-3 text-emerald-400 font-bold focus:border-emerald-500 outline-none transition-all font-mono shadow-[0_0_15px_rgba(16,185,129,0.05)]" placeholder="0.00" onchange="markUnsaved()">
                                 </div>
                             </div>
 
-                            <div class="flex-1 p-6 md:p-10 flex flex-col justify-center relative bg-dark-900/40">
-                                
-                                <div class="flex justify-between items-start mb-8">
-                                    <div>
-                                        <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Produto #${pid.substring(pid.length-6)}</p>
-                                        <div class="input-group">
-                                            <input type="text" id="nome_${pid}" value="${prod.nome_produto || ''}" class="bg-transparent text-2xl md:text-3xl font-display font-bold text-white placeholder:text-slate-700 w-full border-b border-transparent hover:border-white/10 focus:border-brand-500 outline-none pb-1 transition-all" placeholder="Nome do Produto...">
-                                        </div>
+                            <div class="md:col-span-2 border-t border-white/5 pt-4 mt-2 flex items-center justify-between">
+                                <label class="flex items-center gap-3 cursor-pointer group/chk">
+                                    <div class="relative">
+                                        <input type="checkbox" id="active-${pid}" ${p.ativo !== false ? 'checked' : ''} class="sr-only peer" onchange="markUnsaved()">
+                                        <div class="w-10 h-6 bg-slate-700 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
+                                        <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
                                     </div>
-                                    
-                                    <label class="hidden xl:inline-flex items-center cursor-pointer gap-3 bg-dark-950 px-4 py-2.5 rounded-full border border-white/10 hover:border-white/20 transition-all">
-                                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wide status-text-${pid}">${prod.ativo !== false ? 'Visível' : 'Oculto'}</span>
-                                        <input type="checkbox" id="status_${pid}" class="sr-only peer" ${prod.ativo !== false ? 'checked' : ''} onchange="syncStatus('${pid}', this.checked)">
-                                        <div class="w-10 h-5 bg-slate-700 rounded-full peer peer-checked:bg-green-500 relative transition-colors">
-                                            <div class="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-all peer-checked:left-6"></div>
-                                        </div>
-                                    </label>
-                                </div>
+                                    <span class="text-xs font-bold text-slate-400 group-hover/chk:text-white transition-colors">Visível na Loja</span>
+                                </label>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                    
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label class="text-[10px] uppercase font-bold text-slate-500 mb-1.5 block ml-1">Preço Original</label>
-                                            <div class="input-group relative">
-                                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 font-bold text-sm">R$</div>
-                                                <input type="number" step="0.01" id="de_${pid}" value="${prod.preco_de || ''}" class="w-full bg-dark-950 border border-slate-700/50 rounded-xl py-4 pl-12 pr-4 text-slate-300 font-mono focus:border-brand-500 focus:bg-dark-800 transition-all" placeholder="0.00">
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="text-[10px] uppercase font-bold text-emerald-400 mb-1.5 block ml-1">Preço Promo</label>
-                                            <div class="input-group relative">
-                                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-emerald-500 font-bold text-lg">R$</div>
-                                                <input type="number" step="0.01" id="por_${pid}" value="${prod.preco_por || ''}" class="w-full bg-dark-950 border border-emerald-900/50 rounded-xl py-4 pl-12 pr-4 text-emerald-400 font-mono text-xl font-bold focus:border-emerald-500 focus:bg-dark-800 transition-all shadow-[0_0_20px_rgba(16,185,129,0.05)]" placeholder="0.00">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label class="text-[10px] uppercase font-bold text-slate-500 mb-1.5 block ml-1">Cor / Variação</label>
-                                            <div class="input-group relative">
-                                                <i class="fas fa-palette absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-xs"></i>
-                                                <input type="text" id="cor_${pid}" value="${prod.cor || ''}" class="w-full bg-dark-950 border border-slate-700/50 rounded-xl py-4 pl-10 pr-4 text-white text-sm focus:border-brand-500 focus:bg-dark-800 transition-all" placeholder="Ex: Azul Marinho">
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="text-[10px] uppercase font-bold text-slate-500 mb-1.5 block ml-1">Tamanhos Disponíveis</label>
-                                            <div class="input-group relative">
-                                                <i class="fas fa-ruler-combined absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-xs"></i>
-                                                <input type="text" id="tam_${pid}" value="${prod.tamanho || ''}" class="w-full bg-dark-950 border border-slate-700/50 rounded-xl py-4 pl-10 pr-4 text-white text-sm focus:border-brand-500 focus:bg-dark-800 transition-all" placeholder="Ex: P, M, G, GG">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button id="btn_save_${pid}" onclick="saveProduct('${pid}')" class="w-full bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white font-bold py-4 rounded-xl transition-all border border-white/5 flex items-center justify-center gap-3 group/btn">
-                                    <span class="group-hover/btn:translate-x-1 transition-transform">Salvar Alterações</span>
-                                    <i class="fas fa-save opacity-50 group-hover/btn:opacity-100"></i>
+                                <button onclick="saveProduct(${pid})" id="btnSave-${pid}" class="bg-slate-800 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md flex items-center gap-2 border border-white/5">
+                                    <span>Salvar Item</span> <i class="fas fa-save opacity-50"></i>
                                 </button>
-                                
                             </div>
                         </div>
                     </div>`;
             });
         }
 
-        // --- LÓGICA DO CARROSSEL ---
-        function changeSlide(pid, direction, total) {
-            const images = document.querySelectorAll(`.product-img-${pid}`);
-            let currentIndex = 0;
-            images.forEach((img, idx) => {
-                if (img.classList.contains('opacity-100')) currentIndex = idx;
-                img.classList.remove('opacity-100', 'z-10', 'scale-100'); 
-                img.classList.add('opacity-0', 'z-0', 'scale-105');
-            });
-            let newIndex = currentIndex + direction;
-            if (newIndex < 0) newIndex = total - 1; else if (newIndex >= total) newIndex = 0;
-            images[newIndex].classList.remove('opacity-0', 'z-0', 'scale-105'); 
-            images[newIndex].classList.add('opacity-100', 'z-10', 'scale-100');
-            const counter = document.getElementById(`counter-${pid}`); if(counter) counter.innerText = newIndex + 1;
-        }
-
-        function startAutoSlide(pid, total) {
-            if (total <= 1) return;
-            if (autoPlayIntervals[pid]) clearInterval(autoPlayIntervals[pid]);
-            autoPlayIntervals[pid] = setInterval(() => changeSlide(pid, 1, total), 4000); // 4 segundos para ler melhor
-        }
-        function stopAutoSlide(pid) { if (autoPlayIntervals[pid]) clearInterval(autoPlayIntervals[pid]); }
-
-        // --- SALVAMENTO E SINCRONIZAÇÃO ---
-        function syncStatus(pid, isChecked) {
-            // Sincroniza o checkbox mobile e desktop
-            const chkDesk = document.getElementById(`status_${pid}`);
-            const chkMob = document.getElementById(`status_mob_${pid}`);
-            if(chkDesk) chkDesk.checked = isChecked;
-            if(chkMob) chkMob.checked = isChecked;
-            
-            // Atualiza textos
-            const texts = document.querySelectorAll(`.status-text-${pid}`);
-            texts.forEach(t => t.innerText = isChecked ? 'Visível' : 'Oculto');
-        }
+        // --- VALIDAÇÃO E SALVAMENTO SEGURO ---
+        function markUnsaved() { unsavedChanges = true; }
 
         async function saveProduct(pid) {
-            const btn = document.getElementById(`btn_save_${pid}`), icon = btn.innerHTML;
-            const nome = document.getElementById(`nome_${pid}`).value || "Produto";
-            
-            // Pega o status de qualquer um dos checkboxes (mobile ou desk)
-            const statusChecked = document.getElementById(`status_${pid}`)?.checked ?? document.getElementById(`status_mob_${pid}`)?.checked;
+            const nameField = document.getElementById(`name-${pid}`);
+            const pFromField = document.getElementById(`priceFrom-${pid}`);
+            const pToField = document.getElementById(`priceTo-${pid}`);
+            const btn = document.getElementById(`btnSave-${pid}`);
 
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...'; btn.disabled = true;
-            btn.classList.remove('bg-slate-800', 'text-slate-300');
-            btn.classList.add('bg-brand-600', 'text-white');
+            const name = nameField.value.trim();
+            const pFrom = parseFloat(pFromField.value) || 0;
+            const pTo = parseFloat(pToField.value) || 0;
+            const active = document.getElementById(`active-${pid}`).checked;
 
-            const payload = { 
-                action: "update_product", id_grupo: pid, id_campanha: currentEditingId, 
-                nome_produto: nome, preco_de: document.getElementById(`de_${pid}`).value,
-                preco_por: document.getElementById(`por_${pid}`).value, 
-                cor: document.getElementById(`cor_${pid}`).value, 
-                tamanho: document.getElementById(`tam_${pid}`).value,
-                ativo: statusChecked
-            };
-            
-            const res = await smartRequest('UPDATE', payload);
-            
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
-                setTimeout(() => {
-                    btn.innerHTML = icon; btn.disabled = false;
-                    btn.classList.add('bg-slate-800', 'text-slate-300');
-                    btn.classList.remove('bg-brand-600', 'text-white');
-                }, 2000);
-            }, 500);
-            
-            if(res && res.success) showPopup("Produto atualizado!", "success");
+            // TRAVA 1: Nome vazio
+            if (!name) {
+                showAlert("Erro: O produto precisa ter um nome.");
+                nameField.focus();
+                nameField.classList.add('input-error');
+                setTimeout(() => nameField.classList.remove('input-error'), 1000);
+                return;
+            }
+
+            // TRAVA 2: Preço Promocional absurdo
+            if (pTo > pFrom && pFrom > 0) {
+                showAlert("Erro Lógico: O preço promocional não pode ser maior que o original.");
+                pToField.classList.add('input-error');
+                return;
+            }
+
+            // TRAVA 3: Valores Negativos
+            if (pTo < 0 || pFrom < 0) {
+                showAlert("Erro: Preços não podem ser negativos.");
+                return;
+            }
+
+            // Feedback Visual
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...'; 
+            btn.disabled = true;
+            btn.classList.add('bg-brand-600');
+
+            try {
+                const res = await fetch(ENDPOINTS.UPDATE, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "update_product",
+                        id_grupo: pid,
+                        nome_produto: name,
+                        preco_de: pFrom,
+                        preco_por: pTo,
+                        ativo: active
+                    })
+                });
+                
+                if (res.ok) {
+                    unsavedChanges = false;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
+                    btn.classList.remove('bg-slate-800', 'bg-brand-600');
+                    btn.classList.add('bg-green-500');
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                        btn.classList.remove('bg-green-500');
+                        btn.classList.add('bg-slate-800');
+                    }, 2000);
+                } else {
+                    throw new Error();
+                }
+            } catch (e) {
+                btn.innerHTML = 'Erro!';
+                btn.classList.add('bg-red-500');
+                setTimeout(() => { btn.innerHTML = originalHtml; btn.disabled = false; btn.classList.remove('bg-red-500'); }, 2000);
+            }
         }
 
-        async function concludeEdition() {
-            await smartRequest('UPDATE', { action: "update_status", id_campanha: currentEditingId, status: "ativa" });
+        async function activateCampaign() {
+            if(unsavedChanges) {
+                if(!confirm("Existem alterações não salvas nos produtos. Deseja publicar mesmo assim?")) return;
+            }
+            
+            await fetch(ENDPOINTS.UPDATE, {
+                method: 'POST',
+                body: JSON.stringify({ action: "update_status", id_campanha: currentCampaignId, status: "ativa" })
+            });
             closeEditModal();
-            showPopup("Campanha publicada!", "success");
+            fetchDashboard();
+            showAlert("Campanha publicada e ativa!", "success");
         }
 
-        function logout() { location.reload(); }
+        // --- UTILITÁRIOS ---
+        function closeEditModal() { 
+            if(unsavedChanges && !confirm("Você tem alterações não salvas. Deseja sair?")) return;
+            document.getElementById('editProductsModal').classList.remove('visible'); 
+            unsavedChanges = false;
+        }
+        function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
+        
+        function copyLink(url) {
+            navigator.clipboard.writeText(url);
+            const btn = event.currentTarget;
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+            setTimeout(() => btn.innerHTML = original, 1500);
+        }
+
+        function showAlert(msg, type='error') {
+            const box = document.getElementById('custom-alert');
+            document.getElementById('alert-msg').innerText = msg;
+            document.getElementById('alert-icon').innerHTML = type === 'success' ? '✅' : '⚠️';
+            box.classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
