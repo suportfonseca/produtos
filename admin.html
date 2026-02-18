@@ -167,12 +167,17 @@
         console.log("Modo N8N ativo:", MODO_TESTE ? "TESTE (webhook-test)" : "PRODUÇÃO (webhook)");
         // =====================================================================
 
-        // =====================================================================
-        // --- NOVO: SISTEMA DE IDENTIFICAÇÃO DE VÍDEO BLINDADO ---
-        // =====================================================================
+        let currentUser = null;
+        let currentCampaignId = null;
+        let unsavedChanges = false;
+
+        window.onbeforeunload = function() {
+            if (unsavedChanges) return "Você tem alterações não salvas. Deseja sair?";
+        };
+
+        // --- SISTEMA DE IDENTIFICAÇÃO DE VÍDEO ---
         function isVideo(url) {
             if (!url) return false;
-            // Transforma em minúsculas e ignora tudo o que vem depois do "?" (como os parâmetros do Google Storage)
             const cleanUrl = url.split('?')[0].toLowerCase();
             return cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.mov') || 
                    cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg') || cleanUrl.endsWith('.m4v');
@@ -191,17 +196,8 @@
                 container.innerHTML = buildMediaTag(url, "w-full h-full object-cover transition-opacity duration-300");
             }
         }
-        // =====================================================================
 
-        let currentUser = null;
-        let currentCampaignId = null;
-        let unsavedChanges = false;
-
-        window.onbeforeunload = function() {
-            if (unsavedChanges) return "Você tem alterações não salvas. Deseja sair?";
-        };
-
-        // --- LOGIN E DASHBOARD (SEM ALTERAÇÕES) ---
+        // --- LOGIN E DASHBOARD ---
         async function doLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value;
@@ -277,7 +273,6 @@
         function renderTable(list) {
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
             
-            // CORRIGIDO: Agora aponta para catalogo.html para funcionar com o seu novo sistema!
             const baseUrl = window.location.href.replace('admin.html', 'catalogo.html');
 
             list.forEach(c => {
@@ -303,7 +298,6 @@
             });
         }
 
-        // --- CRIAÇÃO DE CAMPANHA ---
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); document.getElementById('newCampaignName').focus(); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
 
@@ -341,7 +335,6 @@
             }
         }
 
-        // --- NOVO: EDITOR DE PRODUTOS COM CARROSSEL E CAMPOS COMPLETOS ---
         async function openEditor(id, name) {
             currentCampaignId = id;
             document.getElementById('editModalTitle').innerText = name;
@@ -370,26 +363,24 @@
             list.forEach(p => {
                 const pid = p.id_grupo || p.id;
                 
-                // Mapeia todas as imagens de forma segura, venham do jeito que vierem do n8n
                 let imgs = [];
                 if (p.imagens && Array.isArray(p.imagens)) imgs = p.imagens;
-                else if (p.url_publica) imgs = [p.url_publica]; // fallback
+                else if (p.url_publica) imgs = [p.url_publica];
                 else if (p.midias && Array.isArray(p.midias)) imgs = p.midias.map(m => m.url_publica || m.url);
                 
                 if (imgs.length === 0) imgs = ['https://placehold.co/400?text=Sem+Foto'];
 
                 const primeiraImg = imgs[0];
                 
-                // Cria as miniaturas e os checkboxes se houver imagens
                 let miniaturasHTML = '';
                 if (imgs.length > 0 && imgs[0] !== 'https://placehold.co/400?text=Sem+Foto') {
                     miniaturasHTML = `<div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2">`;
                     imgs.forEach((imgUrl) => {
                         
-                        // Verifica se é vídeo para colocar o ícone de Play na miniatura
                         const isVid = isVideo(imgUrl);
                         const overlayIcon = isVid ? `<div class="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/80 text-xl shadow-sm"></i></div>` : '';
 
+                        // O ID NAS MINIATURAS ESTÁ PROTEGIDO COM ASPAS '${pid}'
                         miniaturasHTML += `
                             <div class="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group" onclick="changeMainMedia('${pid}', '${imgUrl}')">
                                 ${buildMediaTag(imgUrl, "w-full h-full object-cover")}
@@ -407,7 +398,6 @@
                     <div class="glass-panel p-0 rounded-2xl mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
                         
                         <div class="w-full xl:w-80 p-4 bg-dark-900 border-r border-white/5 relative shrink-0 flex flex-col justify-center">
-                            
                             <div class="w-full aspect-square rounded-xl overflow-hidden bg-dark-950 relative shadow-inner">
                                 <div id="main-media-container-${pid}" class="w-full h-full">
                                     ${buildMediaTag(primeiraImg, "w-full h-full object-cover transition-opacity duration-300")}
@@ -416,7 +406,6 @@
                                     ${imgs.length > 1 ? imgs.length + ' ARQUIVOS' : '1 ARQUIVO'}
                                 </div>
                             </div>
-                            
                             ${miniaturasHTML}
                         </div>
 
@@ -459,7 +448,8 @@
                                     </div>
                                     <span class="text-xs font-bold text-slate-400 group-hover/chk:text-white transition-colors">Visível na Loja</span>
                                 </label>
-                                <button onclick="saveProduct(${pid})" id="btnSave-${pid}" class="bg-slate-800 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md flex items-center gap-2 border border-white/5">
+                                
+                                <button onclick="saveProduct('${pid}')" id="btnSave-${pid}" class="bg-slate-800 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md flex items-center gap-2 border border-white/5">
                                     <span>Salvar Item</span> <i class="fas fa-save opacity-50"></i>
                                 </button>
                             </div>
@@ -485,7 +475,6 @@
             const size = sizeField.value.trim();
             const active = document.getElementById(`active-${pid}`).checked;
 
-            // Pega apenas as imagens que o lojista deixou com o "vezinho" (checked)
             const checkboxFotos = document.querySelectorAll(`.img-check-${pid}:checked`);
             const fotosSelecionadas = Array.from(checkboxFotos).map(cb => cb.value);
 
@@ -518,7 +507,6 @@
             btn.classList.add('bg-brand-600');
 
             try {
-                // Aqui estão todas as informações embaladas para o n8n
                 const res = await fetch(ENDPOINTS.UPDATE, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -531,7 +519,7 @@
                         cor: color,
                         tamanho: size,
                         ativo: active,
-                        imagens_selecionadas: fotosSelecionadas // ARRAY COM OS LINKS ESCOLHIDOS
+                        imagens_selecionadas: fotosSelecionadas 
                     })
                 });
                 
