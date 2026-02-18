@@ -145,9 +145,6 @@
     </div>
 
     <script>
-        // =====================================================================
-        // CONFIGURAÇÃO AUTOMÁTICA DE AMBIENTE (TESTE VS PRODUÇÃO)
-        // =====================================================================
         const rodandoLocalmente = window.location.hostname === 'localhost' || 
                                   window.location.hostname === '127.0.0.1' || 
                                   window.location.protocol === 'file:';
@@ -164,9 +161,6 @@
             UPDATE: `${BASE_URL}${WEBHOOK_PATH}/update-data`
         };
 
-        console.log("Modo N8N ativo:", MODO_TESTE ? "TESTE (webhook-test)" : "PRODUÇÃO (webhook)");
-        // =====================================================================
-
         let currentUser = null;
         let currentCampaignId = null;
         let unsavedChanges = false;
@@ -175,7 +169,6 @@
             if (unsavedChanges) return "Você tem alterações não salvas. Deseja sair?";
         };
 
-        // --- SISTEMA DE IDENTIFICAÇÃO DE VÍDEO ---
         function isVideo(url) {
             if (!url) return false;
             const cleanUrl = url.split('?')[0].toLowerCase();
@@ -197,9 +190,8 @@
             }
         }
 
-        // --- NOVO: SISTEMA DE ORDENAÇÃO DE MINIATURAS ---
         window.moveThumb = function(btn, direction, event) {
-            event.stopPropagation(); // Evita que clique na miniatura para abrir a foto
+            event.stopPropagation(); 
             const thumbDiv = btn.closest('.thumbnail-item');
             const container = thumbDiv.parentElement;
             
@@ -212,17 +204,13 @@
             }
         };
 
-        // --- LOGIN E DASHBOARD ---
         async function doLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value;
             const btn = document.getElementById('btnLogin');
 
             if (!email || !pass) return showAlert("Por favor, preencha E-mail e Senha.");
-            if (!email.includes('@')) return showAlert("Digite um E-mail válido.");
-
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando...'; 
-            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando...'; btn.disabled = true;
 
             try {
                 const res = await fetch(ENDPOINTS.MAIN, {
@@ -240,7 +228,7 @@
                     showAlert("E-mail ou Senha incorretos.");
                 }
             } catch (e) {
-                showAlert("Erro de conexão. Verifique se o n8n está rodando.");
+                showAlert("Erro de conexão.");
             } finally {
                 btn.innerHTML = 'Entrar no Sistema'; btn.disabled = false;
             }
@@ -263,7 +251,7 @@
 
         async function fetchDashboard() {
             const tbody = document.getElementById('campaignList');
-            tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500"><i class="fas fa-circle-notch fa-spin"></i> Carregando...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500"><i class="fas fa-circle-notch fa-spin"></i></td></tr>';
 
             try {
                 const res = await fetch(ENDPOINTS.MAIN, {
@@ -278,10 +266,10 @@
                     renderTable(data.campanhas);
                 } else {
                     document.getElementById('campaignCount').innerText = "0";
-                    tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500">Nenhuma campanha encontrada. Crie a primeira!</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500">Nenhuma campanha encontrada.</td></tr>';
                 }
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-400">Erro ao carregar dados do n8n.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-400">Erro ao carregar dados.</td></tr>';
             }
         }
 
@@ -300,12 +288,12 @@
                         <td class="p-5">${statusBadge}</td>
                         <td class="p-5">
                             <p class="font-bold text-white text-base">${c.nome_campanha}</p>
-                            <p class="text-xs text-slate-500 font-mono mt-0.5 opacity-50 group-hover:opacity-100 transition-opacity">ID: ${c.id_campanha}</p>
+                            <p class="text-xs text-slate-500 font-mono">ID: ${c.id_campanha}</p>
                         </td>
                         <td class="p-5 text-right">
                             <div class="flex justify-end gap-2">
-                                <button onclick="copyLink('${baseUrl}?id=${c.id_campanha}')" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-brand-600 text-slate-400 hover:text-white border border-white/5 transition-all shadow-md flex items-center justify-center" title="Copiar Link"><i class="fas fa-link"></i></button>
-                                <button onclick="openEditor(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-white hover:text-dark-900 text-slate-400 border border-white/5 transition-all shadow-md flex items-center justify-center" title="Editar Produtos"><i class="fas fa-pen text-sm"></i></button>
+                                <button onclick="copyLink('${baseUrl}?id=${c.id_campanha}')" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-brand-600 text-slate-400 hover:text-white border border-white/5 shadow-md flex items-center justify-center"><i class="fas fa-link"></i></button>
+                                <button onclick="openEditor(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-white hover:text-dark-900 text-slate-400 border border-white/5 shadow-md flex items-center justify-center"><i class="fas fa-pen text-sm"></i></button>
                             </div>
                         </td>
                     </tr>`;
@@ -318,14 +306,9 @@
         async function createCampaign() {
             const name = document.getElementById('newCampaignName').value;
             const btn = document.getElementById('btnCreateCamp');
-            
-            if(!name.trim()) {
-                document.getElementById('newCampaignName').classList.add('input-error');
-                setTimeout(()=>document.getElementById('newCampaignName').classList.remove('input-error'), 500);
-                return;
-            }
+            if(!name.trim()) return;
 
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Criando...'; btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled = true;
 
             try {
                 await fetch(ENDPOINTS.MAIN, {
@@ -354,13 +337,12 @@
             document.getElementById('editModalTitle').innerText = name;
             document.getElementById('editProductsModal').classList.add('visible');
             const area = document.getElementById('productListArea');
-            area.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-slate-500 gap-3"><i class="fas fa-spinner fa-spin text-3xl text-brand-500"></i><p class="animate-pulse">Sincronizando catálogo...</p></div>';
+            area.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-slate-500 gap-3"><i class="fas fa-spinner fa-spin text-3xl text-brand-500"></i><p>Sincronizando...</p></div>';
 
             try {
                 const res = await fetch(`${ENDPOINTS.PRODUCTS}?id_campanha=${id}`);
                 const data = await res.json();
-                const list = Array.isArray(data) ? data : (data.products || []);
-                renderProducts(list);
+                renderProducts(Array.isArray(data) ? data : (data.products || []));
             } catch (e) {
                 area.innerHTML = '<div class="text-center py-20 text-red-400">Falha ao carregar produtos.</div>';
             }
@@ -368,110 +350,87 @@
 
         function renderProducts(list) {
             const area = document.getElementById('productListArea'); area.innerHTML = '';
-            
             if(list.length === 0) {
-                area.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500 border-2 border-dashed border-white/5 rounded-3xl bg-white/5"><i class="fas fa-camera text-4xl mb-4 opacity-50"></i><p class="font-bold">Nenhum produto ainda.</p><p class="text-xs mt-1">Envie fotos no Telegram para começar.</p></div>';
+                area.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500 border-2 border-dashed border-white/5 rounded-3xl"><i class="fas fa-camera text-4xl mb-4 opacity-50"></i><p>Nenhum produto.</p></div>';
                 return;
             }
 
             list.forEach(p => {
                 const pid = p.id_grupo || p.id;
                 
-                let imgs = [];
-                if (p.imagens && Array.isArray(p.imagens)) imgs = p.imagens;
-                else if (p.url_publica) imgs = [p.url_publica];
-                else if (p.midias && Array.isArray(p.midias)) imgs = p.midias.map(m => m.url_publica || m.url);
-                
-                if (imgs.length === 0) imgs = ['https://placehold.co/400?text=Sem+Foto'];
-
-                const primeiraImg = imgs[0];
-                
-                let miniaturasHTML = '';
-                if (imgs.length > 0 && imgs[0] !== 'https://placehold.co/400?text=Sem+Foto') {
-                    miniaturasHTML = `<div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2">`;
-                    imgs.forEach((imgUrl) => {
-                        
-                        const isVid = isVideo(imgUrl);
-                        const overlayIcon = isVid ? `<div class="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/80 text-xl shadow-sm"></i></div>` : '';
-
-                        // AQUI ESTÃO OS NOVOS CONTROLES DE CHECKBOX E ORDENAÇÃO NA MINIATURA
-                        miniaturasHTML += `
-                            <div class="thumbnail-item relative w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group" onclick="changeMainMedia('${pid}', '${imgUrl}')">
-                                ${buildMediaTag(imgUrl, "w-full h-full object-cover")}
-                                ${overlayIcon}
-                                
-                                <div class="absolute top-1 right-1 bg-dark-950/80 rounded flex items-center justify-center p-1 shadow-md z-10" title="Publicar esta mídia" onclick="event.stopPropagation();">
-                                    <input type="checkbox" class="img-check-${pid} w-4 h-4 accent-brand-500 cursor-pointer" value="${imgUrl}" checked onchange="markUnsaved();">
-                                </div>
-                                
-                                <div class="absolute bottom-0 left-0 right-0 h-6 bg-black/70 backdrop-blur-sm flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    <button onclick="moveThumb(this, 'left', event)" class="text-white hover:text-brand-400 p-1" title="Mover para esquerda"><i class="fas fa-chevron-left text-[10px]"></i></button>
-                                    <span class="text-[8px] text-slate-300 font-bold tracking-widest">ORDEM</span>
-                                    <button onclick="moveThumb(this, 'right', event)" class="text-white hover:text-brand-400 p-1" title="Mover para direita"><i class="fas fa-chevron-right text-[10px]"></i></button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    miniaturasHTML += `</div>`;
+                // Inteligência para ler o pacote agrupado do PostgreSQL (json_agg)
+                let midias = [];
+                if (p.midias_detalhadas && Array.isArray(p.midias_detalhadas)) {
+                    midias = p.midias_detalhadas;
+                } else if (p.imagens && Array.isArray(p.imagens)) {
+                    midias = p.imagens.map(url => ({ url: url, ativo: true }));
+                } else if (p.url_publica) {
+                    midias = [{ url: p.url_publica, ativo: true }];
+                } else {
+                    midias = [{ url: 'https://placehold.co/400?text=Sem+Foto', ativo: true }];
                 }
+
+                const primeiraImg = midias.find(m => m.ativo)?.url || midias[0].url;
+                
+                let miniaturasHTML = '<div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2">';
+                midias.forEach((m) => {
+                    const isVid = isVideo(m.url);
+                    const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/80 text-xl shadow-sm"></i></div>' : '';
+                    
+                    miniaturasHTML += `
+                        <div class="thumbnail-item relative w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group" onclick="changeMainMedia('${pid}', '${m.url}')">
+                            ${buildMediaTag(m.url, "w-full h-full object-cover")}
+                            ${overlayIcon}
+                            <div class="absolute top-1 right-1 bg-dark-950/80 rounded flex items-center justify-center p-1 shadow-md z-10" onclick="event.stopPropagation();">
+                                <input type="checkbox" class="img-check-${pid} w-4 h-4 accent-brand-500 cursor-pointer" value="${m.url}" ${m.ativo ? 'checked' : ''} onchange="markUnsaved();">
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 h-6 bg-black/70 backdrop-blur-sm flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <button onclick="moveThumb(this, 'left', event)" class="text-white hover:text-brand-400 p-1"><i class="fas fa-chevron-left text-[10px]"></i></button>
+                                <span class="text-[8px] text-slate-300 font-bold">ORDEM</span>
+                                <button onclick="moveThumb(this, 'right', event)" class="text-white hover:text-brand-400 p-1"><i class="fas fa-chevron-right text-[10px]"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                miniaturasHTML += '</div>';
 
                 area.innerHTML += `
                     <div class="glass-panel p-0 rounded-2xl mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
-                        
                         <div class="w-full xl:w-80 p-4 bg-dark-900 border-r border-white/5 relative shrink-0 flex flex-col justify-center">
-                            <div class="w-full aspect-square rounded-xl overflow-hidden bg-dark-950 relative shadow-inner">
-                                <div id="main-media-container-${pid}" class="w-full h-full">
-                                    ${buildMediaTag(primeiraImg, "w-full h-full object-cover transition-opacity duration-300")}
-                                </div>
-                                <div class="absolute bottom-2 left-2 bg-black/70 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded border border-white/10 z-10">
-                                    ${imgs.length > 1 ? imgs.length + ' ARQUIVOS' : '1 ARQUIVO'}
-                                </div>
+                            <div class="w-full aspect-square rounded-xl overflow-hidden bg-dark-950 relative shadow-inner" id="main-media-container-${pid}">
+                                ${buildMediaTag(primeiraImg, "w-full h-full object-cover transition-opacity duration-300")}
                             </div>
                             ${miniaturasHTML}
                         </div>
-
                         <div class="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 gap-5 relative">
                             <div class="md:col-span-2">
-                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Nome do Produto <span class="text-red-500">*</span></label>
-                                <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all placeholder:text-slate-600" placeholder="Ex: Conjunto Moletom" onchange="markUnsaved()">
-                            </div>
-                            
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Preço Original (R$)</label>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-3.5 text-slate-500 text-xs">R$</span>
-                                    <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white focus:border-brand-500 outline-none transition-all font-mono" placeholder="0.00" onchange="markUnsaved()">
-                                </div>
+                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Nome do Produto *</label>
+                                <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-emerald-500 uppercase mb-1 block">Preço Promo (R$)</label>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-3.5 text-emerald-600 text-xs">R$</span>
-                                    <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-dark-950 border border-emerald-900/50 rounded-xl pl-10 pr-4 py-3 text-emerald-400 font-bold focus:border-emerald-500 outline-none transition-all font-mono shadow-[0_0_15px_rgba(16,185,129,0.05)]" placeholder="0.00" onchange="markUnsaved()">
-                                </div>
+                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">R$ De</label>
+                                <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white" onchange="markUnsaved()">
                             </div>
-
+                            <div>
+                                <label class="text-[10px] font-bold text-emerald-500 uppercase mb-1 block">R$ Por</label>
+                                <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-dark-950 border border-emerald-900/50 rounded-xl px-4 py-3 text-emerald-400 font-bold" onchange="markUnsaved()">
+                            </div>
                             <div>
                                 <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Cor</label>
-                                <input type="text" id="color-${pid}" value="${p.cor || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all placeholder:text-slate-600" placeholder="Ex: Preto, Azul..." onchange="markUnsaved()">
+                                <input type="text" id="color-${pid}" value="${p.cor || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white" onchange="markUnsaved()">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Tamanho(s)</label>
-                                <input type="text" id="size-${pid}" value="${p.tamanho || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all placeholder:text-slate-600" placeholder="Ex: P, M, G ou 38 ao 42" onchange="markUnsaved()">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Tamanho</label>
+                                <input type="text" id="size-${pid}" value="${p.tamanho || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white" onchange="markUnsaved()">
                             </div>
-
-                            <div class="md:col-span-2 border-t border-white/5 pt-5 mt-2 flex items-center justify-between">
-                                <label class="flex items-center gap-3 cursor-pointer group/chk" title="Desativar oculta o produto inteiro da loja">
-                                    <div class="relative">
-                                        <input type="checkbox" id="active-${pid}" ${p.ativo !== false ? 'checked' : ''} class="sr-only peer" onchange="markUnsaved()">
-                                        <div class="w-10 h-6 bg-slate-700 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
-                                        <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
-                                    </div>
-                                    <span class="text-xs font-bold text-slate-400 group-hover/chk:text-white transition-colors">Visível na Loja</span>
+                            <div class="md:col-span-2 border-t border-white/5 pt-5 flex items-center justify-between">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="active-${pid}" ${p.ativo !== false ? 'checked' : ''} class="sr-only peer" onchange="markUnsaved()">
+                                    <div class="w-10 h-6 bg-slate-700 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
+                                    <span class="text-xs font-bold text-slate-400">Visível na Loja</span>
                                 </label>
-                                
-                                <button onclick="saveProduct('${pid}')" id="btnSave-${pid}" class="bg-slate-800 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md flex items-center gap-2 border border-white/5">
-                                    <span>Salvar Item</span> <i class="fas fa-save opacity-50"></i>
+                                <button onclick="saveProduct('${pid}')" id="btnSave-${pid}" class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-2">
+                                    Salvar Item <i class="fas fa-save"></i>
                                 </button>
                             </div>
                         </div>
@@ -482,96 +441,50 @@
         function markUnsaved() { unsavedChanges = true; }
 
         async function saveProduct(pid) {
-            const nameField = document.getElementById(`name-${pid}`);
-            const pFromField = document.getElementById(`priceFrom-${pid}`);
-            const pToField = document.getElementById(`priceTo-${pid}`);
-            const colorField = document.getElementById(`color-${pid}`);
-            const sizeField = document.getElementById(`size-${pid}`);
+            const name = document.getElementById(`name-${pid}`).value.trim();
             const btn = document.getElementById(`btnSave-${pid}`);
-
-            const name = nameField.value.trim();
-            const pFrom = parseFloat(pFromField.value) || 0;
-            const pTo = parseFloat(pToField.value) || 0;
-            const color = colorField.value.trim();
-            const size = sizeField.value.trim();
-            const active = document.getElementById(`active-${pid}`).checked; // Pega o toggle de Visível na Loja
-
-            // IMPORTANTE: Como as setas moveram as divs no HTML, este comando abaixo 
-            // pega as fotos exatamente na nova ordem visual que o cliente deixou na tela!
             const checkboxFotos = document.querySelectorAll(`.img-check-${pid}:checked`);
             const fotosSelecionadas = Array.from(checkboxFotos).map(cb => cb.value);
 
-            if (!name) {
-                showAlert("Erro: O produto precisa ter um nome.");
-                nameField.focus();
-                nameField.classList.add('input-error');
-                setTimeout(() => nameField.classList.remove('input-error'), 1000);
-                return;
-            }
-
-            if (pTo > pFrom && pFrom > 0) {
-                showAlert("Erro Lógico: O preço promocional não pode ser maior que o original.");
-                pToField.classList.add('input-error');
-                return;
-            }
-
-            if (pTo < 0 || pFrom < 0) {
-                showAlert("Erro: Preços não podem ser negativos.");
-                return;
-            }
-
-            if(fotosSelecionadas.length === 0 && document.querySelectorAll(`.img-check-${pid}`).length > 0) {
-                 showAlert("Aviso: Você desmarcou todas as fotos deste produto. Recomenda-se publicar com pelo menos uma foto ou vídeo.");
-            }
-
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...'; 
-            btn.disabled = true;
-            btn.classList.add('bg-brand-600');
+            if (!name) return showAlert("Nome obrigatório.");
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled = true;
 
             try {
-                // Aqui estão todas as informações embaladas para o n8n
                 const res = await fetch(ENDPOINTS.UPDATE, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         action: "update_product",
-                        id_campanha: currentCampaignId, // <--- ESTA É A LINHA MÁGICA NOVA QUE FALTAVA
+                        id_campanha: currentCampaignId,
                         id_grupo: pid,
                         nome_produto: name,
-                        preco_de: pFrom,
-                        preco_por: pTo,
-                        cor: color,
-                        tamanho: size,
-                        ativo: active, // Envia o status do produto inteiro para o n8n
-                        imagens_selecionadas: fotosSelecionadas // Envia as imagens selecionadas na ORDEM exata!
+                        preco_de: document.getElementById(`priceFrom-${pid}`).value,
+                        preco_por: document.getElementById(`priceTo-${pid}`).value,
+                        cor: document.getElementById(`color-${pid}`).value,
+                        tamanho: document.getElementById(`size-${pid}`).value,
+                        ativo: document.getElementById(`active-${pid}`).checked,
+                        imagens_selecionadas: fotosSelecionadas 
                     })
                 });
                 
                 if (res.ok) {
                     unsavedChanges = false;
-                    btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
-                    btn.classList.remove('bg-slate-800', 'bg-brand-600');
-                    btn.classList.add('bg-green-500');
-                    
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    btn.classList.replace('bg-brand-600', 'bg-green-500');
                     setTimeout(() => {
-                        btn.innerHTML = originalHtml;
+                        btn.innerHTML = 'Salvar Item <i class="fas fa-save"></i>';
+                        btn.classList.replace('bg-green-500', 'bg-brand-600');
                         btn.disabled = false;
-                        btn.classList.remove('bg-green-500');
-                        btn.classList.add('bg-slate-800');
                     }, 2000);
-                } else { throw new Error(); }
+                }
             } catch (e) {
-                btn.innerHTML = 'Erro!';
-                btn.classList.add('bg-red-500');
-                setTimeout(() => { btn.innerHTML = originalHtml; btn.disabled = false; btn.classList.remove('bg-red-500'); }, 2000);
+                showAlert("Erro ao salvar.");
+                btn.disabled = false;
             }
         }
 
         async function activateCampaign() {
-            if(unsavedChanges) {
-                if(!confirm("Existem alterações não salvas nos produtos. Deseja publicar mesmo assim?")) return;
-            }
+            if(unsavedChanges && !confirm("Deseja publicar sem salvar as alterações?")) return;
             await fetch(ENDPOINTS.UPDATE, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -579,7 +492,7 @@
             });
             closeEditModal();
             fetchDashboard();
-            showAlert("Campanha publicada e ativa!", "success");
+            showAlert("Campanha publicada com sucesso!", "success");
         }
 
         function closeEditModal() { 
@@ -591,17 +504,15 @@
         
         function copyLink(url) {
             navigator.clipboard.writeText(url);
-            const btn = event.currentTarget;
-            const original = btn.innerHTML;
+            const btn = event.currentTarget, original = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
             setTimeout(() => btn.innerHTML = original, 1500);
         }
 
         function showAlert(msg, type='error') {
-            const box = document.getElementById('custom-alert');
             document.getElementById('alert-msg').innerText = msg;
             document.getElementById('alert-icon').innerHTML = type === 'success' ? '✅' : '⚠️';
-            box.classList.remove('hidden');
+            document.getElementById('custom-alert').classList.remove('hidden');
         }
     </script>
 </body>
