@@ -35,9 +35,9 @@
         <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
         <div class="w-full max-w-sm bg-white p-10 rounded-[3rem] shadow-2xl relative fade-in border border-white/20">
             <div class="w-20 h-20 bg-brand-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-brand-600 text-4xl animate-bounce"><i class="fas fa-gift"></i></div>
-            <h1 class="text-3xl font-display font-black text-slate-900 mb-3">Olá! 👋</h1>
+            <h1 class="text-3xl font-display font-black text-slate-900 mb-3 leading-tight">Olá! 👋</h1>
             <p class="text-slate-500 font-medium mb-8">Digite seu WhatsApp para carregar seus itens e acessar o catálogo.</p>
-            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-800 mb-4 outline-none focus:border-brand-500 text-center" placeholder="DDD + Seu Número">
+            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-800 mb-4 outline-none focus:border-brand-500 text-center shadow-inner" placeholder="DDD + Seu Número">
             <button id="loginButton" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase text-sm tracking-widest transition-all">Acessar Catálogo</button>
         </div>
     </div>
@@ -51,7 +51,7 @@
             <div class="max-w-6xl mx-auto">
                 <div class="bg-gradient-to-br from-brand-600 to-brand-900 rounded-[2rem] p-8 text-white shadow-heavy relative overflow-hidden text-center uppercase">
                     <p class="text-xs font-bold text-blue-200 mb-2 uppercase tracking-[0.2em]"><i class="fas fa-bolt mr-1 text-yellow-300"></i> Cliente: <span id="displayUserPhone">...</span></p>
-                    <h2 id="campaignTitleDisplay" class="text-2xl md:text-3xl font-display font-black tracking-tight leading-tight">QUEIMA DE ESTOQUE</h2>
+                    <h2 id="campaignTitleDisplay" class="text-2xl md:text-3xl font-display font-black tracking-tight leading-tight uppercase">Carregando...</h2>
                 </div>
             </div>
         </header>
@@ -87,7 +87,7 @@
                     <button onclick="closeProductModal()" class="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur rounded-full text-white z-20 hover:bg-red-500 transition-colors"><i class="fas fa-times"></i></button>
                     <div id="modalNav" class="hidden"><button onclick="navModal(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 text-white z-20 rounded-full"><i class="fas fa-chevron-left"></i></button><button onclick="navModal(1)" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 text-white z-20 rounded-full"><i class="fas fa-chevron-right"></i></button></div>
                 </div>
-                <div class="p-8 overflow-y-auto bg-white flex-1 text-center no-scrollbar">
+                <div class="p-8 overflow-y-auto bg-white flex-1 text-center no-scrollbar text-white">
                     <h2 id="modalTitle" class="text-2xl font-black text-slate-900 mb-6 uppercase">Nome</h2>
                     <div class="flex items-center justify-center gap-4 mb-8 bg-slate-50 p-6 rounded-3xl border border-slate-100">
                         <p id="modalPrice" class="text-4xl font-black text-brand-600">R$ 0,00</p>
@@ -126,10 +126,20 @@
         
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
 
-        function isVideo(url) { if (!url) return false; return url.includes('.mp4') || url.includes('.mov') || url.includes('.webm'); }
+        // Lógica de Detecção de Vídeo Blindada
+        function isVideo(url) { 
+            if (!url) return false; 
+            const path = url.split('?')[0].toLowerCase();
+            return path.endsWith('.mp4') || path.endsWith('.mov') || path.endsWith('.webm'); 
+        }
+
+        // Função para construir mídia (Garante que vídeo não quebre como se fosse imagem)
         function buildMediaTag(url, classes, isCard = true) {
-            if (isVideo(url)) return `<video src="${url}" class="${classes}" autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}></video>`;
-            return `<img src="${url}" class="${classes}">`;
+            if (isVideo(url)) {
+                // Se for vídeo, usa a tag video com preload para gerar o thumbnail dinâmico
+                return `<video src="${url}" class="${classes}" preload="metadata" muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}></video>`;
+            }
+            return `<img src="${url}" class="${classes}" onerror="this.src='https://placehold.co/400?text=Erro+Imagem'">`;
         }
 
         async function loadProducts() {
@@ -143,6 +153,7 @@
                 }
                 products = rawList.map((item, i) => {
                     const p = item.json || item;
+                    // Filtra mídias ativas conforme configurado no Admin
                     let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo).map(m => m.url) : (p.imagens || []);
                     if(midias.length === 0 && p.url_publica) midias.push(p.url_publica);
                     return { id: p.id_grupo || p.id || i, name: p.nome_produto, desc: p.descricao, priceFrom: p.preco_de, priceTo: p.preco_por || "0.00", cor: p.cor || "-", tamanho: p.tamanho || "-", images: midias, active: p.ativo !== false };
@@ -154,17 +165,18 @@
         function renderProducts() {
             const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
             products.forEach(p => {
-                let mediaHTML = p.images.length > 0 ? buildMediaTag(p.images[0], `card-media absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-100 z-10`) : buildMediaTag('https://placehold.co/400?text=Sem+Foto', `card-media absolute inset-0 w-full h-full object-cover opacity-100 z-10`);
+                let mediaHTML = p.images.length > 0 ? buildMediaTag(p.images[0], `card-media absolute inset-0 w-full h-full object-cover opacity-100 z-10`) : `<img src="https://placehold.co/400?text=Sem+Foto" class="card-media absolute inset-0 w-full h-full object-cover opacity-100 z-10">`;
                 const pDe = parseFloat(p.priceFrom), pPor = parseFloat(p.priceTo);
                 const descP = pDe && pDe > pPor ? Math.round(((pDe - pPor) / pDe) * 100) : 0;
                 const card = document.createElement('div');
                 card.className = 'product-card bg-white rounded-[2rem] p-4 shadow-soft border border-slate-100 flex flex-col h-full cursor-pointer relative overflow-hidden group';
                 card.onclick = () => openProductModal(p);
-                card.innerHTML = `<div class="relative w-full aspect-square rounded-[1.8rem] overflow-hidden mb-4 bg-slate-50">${mediaHTML}${descP > 0 ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-[9px] font-black px-3 py-1.5 rounded-xl z-20 shadow-lg">-${descP}% OFF</div>` : ''}<button onclick="event.stopPropagation(); fastAdd('${p.id}')" class="absolute bottom-4 right-4 bg-brand-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-heavy z-30 transform hover:scale-110 active:scale-95 transition-all"><i class="fas fa-plus"></i></button></div><div class="flex-1 flex flex-col text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest mb-1">${p.cor} | ${p.tamanho}</p><h3 class="text-sm font-bold text-slate-800 line-clamp-2 mb-3 leading-snug">${p.name}</h3><div class="mt-auto">${pDe > pPor ? `<span class="text-[10px] text-slate-400 line-through font-medium">R$ ${pDe.toFixed(2)}</span>` : ''}<span class="text-xl font-black text-brand-600 block leading-none">R$ ${pPor.toFixed(2)}</span></div></div>`;
+                card.innerHTML = `<div class="relative w-full aspect-square rounded-[1.8rem] overflow-hidden mb-4 bg-slate-50">${mediaHTML}${descP > 0 ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-[9px] font-black px-3 py-1.5 rounded-xl z-20 shadow-lg">-${descP}% OFF</div>` : ''}<button onclick="event.stopPropagation(); fastAdd('${p.id}')" class="absolute bottom-4 right-4 bg-brand-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-heavy z-30 transform hover:scale-110 transition-all"><i class="fas fa-plus"></i></button></div><div class="flex-1 flex flex-col text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest mb-1">${p.cor} | ${p.tamanho}</p><h3 class="text-sm font-bold text-slate-800 line-clamp-2 mb-3 leading-snug">${p.name}</h3><div class="mt-auto">${pDe > pPor ? `<span class="text-[10px] text-slate-400 line-through font-medium">R$ ${pDe.toFixed(2)}</span>` : ''}<span class="text-xl font-black text-brand-600 block leading-none">R$ ${pPor.toFixed(2)}</span></div></div>`;
                 grid.appendChild(card);
             });
         }
 
+        // --- CARRINHO ---
         function saveCart() { localStorage.setItem(`cart_${userPhone}_${CONFIG.campaignId}`, JSON.stringify(cart)); }
         function fastAdd(id) { cart[id] = (cart[id] || 0) + 1; saveCart(); updateUI(); }
         function addToCartFromModal() { cart[currentProduct.id] = (cart[currentProduct.id] || 0) + tempQty; saveCart(); closeProductModal(); updateUI(); }
@@ -193,8 +205,9 @@
                 const p = products.find(x => x.id == id);
                 if(p) {
                     const sub = parseFloat(p.priceTo) * qty; total += sub;
-                    const img = p.images[0] || 'https://placehold.co/400?text=Sem+Foto';
-                    list.innerHTML += `<div class="flex gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm items-center"><img src="${img}" class="w-14 h-14 rounded-xl object-cover"><div class="flex-1 leading-tight"><h4 class="text-sm font-black">${p.name}</h4><p class="text-[10px] text-slate-400 mt-1 uppercase font-bold">${p.cor} | ${p.tamanho}</p></div><div class="flex items-center bg-slate-100 rounded-lg h-8 px-2"><button onclick="changeQty('${p.id}', -1)" class="px-2 font-bold">-</button><span class="w-4 text-center text-xs font-black">${qty}</span><button onclick="changeQty('${p.id}', 1)" class="px-2 font-bold">+</button></div></div>`;
+                    // Correção: Se a primeira mídia for vídeo, renderiza como tag video para não quebrar a thumb
+                    const imgTag = buildMediaTag(p.images[0], "w-14 h-14 rounded-xl object-cover bg-slate-100", true);
+                    list.innerHTML += `<div class="flex gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm items-center">${imgTag}<div class="flex-1 leading-tight"><h4 class="text-sm font-black">${p.name}</h4><p class="text-[10px] text-slate-400 mt-1 uppercase font-bold">${p.cor} | ${p.tamanho}</p></div><div class="flex items-center bg-slate-100 rounded-lg h-8 px-2"><button onclick="changeQty('${p.id}', -1)" class="px-2 font-bold">-</button><span class="w-4 text-center text-xs font-black">${qty}</span><button onclick="changeQty('${p.id}', 1)" class="px-2 font-bold">+</button></div></div>`;
                 }
             });
             document.getElementById('summaryTotal').innerText = `R$ ${total.toFixed(2)}`;
