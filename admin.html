@@ -29,8 +29,6 @@
         #editProductsModal.visible, #newCampaignModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-        
-        /* Validação Visual de Erro */
         .input-error { border-color: #ef4444 !important; animation: shake 0.3s; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
@@ -41,11 +39,11 @@
         <div class="w-full max-w-sm glass-panel p-10 rounded-[2rem] text-center shadow-2xl relative">
             <div class="w-20 h-20 bg-brand-600 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl shadow-lg"><i class="fas fa-store"></i></div>
             <h2 class="text-2xl font-bold mb-2">Painel do Lojista</h2>
-            <p class="text-slate-400 text-sm mb-8">Faça login para gerenciar sua loja</p>
+            <p class="text-slate-400 text-sm mb-8">Faça login com seu E-mail</p>
             
             <div class="space-y-4">
-                <input type="tel" id="loginPhone" class="w-full bg-dark-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center tracking-widest placeholder:text-slate-600" placeholder="WhatsApp">
-                <input type="password" id="loginPass" class="w-full bg-dark-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-slate-600" placeholder="Senha">
+                <input type="email" id="loginEmail" class="w-full bg-dark-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-slate-600" placeholder="seu@email.com">
+                <input type="password" id="loginPass" class="w-full bg-dark-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-slate-600" placeholder="Sua Senha">
             </div>
             
             <button onclick="doLogin()" id="btnLogin" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 mt-6 active:scale-95">
@@ -57,7 +55,7 @@
     <div id="dashboard" class="hidden flex-1 flex flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 fade-in pb-20">
         <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div class="text-center md:text-left">
-                <h1 class="text-2xl font-black text-white">Gestão Clips <span class="text-brand-500 text-sm bg-brand-500/10 px-2 py-1 rounded ml-2">BETA</span></h1>
+                <h1 class="text-2xl font-black text-white">Gestão Clips <span class="text-brand-500 text-sm bg-brand-500/10 px-2 py-1 rounded ml-2">PRO</span></h1>
                 <p class="text-slate-400 text-xs mt-1 font-bold">Loja: <span id="storeNameDisplay" class="text-white">...</span></p>
             </div>
             <button onclick="logout()" class="glass-panel px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 flex items-center gap-2">
@@ -142,19 +140,15 @@
         <div class="bg-white w-full max-w-xs p-6 rounded-2xl text-center shadow-2xl transform transition-all scale-100">
             <div id="alert-icon" class="text-3xl mb-3">⚠️</div>
             <p id="alert-msg" class="text-slate-800 font-bold mb-4">Mensagem</p>
-            <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-3 rounded-xl">OK</button>
+            <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl transition-all">Entendido</button>
         </div>
     </div>
 
     <script>
         // --- CONFIGURAÇÃO DA API ---
-        // IMPORTANTE: Configure estes links no seu n8n
         const ENDPOINTS = {
-            // Rota principal (Login, Dashboard, Criar Campanha)
             MAIN: "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign",
-            // Rota de Produtos (Listar)
             PRODUCTS: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692",
-            // Rota de Edição (Update)
             UPDATE: "https://n8n.srv1327557.hstgr.cloud/webhook/update-data"
         };
 
@@ -162,45 +156,45 @@
         let currentCampaignId = null;
         let unsavedChanges = false;
 
-        // --- TRAVA DE SEGURANÇA: Previne fechar com dados não salvos ---
         window.onbeforeunload = function() {
             if (unsavedChanges) return "Você tem alterações não salvas. Deseja sair?";
         };
 
-        // --- LOGIN E SESSÃO ---
+        // --- LOGIN POR E-MAIL E SENHA ---
         async function doLogin() {
-            const phone = document.getElementById('loginPhone').value.replace(/\D/g, '');
+            const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPass').value;
             const btn = document.getElementById('btnLogin');
 
-            if (!phone || !pass) return showAlert("Por favor, preencha whatsapp e senha.");
+            if (!email || !pass) return showAlert("Por favor, preencha E-mail e Senha.");
+            if (!email.includes('@')) return showAlert("Digite um E-mail válido.");
 
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando...'; 
             btn.disabled = true;
 
             try {
-                // Chama n8n para validar no banco
+                // ENVIA E-MAIL PARA O N8N
                 const res = await fetch(ENDPOINTS.MAIN, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ 
                         tipo_requisicao: "login", 
-                        usuario: phone, 
+                        email: email, 
                         senha: pass 
                     })
                 });
                 const data = await res.json();
 
-                if (data.success || data.found) { // Aceita success ou found dependendo do n8n
+                if (data.success || data.found || data.id_usuario) { 
                     currentUser = { 
-                        id: data.id_usuario, // O ID VEM DO BANCO
+                        id: data.id_usuario, 
                         nome: data.nome_loja || "Minha Loja", 
-                        phone: phone 
+                        email: email 
                     };
                     localStorage.setItem('user_session', JSON.stringify(currentUser));
                     initDashboard();
                 } else {
-                    showAlert("Dados incorretos. Verifique e tente novamente.");
+                    showAlert("E-mail ou Senha incorretos.");
                 }
             } catch (e) {
                 console.error(e);
@@ -213,9 +207,7 @@
         function initDashboard() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
-            
             if(!currentUser) currentUser = JSON.parse(localStorage.getItem('user_session'));
-            
             document.getElementById('storeNameDisplay').innerText = currentUser.nome;
             fetchDashboard();
         }
@@ -227,7 +219,7 @@
             location.reload();
         }
 
-        // --- DASHBOARD BLINDADO (FILTRADO POR USUÁRIO) ---
+        // --- DASHBOARD BLINDADO ---
         async function fetchDashboard() {
             const tbody = document.getElementById('campaignList');
             tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500"><i class="fas fa-circle-notch fa-spin"></i> Carregando...</td></tr>';
@@ -237,7 +229,7 @@
                     method: 'POST',
                     body: JSON.stringify({ 
                         tipo_requisicao: "dashboard", 
-                        id_usuario: currentUser.id // Segurança: Filtra pelo ID
+                        id_usuario: currentUser.id 
                     })
                 });
                 const data = await res.json();
@@ -303,8 +295,8 @@
                     body: JSON.stringify({ 
                         tipo_requisicao: "campanha", 
                         Nome_campanha: name, 
-                        id_usuario: currentUser.id, // VINCULO OBRIGATÓRIO
-                        id_campanha: Date.now() // Fallback
+                        id_usuario: currentUser.id, 
+                        id_campanha: Date.now() 
                     })
                 });
                 closeNewCampaignModal();
@@ -318,7 +310,7 @@
             }
         }
 
-        // --- EDITOR DE PRODUTOS (COM TRAVAS DE ERRO HUMANO) ---
+        // --- EDITOR DE PRODUTOS ---
         async function openEditor(id, name) {
             currentCampaignId = id;
             document.getElementById('editModalTitle').innerText = name;
@@ -350,7 +342,6 @@
 
                 area.innerHTML += `
                     <div class="glass-panel p-0 rounded-2xl mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
-                        
                         <div class="w-full xl:w-64 h-64 xl:h-auto bg-dark-900 relative shrink-0">
                             <img src="${img}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
                             <div class="absolute inset-0 bg-gradient-to-t from-dark-950 to-transparent opacity-60"></div>
@@ -358,13 +349,11 @@
                                 <span class="bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded border border-white/10">${p.qtd_fotos || 1} FOTOS</span>
                             </div>
                         </div>
-
                         <div class="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 gap-5 relative">
                             <div class="md:col-span-2">
                                 <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Nome do Produto <span class="text-red-500">*</span></label>
                                 <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all placeholder:text-slate-600" placeholder="Obrigatório" onchange="markUnsaved()">
                             </div>
-                            
                             <div>
                                 <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Preço Original (R$)</label>
                                 <div class="relative">
@@ -372,7 +361,6 @@
                                     <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white focus:border-brand-500 outline-none transition-all font-mono" placeholder="0.00" onchange="markUnsaved()">
                                 </div>
                             </div>
-                            
                             <div>
                                 <label class="text-[10px] font-bold text-emerald-500 uppercase mb-1 block">Preço Promo (R$)</label>
                                 <div class="relative">
@@ -380,7 +368,6 @@
                                     <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-dark-900 border border-emerald-900/50 rounded-xl pl-10 pr-4 py-3 text-emerald-400 font-bold focus:border-emerald-500 outline-none transition-all font-mono shadow-[0_0_15px_rgba(16,185,129,0.05)]" placeholder="0.00" onchange="markUnsaved()">
                                 </div>
                             </div>
-
                             <div class="md:col-span-2 border-t border-white/5 pt-4 mt-2 flex items-center justify-between">
                                 <label class="flex items-center gap-3 cursor-pointer group/chk">
                                     <div class="relative">
@@ -390,7 +377,6 @@
                                     </div>
                                     <span class="text-xs font-bold text-slate-400 group-hover/chk:text-white transition-colors">Visível na Loja</span>
                                 </label>
-
                                 <button onclick="saveProduct(${pid})" id="btnSave-${pid}" class="bg-slate-800 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md flex items-center gap-2 border border-white/5">
                                     <span>Salvar Item</span> <i class="fas fa-save opacity-50"></i>
                                 </button>
@@ -400,7 +386,6 @@
             });
         }
 
-        // --- VALIDAÇÃO E SALVAMENTO SEGURO ---
         function markUnsaved() { unsavedChanges = true; }
 
         async function saveProduct(pid) {
@@ -414,7 +399,6 @@
             const pTo = parseFloat(pToField.value) || 0;
             const active = document.getElementById(`active-${pid}`).checked;
 
-            // TRAVA 1: Nome vazio
             if (!name) {
                 showAlert("Erro: O produto precisa ter um nome.");
                 nameField.focus();
@@ -423,20 +407,17 @@
                 return;
             }
 
-            // TRAVA 2: Preço Promocional absurdo
             if (pTo > pFrom && pFrom > 0) {
                 showAlert("Erro Lógico: O preço promocional não pode ser maior que o original.");
                 pToField.classList.add('input-error');
                 return;
             }
 
-            // TRAVA 3: Valores Negativos
             if (pTo < 0 || pFrom < 0) {
                 showAlert("Erro: Preços não podem ser negativos.");
                 return;
             }
 
-            // Feedback Visual
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...'; 
             btn.disabled = true;
@@ -467,9 +448,7 @@
                         btn.classList.remove('bg-green-500');
                         btn.classList.add('bg-slate-800');
                     }, 2000);
-                } else {
-                    throw new Error();
-                }
+                } else { throw new Error(); }
             } catch (e) {
                 btn.innerHTML = 'Erro!';
                 btn.classList.add('bg-red-500');
@@ -481,7 +460,6 @@
             if(unsavedChanges) {
                 if(!confirm("Existem alterações não salvas nos produtos. Deseja publicar mesmo assim?")) return;
             }
-            
             await fetch(ENDPOINTS.UPDATE, {
                 method: 'POST',
                 body: JSON.stringify({ action: "update_status", id_campanha: currentCampaignId, status: "ativa" })
@@ -491,7 +469,6 @@
             showAlert("Campanha publicada e ativa!", "success");
         }
 
-        // --- UTILITÁRIOS ---
         function closeEditModal() { 
             if(unsavedChanges && !confirm("Você tem alterações não salvas. Deseja sair?")) return;
             document.getElementById('editProductsModal').classList.remove('visible'); 
