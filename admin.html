@@ -318,7 +318,8 @@
                         tipo_requisicao: "campanha", 
                         Nome_campanha: name, 
                         id_usuario: currentUser.id, 
-                        id_campanha: Date.now() 
+                        // 👇 CORREÇÃO AQUI: Gera um número seguro de 6 dígitos (ex: 749210)
+                        id_campanha: Math.floor(Math.random() * 900000) + 100000 
                     })
                 });
                 closeNewCampaignModal();
