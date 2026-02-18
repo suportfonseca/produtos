@@ -40,33 +40,16 @@
         <h1 class="text-2xl font-bold mb-2">Link Inválido</h1>
     </div>
 
-    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-brand-600">
-        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
-        <div class="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-2xl relative text-center fade-in">
-            <i class="fas fa-store text-4xl text-brand-600 mb-6 block"></i>
-            <h1 class="text-2xl font-display font-black text-slate-800 mb-8">Clips Papelaria</h1>
-            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border border-slate-100 rounded-xl py-4 px-4 font-bold mb-4 outline-none focus:border-brand-500 text-center" placeholder="Seu WhatsApp">
-            <button id="loginButton" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all uppercase">Ver Produtos</button>
-        </div>
+    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-brand-600 text-white">
+        <h1 class="text-2xl font-black mb-4">Clips Papelaria</h1>
+        <input type="tel" id="phoneInput" class="w-full max-w-xs bg-white text-slate-900 border rounded-xl py-4 px-4 font-bold mb-4 outline-none" placeholder="WhatsApp">
+        <button id="loginButton" class="w-full max-w-xs bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg uppercase">Acessar</button>
     </div>
 
     <div id="mainApp" class="hidden flex-1 pb-32">
-        <header class="glass sticky top-0 z-40">
-            <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-paperclip"></i></div>
-                    <h1 class="font-display font-black text-lg text-slate-800">Clips Papelaria</h1>
-                </div>
-                <div onclick="openCartModal()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 relative cursor-pointer"><i class="fas fa-shopping-bag"></i><span id="headerCartBadge" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full border-2 border-white hidden flex items-center justify-center">0</span></div>
-            </div>
-            <div class="max-w-6xl mx-auto px-4 mb-4">
-                <div class="bg-gradient-to-r from-brand-900 to-brand-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden text-center">
-                    <p class="text-xs font-bold text-yellow-300 mb-1 uppercase tracking-widest"><i class="fas fa-bolt mr-1"></i> Ofertas Exclusivas</p>
-                    <h2 id="campaignTitleDisplay" class="text-2xl font-display font-black tracking-tight">Carregando...</h2>
-                </div>
-            </div>
+        <header class="glass sticky top-0 z-40 p-4">
+            <h2 id="campaignTitleDisplay" class="text-2xl font-display font-black tracking-tight text-brand-600">Carregando...</h2>
         </header>
-
         <main class="max-w-6xl mx-auto p-4"><div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div></main>
     </div>
 
@@ -74,43 +57,34 @@
         <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm" onclick="closeProductModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
             <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl pointer-events-auto overflow-hidden flex flex-col slide-up max-h-[90vh]">
-                <div class="relative h-72 bg-black w-full shrink-0">
+                <div class="relative h-72 bg-black shrink-0">
                     <div id="modalMediaContainer" class="w-full h-full"></div>
-                    <button onclick="expandMedia()" class="absolute bottom-4 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white z-20"><i class="fas fa-expand"></i></button>
-                    <button onclick="closeProductModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white z-20"><i class="fas fa-times"></i></button>
-                    <div id="modalNav" class="hidden"><button onclick="navModal(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 rounded-full text-white z-20"><i class="fas fa-chevron-left"></i></button><button onclick="navModal(1)" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 rounded-full text-white z-20"><i class="fas fa-chevron-right"></i></button></div>
+                    <button onclick="expandMedia()" class="absolute bottom-4 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full text-white z-20"><i class="fas fa-expand"></i></button>
+                    <button onclick="closeProductModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full text-white z-20"><i class="fas fa-times"></i></button>
+                    <div id="modalNav" class="hidden"><button onclick="navModal(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 text-white z-20"><i class="fas fa-chevron-left"></i></button><button onclick="navModal(1)" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 text-white z-20"><i class="fas fa-chevron-right"></i></button></div>
                 </div>
                 <div class="p-6 overflow-y-auto bg-white flex-1">
                     <div class="flex items-center gap-2 text-red-500 text-[10px] font-bold uppercase bg-red-50 w-fit px-2 py-1 rounded mb-2"><i class="fas fa-fire"></i> <span id="modalScarcity">Alta procura!</span></div>
-                    <h2 id="modalTitle" class="text-2xl font-black text-slate-900 mb-4 leading-tight">Nome</h2>
+                    <h2 id="modalTitle" class="text-xl font-black text-slate-900 mb-4">Nome</h2>
                     <div class="flex items-baseline gap-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                         <p id="modalPrice" class="text-3xl font-black text-brand-600">R$ 0,00</p>
                         <p id="modalOldPrice" class="text-sm text-slate-400 line-through hidden">R$ 0,00</p>
                     </div>
-                    <div id="modalDescBox" class="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 hidden"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Sobre o Produto</p><p id="modalDescription" class="text-sm text-slate-600 leading-relaxed"></p></div>
+                    <div id="modalDescBox" class="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 hidden text-sm text-slate-600" id="modalDescription"></div>
                     
                     <div class="grid grid-cols-2 gap-3 text-xs mb-8">
                         <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-slate-400 font-bold uppercase mb-1">Cor</p><p id="modalColor" class="font-black text-slate-800 text-sm">-</p></div>
                         <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-slate-400 font-bold uppercase mb-1">Tamanho</p><p id="modalSize" class="font-black text-slate-800 text-sm">-</p></div>
                     </div>
-
-                    <div class="flex items-center gap-4"><div class="flex items-center bg-slate-100 rounded-xl px-2 h-14 border border-slate-200 shadow-inner"><button onclick="updateTempQty(-1)" class="w-10"><i class="fas fa-minus"></i></button><span id="tempQtyDisplay" class="font-bold text-lg w-8 text-center">1</span><button onclick="updateTempQty(1)" class="w-10"><i class="fas fa-plus"></i></button></div><button id="modalAddBtn" class="flex-1 bg-brand-600 text-white font-black py-4 rounded-xl shadow-lg uppercase text-sm">Adicionar</button></div>
+                    <div class="flex items-center gap-4"><div class="flex items-center bg-slate-100 rounded-xl px-2 h-14"><button onclick="updateTempQty(-1)" class="w-10"><i class="fas fa-minus"></i></button><span id="tempQtyDisplay" class="font-bold text-lg w-8 text-center">1</span><button onclick="updateTempQty(1)" class="w-10"><i class="fas fa-plus"></i></button></div><button id="modalAddBtn" class="flex-1 bg-brand-600 text-white font-black py-4 rounded-xl uppercase text-sm">Adicionar</button></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="fullscreenOverlay" class="fixed inset-0 z-[150] hidden bg-black flex items-center justify-center p-4">
-        <button onclick="closeFullscreen()" class="absolute top-6 right-6 text-white text-3xl z-[160]"><i class="fas fa-times"></i></button>
-        <div id="fullscreenContent" class="w-full h-full flex items-center justify-center"></div>
-    </div>
+    <div id="fullscreenOverlay" class="fixed inset-0 z-[150] hidden bg-black flex items-center justify-center p-4"><button onclick="closeFullscreen()" class="absolute top-6 right-6 text-white text-3xl z-[160]"><i class="fas fa-times"></i></button><div id="fullscreenContent" class="w-full h-full flex items-center justify-center"></div></div>
 
-    <div id="cartBar" class="fixed bottom-6 left-4 right-4 z-50 hidden">
-        <div class="bg-slate-900 rounded-[1.5rem] p-4 shadow-2xl flex justify-between items-center border border-white/10 cursor-pointer" onclick="openCartModal()">
-            <div class="pl-2"><p class="text-[10px] text-brand-400 uppercase font-black">Subtotal</p><p id="cartBarTotal" class="text-xl font-display font-black text-white leading-none">R$ 0,00</p></div>
-            <button class="bg-brand-500 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase">Carrinho <i class="fas fa-chevron-right text-xs ml-1"></i></button>
-        </div>
-    </div>
+    <div id="cartBar" class="fixed bottom-6 left-4 right-4 z-50 hidden"><div class="bg-slate-900 rounded-[1.5rem] p-4 shadow-2xl flex justify-between items-center border border-white/10" onclick="openCartModal()"><div class="pl-2"><p class="text-[10px] text-brand-400 uppercase font-black">Subtotal</p><p id="cartBarTotal" class="text-xl font-display font-black text-white leading-none">R$ 0,00</p></div><button class="bg-brand-500 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase">Carrinho</button></div></div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -119,8 +93,7 @@
 
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0;
 
-        function isVideo(url) { if (!url) return false; const clean = url.split('?')[0].toLowerCase(); return clean.endsWith('.mp4') || clean.endsWith('.mov') || clean.endsWith('.webm'); }
-        
+        function isVideo(url) { if (!url) return false; return url.includes('.mp4') || url.includes('.mov') || url.includes('.webm'); }
         function buildMedia(url, classes, isCard = true) {
             if (isVideo(url)) return `<video src="${url}" class="${classes}" autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}></video>`;
             return `<img src="${url}" class="${classes}">`;
@@ -134,15 +107,15 @@
                 
                 products = rawList.map((item, i) => {
                     const p = item.json || item;
-                    // CORREÇÃO DOS CAMPOS: Puxando diretamente da raiz do objeto enviado pelo n8n
+                    // Filtra apenas mídias ativas e respeita a ordem do banco
                     let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo).map(m => m.url) : (p.imagens || []);
                     
                     return { 
                         id: p.id_grupo || p.id || i, 
-                        name: p.nome_produto || "Produto", 
+                        name: p.nome_produto, 
                         desc: p.descricao || "", 
-                        priceFrom: p.preco_de || null,
-                        priceTo: p.preco_por || "0.00", 
+                        priceFrom: p.preco_de || null, // Preço "De"
+                        priceTo: p.preco_por || "0.00",   // Preço "Por"
                         cor: p.cor || "-", 
                         tamanho: p.tamanho || "-",
                         images: midias, 
@@ -171,10 +144,26 @@
             const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
             products.forEach(p => {
                 let mediaHTML = p.images.map((url, i) => buildMedia(url, `card-media absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`)).join('');
+                
+                // Cálculo de Porcentagem de Desconto
+                const pDe = parseFloat(p.priceFrom), pPor = parseFloat(p.priceTo);
+                const descP = pDe && pDe > pPor ? Math.round(((pDe - pPor) / pDe) * 100) : 0;
+
                 const card = document.createElement('div');
                 card.className = 'product-card bg-white rounded-[2rem] p-3 shadow-soft border border-slate-100 flex flex-col h-full cursor-pointer relative overflow-hidden group';
                 card.onclick = () => openProductModal(p);
-                card.innerHTML = `<div class="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-slate-50">${mediaHTML}</div><div class="flex-1 flex flex-col"><h3 class="text-sm font-bold text-slate-800 line-clamp-2 mb-2">${p.name}</h3><span class="text-lg font-black text-brand-600 block">R$ ${parseFloat(p.priceTo).toFixed(2)}</span></div>`;
+                card.innerHTML = `
+                    <div class="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-slate-50">
+                        ${mediaHTML}
+                        ${descP > 0 ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg z-20">-${descP}%</div>` : ''}
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <h3 class="text-xs font-bold text-slate-800 line-clamp-2 mb-2">${p.name}</h3>
+                        <div class="mt-auto">
+                            ${pDe > pPor ? `<span class="text-[10px] text-slate-400 line-through">R$ ${pDe.toFixed(2)}</span>` : ''}
+                            <span class="text-lg font-black text-brand-600 block">R$ ${pPor.toFixed(2)}</span>
+                        </div>
+                    </div>`;
                 grid.appendChild(card);
             });
         }
@@ -184,7 +173,7 @@
             document.getElementById('modalTitle').innerText = p.name;
             document.getElementById('modalPrice').innerText = `R$ ${parseFloat(p.priceTo).toFixed(2)}`;
             
-            // CORREÇÃO: Puxando os dados que agora estão mapeados corretamente no loadProducts
+            // Corrige exibição de Cor e Tamanho
             document.getElementById('modalColor').innerText = p.cor;
             document.getElementById('modalSize').innerText = p.tamanho;
             
@@ -195,10 +184,8 @@
             } else { oldPriceEl.classList.add('hidden'); }
 
             const descBox = document.getElementById('modalDescBox');
-            if(p.desc) { document.getElementById('modalDescription').innerText = p.desc; descBox.classList.remove('hidden'); } else { descBox.classList.add('hidden'); }
+            if(p.desc) { descBox.innerText = p.desc; descBox.classList.remove('hidden'); } else { descBox.classList.add('hidden'); }
             
-            document.getElementById('modalScarcity').innerText = `${Math.floor(Math.random() * 10) + 5} pessoas vendo agora!`;
-            document.getElementById('tempQtyDisplay').innerText = "1";
             renderModalMedia(); 
             document.getElementById('productModal').classList.remove('hidden');
         }
@@ -216,51 +203,31 @@
         function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
         
         document.getElementById('loginButton').onclick = () => {
-            if(document.getElementById('phoneInput').value.length < 8) return alert("Telefone inválido");
+            if(document.getElementById('phoneInput').value.length < 8) return alert("WhatsApp inválido");
             document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainApp').classList.remove('hidden'); loadProducts();
         };
 
         document.getElementById('modalAddBtn').onclick = () => { cart[currentProduct.id] = (cart[currentProduct.id] || 0) + tempQty; closeProductModal(); updateUI(); };
-        
         function updateUI() {
             const count = Object.values(cart).reduce((a,b)=>a+b, 0);
             document.getElementById('headerCartBadge').innerText = count; document.getElementById('headerCartBadge').classList.toggle('hidden', count === 0);
             document.getElementById('cartBar').classList.toggle('hidden', count === 0);
-            let total = 0;
-            Object.entries(cart).forEach(([id, qty]) => {
-                const p = products.find(x => x.id == id);
-                if (p) total += parseFloat(p.priceTo) * qty;
-            });
+            let total = 0; Object.entries(cart).forEach(([id, qty]) => { const p = products.find(x => x.id == id); if (p) total += parseFloat(p.priceTo) * qty; });
             document.getElementById('cartBarTotal').innerText = `R$ ${total.toFixed(2)}`;
         }
-
-        // --- SISTEMA DE TOAST SOCIAL ---
-        setInterval(() => {
-            if (document.getElementById('mainApp').classList.contains('hidden')) return;
-            const names = ["Ana", "Carlos", "Beatriz", "João", "Juliana", "Fernando", "Camila"];
-            document.getElementById('social-name').innerText = names[Math.floor(Math.random()*names.length)];
-            document.getElementById('social-toast').classList.add('show');
-            setTimeout(() => document.getElementById('social-toast').classList.remove('show'), 4000);
-        }, 20000);
-
-        function openCartModal() {
-            // Reaproveitando a lógica de finalização para abrir o modal de resumo
-            finalizeOrder();
-        }
-
+        function openCartModal() { finalizeOrder(); }
         function finalizeOrder() {
-            if (Object.keys(cart).length === 0) return;
-            let msg = `🛒 *NOVO PEDIDO - CLIPS PAPELARIA*\n\n`;
+            let msg = `🛒 *NOVO PEDIDO*\n\n`;
             let total = 0;
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
                 if (p) {
                     const itemTotal = parseFloat(p.priceTo) * qty;
                     total += itemTotal;
-                    msg += `▫️ *${qty}x ${p.name}*\n   C/T: ${p.cor} | ${p.tamanho}\n   Sub: R$ ${itemTotal.toFixed(2)}\n\n`;
+                    msg += `▫️ *${qty}x ${p.name}*\n   C/T: ${p.cor} | ${p.tamanho}\n\n`;
                 }
             });
-            msg += `💰 *TOTAL FINAL: R$ ${total.toFixed(2)}*`;
+            msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*`;
             window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
