@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGWARE Vitrine Digital | Venda mais rápido</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: { 
+                extend: { 
+                    colors: { 
+                        dark: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, 
+                        brand: { 500: '#3b82f6', 600: '#2563eb', 400: '#60a5fa' } 
+                    }, 
+                    fontFamily: { sans: ['Inter', 'sans-serif'] } 
+                } 
+            }
+        }
+    </script>
+    <style>
+        body { background: #020617; color: white; overflow-x: hidden; }
+        .glow-effect { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(2,6,23,0) 70%); top: -200px; left: 50%; transform: translateX(-50%); z-index: -1; pointer-events: none; }
+        .glass-card { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-500 selection:text-white">
+
+    <div class="glow-effect"></div>
+
+    <nav class="fixed w-full z-50 glass-card border-b-0 border-white/5 py-4 transition-all">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-brand-500/30">
+                    <i class="fas fa-store"></i>
+                </div>
+                <span class="font-black text-xl tracking-tight">MGWARE <span class="text-brand-400 font-medium">Vitrine</span></span>
+            </div>
+            <div class="hidden md:flex gap-4">
+                <a href="admin.html" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-white/5 hover:bg-white/10 text-white transition-all border border-white/5">Painel Lojista</a>
+                <a href="superadmin.html" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-brand-600 hover:bg-brand-500 text-white transition-all shadow-lg shadow-brand-500/20">Acesso Desenvolvedor</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-40 pb-20 px-6 text-center relative z-10">
+        <div class="max-w-4xl mx-auto">
+            <div class="inline-block bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-widest mb-6">
+                A Revolução do E-commerce
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight">
+                Transforme seu <span class="text-blue-400">Telegram</span> em uma <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-blue-200">Vitrine Virtual.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Tire fotos pelo celular, envie para o nosso Bot inteligente e veja o seu catálogo de vendas nascer em segundos. Sem plataformas complexas, sem perder tempo.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="admin.html" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl shadow-brand-500/20 flex items-center justify-center gap-3">
+                    Acessar meu Painel <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-dark-900/50 border-y border-white/5 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-black mb-4">Chega de perder vendas por desorganização</h2>
+                <p class="text-slate-400">Conhece estes problemas? Nós resolvemos todos eles.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card p-8 rounded-[2rem] hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Cadastro Demorado</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">Passar horas na frente do computador a preencher formulários e a fazer upload de fotos pesadas em plataformas lentas.</p>
+                    <div class="pt-6 border-t border-white/10">
+                        <p class="text-brand-400 font-bold text-sm flex items-start gap-2">
+                            <i class="fas fa-check-circle mt-0.5"></i> MGWARE resolve: Envie a foto direto pelo celular via Telegram e está cadastrado!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 rounded-[2rem] hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 bg-orange-500/10 text-orange-400 rounded-2xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">"Qual é o preço?"</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">Perder o dia inteiro a responder a clientes no WhatsApp a perguntar os preços, cores e tamanhos disponíveis.</p>
+                    <div class="pt-6 border-t border-white/10">
+                        <p class="text-brand-400 font-bold text-sm flex items-start gap-2">
+                            <i class="fas fa-check-circle mt-0.5"></i> MGWARE resolve: Gere um link único e partilhe o seu catálogo profissional sempre atualizado.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 rounded-[2rem] hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-brand-500/10 rounded-bl-full -z-10"></div>
+                    <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Fotos perdidas na galeria</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">Misturar as fotos dos seus produtos com as fotos pessoais e ter dificuldade em encontrar o que precisa para vender.</p>
+                    <div class="pt-6 border-t border-white/10">
+                        <p class="text-brand-400 font-bold text-sm flex items-start gap-2">
+                            <i class="fas fa-check-circle mt-0.5"></i> MGWARE resolve: Fotos, vídeos e stock centralizados em nuvem, organizados por campanha.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-6 relative">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-3xl md:text-5xl font-black mb-16">A simplicidade que a sua loja precisa</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="relative">
+                    <div class="w-20 h-20 mx-auto bg-dark-800 border-2 border-brand-500 text-white rounded-full flex items-center justify-center text-3xl font-black mb-4 z-10 relative shadow-[0_0_30px_rgba(59,130,246,0.3)]">1</div>
+                    <h4 class="font-bold text-lg mb-2">Crie a Campanha</h4>
+                    <p class="text-slate-400 text-sm">Abra o seu painel de lojista e crie o nome do catálogo de vendas.</p>
+                </div>
+                <div class="relative">
+                    <div class="w-20 h-20 mx-auto bg-dark-800 border-2 border-white/10 text-slate-400 rounded-full flex items-center justify-center text-3xl font-black mb-4 z-10 relative">2</div>
+                    <h4 class="font-bold text-lg mb-2">Abra o Telegram</h4>
+                    <p class="text-slate-400 text-sm">O nosso bot vai chamar por si. Apenas comece a enviar as fotos e vídeos.</p>
+                </div>
+                <div class="relative">
+                    <div class="w-20 h-20 mx-auto bg-dark-800 border-2 border-white/10 text-slate-400 rounded-full flex items-center justify-center text-3xl font-black mb-4 z-10 relative">3</div>
+                    <h4 class="font-bold text-lg mb-2">Edite no Painel</h4>
+                    <p class="text-slate-400 text-sm">Coloque preços, adicione descrições, tamanhos e cores pelo celular ou PC.</p>
+                </div>
+                <div class="relative">
+                    <div class="w-20 h-20 mx-auto bg-brand-600 text-white rounded-full flex items-center justify-center text-3xl font-black mb-4 z-10 relative shadow-lg shadow-brand-500/40"><i class="fas fa-rocket"></i></div>
+                    <h4 class="font-bold text-lg mb-2">Venda Muito</h4>
+                    <p class="text-slate-400 text-sm">Partilhe o link da sua Vitrine Digital com os seus clientes no Instagram e WhatsApp.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-white/5 bg-dark-900 py-12 px-6 mt-10">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2 opacity-50">
+                <i class="fas fa-store text-xl"></i>
+                <span class="font-bold">MGWARE</span>
+            </div>
+            <div class="flex gap-6 text-sm text-slate-500 font-medium">
+                <a href="admin.html" class="hover:text-white transition-colors">Acesso Lojista</a>
+                <a href="superadmin.html" class="hover:text-white transition-colors">Painel Admin</a>
+                <a href="#" class="hover:text-white transition-colors">Termos de Uso</a>
+            </div>
+            <p class="text-xs text-slate-600">© 2026 MGWARE Vitrine Digital. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
