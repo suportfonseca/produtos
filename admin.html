@@ -173,7 +173,6 @@
             btn.disabled = true;
 
             try {
-                // ENVIA E-MAIL PARA O N8N
                 const res = await fetch(ENDPOINTS.MAIN, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -227,6 +226,7 @@
             try {
                 const res = await fetch(ENDPOINTS.MAIN, {
                     method: 'POST',
+                    headers: {'Content-Type': 'application/json'}, // <-- ADICIONADO AQUI
                     body: JSON.stringify({ 
                         tipo_requisicao: "dashboard", 
                         id_usuario: currentUser.id 
@@ -292,6 +292,7 @@
             try {
                 await fetch(ENDPOINTS.MAIN, {
                     method: 'POST',
+                    headers: {'Content-Type': 'application/json'}, // <-- ADICIONADO AQUI
                     body: JSON.stringify({ 
                         tipo_requisicao: "campanha", 
                         Nome_campanha: name, 
@@ -426,6 +427,7 @@
             try {
                 const res = await fetch(ENDPOINTS.UPDATE, {
                     method: 'POST',
+                    headers: {'Content-Type': 'application/json'}, // <-- ADICIONADO AQUI PARA SEGURANÇA
                     body: JSON.stringify({
                         action: "update_product",
                         id_grupo: pid,
@@ -462,6 +464,7 @@
             }
             await fetch(ENDPOINTS.UPDATE, {
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'}, // <-- ADICIONADO AQUI PARA SEGURANÇA
                 body: JSON.stringify({ action: "update_status", id_campanha: currentCampaignId, status: "ativa" })
             });
             closeEditModal();
