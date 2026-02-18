@@ -145,12 +145,33 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO DA API ---
+        // =====================================================================
+        // CONFIGURAÇÃO AUTOMÁTICA DE AMBIENTE (TESTE VS PRODUÇÃO)
+        // =====================================================================
+        
+        // 1. Detecta se está rodando no seu computador local (Live Server ou arquivo direto)
+        const rodandoLocalmente = window.location.hostname === 'localhost' || 
+                                  window.location.hostname === '127.0.0.1' || 
+                                  window.location.protocol === 'file:';
+
+        // 2. Permite forçar o teste adicionando ?teste=true na URL do site oficial
+        const forcarTeste = new URLSearchParams(window.location.search).get('teste') === 'true';
+
+        // O MODO TESTE liga automaticamente se estiver no PC ou se forçar via URL
+        const MODO_TESTE = rodandoLocalmente || forcarTeste; 
+
+        const BASE_URL = "https://n8n.srv1327557.hstgr.cloud";
+        const WEBHOOK_PATH = MODO_TESTE ? "/webhook-test" : "/webhook";
+
         const ENDPOINTS = {
-            MAIN: "https://n8n.srv1327557.hstgr.cloud/webhook/start-campaign",
-            PRODUCTS: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692",
-            UPDATE: "https://n8n.srv1327557.hstgr.cloud/webhook/update-data"
+            MAIN: `${BASE_URL}${WEBHOOK_PATH}/start-campaign`,
+            PRODUCTS: `${BASE_URL}${WEBHOOK_PATH}/d7fa7895-7f17-45bb-95a4-92e18f1c1692`,
+            UPDATE: `${BASE_URL}${WEBHOOK_PATH}/update-data`
         };
+
+        // Mostra no F12 para facilitar a sua vida como desenvolvedor
+        console.log("Modo N8N ativo:", MODO_TESTE ? "TESTE (webhook-test)" : "PRODUÇÃO (webhook)");
+        // =====================================================================
 
         let currentUser = null;
         let currentCampaignId = null;
@@ -197,7 +218,7 @@
                 }
             } catch (e) {
                 console.error(e);
-                showAlert("Erro de conexão. Verifique sua internet.");
+                showAlert("Erro de conexão. Verifique se o n8n está rodando.");
             } finally {
                 btn.innerHTML = 'Entrar no Sistema'; btn.disabled = false;
             }
@@ -226,7 +247,7 @@
             try {
                 const res = await fetch(ENDPOINTS.MAIN, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'}, // <-- ADICIONADO AQUI
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ 
                         tipo_requisicao: "dashboard", 
                         id_usuario: currentUser.id 
@@ -242,7 +263,7 @@
                     tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500">Nenhuma campanha encontrada. Crie a primeira!</td></tr>';
                 }
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-400">Erro ao carregar dados.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-400">Erro ao carregar dados do n8n.</td></tr>';
             }
         }
 
@@ -292,7 +313,7 @@
             try {
                 await fetch(ENDPOINTS.MAIN, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'}, // <-- ADICIONADO AQUI
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ 
                         tipo_requisicao: "campanha", 
                         Nome_campanha: name, 
@@ -427,7 +448,7 @@
             try {
                 const res = await fetch(ENDPOINTS.UPDATE, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'}, // <-- ADICIONADO AQUI PARA SEGURANÇA
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         action: "update_product",
                         id_grupo: pid,
@@ -464,7 +485,7 @@
             }
             await fetch(ENDPOINTS.UPDATE, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'}, // <-- ADICIONADO AQUI PARA SEGURANÇA
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ action: "update_status", id_campanha: currentCampaignId, status: "ativa" })
             });
             closeEditModal();
