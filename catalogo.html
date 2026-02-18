@@ -68,7 +68,7 @@
             <div class="max-w-6xl mx-auto">
                 <div class="bg-gradient-to-br from-brand-600 to-brand-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden text-center">
                     <div class="absolute right-0 top-0 opacity-10 transform translate-x-6 -translate-y-4 rotate-12"><i class="fas fa-tags text-[10rem]"></i></div>
-                    <p class="text-xs font-bold text-blue-200 mb-2 uppercase tracking-[0.2em]"><i class="fas fa-star mr-1 text-yellow-400"></i> Seleção do Lojista</p>
+                    <p class="text-xs font-bold text-blue-200 mb-2 uppercase tracking-[0.2em]"><i class="fas fa-star mr-1 text-yellow-400"></i> Seleção Especial</p>
                     <h2 id="campaignTitleDisplay" class="text-3xl md:text-4xl font-display font-black tracking-tight drop-shadow-lg uppercase">Carregando...</h2>
                 </div>
             </div>
@@ -124,7 +124,7 @@
                             <span id="tempQtyDisplay" class="font-black text-xl w-10 text-center">1</span>
                             <button onclick="updateTempQty(1)" class="w-12 text-slate-600 text-xl"><i class="fas fa-plus"></i></button>
                         </div>
-                        <button id="modalAddBtn" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-brand-600/30 uppercase text-sm tracking-widest tracking-tighter">Adicionar ao Pedido</button>
+                        <button id="modalAddBtn" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-brand-600/30 uppercase text-sm tracking-widest">Adicionar ao Carrinho</button>
                     </div>
                 </div>
             </div>
@@ -138,13 +138,13 @@
 
     <div id="social-toast" class="fixed bottom-28 left-4 right-4 z-40 flex justify-center pointer-events-none">
         <div class="bg-slate-900/90 backdrop-blur text-white px-6 py-4 rounded-3xl shadow-2xl flex items-center gap-4 text-xs border border-white/10">
-            <div class="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(59,130,246,0.5)]"><i class="fas fa-shopping-bag text-white"></i></div>
+            <div class="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center shrink-0 shadow-lg"><i class="fas fa-shopping-bag text-white"></i></div>
             <div><p class="font-bold text-white text-sm"><span id="social-name">Maria</span> comprou agora!</p></div>
         </div>
     </div>
 
     <div id="cartBar" class="fixed bottom-8 left-4 right-4 z-50 hidden md:max-w-md md:mx-auto">
-        <div class="bg-slate-900 rounded-[2rem] p-6 shadow-2xl flex justify-between items-center border border-white/10 hover:bg-slate-800 transition-colors cursor-pointer" onclick="finalizeOrder()">
+        <div class="bg-slate-900 rounded-[2rem] p-6 shadow-2xl flex justify-between items-center border border-white/10 cursor-pointer" onclick="finalizeOrder()">
             <div class="pl-2">
                 <p class="text-[10px] text-brand-400 uppercase font-black tracking-widest mb-1">Subtotal do Pedido</p>
                 <p id="cartBarTotal" class="text-2xl font-display font-black text-white leading-none">R$ 0,00</p>
@@ -153,15 +153,25 @@
         </div>
     </div>
 
+    <div id="custom-alert" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-xs p-8 rounded-[2rem] text-center shadow-2xl scale-95 transition-transform duration-300" id="alert-box">
+            <div id="alert-icon-wrapper" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl shadow-inner"></div>
+            <h3 id="alert-title" class="text-2xl font-black text-slate-800 mb-2">Atenção</h3>
+            <p id="alert-message" class="text-sm text-slate-500 font-medium mb-8">Msg</p>
+            <button onclick="closeAlert()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl text-lg">Entendido</button>
+        </div>
+    </div>
+
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id') };
         if (!CONFIG.campaignId) { document.getElementById('errorScreen').classList.remove('hidden'); throw new Error(); }
 
-        let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0;
+        let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIndex = 0;
+        let activeDiscount = 0, activeCoupon = "";
 
         function isVideo(url) { if (!url) return false; const c = url.split('?')[0].toLowerCase(); return c.endsWith('.mp4') || c.endsWith('.mov') || c.endsWith('.webm'); }
-        function buildMedia(url, classes, isCard = true) {
+        function buildMediaTag(url, classes, isCard = false) {
             if (isVideo(url)) return `<video src="${url}" class="${classes}" autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}></video>`;
             return `<img src="${url}" class="${classes}">`;
         }
@@ -212,12 +222,13 @@
         function renderProducts() {
             const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
             products.forEach(p => {
-                let mediaHTML = p.images.map((url, i) => buildMedia(url, `card-media absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`)).join('');
+                let mediaHTML = p.images.map((url, i) => buildMediaTag(url, `card-media absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`)).join('');
                 const pDe = parseFloat(p.priceFrom), pPor = parseFloat(p.priceTo);
                 const descP = pDe && pDe > pPor ? Math.round(((pDe - pPor) / pDe) * 100) : 0;
 
                 const card = document.createElement('div');
                 card.className = 'product-card bg-white rounded-[2.5rem] p-4 shadow-soft border border-slate-100 flex flex-col h-full cursor-pointer relative overflow-hidden group';
+                card.dataset.pid = p.id;
                 card.onclick = () => openProductModal(p);
                 card.innerHTML = `<div class="relative w-full aspect-square rounded-[2rem] overflow-hidden mb-4 bg-slate-50">${mediaHTML}${descP > 0 ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl z-20 shadow-lg -rotate-2">-${descP}% OFF</div>` : ''}</div><div class="flex-1 flex flex-col text-center"><h3 class="text-sm font-bold text-slate-800 line-clamp-2 mb-3 leading-snug">${p.name}</h3><div class="mt-auto">${pDe > pPor ? `<span class="text-[10px] text-slate-400 line-through font-medium">R$ ${pDe.toFixed(2)}</span>` : ''}<span class="text-xl font-black text-brand-600 block leading-none">R$ ${pPor.toFixed(2)}</span></div></div>`;
                 grid.appendChild(card);
@@ -225,7 +236,7 @@
         }
 
         function openProductModal(p) {
-            currentProduct = p; currentMediaIdx = 0; tempQty = 1;
+            currentProduct = p; currentMediaIndex = 0; tempQty = 1;
             document.getElementById('modalTitle').innerText = p.name;
             document.getElementById('modalPrice').innerText = `R$ ${parseFloat(p.priceTo).toFixed(2)}`;
             document.getElementById('modalColor').innerText = p.cor;
@@ -247,12 +258,12 @@
 
         function renderModalMedia() {
             const container = document.getElementById('modalMediaContainer');
-            container.innerHTML = buildMedia(currentProduct.images[currentMediaIdx], "w-full h-full object-contain", false);
+            container.innerHTML = buildMediaTag(currentProduct.images[currentMediaIndex], "w-full h-full object-contain bg-black", false);
             document.getElementById('modalNav').classList.toggle('hidden', currentProduct.images.length <= 1);
         }
 
-        function navModal(dir) { currentMediaIdx = (currentMediaIdx + dir + currentProduct.images.length) % currentProduct.images.length; renderModalMedia(); }
-        function expandMedia() { document.getElementById('fullscreenContent').innerHTML = buildMedia(currentProduct.images[currentMediaIdx], "max-w-full max-h-full", false); document.getElementById('fullscreenOverlay').classList.remove('hidden'); }
+        function navModal(dir) { currentMediaIndex = (currentMediaIndex + dir + currentProduct.images.length) % currentProduct.images.length; renderModalMedia(); }
+        function expandMedia() { const url = currentProduct.images[currentMediaIndex]; document.getElementById('fullscreenContent').innerHTML = buildMediaTag(url, "max-w-full max-h-full", false); document.getElementById('fullscreenOverlay').classList.remove('hidden'); }
         function closeFullscreen() { document.getElementById('fullscreenOverlay').classList.add('hidden'); }
         function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
         function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
@@ -277,8 +288,9 @@
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
                 if (p) {
-                    const itemTotal = parseFloat(p.priceTo) * qty; total += itemTotal;
-                    msg += `▫️ *${qty}x ${p.name}*\n   C/T: ${p.cor} | ${p.tamanho}\n   Valor: R$ ${itemTotal.toFixed(2)}\n\n`;
+                    const itemTotal = parseFloat(p.priceTo) * qty;
+                    total += itemTotal;
+                    msg += `▫️ *${qty}x ${p.name}*\n   C/T: ${p.cor} | ${p.tamanho}\n   R$ ${itemTotal.toFixed(2)}\n\n`;
                 }
             });
             msg += `💰 *TOTAL FINAL: R$ ${total.toFixed(2)}*`;
