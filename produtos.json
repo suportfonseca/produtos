@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP180226191516",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP180226191649",
     "name": "BUDA DOURADO SORTE EM 10 ANOS",
     "priceFrom": "97.29",
@@ -28,5 +18,15 @@
     "category": "foto",
     "cor": "OURO",
     "tamanho": "38CM"
+  },
+  {
+    "id": "GRP180226191516",
+    "name": "TECLADO GAMER HUSKY",
+    "priceFrom": "197.90",
+    "priceTo": "129.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "BRANCO RGB",
+    "tamanho": "30 CM"
   }
 ]
