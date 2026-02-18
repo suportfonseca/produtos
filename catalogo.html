@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clips Papelaria - Catálogo Oficial</title>
+    <title>Catálogo Oficial - Clips Papelaria</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -11,9 +11,9 @@
         tailwind.config = {
             theme: { 
                 extend: { 
-                    colors: { brand: { 500: '#2563eb', 600: '#1d4ed8', 900: '#1e3a8a' }, dark: { 900: '#0f172a', 800: '#1e293b' } }, 
+                    colors: { brand: { 500: '#2563eb', 600: '#1d4ed8', 900: '#1e3a8a' }, dark: { 950: '#020617', 900: '#0f172a' } }, 
                     fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Poppins', 'sans-serif'] },
-                    boxShadow: { 'soft': '0 10px 40px -10px rgba(0,0,0,0.08)' }
+                    boxShadow: { 'soft': '0 10px 40px -10px rgba(0,0,0,0.08)', 'heavy': '0 20px 50px -10px rgba(0,0,0,0.3)' }
                 } 
             }
         }
@@ -26,52 +26,84 @@
         .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .card-media { transition: opacity 0.7s ease-in-out; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         #social-toast { transform: translateY(150%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #social-toast.show { transform: translateY(0); }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
-    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-brand-600 text-white">
+    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-brand-600 text-white text-center">
         <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
-        <div class="w-full max-w-sm bg-white p-10 rounded-[3rem] shadow-2xl relative text-center fade-in border border-white/20">
+        <div class="w-full max-w-sm bg-white p-10 rounded-[3rem] shadow-2xl relative fade-in border border-white/20">
             <div class="w-20 h-20 bg-brand-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-brand-600 text-4xl animate-bounce"><i class="fas fa-gift"></i></div>
-            <h1 class="text-3xl font-display font-black text-slate-900 mb-3">Olá! 👋</h1>
-            <p class="text-slate-500 font-medium mb-8">Você recebeu um catálogo exclusivo! Prepare seu pedido pelo WhatsApp.</p>
-            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-800 mb-4 outline-none focus:border-brand-500 text-center" placeholder="Seu WhatsApp">
-            <button id="loginButton" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase text-sm tracking-widest transition-all active:scale-95">Acessar Catálogo</button>
+            <h1 class="text-3xl font-display font-black text-slate-900 mb-3 leading-tight">Olá! 👋</h1>
+            <p class="text-slate-500 font-medium mb-8">Digite seu WhatsApp para carregar suas escolhas e acessar o catálogo exclusivo.</p>
+            <input type="tel" id="phoneInput" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-800 mb-4 outline-none focus:border-brand-500 text-center shadow-inner" placeholder="Seu WhatsApp (Ex: 51999...)">
+            <button id="loginButton" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase text-sm tracking-widest transition-all">Acessar Catálogo</button>
         </div>
     </div>
 
     <div id="mainApp" class="hidden flex-1 pb-32">
         <header class="glass sticky top-0 z-40 p-4">
             <div class="max-w-6xl mx-auto flex justify-between items-center mb-4">
-                <div class="flex items-center gap-3 text-brand-600"><i class="fas fa-paperclip text-xl"></i><span class="font-black uppercase tracking-tighter text-lg">Catálogo Digital</span></div>
-                <div onclick="finalizeOrder()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 relative cursor-pointer"><i class="fas fa-shopping-bag"></i><span id="headerCartBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full border-2 border-white hidden flex items-center justify-center">0</span></div>
+                <div class="flex items-center gap-3 text-brand-600">
+                    <i class="fas fa-paperclip text-xl"></i>
+                    <span class="font-black uppercase tracking-tighter text-lg">Catálogo Digital</span>
+                </div>
+                <button onclick="logout()" class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase"><i class="fas fa-sign-out-alt mr-1"></i> Trocar Número</button>
             </div>
             <div class="max-w-6xl mx-auto">
-                <div class="bg-gradient-to-br from-brand-600 to-brand-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden text-center">
-                    <p class="text-xs font-bold text-blue-200 mb-2 uppercase tracking-[0.2em]">Campanha Ativa</p>
-                    <h2 id="campaignTitleDisplay" class="text-3xl font-display font-black tracking-tight drop-shadow-lg uppercase">Carregando...</h2>
+                <div class="bg-gradient-to-br from-brand-600 to-brand-900 rounded-[2rem] p-8 text-white shadow-heavy relative overflow-hidden text-center uppercase">
+                    <div class="absolute right-0 top-0 opacity-10 transform translate-x-6 -translate-y-4 rotate-12"><i class="fas fa-tags text-[10rem] text-white"></i></div>
+                    <p class="text-xs font-bold text-blue-200 mb-2 uppercase tracking-[0.2em]"><i class="fas fa-bolt mr-1 text-yellow-300"></i> Ofertas para <span id="displayUserPhone">...</span></p>
+                    <h2 id="campaignTitleDisplay" class="text-2xl md:text-3xl font-display font-black tracking-tight drop-shadow-lg leading-tight">Carregando...</h2>
                 </div>
             </div>
         </header>
-        <main class="max-w-6xl mx-auto p-4"><div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div></main>
+
+        <main class="max-w-6xl mx-auto p-4 pt-8">
+            <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
+        </main>
+    </div>
+
+    <div id="cartModal" class="fixed inset-0 z-[70] hidden transition-opacity duration-300">
+        <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onclick="closeCartModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] slide-up max-h-[90vh] flex flex-col shadow-heavy">
+            <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-[3rem]">
+                <div>
+                    <h2 class="text-2xl font-display font-black text-slate-900">Seu Carrinho</h2>
+                    <p class="text-xs text-slate-400 font-bold" id="cartSummaryText">0 itens</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="clearCart()" class="text-[10px] font-bold text-red-500 bg-red-50 px-3 py-2 rounded-xl hover:bg-red-100 transition-colors uppercase">Limpar Tudo</button>
+                    <button onclick="closeCartModal()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div id="cartItemsList" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 no-scrollbar"></div>
+            <div class="p-8 bg-white border-t border-slate-100 shadow-[0_-20px_40px_rgba(0,0,0,0.05)]">
+                <div class="flex justify-between text-slate-900 text-2xl font-black mb-6">
+                    <span>Total</span><span id="summaryTotal" class="text-brand-600">R$ 0,00</span>
+                </div>
+                <button onclick="finalizeOrder()" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 text-lg">
+                    <span>Finalizar via WhatsApp</span> <i class="fab fa-whatsapp text-2xl"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="productModal" class="fixed inset-0 z-[60] hidden">
         <div class="absolute inset-0 bg-slate-900/95 backdrop-blur-sm" onclick="closeProductModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
-            <div class="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl pointer-events-auto overflow-hidden flex flex-col slide-up max-h-[90vh]">
-                <div class="relative h-80 bg-black shrink-0">
+            <div class="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl pointer-events-auto overflow-hidden flex flex-col slide-up max-h-[85vh]">
+                <div class="relative h-72 bg-black shrink-0">
                     <div id="modalMediaContainer" class="w-full h-full"></div>
-                    <button onclick="expandMedia()" class="absolute bottom-6 right-6 w-12 h-12 bg-white/20 backdrop-blur rounded-full text-white z-20 hover:bg-brand-600"><i class="fas fa-expand"></i></button>
-                    <button onclick="closeProductModal()" class="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur rounded-full text-white z-20 hover:bg-red-500"><i class="fas fa-times"></i></button>
+                    <button onclick="closeProductModal()" class="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur rounded-full text-white z-20 hover:bg-red-500 transition-colors"><i class="fas fa-times"></i></button>
                     <div id="modalNav" class="hidden"><button onclick="navModal(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 text-white z-20 rounded-full"><i class="fas fa-chevron-left"></i></button><button onclick="navModal(1)" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 text-white z-20 rounded-full"><i class="fas fa-chevron-right"></i></button></div>
                 </div>
-                <div class="p-8 overflow-y-auto bg-white flex-1">
+                <div class="p-8 overflow-y-auto bg-white flex-1 no-scrollbar text-center">
                     <h2 id="modalTitle" class="text-2xl font-black text-slate-900 mb-6">Nome</h2>
-                    <div class="flex items-center gap-4 mb-8 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                    <div class="flex items-center justify-center gap-4 mb-8 bg-slate-50 p-6 rounded-3xl border border-slate-100">
                         <p id="modalPrice" class="text-4xl font-black text-brand-600">R$ 0,00</p>
                         <p id="modalOldPrice" class="text-lg text-slate-400 line-through hidden font-medium">R$ 0,00</p>
                     </div>
@@ -85,19 +117,22 @@
                             <span id="tempQtyDisplay" class="font-black text-xl w-10 text-center">1</span>
                             <button onclick="updateTempQty(1)" class="w-12 text-slate-600 text-xl"><i class="fas fa-plus"></i></button>
                         </div>
-                        <button id="modalAddBtn" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl uppercase text-sm tracking-widest shadow-xl">Adicionar</button>
+                        <button id="modalAddBtn" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase text-sm tracking-tighter">Adicionar ao Pedido</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="fullscreenOverlay" class="fixed inset-0 z-[150] hidden bg-black flex items-center justify-center p-4"><button onclick="closeFullscreen()" class="absolute top-6 right-6 text-white text-3xl"><i class="fas fa-times"></i></button><div id="fullscreenContent" class="w-full h-full flex items-center justify-center"></div></div>
-
     <div id="cartBar" class="fixed bottom-8 left-4 right-4 z-50 hidden md:max-w-md md:mx-auto">
-        <div class="bg-slate-900 rounded-[2rem] p-6 shadow-2xl flex justify-between items-center border border-white/10" onclick="finalizeOrder()">
-            <div class="pl-2"><p class="text-[10px] text-brand-400 uppercase font-black tracking-widest mb-1">Subtotal</p><p id="cartBarTotal" class="text-2xl font-display font-black text-white">R$ 0,00</p></div>
-            <button class="bg-brand-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase">Finalizar <i class="fas fa-whatsapp ml-2"></i></button>
+        <div class="bg-slate-900 rounded-[2.2rem] p-5 shadow-heavy flex justify-between items-center border border-white/10 hover:scale-[1.02] transition-all cursor-pointer" onclick="openCartModal()">
+            <div class="pl-4">
+                <p class="text-[9px] text-brand-400 uppercase font-black tracking-[0.2em] mb-1">Itens no Pedido</p>
+                <p id="cartBarTotal" class="text-2xl font-display font-black text-white leading-none">R$ 0,00</p>
+            </div>
+            <button class="bg-brand-500 text-white px-8 py-4 rounded-[1.5rem] font-black text-xs uppercase shadow-lg flex items-center gap-2">
+                VER CARRINHO <i class="fas fa-shopping-cart text-[10px]"></i>
+            </button>
         </div>
     </div>
 
@@ -106,13 +141,20 @@
         const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id') };
         if (!CONFIG.campaignId) { document.getElementById('errorScreen').classList.remove('hidden'); throw new Error(); }
 
-        let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0;
+        let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
 
         function isVideo(url) { if (!url) return false; return url.includes('.mp4') || url.includes('.mov') || url.includes('.webm'); }
         function buildMedia(url, classes, isCard = true) {
             if (isVideo(url)) return `<video src="${url}" class="${classes}" autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}></video>`;
             return `<img src="${url}" class="${classes}">`;
         }
+
+        // PERSISTÊNCIA: Carrega carrinho salvo para este número
+        function loadCartPersist() {
+            const saved = localStorage.getItem(`cart_${userPhone}_${CONFIG.campaignId}`);
+            if(saved) { cart = JSON.parse(saved); updateUI(); }
+        }
+        function saveCartPersist() { localStorage.setItem(`cart_${userPhone}_${CONFIG.campaignId}`, JSON.stringify(cart)); }
 
         async function loadProducts() {
             try {
@@ -154,9 +196,16 @@
                 const pDe = parseFloat(p.priceFrom), pPor = parseFloat(p.priceTo);
                 const descP = pDe && pDe > pPor ? Math.round(((pDe - pPor) / pDe) * 100) : 0;
                 const card = document.createElement('div');
-                card.className = 'product-card bg-white rounded-[2.5rem] p-4 shadow-soft border border-slate-100 flex flex-col h-full cursor-pointer relative overflow-hidden group';
+                card.className = 'product-card bg-white rounded-[2rem] p-3 shadow-soft border border-slate-100 flex flex-col h-full cursor-pointer relative overflow-hidden group';
+                card.dataset.pid = p.id;
                 card.onclick = () => openProductModal(p);
-                card.innerHTML = `<div class="relative w-full aspect-square rounded-[2rem] overflow-hidden mb-4 bg-slate-50">${mediaHTML}${descP > 0 ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl z-20 shadow-lg">-${descP}% OFF</div>` : ''}</div><div class="flex-1 flex flex-col text-center"><h3 class="text-sm font-bold text-slate-800 line-clamp-2 mb-3 leading-snug">${p.name}</h3><div class="mt-auto">${pDe > pPor ? `<span class="text-[10px] text-slate-400 line-through">R$ ${pDe.toFixed(2)}</span>` : ''}<span class="text-xl font-black text-brand-600 block">R$ ${pPor.toFixed(2)}</span></div></div>`;
+                card.innerHTML = `
+                    <div class="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-slate-50">${mediaHTML}${descP > 0 ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-[9px] font-black px-2 py-1 rounded-lg z-20 shadow-lg">-${descP}% OFF</div>` : ''}</div>
+                    <div class="flex-1 flex flex-col text-center px-1">
+                        <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest mb-1">${p.cor} | ${p.tamanho}</p>
+                        <h3 class="text-xs font-bold text-slate-800 line-clamp-2 mb-2 leading-snug">${p.name}</h3>
+                        <div class="mt-auto">${pDe > pPor ? `<span class="text-[9px] text-slate-400 line-through">R$ ${pDe.toFixed(2)}</span>` : ''}<span class="text-base font-black text-brand-600 block leading-none mt-1">R$ ${pPor.toFixed(2)}</span></div>
+                    </div>`;
                 grid.appendChild(card);
             });
         }
@@ -169,40 +218,89 @@
             document.getElementById('modalSize').innerText = p.tamanho;
             const oldPriceEl = document.getElementById('modalOldPrice');
             if (p.priceFrom && parseFloat(p.priceFrom) > parseFloat(p.priceTo)) { oldPriceEl.innerText = `R$ ${parseFloat(p.priceFrom).toFixed(2)}`; oldPriceEl.classList.remove('hidden'); } else { oldPriceEl.classList.add('hidden'); }
+            document.getElementById('tempQtyDisplay').innerText = "1";
             renderModalMedia(); document.getElementById('productModal').classList.remove('hidden');
         }
 
         function renderModalMedia() {
             const container = document.getElementById('modalMediaContainer');
-            container.innerHTML = buildMedia(currentProduct.images[currentMediaIdx], "w-full h-full object-contain", false);
+            container.innerHTML = buildMedia(currentProduct.images[currentMediaIdx], "w-full h-full object-contain bg-black", false);
             document.getElementById('modalNav').classList.toggle('hidden', currentProduct.images.length <= 1);
         }
 
         function navModal(dir) { currentMediaIdx = (currentMediaIdx + dir + currentProduct.images.length) % currentProduct.images.length; renderModalMedia(); }
-        function expandMedia() { document.getElementById('fullscreenContent').innerHTML = buildMedia(currentProduct.images[currentMediaIdx], "max-w-full max-h-full", false); document.getElementById('fullscreenOverlay').classList.remove('hidden'); }
-        function closeFullscreen() { document.getElementById('fullscreenOverlay').classList.add('hidden'); }
         function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
-        function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
-        
-        document.getElementById('loginButton').onclick = () => {
-            if(document.getElementById('phoneInput').value.length < 8) return;
-            document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainApp').classList.remove('hidden'); loadProducts();
-        };
 
-        document.getElementById('modalAddBtn').onclick = () => { cart[currentProduct.id] = (cart[currentProduct.id] || 0) + tempQty; closeProductModal(); updateUI(); };
+        function addToCart(id, qty) {
+            cart[id] = (cart[id] || 0) + qty;
+            if (cart[id] <= 0) delete cart[id];
+            saveCartPersist();
+            updateUI();
+        }
+
+        function clearCart() { if(confirm("Deseja esvaziar o carrinho?")) { cart = {}; saveCartPersist(); closeCartModal(); updateUI(); } }
+
         function updateUI() {
             const count = Object.values(cart).reduce((a,b)=>a+b, 0);
             document.getElementById('headerCartBadge').innerText = count; document.getElementById('headerCartBadge').classList.toggle('hidden', count === 0);
             document.getElementById('cartBar').classList.toggle('hidden', count === 0);
-            let total = 0; Object.entries(cart).forEach(([id, qty]) => { const p = products.find(x => x.id == id); if (p) total += parseFloat(p.priceTo) * qty; });
-            document.getElementById('cartBarTotal').innerText = `R$ ${total.toFixed(2)}`;
-        }
-        function finalizeOrder() {
-            let msg = `🛒 *PEDIDO - ${document.getElementById('campaignTitleDisplay').innerText}*\n\n`;
             let total = 0;
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
-                if (p) { const itemTotal = parseFloat(p.priceTo) * qty; total += itemTotal; msg += `▫️ *${qty}x ${p.name}*\n   C/T: ${p.cor} | ${p.tamanho}\n\n`; }
+                if (p) total += parseFloat(p.priceTo) * qty;
+            });
+            document.getElementById('cartBarTotal').innerText = `R$ ${total.toFixed(2)}`;
+        }
+
+        function openCartModal() {
+            const list = document.getElementById('cartItemsList'); list.innerHTML = '';
+            let total = 0;
+            if (Object.keys(cart).length === 0) { list.innerHTML = '<p class="text-center py-20 opacity-30 font-bold">CARRINHO VAZIO</p>'; }
+            Object.entries(cart).forEach(([id, qty]) => {
+                const p = products.find(x => x.id == id);
+                if(p) {
+                    const sub = parseFloat(p.priceTo) * qty; total += sub;
+                    list.innerHTML += `<div class="flex gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm items-center"><img src="${p.images[0]}" class="w-14 h-14 rounded-xl object-cover"><div class="flex-1 leading-tight"><h4 class="text-sm font-black">${p.name}</h4><p class="text-[10px] text-slate-400 mt-1 uppercase font-bold">${p.cor} | ${p.tamanho}</p></div><div class="flex flex-col items-end gap-2"><div class="flex items-center bg-slate-100 rounded-lg h-8 px-2"><button onclick="addToCart('${p.id}', -1); openCartModal()" class="px-2 font-bold">-</button><span class="w-4 text-center text-xs font-black">${qty}</span><button onclick="addToCart('${p.id}', 1); openCartModal()" class="px-2 font-bold">+</button></div><p class="text-xs font-black text-brand-600">R$ ${sub.toFixed(2)}</p></div></div>`;
+                }
+            });
+            document.getElementById('summaryTotal').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('cartSummaryText').innerText = `${Object.values(cart).reduce((a,b)=>a+b, 0)} itens selecionados`;
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+
+        function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
+        function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
+
+        document.getElementById('loginButton').onclick = () => {
+            userPhone = document.getElementById('phoneInput').value.replace(/\D/g,'');
+            if(userPhone.length < 8) return alert("Número inválido");
+            sessionStorage.setItem('logged_phone', userPhone);
+            document.getElementById('displayUserPhone').innerText = userPhone;
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            loadProducts().then(loadCartPersist);
+        };
+
+        // Verifica se já estava logado
+        const savedPhone = sessionStorage.getItem('logged_phone');
+        if(savedPhone) {
+            userPhone = savedPhone;
+            document.getElementById('displayUserPhone').innerText = userPhone;
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            loadProducts().then(loadCartPersist);
+        }
+
+        function logout() { sessionStorage.removeItem('logged_phone'); location.reload(); }
+
+        document.getElementById('modalAddBtn').onclick = () => { cart[currentProduct.id] = (cart[currentProduct.id] || 0) + tempQty; saveCartPersist(); closeProductModal(); updateUI(); };
+
+        function finalizeOrder() {
+            let msg = `🛒 *PEDIDO - ${document.getElementById('campaignTitleDisplay').innerText}*\n*Cliente:* ${userPhone}\n\n`;
+            let total = 0;
+            Object.entries(cart).forEach(([id, qty]) => {
+                const p = products.find(x => x.id == id);
+                if (p) { const sub = parseFloat(p.priceTo) * qty; total += sub; msg += `▫️ *${qty}x ${p.name}*\n   C/T: ${p.cor} | ${p.tamanho}\n   R$ ${sub.toFixed(2)}\n\n`; }
             });
             msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*`;
             window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
