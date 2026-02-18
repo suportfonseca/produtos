@@ -1,6 +1,6 @@
 [
   {
-    "id": "GRP180226172024",
+    "id": "GRP180226191516",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -10,13 +10,23 @@
     "tamanho": ""
   },
   {
-    "id": "GRP180226172154",
-    "name": "CORRENTE DE OURO + MICROFONE1",
-    "priceFrom": "1997.00",
-    "priceTo": "497.00",
+    "id": "GRP180226191606",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP180226191649",
+    "name": "BUDA DOURADO SORTE EM 10 ANOS",
+    "priceFrom": "97.29",
+    "priceTo": "49.70",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "DOURADO",
-    "tamanho": "G"
+    "tamanho": ""
   }
 ]
