@@ -536,6 +536,7 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         action: "update_product",
+                        id_campanha: currentCampaignId, // <--- ESTA É A LINHA MÁGICA NOVA QUE FALTAVA
                         id_grupo: pid,
                         nome_produto: name,
                         preco_de: pFrom,
