@@ -157,7 +157,49 @@
 
     <script>
         const MASTER_PASS = "admin123"; 
-        const API_URL = "SUA_URL_WEBHOOK_N8N_SUPERADMIN"; // Substitua aqui depois
+
+        // URLs de Produção e Teste
+        const WEBHOOK_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/superadmin";
+        const WEBHOOK_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/superadmin";
+        
+        // Memória de qual URL está funcionando (começa assumindo a de Produção)
+        let activeWebhookUrl = WEBHOOK_PROD;
+
+        // --- INTELIGÊNCIA DE REDIRECIONAMENTO (SMART FETCH) ---
+        async function smartFetch(payload) {
+            try {
+                // Tenta a URL que está salva como ativa
+                let response = await fetch(activeWebhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Se o n8n retornar erro (ex: node inativo), dispara o catch abaixo
+                if (!response.ok) throw new Error("Erro no endpoint primário");
+                
+                return response;
+
+            } catch (error) {
+                console.warn(`A URL ${activeWebhookUrl} falhou. Tentando ambiente alternativo...`);
+                
+                // Troca a URL ativa. Se era PROD, vira TEST. Se era TEST, vira PROD.
+                activeWebhookUrl = (activeWebhookUrl === WEBHOOK_PROD) ? WEBHOOK_TEST : WEBHOOK_PROD;
+                
+                // Dispara a requisição novamente para a nova URL
+                let retryResponse = await fetch(activeWebhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if(retryResponse.ok) {
+                    console.log(`Ambiente alternado com sucesso para: ${activeWebhookUrl}`);
+                }
+                
+                return retryResponse;
+            }
+        }
 
         function checkMasterAuth() {
             if(document.getElementById('masterPass').value === MASTER_PASS) {
@@ -187,16 +229,17 @@
         function closeClientModal() { document.getElementById('clientModal').classList.remove('visible'); }
         function generatePass() { document.getElementById('newStorePass').value = Math.random().toString(36).slice(-8).toUpperCase(); }
 
-        // --- FUNÇÃO PARA BUSCAR CLIENTES (CHAMA O N8N) ---
+        // --- FUNÇÃO PARA BUSCAR CLIENTES (VIA POST) ---
         async function fetchClients() {
-            // Se você não tiver o n8n ainda, ele não vai renderizar nada.
             try {
-                const res = await fetch(API_URL + "?action=list_users");
+                const res = await smartFetch({ action: 'list_users' });
                 const data = await res.json();
-                renderClients(data);
+                
+                // Garante que a listagem não quebre se o retorno for diferente do esperado
+                const list = Array.isArray(data) ? data : (data.data || []);
+                renderClients(list);
             } catch (e) {
-                // Simulação enquanto você não configura o n8n
-                console.warn("N8N não conectado. Verifique a URL.");
+                console.warn("N8N não conectado ou erro na rota.", e);
             }
         }
 
@@ -206,7 +249,7 @@
                 <tr class="hover:bg-white/5 transition-colors group">
                     <td class="p-6">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/5">
+                            <div class="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/5 shrink-0">
                                 <img src="${c.logo_url || 'https://placehold.co/100?text=Logo'}" class="w-full h-full object-cover">
                             </div>
                             <div>
@@ -225,9 +268,6 @@
                             <button onclick="impersonate('${c.id_usuario}', '${c.nome_loja}', '${c.email}')" class="w-10 h-10 glass-panel rounded-xl flex items-center justify-center text-emerald-400 hover:bg-emerald-600 hover:text-white transition-all shadow-lg" title="Login como Lojista">
                                 <i class="fas fa-sign-in-alt"></i>
                             </button>
-                            <button onclick="editUser('${c.id_usuario}')" class="w-10 h-10 glass-panel rounded-xl flex items-center justify-center text-slate-400 hover:bg-white hover:text-black transition-all shadow-lg">
-                                <i class="fas fa-pen text-xs"></i>
-                            </button>
                         </div>
                     </td>
                 </tr>
@@ -244,10 +284,41 @@
             }, 1000);
         }
 
+        // --- FUNÇÃO PARA SALVAR CLIENTE ---
         async function saveClient() {
-            // Lógica de envio para o n8n (action: 'save_user')
-            showToast("DADOS ENVIADOS PARA O N8N...");
-            setTimeout(closeClientModal, 1000);
+            const btn = document.getElementById('btnSaveClient');
+            const payload = {
+                action: 'save_user',
+                id: document.getElementById('editUserId').value,
+                nome_loja: document.getElementById('newStoreName').value,
+                logo_url: document.getElementById('newStoreLogo').value,
+                plano: document.getElementById('newStorePlan').value,
+                telefone: document.getElementById('newStorePhone').value,
+                email: document.getElementById('newStoreEmail').value,
+                senha: document.getElementById('newStorePass').value,
+                chat_id: document.getElementById('newStoreChatId').value
+            };
+
+            if(!payload.nome_loja || !payload.email || !payload.chat_id) {
+                return alert("Atenção: Nome, E-mail e Chat ID são obrigatórios!");
+            }
+
+            btn.innerText = "Salvando...";
+            btn.disabled = true;
+
+            try {
+                const res = await smartFetch(payload);
+                if(res.ok) {
+                    showToast("Operação realizada com sucesso!");
+                    closeClientModal();
+                    fetchClients();
+                }
+            } catch (e) {
+                alert("Erro ao salvar. Verifique se o n8n está ativo.");
+            } finally {
+                btn.innerText = "Salvar Alterações";
+                btn.disabled = false;
+            }
         }
 
         function showToast(msg) {
