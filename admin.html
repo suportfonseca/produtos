@@ -52,49 +52,120 @@
         </div>
     </div>
 
-    <div id="dashboard" class="hidden flex-1 flex flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 fade-in pb-20">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div class="text-center md:text-left">
-                <h1 class="text-2xl font-black text-white">Gestão Clips <span class="text-brand-500 text-sm bg-brand-500/10 px-2 py-1 rounded ml-2">PRO</span></h1>
-                <p class="text-slate-400 text-xs mt-1 font-bold">Loja: <span id="storeNameDisplay" class="text-white">...</span></p>
+    <div id="dashboard" class="hidden flex-1 w-full flex flex-col md:flex-row overflow-hidden fade-in">
+        
+        <aside class="w-full md:w-64 bg-dark-950/80 border-b md:border-b-0 md:border-r border-white/5 flex flex-col shrink-0">
+            <div class="p-6 hidden md:block border-b border-white/5">
+                <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-sm shadow-lg"><i class="fas fa-store"></i></div>
+                    Gestão Clips
+                </h2>
             </div>
-            <button onclick="logout()" class="glass-panel px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 flex items-center gap-2">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </button>
-        </header>
+            
+            <nav class="flex-1 px-4 py-4 md:py-6 space-y-0 md:space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-hidden gap-2 md:gap-0 custom-scroll">
+                <button onclick="switchMenu('campanhas')" id="menu-campanhas" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0">
+                    <i class="fas fa-layer-group w-5 text-center"></i> <span class="hidden md:inline">Campanhas</span>
+                </button>
+                <button onclick="switchMenu('vendedores')" id="menu-vendedores" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-bold transition-all shrink-0">
+                    <i class="fas fa-users w-5 text-center"></i> <span class="hidden md:inline">Vendedores / Equipe</span>
+                </button>
+                <button onclick="switchMenu('clientes')" id="menu-clientes" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-bold transition-all shrink-0">
+                    <i class="fas fa-user-tag w-5 text-center"></i> <span class="hidden md:inline">Clientes</span>
+                </button>
+            </nav>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div class="glass-panel p-6 rounded-3xl border-l-4 border-brand-500 relative overflow-hidden">
-                <div class="absolute right-4 top-4 opacity-10"><i class="fas fa-layer-group text-6xl"></i></div>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Minhas Campanhas</p>
-                <p class="text-3xl font-bold text-white mt-1" id="campaignCount">0</p>
+            <div class="p-4 border-t border-white/5 hidden md:block">
+                 <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-slate-400 hover:text-red-400 font-bold transition-all flex items-center gap-3">
+                     <i class="fas fa-sign-out-alt w-5 text-center"></i> Sair do Sistema
+                 </button>
             </div>
-            <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95 group border border-white/10">
-                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fas fa-plus"></i></div>
-                <div class="text-left">
-                    <p class="text-xs font-bold text-blue-100 uppercase opacity-80">Criar Nova</p>
-                    <span class="font-bold text-xl">Campanha</span>
+        </aside>
+
+        <div class="flex-1 overflow-y-auto custom-scroll flex flex-col w-full relative">
+
+            <div id="view-campanhas" class="flex flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
+                <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <div class="text-center md:text-left">
+                        <h1 class="text-2xl font-black text-white">Gestão Clips <span class="text-brand-500 text-sm bg-brand-500/10 px-2 py-1 rounded ml-2">PRO</span></h1>
+                        <p class="text-slate-400 text-xs mt-1 font-bold">Loja: <span id="storeNameDisplay" class="text-white">...</span></p>
+                    </div>
+                    <button onclick="logout()" class="glass-panel px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 flex items-center gap-2 md:hidden">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="glass-panel p-6 rounded-3xl border-l-4 border-brand-500 relative overflow-hidden">
+                        <div class="absolute right-4 top-4 opacity-10"><i class="fas fa-layer-group text-6xl"></i></div>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Minhas Campanhas</p>
+                        <p class="text-3xl font-bold text-white mt-1" id="campaignCount">0</p>
+                    </div>
+                    <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95 group border border-white/10">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fas fa-plus"></i></div>
+                        <div class="text-left">
+                            <p class="text-xs font-bold text-blue-100 uppercase opacity-80">Criar Nova</p>
+                            <span class="font-bold text-xl">Campanha</span>
+                        </div>
+                    </button>
                 </div>
-            </button>
-        </div>
 
-        <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                <h3 class="font-bold text-white flex items-center gap-2"><i class="fas fa-history text-slate-500"></i> Histórico</h3>
-                <button onclick="fetchDashboard()" class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all"><i class="fas fa-sync-alt text-xs"></i></button>
+                <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <h3 class="font-bold text-white flex items-center gap-2"><i class="fas fa-history text-slate-500"></i> Histórico</h3>
+                        <button onclick="fetchDashboard()" class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all"><i class="fas fa-sync-alt text-xs"></i></button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead class="bg-dark-900/50 text-slate-500 text-[10px] uppercase font-bold">
+                                <tr>
+                                    <th class="p-5">Status</th>
+                                    <th class="p-5">Campanha</th>
+                                    <th class="p-5 text-right">Link / Editar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[600px]">
-                    <thead class="bg-dark-900/50 text-slate-500 text-[10px] uppercase font-bold">
-                        <tr>
-                            <th class="p-5">Status</th>
-                            <th class="p-5">Campanha</th>
-                            <th class="p-5 text-right">Link / Editar</th>
-                        </tr>
-                    </thead>
-                    <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
-                </table>
+
+            <div id="view-vendedores" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
+                <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <div class="text-center md:text-left">
+                        <h1 class="text-2xl font-black text-white">Equipe de Vendas</h1>
+                        <p class="text-slate-400 text-xs mt-1 font-bold">Gerencie seus vendedores e links comissionados</p>
+                    </div>
+                    <button class="bg-brand-600 hover:bg-brand-500 px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all shadow-lg flex items-center gap-2">
+                        <i class="fas fa-user-plus"></i> Novo Vendedor
+                    </button>
+                </header>
+
+                <div class="glass-panel p-10 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-20">
+                    <div class="w-20 h-20 bg-dark-900 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                        <i class="fas fa-users-cog text-3xl text-slate-500"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">Estrutura Pronta</h2>
+                    <p class="text-slate-400 text-sm max-w-md">Esta tela está pronta para receber a conexão com a tabela "vendedores" que acabamos de criar no banco de dados.</p>
+                </div>
             </div>
+
+            <div id="view-clientes" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
+                <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <div class="text-center md:text-left">
+                        <h1 class="text-2xl font-black text-white">Base de Clientes</h1>
+                        <p class="text-slate-400 text-xs mt-1 font-bold">Histórico e gestão de contatos</p>
+                    </div>
+                </header>
+
+                <div class="glass-panel p-10 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-20">
+                    <div class="w-20 h-20 bg-dark-900 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                        <i class="fas fa-address-book text-3xl text-slate-500"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">Módulo em Construção</h2>
+                    <p class="text-slate-400 text-sm max-w-md">O CRM de clientes será ativado nas próximas atualizações do sistema.</p>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -513,6 +584,36 @@
             document.getElementById('alert-msg').innerText = msg;
             document.getElementById('alert-icon').innerHTML = type === 'success' ? '✅' : '⚠️';
             document.getElementById('custom-alert').classList.remove('hidden');
+        }
+
+        // ==========================================
+        // 🔄 SISTEMA DE NAVEGAÇÃO DO MENU LATERAL
+        // ==========================================
+        function switchMenu(viewId) {
+            // 1. Esconde todas as views
+            document.getElementById('view-campanhas').classList.add('hidden');
+            document.getElementById('view-campanhas').classList.remove('flex');
+            
+            document.getElementById('view-vendedores').classList.add('hidden');
+            document.getElementById('view-vendedores').classList.remove('flex');
+            
+            document.getElementById('view-clientes').classList.add('hidden');
+            document.getElementById('view-clientes').classList.remove('flex');
+
+            // 2. Reseta o estilo de todos os botões do menu
+            const menus = ['campanhas', 'vendedores', 'clientes'];
+            menus.forEach(m => {
+                const btn = document.getElementById('menu-' + m);
+                btn.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-bold transition-all shrink-0";
+            });
+
+            // 3. Mostra a view clicada
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+            document.getElementById('view-' + viewId).classList.add('flex');
+
+            // 4. Acende o botão do menu clicado
+            const activeMenu = document.getElementById('menu-' + viewId);
+            activeMenu.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0";
         }
     </script>
 </body>
