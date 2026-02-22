@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Painel Lojista - Gestão Clips</title>
+    <title>Painel Lojista - MGWARE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: { 
                 extend: { 
                     colors: { 
-                        dark: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, 
-                        brand: { 500: '#3b82f6', 600: '#2563eb', glow: 'rgba(59, 130, 246, 0.5)' } 
+                        // Fundo neutro/grafite igual à Landing Page
+                        dark: { 950: '#0a0a0a', 900: '#171717', 800: '#262626', 700: '#404040' }, 
+                        // Paleta Vermelha MGWARE (substituindo o antigo azul)
+                        brand: { 300: '#e57380', 400: '#cf4657', 500: '#b83042', 600: '#9b1c2b', 700: '#801522', 800: '#69111c', glow: 'rgba(155, 28, 43, 0.5)' },
+                        // Tons de cinza para acentuação (substituindo o slate)
+                        accent: { 400: '#a3a3a3', 500: '#737373', 600: '#525252' }
                     }, 
                     fontFamily: { sans: ['Inter', 'sans-serif'] } 
                 } 
@@ -21,8 +25,8 @@
         }
     </script>
     <style>
-        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .glass-panel { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass-panel { background: rgba(23, 23, 23, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #editProductsModal, #newCampaignModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
@@ -33,49 +37,51 @@
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950">
+<body class="min-h-screen flex flex-col bg-dark-950 selection:bg-brand-500 selection:text-white relative">
+
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-600/10 blur-[150px] rounded-full pointer-events-none z-0 hidden" id="bgGlow"></div>
 
     <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-dark-950">
-        <div class="w-full max-w-sm glass-panel p-10 rounded-[2rem] text-center shadow-2xl relative">
-            <div class="w-20 h-20 bg-brand-600 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl shadow-lg"><i class="fas fa-store"></i></div>
-            <h2 class="text-2xl font-bold mb-2">Painel do Lojista</h2>
-            <p class="text-slate-400 text-sm mb-8">Faça login com seu E-mail</p>
+        <div class="w-full max-w-sm glass-panel p-10 rounded-[2rem] text-center shadow-2xl relative z-10">
+            <div class="w-20 h-20 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl shadow-lg border border-brand-400/20"><i class="fas fa-layer-group"></i></div>
+            <h2 class="text-2xl font-black mb-2 tracking-tight">MG<span class="text-accent-400">WARE</span></h2>
+            <p class="text-accent-400 text-sm mb-8 uppercase tracking-widest font-bold text-[10px]">&lt; Painel Lojista &gt;</p>
             
             <div class="space-y-4">
-                <input type="email" id="loginEmail" class="w-full bg-dark-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-slate-600" placeholder="seu@email.com">
-                <input type="password" id="loginPass" class="w-full bg-dark-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-slate-600" placeholder="Sua Senha">
+                <input type="email" id="loginEmail" class="w-full bg-dark-900/80 border border-white/10 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-accent-500" placeholder="seu@email.com">
+                <input type="password" id="loginPass" class="w-full bg-dark-900/80 border border-white/10 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-accent-500" placeholder="Sua Senha">
             </div>
             
-            <button onclick="doLogin()" id="btnLogin" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 mt-6 active:scale-95">
+            <button onclick="doLogin()" id="btnLogin" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-xl font-bold transition-all shadow-xl shadow-brand-600/30 mt-6 active:scale-95 border border-brand-400/20">
                 Entrar no Sistema
             </button>
         </div>
     </div>
 
-    <div id="dashboard" class="hidden flex-1 w-full flex flex-col md:flex-row overflow-hidden fade-in">
+    <div id="dashboard" class="hidden flex-1 w-full flex flex-col md:flex-row overflow-hidden fade-in relative z-10">
         
-        <aside class="w-full md:w-64 bg-dark-950/80 border-b md:border-b-0 md:border-r border-white/5 flex flex-col shrink-0">
+        <aside class="w-full md:w-64 bg-dark-950/90 border-b md:border-b-0 md:border-r border-white/5 flex flex-col shrink-0 backdrop-blur-xl">
             <div class="p-6 hidden md:block border-b border-white/5">
-                <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-sm shadow-lg"><i class="fas fa-store"></i></div>
-                    Gestão Clips
+                <h2 class="text-xl font-black text-white flex items-center gap-3 tracking-tight">
+                    <div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center text-sm shadow-lg border border-brand-400/20"><i class="fas fa-layer-group"></i></div>
+                    MG<span class="text-accent-400">WARE</span>
                 </h2>
             </div>
             
             <nav class="flex-1 px-4 py-4 md:py-6 space-y-0 md:space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-hidden gap-2 md:gap-0 custom-scroll">
-                <button onclick="switchMenu('campanhas')" id="menu-campanhas" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0">
+                <button onclick="switchMenu('campanhas')" id="menu-campanhas" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0 shadow-lg shadow-brand-600/20 border border-brand-400/20">
                     <i class="fas fa-layer-group w-5 text-center"></i> <span class="hidden md:inline">Campanhas</span>
                 </button>
-                <button onclick="switchMenu('vendedores')" id="menu-vendedores" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-bold transition-all shrink-0">
+                <button onclick="switchMenu('vendedores')" id="menu-vendedores" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all shrink-0">
                     <i class="fas fa-users w-5 text-center"></i> <span class="hidden md:inline">Vendedores / Equipe</span>
                 </button>
-                <button onclick="switchMenu('clientes')" id="menu-clientes" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-bold transition-all shrink-0">
+                <button onclick="switchMenu('clientes')" id="menu-clientes" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all shrink-0">
                     <i class="fas fa-user-tag w-5 text-center"></i> <span class="hidden md:inline">Clientes</span>
                 </button>
             </nav>
 
             <div class="p-4 border-t border-white/5 hidden md:block">
-                 <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-slate-400 hover:text-red-400 font-bold transition-all flex items-center gap-3">
+                 <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-accent-400 hover:text-red-400 font-bold transition-all flex items-center gap-3">
                      <i class="fas fa-sign-out-alt w-5 text-center"></i> Sair do Sistema
                  </button>
             </div>
@@ -86,8 +92,8 @@
             <div id="view-campanhas" class="flex flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
                 <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <div class="text-center md:text-left">
-                        <h1 class="text-2xl font-black text-white">Gestão Clips <span class="text-brand-500 text-sm bg-brand-500/10 px-2 py-1 rounded ml-2">PRO</span></h1>
-                        <p class="text-slate-400 text-xs mt-1 font-bold">Loja: <span id="storeNameDisplay" class="text-white">...</span></p>
+                        <h1 class="text-2xl font-black text-white">Painel Gestão <span class="text-brand-400 text-sm bg-brand-500/10 border border-brand-500/20 px-2 py-1 rounded ml-2">PRO</span></h1>
+                        <p class="text-accent-400 text-xs mt-1 font-bold">Loja: <span id="storeNameDisplay" class="text-white">...</span></p>
                     </div>
                     <button onclick="logout()" class="glass-panel px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 flex items-center gap-2 md:hidden">
                         <i class="fas fa-sign-out-alt"></i> Sair
@@ -95,35 +101,36 @@
                 </header>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div class="glass-panel p-6 rounded-3xl border-l-4 border-brand-500 relative overflow-hidden">
-                        <div class="absolute right-4 top-4 opacity-10"><i class="fas fa-layer-group text-6xl"></i></div>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Minhas Campanhas</p>
-                        <p class="text-3xl font-bold text-white mt-1" id="campaignCount">0</p>
+                    <div class="glass-panel p-6 rounded-3xl border-l-4 border-brand-500 relative overflow-hidden bg-dark-900/50">
+                        <div class="absolute right-4 top-4 opacity-5"><i class="fas fa-layer-group text-6xl"></i></div>
+                        <p class="text-[10px] text-accent-400 font-bold uppercase tracking-widest">Minhas Campanhas</p>
+                        <p class="text-3xl font-black text-white mt-1" id="campaignCount">0</p>
                     </div>
-                    <button onclick="openNewCampaignModal()" class="bg-brand-600 hover:bg-brand-500 p-6 rounded-3xl flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95 group border border-white/10">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fas fa-plus"></i></div>
-                        <div class="text-left">
-                            <p class="text-xs font-bold text-blue-100 uppercase opacity-80">Criar Nova</p>
-                            <span class="font-bold text-xl">Campanha</span>
+                    <button onclick="openNewCampaignModal()" class="bg-dark-900 border border-white/5 hover:border-brand-500/50 p-6 rounded-3xl flex items-center justify-center gap-4 shadow-lg transition-all active:scale-95 group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-brand-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="w-12 h-12 bg-brand-500/20 border border-brand-500/30 text-brand-400 rounded-full flex items-center justify-center text-xl group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white transition-all z-10"><i class="fas fa-plus"></i></div>
+                        <div class="text-left z-10">
+                            <p class="text-xs font-bold text-accent-400 uppercase tracking-wider">Criar Nova</p>
+                            <span class="font-black text-xl text-white">Campanha</span>
                         </div>
                     </button>
                 </div>
 
-                <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl">
+                <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl bg-dark-900/30">
                     <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                        <h3 class="font-bold text-white flex items-center gap-2"><i class="fas fa-history text-slate-500"></i> Histórico</h3>
-                        <button onclick="fetchDashboard()" class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all"><i class="fas fa-sync-alt text-xs"></i></button>
+                        <h3 class="font-bold text-white flex items-center gap-2 tracking-tight"><i class="fas fa-history text-accent-500"></i> Histórico</h3>
+                        <button onclick="fetchDashboard()" class="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-accent-400 hover:text-white"><i class="fas fa-sync-alt text-xs"></i></button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse min-w-[600px]">
-                            <thead class="bg-dark-900/50 text-slate-500 text-[10px] uppercase font-bold">
+                            <thead class="bg-dark-950/50 text-accent-500 text-[10px] uppercase font-bold tracking-wider">
                                 <tr>
                                     <th class="p-5">Status</th>
                                     <th class="p-5">Campanha</th>
-                                    <th class="p-5 text-right">Link / Editar</th>
+                                    <th class="p-5 text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="campaignList" class="text-sm font-medium text-slate-300 divide-y divide-white/5"></tbody>
+                            <tbody id="campaignList" class="text-sm font-medium text-accent-400 divide-y divide-white/5"></tbody>
                         </table>
                     </div>
                 </div>
@@ -132,74 +139,74 @@
             <div id="view-vendedores" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
                 <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <div class="text-center md:text-left">
-                        <h1 class="text-2xl font-black text-white">Equipe de Vendas</h1>
-                        <p class="text-slate-400 text-xs mt-1 font-bold">Gerencie seus vendedores e links comissionados</p>
+                        <h1 class="text-2xl font-black text-white tracking-tight">Equipe de Vendas</h1>
+                        <p class="text-accent-400 text-xs mt-1 font-bold">Gerencie seus vendedores e links comissionados</p>
                     </div>
-                    <button class="bg-brand-600 hover:bg-brand-500 px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all shadow-lg flex items-center gap-2">
+                    <button class="bg-brand-600 hover:bg-brand-500 px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all shadow-lg shadow-brand-600/30 flex items-center gap-2 border border-brand-400/20">
                         <i class="fas fa-user-plus"></i> Novo Vendedor
                     </button>
                 </header>
 
-                <div class="glass-panel p-10 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-20">
-                    <div class="w-20 h-20 bg-dark-900 rounded-full flex items-center justify-center mb-4 shadow-inner">
-                        <i class="fas fa-users-cog text-3xl text-slate-500"></i>
+                <div class="glass-panel p-10 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-20 bg-dark-900/30">
+                    <div class="w-20 h-20 bg-dark-950 border border-white/5 rounded-2xl flex items-center justify-center mb-6 shadow-inner text-brand-500">
+                        <i class="fas fa-users-cog text-3xl"></i>
                     </div>
                     <h2 class="text-xl font-bold text-white mb-2">Estrutura Pronta</h2>
-                    <p class="text-slate-400 text-sm max-w-md">Esta tela está pronta para receber a conexão com a tabela "vendedores" que acabamos de criar no banco de dados.</p>
+                    <p class="text-accent-400 text-sm max-w-md">Esta tela está pronta para receber a conexão com a tabela "vendedores" que acabamos de criar no banco de dados.</p>
                 </div>
             </div>
 
             <div id="view-clientes" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
                 <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <div class="text-center md:text-left">
-                        <h1 class="text-2xl font-black text-white">Base de Clientes</h1>
-                        <p class="text-slate-400 text-xs mt-1 font-bold">Histórico e gestão de contatos</p>
+                        <h1 class="text-2xl font-black text-white tracking-tight">Base de Clientes</h1>
+                        <p class="text-accent-400 text-xs mt-1 font-bold">Histórico e gestão de contatos</p>
                     </div>
                 </header>
 
-                <div class="glass-panel p-10 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-20">
-                    <div class="w-20 h-20 bg-dark-900 rounded-full flex items-center justify-center mb-4 shadow-inner">
-                        <i class="fas fa-address-book text-3xl text-slate-500"></i>
+                <div class="glass-panel p-10 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-20 bg-dark-900/30">
+                    <div class="w-20 h-20 bg-dark-950 border border-white/5 rounded-2xl flex items-center justify-center mb-6 shadow-inner text-accent-500">
+                        <i class="fas fa-address-book text-3xl"></i>
                     </div>
                     <h2 class="text-xl font-bold text-white mb-2">Módulo em Construção</h2>
-                    <p class="text-slate-400 text-sm max-w-md">O CRM de clientes será ativado nas próximas atualizações do sistema.</p>
+                    <p class="text-accent-400 text-sm max-w-md">O CRM de clientes será ativado nas próximas atualizações do sistema.</p>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/80 backdrop-blur-sm p-4">
+    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
         <div class="glass-panel w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
-            <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-bold text-center mb-1">Nova Campanha</h3>
-            <p class="text-center text-slate-400 text-xs mb-6">Dê um nome para identificar esta venda</p>
+            <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+            <h3 class="text-xl font-black text-center mb-1 text-white tracking-tight">Nova Campanha</h3>
+            <p class="text-center text-accent-400 text-xs mb-6">Dê um nome para identificar esta venda</p>
             
-            <input type="text" id="newCampaignName" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-5 py-4 mb-6 text-white outline-none focus:border-brand-500 transition-all font-bold placeholder:font-normal" placeholder="Ex: Queima de Estoque">
+            <input type="text" id="newCampaignName" class="w-full bg-dark-950 border border-white/10 rounded-xl px-5 py-4 mb-6 text-white outline-none focus:border-brand-500 transition-all font-bold placeholder:font-normal placeholder:text-accent-600" placeholder="Ex: Queima de Estoque">
             
-            <button onclick="createCampaign()" id="btnCreateCamp" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all">
+            <button onclick="createCampaign()" id="btnCreateCamp" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20">
                 Criar Agora
             </button>
         </div>
     </div>
 
-    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/90 backdrop-blur-xl md:p-6">
-        <div class="glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative border border-white/10 md:max-w-6xl bg-dark-900">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-dark-900/50 backdrop-blur-md z-10">
+    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/95 backdrop-blur-xl md:p-6">
+        <div class="glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative border border-white/10 md:max-w-6xl bg-dark-900/90">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-dark-950/50 backdrop-blur-md z-10">
                 <div>
-                    <h3 class="text-xl font-bold text-white" id="editModalTitle">...</h3>
-                    <p class="text-slate-400 text-xs mt-1 flex items-center gap-1"><i class="fas fa-shield-alt text-green-500"></i> Modo de edição segura ativo</p>
+                    <h3 class="text-xl font-black text-white tracking-tight" id="editModalTitle">...</h3>
+                    <p class="text-accent-400 text-xs mt-1 flex items-center gap-1"><i class="fas fa-shield-alt text-brand-500"></i> Modo de edição segura ativo</p>
                 </div>
-                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-accent-400 hover:text-white flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-6 custom-scroll bg-gradient-to-b from-dark-900 to-dark-950" id="productListArea"></div>
+            <div class="flex-1 overflow-y-auto p-6 custom-scroll bg-dark-950/30" id="productListArea"></div>
             
-            <div class="p-6 border-t border-white/5 flex justify-between items-center bg-dark-900/80 backdrop-blur-md z-10">
-                <p class="text-xs text-slate-500 hidden md:block">Lembre-se de salvar cada item individualmente.</p>
+            <div class="p-6 border-t border-white/5 flex justify-between items-center bg-dark-950/80 backdrop-blur-md z-10">
+                <p class="text-xs text-accent-500 hidden md:block">Lembre-se de salvar cada item individualmente.</p>
                 <div class="flex gap-3">
-                    <button onclick="closeEditModal()" class="px-6 py-3 rounded-xl text-slate-400 hover:text-white font-bold text-sm transition-colors">Voltar</button>
-                    <button onclick="activateCampaign()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95 flex items-center gap-2">
+                    <button onclick="closeEditModal()" class="px-6 py-3 rounded-xl text-accent-400 hover:text-white hover:bg-white/5 font-bold text-sm transition-colors border border-transparent hover:border-white/10">Voltar</button>
+                    <button onclick="activateCampaign()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/30 transition-all active:scale-95 flex items-center gap-2 border border-brand-400/20">
                         <i class="fas fa-check-circle"></i> Publicar Campanha
                     </button>
                 </div>
@@ -207,15 +214,16 @@
         </div>
     </div>
 
-    <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-dark-950/80 hidden">
-        <div class="bg-white w-full max-w-xs p-6 rounded-2xl text-center shadow-2xl transform transition-all scale-100">
-            <div id="alert-icon" class="text-3xl mb-3">⚠️</div>
-            <p id="alert-msg" class="text-slate-800 font-bold mb-4">Mensagem</p>
-            <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl transition-all">Entendido</button>
+    <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-dark-950/90 backdrop-blur-sm hidden">
+        <div class="bg-dark-900 border border-white/10 w-full max-w-xs p-8 rounded-3xl text-center shadow-2xl transform transition-all scale-100">
+            <div id="alert-icon" class="text-3xl mb-4 text-brand-500 bg-brand-500/10 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center border border-brand-500/20">⚠️</div>
+            <p id="alert-msg" class="text-white font-bold mb-6">Mensagem</p>
+            <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all">Entendido</button>
         </div>
     </div>
 
     <script>
+        // Lógica de UI que você já tinha:
         const rodandoLocalmente = window.location.hostname === 'localhost' || 
                                   window.location.hostname === '127.0.0.1' || 
                                   window.location.protocol === 'file:';
@@ -307,6 +315,7 @@
 
         function initDashboard() {
             document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('bgGlow').classList.remove('hidden'); // Mostra o glow do dashboard
             document.getElementById('dashboard').classList.remove('hidden');
             if(!currentUser) currentUser = JSON.parse(localStorage.getItem('user_session'));
             document.getElementById('storeNameDisplay').innerText = currentUser.nome;
@@ -322,7 +331,7 @@
 
         async function fetchDashboard() {
             const tbody = document.getElementById('campaignList');
-            tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500"><i class="fas fa-circle-notch fa-spin"></i></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-accent-500"><i class="fas fa-circle-notch fa-spin text-2xl"></i></td></tr>';
 
             try {
                 const res = await fetch(ENDPOINTS.MAIN, {
@@ -337,7 +346,7 @@
                     renderTable(data.campanhas);
                 } else {
                     document.getElementById('campaignCount').innerText = "0";
-                    tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500">Nenhuma campanha encontrada.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-accent-500">Nenhuma campanha encontrada.</td></tr>';
                 }
             } catch (e) {
                 tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-400">Erro ao carregar dados.</td></tr>';
@@ -350,21 +359,23 @@
 
             list.forEach(c => {
                 const isActive = c.status && c.status.toLowerCase() === 'ativa';
+                
+                // Cores do Badge ajustadas para fundo escuro
                 const statusBadge = isActive 
-                    ? '<span class="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide">● Ativa</span>' 
-                    : '<span class="text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide">● Rascunho</span>';
+                    ? '<span class="text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">● Ativa</span>' 
+                    : '<span class="text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">● Rascunho</span>';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
                         <td class="p-5">${statusBadge}</td>
                         <td class="p-5">
                             <p class="font-bold text-white text-base">${c.nome_campanha}</p>
-                            <p class="text-xs text-slate-500 font-mono">ID: ${c.id_campanha}</p>
+                            <p class="text-xs text-accent-500 font-mono mt-0.5">ID: ${c.id_campanha}</p>
                         </td>
                         <td class="p-5 text-right">
                             <div class="flex justify-end gap-2">
-                                <button onclick="copyLink('${baseUrl}?id=${c.id_campanha}')" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-brand-600 text-slate-400 hover:text-white border border-white/5 shadow-md flex items-center justify-center"><i class="fas fa-link"></i></button>
-                                <button onclick="openEditor(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-white hover:text-dark-900 text-slate-400 border border-white/5 shadow-md flex items-center justify-center"><i class="fas fa-pen text-sm"></i></button>
+                                <button onclick="copyLink('${baseUrl}?id=${c.id_campanha}')" class="w-10 h-10 rounded-xl bg-dark-950 border border-white/10 hover:border-brand-500/50 hover:bg-brand-500/10 text-accent-400 hover:text-brand-400 shadow-md flex items-center justify-center transition-all" title="Copiar Link"><i class="fas fa-link"></i></button>
+                                <button onclick="openEditor(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-white text-dark-900 hover:bg-slate-200 shadow-md flex items-center justify-center transition-all" title="Editar Produtos"><i class="fas fa-pen text-sm"></i></button>
                             </div>
                         </td>
                     </tr>`;
@@ -408,28 +419,27 @@
             document.getElementById('editModalTitle').innerText = name;
             document.getElementById('editProductsModal').classList.add('visible');
             const area = document.getElementById('productListArea');
-            area.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-slate-500 gap-3"><i class="fas fa-spinner fa-spin text-3xl text-brand-500"></i><p>Sincronizando...</p></div>';
+            area.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-accent-500 gap-4"><i class="fas fa-circle-notch fa-spin text-4xl text-brand-500"></i><p class="font-medium">Sincronizando produtos...</p></div>';
 
             try {
                 const res = await fetch(`${ENDPOINTS.PRODUCTS}?id_campanha=${id}`);
                 const data = await res.json();
                 renderProducts(Array.isArray(data) ? data : (data.products || []));
             } catch (e) {
-                area.innerHTML = '<div class="text-center py-20 text-red-400">Falha ao carregar produtos.</div>';
+                area.innerHTML = '<div class="text-center py-20 text-red-400 font-bold">Falha ao carregar produtos.</div>';
             }
         }
 
         function renderProducts(list) {
             const area = document.getElementById('productListArea'); area.innerHTML = '';
             if(list.length === 0) {
-                area.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-slate-500 border-2 border-dashed border-white/5 rounded-3xl"><i class="fas fa-camera text-4xl mb-4 opacity-50"></i><p>Nenhum produto.</p></div>';
+                area.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-accent-500 border-2 border-dashed border-white/10 rounded-3xl bg-dark-900/50"><i class="fas fa-camera text-4xl mb-4 opacity-50"></i><p class="font-medium">Esta campanha ainda não tem produtos.</p></div>';
                 return;
             }
 
             list.forEach(p => {
                 const pid = p.id_grupo || p.id;
                 
-                // Inteligência para ler o pacote agrupado do PostgreSQL (json_agg)
                 let midias = [];
                 if (p.midias_detalhadas && Array.isArray(p.midias_detalhadas)) {
                     midias = p.midias_detalhadas;
@@ -438,7 +448,7 @@
                 } else if (p.url_publica) {
                     midias = [{ url: p.url_publica, ativo: true }];
                 } else {
-                    midias = [{ url: 'https://placehold.co/400?text=Sem+Foto', ativo: true }];
+                    midias = [{ url: 'https://placehold.co/400/171717/525252?text=Sem+Foto', ativo: true }]; // Placeholder escuro
                 }
 
                 const primeiraImg = midias.find(m => m.ativo)?.url || midias[0].url;
@@ -446,18 +456,18 @@
                 let miniaturasHTML = '<div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2">';
                 midias.forEach((m) => {
                     const isVid = isVideo(m.url);
-                    const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/80 text-xl shadow-sm"></i></div>' : '';
+                    const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/90 text-xl shadow-sm"></i></div>' : '';
                     
                     miniaturasHTML += `
-                        <div class="thumbnail-item relative w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group" onclick="changeMainMedia('${pid}', '${m.url}')">
-                            ${buildMediaTag(m.url, "w-full h-full object-cover")}
+                        <div class="thumbnail-item relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group bg-dark-950" onclick="changeMainMedia('${pid}', '${m.url}')">
+                            ${buildMediaTag(m.url, "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity")}
                             ${overlayIcon}
-                            <div class="absolute top-1 right-1 bg-dark-950/80 rounded flex items-center justify-center p-1 shadow-md z-10" onclick="event.stopPropagation();">
+                            <div class="absolute top-1 right-1 bg-dark-950/90 rounded flex items-center justify-center p-1 shadow-md z-10 border border-white/10" onclick="event.stopPropagation();">
                                 <input type="checkbox" class="img-check-${pid} w-4 h-4 accent-brand-500 cursor-pointer" value="${m.url}" ${m.ativo ? 'checked' : ''} onchange="markUnsaved();">
                             </div>
-                            <div class="absolute bottom-0 left-0 right-0 h-6 bg-black/70 backdrop-blur-sm flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <div class="absolute bottom-0 left-0 right-0 h-6 bg-black/80 backdrop-blur-sm flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                 <button onclick="moveThumb(this, 'left', event)" class="text-white hover:text-brand-400 p-1"><i class="fas fa-chevron-left text-[10px]"></i></button>
-                                <span class="text-[8px] text-slate-300 font-bold">ORDEM</span>
+                                <span class="text-[8px] text-accent-300 font-bold">ORDEM</span>
                                 <button onclick="moveThumb(this, 'right', event)" class="text-white hover:text-brand-400 p-1"><i class="fas fa-chevron-right text-[10px]"></i></button>
                             </div>
                         </div>
@@ -466,42 +476,48 @@
                 miniaturasHTML += '</div>';
 
                 area.innerHTML += `
-                    <div class="glass-panel p-0 rounded-2xl mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
-                        <div class="w-full xl:w-80 p-4 bg-dark-900 border-r border-white/5 relative shrink-0 flex flex-col justify-center">
-                            <div class="w-full aspect-square rounded-xl overflow-hidden bg-dark-950 relative shadow-inner" id="main-media-container-${pid}">
+                    <div class="glass-panel p-0 rounded-[1.5rem] mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950/80 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
+                        <div class="w-full xl:w-80 p-5 bg-dark-900/50 border-r border-white/5 relative shrink-0 flex flex-col justify-center">
+                            <div class="w-full aspect-square rounded-2xl overflow-hidden bg-dark-950 relative shadow-inner border border-white/5" id="main-media-container-${pid}">
                                 ${buildMediaTag(primeiraImg, "w-full h-full object-cover transition-opacity duration-300")}
                             </div>
                             ${miniaturasHTML}
                         </div>
-                        <div class="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 gap-5 relative">
+                        <div class="flex-1 p-6 lg:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 relative">
                             <div class="md:col-span-2">
-                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Nome do Produto *</label>
-                                <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Nome do Produto *</label>
+                                <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3.5 text-white font-medium focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">R$ De</label>
-                                <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white" onchange="markUnsaved()">
+                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Preço De (Opcional)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-sm">R$</span>
+                                    <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-white font-medium focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-emerald-500 uppercase mb-1 block">R$ Por</label>
-                                <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-dark-950 border border-emerald-900/50 rounded-xl px-4 py-3 text-emerald-400 font-bold" onchange="markUnsaved()">
+                                <label class="text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-2 block">Preço Por *</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-brand-500 font-bold text-sm">R$</span>
+                                    <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-brand-500/10 border border-brand-500/30 rounded-xl pl-10 pr-4 py-3.5 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Cor</label>
-                                <input type="text" id="color-${pid}" value="${p.cor || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white" onchange="markUnsaved()">
+                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Cor (Opcional)</label>
+                                <input type="text" id="color-${pid}" value="${p.cor || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Tamanho</label>
-                                <input type="text" id="size-${pid}" value="${p.tamanho || ''}" class="w-full bg-dark-950 border border-slate-700 rounded-xl px-4 py-3 text-white" onchange="markUnsaved()">
+                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Tamanho (Opcional)</label>
+                                <input type="text" id="size-${pid}" value="${p.tamanho || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                             </div>
-                            <div class="md:col-span-2 border-t border-white/5 pt-5 flex items-center justify-between">
+                            <div class="md:col-span-2 border-t border-white/5 pt-6 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                 <label class="flex items-center gap-3 cursor-pointer">
                                     <input type="checkbox" id="active-${pid}" ${p.ativo !== false ? 'checked' : ''} class="sr-only peer" onchange="markUnsaved()">
-                                    <div class="w-10 h-6 bg-slate-700 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
-                                    <span class="text-xs font-bold text-slate-400">Visível na Loja</span>
+                                    <div class="w-12 h-7 bg-dark-900 border border-white/10 rounded-full peer peer-checked:bg-green-500 peer-checked:border-green-400 transition-colors relative after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                                    <span class="text-sm font-bold text-accent-300">Visível na Loja</span>
                                 </label>
-                                <button onclick="saveProduct('${pid}')" id="btnSave-${pid}" class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-2">
-                                    Salvar Item <i class="fas fa-save"></i>
+                                <button onclick="saveProduct('${pid}')" id="btnSave-${pid}" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2 border border-brand-400/20 active:scale-95">
+                                    Salvar Produto <i class="fas fa-save"></i>
                                 </button>
                             </div>
                         </div>
@@ -517,7 +533,7 @@
             const checkboxFotos = document.querySelectorAll(`.img-check-${pid}:checked`);
             const fotosSelecionadas = Array.from(checkboxFotos).map(cb => cb.value);
 
-            if (!name) return showAlert("Nome obrigatório.");
+            if (!name) return showAlert("Nome do produto é obrigatório.");
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled = true;
 
             try {
@@ -540,22 +556,24 @@
                 
                 if (res.ok) {
                     unsavedChanges = false;
-                    btn.innerHTML = '<i class="fas fa-check"></i>';
-                    btn.classList.replace('bg-brand-600', 'bg-green-500');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
+                    btn.classList.replace('bg-brand-600', 'bg-green-600');
+                    btn.classList.replace('border-brand-400/20', 'border-green-400/20');
                     setTimeout(() => {
-                        btn.innerHTML = 'Salvar Item <i class="fas fa-save"></i>';
-                        btn.classList.replace('bg-green-500', 'bg-brand-600');
+                        btn.innerHTML = 'Salvar Produto <i class="fas fa-save"></i>';
+                        btn.classList.replace('bg-green-600', 'bg-brand-600');
+                        btn.classList.replace('border-green-400/20', 'border-brand-400/20');
                         btn.disabled = false;
                     }, 2000);
                 }
             } catch (e) {
-                showAlert("Erro ao salvar.");
+                showAlert("Erro de conexão ao tentar salvar.");
                 btn.disabled = false;
             }
         }
 
         async function activateCampaign() {
-            if(unsavedChanges && !confirm("Deseja publicar sem salvar as alterações?")) return;
+            if(unsavedChanges && !confirm("Você tem alterações de produtos não salvas. Deseja publicar a campanha mesmo assim?")) return;
             await fetch(ENDPOINTS.UPDATE, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -563,11 +581,11 @@
             });
             closeEditModal();
             fetchDashboard();
-            showAlert("Campanha publicada com sucesso!", "success");
+            showAlert("Campanha publicada e visível para os clientes!", "success");
         }
 
         function closeEditModal() { 
-            if(unsavedChanges && !confirm("Você tem alterações não salvas. Deseja sair?")) return;
+            if(unsavedChanges && !confirm("Atenção: Você tem alterações não salvas. Deseja fechar e perder as modificações?")) return;
             document.getElementById('editProductsModal').classList.remove('visible'); 
             unsavedChanges = false;
         }
@@ -582,7 +600,14 @@
 
         function showAlert(msg, type='error') {
             document.getElementById('alert-msg').innerText = msg;
-            document.getElementById('alert-icon').innerHTML = type === 'success' ? '✅' : '⚠️';
+            const icon = document.getElementById('alert-icon');
+            if(type === 'success') {
+                icon.innerHTML = '<i class="fas fa-check"></i>';
+                icon.className = "text-3xl mb-4 text-green-500 bg-green-500/10 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center border border-green-500/20";
+            } else {
+                icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                icon.className = "text-3xl mb-4 text-brand-500 bg-brand-500/10 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center border border-brand-500/20";
+            }
             document.getElementById('custom-alert').classList.remove('hidden');
         }
 
@@ -604,7 +629,7 @@
             const menus = ['campanhas', 'vendedores', 'clientes'];
             menus.forEach(m => {
                 const btn = document.getElementById('menu-' + m);
-                btn.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-bold transition-all shrink-0";
+                btn.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all shrink-0";
             });
 
             // 3. Mostra a view clicada
@@ -613,7 +638,7 @@
 
             // 4. Acende o botão do menu clicado
             const activeMenu = document.getElementById('menu-' + viewId);
-            activeMenu.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0";
+            activeMenu.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0 shadow-lg shadow-brand-600/20 border border-brand-400/20";
         }
     </script>
 </body>
