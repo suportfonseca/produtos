@@ -71,7 +71,19 @@
             <div id="cartItemsList" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 no-scrollbar"></div>
             <div class="p-8 bg-white border-t border-slate-100">
                 <div class="flex justify-between text-slate-900 text-2xl font-black mb-6"><span>Total</span><span id="summaryTotal">R$ 0,00</span></div>
-                <button onclick="finalizeOrder()" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 flex items-center justify-center gap-3 text-lg">
+                
+                <div class="mb-4">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Quem está te atendendo?</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-brand-500"></i>
+                        <select id="vendedorSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-10 pr-4 font-bold text-slate-800 outline-none focus:border-brand-500 appearance-none cursor-pointer">
+                            <option value="loja">Ninguém / Loja Oficial</option>
+                            </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                    </div>
+                </div>
+
+                <button onclick="finalizeOrder()" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 flex items-center justify-center gap-3 text-lg transition-transform">
                     <span>Finalizar Pedido</span> <i class="fab fa-whatsapp text-2xl"></i>
                 </button>
             </div>
@@ -125,13 +137,21 @@
         const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id') };
         
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
+        let teamList = []; // Nova variável para guardar os vendedores
+
+        // ====== MAGICA DO LINK DE AFILIADO ======
+        // 1. Lê a URL para ver se tem ?v=joao
+        const vCode = urlParams.get('v');
+        if (vCode) {
+            // 2. Se tiver, salva no celular do cliente para ele não perder a comissão
+            localStorage.setItem('saved_vendedor_code', vCode);
+        }
+        // ========================================
 
         function isVideo(url) { if (!url) return false; return url.includes('.mp4') || url.includes('.mov') || url.includes('.webm'); }
         
-        // Função para construir mídia - Parâmetro isStatic adicionado para controlar o print no carrinho
         function buildMediaTag(url, classes, isCard = true, isStatic = false) {
             if (isVideo(url)) {
-                // Se isStatic for true (chamado no carrinho), remove autoplay e loop
                 const videoAttrs = isStatic 
                     ? `preload="metadata" muted playsinline` 
                     : `autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}`;
@@ -142,6 +162,7 @@
 
         async function loadProducts() {
             try {
+                // Passo 1: Busca os Produtos
                 const res = await fetch(`${CONFIG.apiUrl}?id_campanha=${CONFIG.campaignId}`);
                 const data = await res.json();
                 let rawList = Array.isArray(data) ? data : (data.products || []);
@@ -156,13 +177,37 @@
                     return { id: p.id_grupo || p.id || i, name: p.nome_produto, desc: p.descricao, priceFrom: p.preco_de, priceTo: p.preco_por || "0.00", cor: p.cor || "-", tamanho: p.tamanho || "-", images: midias, active: p.ativo !== false };
                 }).filter(p => p.active);
                 renderProducts();
+
+                // Passo 2: Busca os Vendedores (Novo Fluxo n8n)
+                const resVendedores = await fetch(`${CONFIG.apiUrl}?acao=vendedores&id_campanha=${CONFIG.campaignId}`);
+                const dataVendedores = await resVendedores.json();
+                teamList = Array.isArray(dataVendedores) ? dataVendedores : [];
+                renderVendedorDropdown();
+
             } catch (e) { console.error(e); }
+        }
+
+        function renderVendedorDropdown() {
+            const select = document.getElementById('vendedorSelect');
+            const savedCode = localStorage.getItem('saved_vendedor_code');
+
+            teamList.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.telefone; // Salva o WhatsApp do vendedor como valor
+                opt.text = v.nome;
+                
+                // Se o código da URL bater com o código do vendedor, deixa ele já selecionado
+                if (savedCode && savedCode.toLowerCase() === v.codigo_afiliado.toLowerCase()) {
+                    opt.selected = true;
+                }
+                
+                select.appendChild(opt);
+            });
         }
 
         function renderProducts() {
             const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
             products.forEach(p => {
-                // No catálogo principal, isStatic é false (padrão), então o vídeo roda
                 let mediaHTML = p.images.length > 0 ? buildMediaTag(p.images[0], `card-media absolute inset-0 w-full h-full object-cover opacity-100 z-10`) : `<img src="https://placehold.co/400?text=Sem+Foto" class="card-media absolute inset-0 w-full h-full object-cover opacity-100 z-10">`;
                 const pDe = parseFloat(p.priceFrom), pPor = parseFloat(p.priceTo);
                 const descP = pDe && pDe > pPor ? Math.round(((pDe - pPor) / pDe) * 100) : 0;
@@ -202,7 +247,6 @@
                 const p = products.find(x => x.id == id);
                 if(p) {
                     const sub = parseFloat(p.priceTo) * qty; total += sub;
-                    // Correção solicitada: No carrinho, isStatic é true, transformando o vídeo em "print" fixo
                     const imgTag = buildMediaTag(p.images[0], "w-14 h-14 rounded-xl object-cover bg-slate-100", true, true);
                     list.innerHTML += `<div class="flex gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm items-center">${imgTag}<div class="flex-1 leading-tight"><h4 class="text-sm font-black">${p.name}</h4><p class="text-[10px] text-slate-400 mt-1 uppercase font-bold">${p.cor} | ${p.tamanho}</p></div><div class="flex items-center bg-slate-100 rounded-lg h-8 px-2"><button onclick="changeQty('${p.id}', -1)" class="px-2 font-bold">-</button><span class="w-4 text-center text-xs font-black">${qty}</span><button onclick="changeQty('${p.id}', 1)" class="px-2 font-bold">+</button></div></div>`;
                 }
@@ -250,7 +294,6 @@
         function renderModalMedia() {
             const container = document.getElementById('modalMediaContainer');
             const url = currentProduct.images[currentMediaIdx] || 'https://placehold.co/400?text=Sem+Foto';
-            // No modal, isStatic continua false para o vídeo rodar normalmente
             container.innerHTML = buildMediaTag(url, "w-full h-full object-contain bg-black", false);
             document.getElementById('modalNav').classList.toggle('hidden', currentProduct.images.length <= 1);
         }
@@ -259,13 +302,29 @@
         function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
 
         function finalizeOrder() {
-            let msg = `🛒 *PEDIDO - CLIPS PAPELARIA*\n*Cliente:* ${userPhone}\n\n`;
+            // Verifica para quem enviar o pedido
+            const selectTarget = document.getElementById('vendedorSelect');
+            const selectedPhone = selectTarget.value;
+            
+            // Se for "loja", usa o CONFIG padrão. Se não, usa o telefone do vendedor.
+            let whatsappTarget = selectedPhone === 'loja' ? CONFIG.whatsappNumber : selectedPhone;
+
+            let msg = `🛒 *PEDIDO - CLIPS PAPELARIA*\n*Cliente:* ${userPhone}\n`;
+            
+            // Adiciona menção do vendedor no texto se houver
+            if(selectedPhone !== 'loja') {
+                const vendedorNome = selectTarget.options[selectTarget.selectedIndex].text;
+                msg += `*Atendimento:* ${vendedorNome}\n`;
+            }
+            msg += `\n`;
+
             Object.entries(cart).forEach(([id, qty]) => {
                 const p = products.find(x => x.id == id);
                 if (p) msg += `▫️ *${qty}x ${p.name}* (${p.cor}|${p.tamanho}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
             });
             msg += `\n💰 *TOTAL: ${document.getElementById('summaryTotal').innerText}*`;
-            window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+            
+            window.open(`https://wa.me/${whatsappTarget}?text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
 </body>
