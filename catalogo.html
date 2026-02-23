@@ -162,48 +162,55 @@
             try {
                 // Passo 1: Busca os Produtos
                 const res = await fetch(`${CONFIG.apiUrl}?id_campanha=${CONFIG.campaignId}`);
-                const data = await res.json();
-                let rawList = Array.isArray(data) ? data : (data.products || []);
-                if (rawList.length > 0) {
-                    const first = rawList[0].json || rawList[0];
-                    if (first.nome_campanha) document.getElementById('campaignTitleDisplay').innerText = first.nome_campanha.toUpperCase();
+                if (res.ok) {
+                    const data = await res.json();
+                    let rawList = Array.isArray(data) ? data : (data.products || []);
+                    if (rawList.length > 0) {
+                        const first = rawList[0].json || rawList[0];
+                        if (first.nome_campanha) document.getElementById('campaignTitleDisplay').innerText = first.nome_campanha.toUpperCase();
+                    }
+                    products = rawList.map((item, i) => {
+                        const p = item.json || item;
+                        let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo).map(m => m.url) : (p.imagens || []);
+                        if(midias.length === 0 && p.url_publica) midias.push(p.url_publica);
+                        return { id: p.id_grupo || p.id || i, name: p.nome_produto, desc: p.descricao, priceFrom: p.preco_de, priceTo: p.preco_por || "0.00", cor: p.cor || "-", tamanho: p.tamanho || "-", images: midias, active: p.ativo !== false };
+                    }).filter(p => p.active);
+                    renderProducts();
                 }
-                products = rawList.map((item, i) => {
-                    const p = item.json || item;
-                    let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo).map(m => m.url) : (p.imagens || []);
-                    if(midias.length === 0 && p.url_publica) midias.push(p.url_publica);
-                    return { id: p.id_grupo || p.id || i, name: p.nome_produto, desc: p.descricao, priceFrom: p.preco_de, priceTo: p.preco_por || "0.00", cor: p.cor || "-", tamanho: p.tamanho || "-", images: midias, active: p.ativo !== false };
-                }).filter(p => p.active);
-                renderProducts();
 
-                // Passo 2: Busca os Vendedores (Com blindagem inteligente)
+                // Passo 2: Busca os Vendedores (Com blindagem inteligente para desembrulhar JSON do n8n)
                 const resVendedores = await fetch(`${CONFIG.apiUrl}?acao=vendedores&id_campanha=${CONFIG.campaignId}`);
-                const dataVendedores = await resVendedores.json();
-                
-                // Inteligência para ler independente de como o n8n enviar
-                if (Array.isArray(dataVendedores)) {
-                    teamList = dataVendedores;
-                } else if (dataVendedores && dataVendedores.nome) {
-                    teamList = [dataVendedores]; // Se vier só um vendedor solto, transforma em lista
-                } else {
-                    teamList = [];
+                if (resVendedores.ok) {
+                    const dataVendedores = await resVendedores.json();
+                    
+                    // Extrai o array corretamente quer venha puro ou embrulhado em "data"
+                    let rawVendedores = Array.isArray(dataVendedores) ? dataVendedores : (dataVendedores.data || [dataVendedores]);
+                    
+                    // Desembrulha a chave "json" que o nó do Postgres adiciona automaticamente
+                    teamList = rawVendedores.map(v => v.json ? v.json : v).filter(v => v && v.nome);
+                    
+                    renderVendedorDropdown();
                 }
-                
-                renderVendedorDropdown();
 
-            } catch (e) { console.error("Erro ao carregar dados:", e); }
+            } catch (e) { console.error("Erro ao carregar dados da API:", e); }
         }
 
         function renderVendedorDropdown() {
             const select = document.getElementById('vendedorSelect');
             const savedCode = localStorage.getItem('saved_vendedor_code');
 
+            // Limpa as opções para evitar duplicações, garantindo que "Loja Oficial" seja sempre a 1ª
+            select.innerHTML = '<option value="loja">Ninguém / Loja Oficial</option>';
+
             teamList.forEach(v => {
+                if(!v.nome) return; // Trava de segurança
+
                 const opt = document.createElement('option');
                 opt.value = v.telefone; 
                 opt.text = v.nome;
                 
-                if (savedCode && savedCode.toLowerCase() === v.codigo_afiliado.toLowerCase()) {
+                // Marca como "Selecionado" se o código bater com o da URL
+                if (savedCode && v.codigo_afiliado && savedCode.toLowerCase() === v.codigo_afiliado.toLowerCase()) {
                     opt.selected = true;
                 }
                 
