@@ -137,13 +137,11 @@
         const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id') };
         
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
-        let teamList = []; // Nova variável para guardar os vendedores
+        let teamList = [];
 
         // ====== MAGICA DO LINK DE AFILIADO ======
-        // 1. Lê a URL para ver se tem ?v=joao
         const vCode = urlParams.get('v');
         if (vCode) {
-            // 2. Se tiver, salva no celular do cliente para ele não perder a comissão
             localStorage.setItem('saved_vendedor_code', vCode);
         }
         // ========================================
@@ -178,13 +176,22 @@
                 }).filter(p => p.active);
                 renderProducts();
 
-                // Passo 2: Busca os Vendedores (Novo Fluxo n8n)
+                // Passo 2: Busca os Vendedores (Com blindagem inteligente)
                 const resVendedores = await fetch(`${CONFIG.apiUrl}?acao=vendedores&id_campanha=${CONFIG.campaignId}`);
                 const dataVendedores = await resVendedores.json();
-                teamList = Array.isArray(dataVendedores) ? dataVendedores : [];
+                
+                // Inteligência para ler independente de como o n8n enviar
+                if (Array.isArray(dataVendedores)) {
+                    teamList = dataVendedores;
+                } else if (dataVendedores && dataVendedores.nome) {
+                    teamList = [dataVendedores]; // Se vier só um vendedor solto, transforma em lista
+                } else {
+                    teamList = [];
+                }
+                
                 renderVendedorDropdown();
 
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Erro ao carregar dados:", e); }
         }
 
         function renderVendedorDropdown() {
@@ -193,10 +200,9 @@
 
             teamList.forEach(v => {
                 const opt = document.createElement('option');
-                opt.value = v.telefone; // Salva o WhatsApp do vendedor como valor
+                opt.value = v.telefone; 
                 opt.text = v.nome;
                 
-                // Se o código da URL bater com o código do vendedor, deixa ele já selecionado
                 if (savedCode && savedCode.toLowerCase() === v.codigo_afiliado.toLowerCase()) {
                     opt.selected = true;
                 }
@@ -302,16 +308,13 @@
         function updateTempQty(val) { tempQty = Math.max(1, tempQty + val); document.getElementById('tempQtyDisplay').innerText = tempQty; }
 
         function finalizeOrder() {
-            // Verifica para quem enviar o pedido
             const selectTarget = document.getElementById('vendedorSelect');
             const selectedPhone = selectTarget.value;
             
-            // Se for "loja", usa o CONFIG padrão. Se não, usa o telefone do vendedor.
             let whatsappTarget = selectedPhone === 'loja' ? CONFIG.whatsappNumber : selectedPhone;
 
             let msg = `🛒 *PEDIDO - CLIPS PAPELARIA*\n*Cliente:* ${userPhone}\n`;
             
-            // Adiciona menção do vendedor no texto se houver
             if(selectedPhone !== 'loja') {
                 const vendedorNome = selectTarget.options[selectTarget.selectedIndex].text;
                 msg += `*Atendimento:* ${vendedorNome}\n`;
