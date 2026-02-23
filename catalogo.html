@@ -199,8 +199,14 @@
             const select = document.getElementById('vendedorSelect');
             const savedCode = localStorage.getItem('saved_vendedor_code');
 
-            // Limpa as opções para evitar duplicações, garantindo que "Loja Oficial" seja sempre a 1ª
+            // Limpa as opções para evitar duplicações
             select.innerHTML = '<option value="loja">Ninguém / Loja Oficial</option>';
+
+            // Função mágica que remove acentos e deixa tudo minúsculo para comparar
+            const normalizeStr = (str) => {
+                if(!str) return "";
+                return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            };
 
             teamList.forEach(v => {
                 if(!v.nome) return; // Trava de segurança
@@ -209,8 +215,8 @@
                 opt.value = v.telefone; 
                 opt.text = v.nome;
                 
-                // Marca como "Selecionado" se o código bater com o da URL
-                if (savedCode && v.codigo_afiliado && savedCode.toLowerCase() === v.codigo_afiliado.toLowerCase()) {
+                // Compara o código da URL com o código do banco, ignorando acentos!
+                if (savedCode && v.codigo_afiliado && normalizeStr(savedCode) === normalizeStr(v.codigo_afiliado)) {
                     opt.selected = true;
                 }
                 
