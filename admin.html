@@ -26,12 +26,10 @@
         .glass-panel { background: rgba(23, 23, 23, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        #editProductsModal, #newCampaignModal, #newVendedorModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
-        #editProductsModal.visible, #newCampaignModal.visible, #newVendedorModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
+        #editProductsModal, #newCampaignModal, #newVendedorModal, #editVendedorModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
+        #editProductsModal.visible, #newCampaignModal.visible, #newVendedorModal.visible, #editVendedorModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-        .input-error { border-color: #ef4444 !important; animation: shake 0.3s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-dark-950 selection:bg-brand-500 selection:text-white relative">
@@ -145,17 +143,23 @@
                 </header>
 
                 <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl bg-dark-900/30">
-                    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                        <h3 class="font-bold text-white flex items-center gap-2 tracking-tight"><i class="fas fa-users text-accent-500"></i> Vendedores Cadastrados</h3>
-                        <button onclick="fetchVendedores()" class="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-accent-400 hover:text-white"><i class="fas fa-sync-alt text-xs"></i></button>
+                    <div class="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5">
+                        <h3 class="font-bold text-white flex items-center gap-2 tracking-tight"><i class="fas fa-users text-accent-500"></i> Vendedores</h3>
+                        
+                        <div class="flex gap-2 bg-dark-950 p-1 rounded-xl border border-white/10">
+                            <button onclick="filterVendedores('todos')" id="filter-todos" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white transition-all">Todos</button>
+                            <button onclick="filterVendedores('ativos')" id="filter-ativos" class="px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white transition-all">Ativos</button>
+                            <button onclick="filterVendedores('inativos')" id="filter-inativos" class="px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white transition-all">Inativos</button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[600px]">
+                        <table class="w-full text-left border-collapse min-w-[700px]">
                             <thead class="bg-dark-950/50 text-accent-500 text-[10px] uppercase font-bold tracking-wider">
                                 <tr>
                                     <th class="p-5 w-24">Status</th>
                                     <th class="p-5">Vendedor</th>
-                                    <th class="p-5">Link / Apelido</th>
+                                    <th class="p-5">Link da Loja</th>
+                                    <th class="p-5 text-center w-24">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="vendedorList" class="text-sm font-medium text-accent-400 divide-y divide-white/5">
@@ -190,12 +194,32 @@
             <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
             <h3 class="text-xl font-black text-center mb-1 text-white tracking-tight">Nova Campanha</h3>
             <p class="text-center text-accent-400 text-xs mb-6">Dê um nome para identificar esta venda</p>
-            
             <input type="text" id="newCampaignName" class="w-full bg-dark-950 border border-white/10 rounded-xl px-5 py-4 mb-6 text-white outline-none focus:border-brand-500 transition-all font-bold placeholder:font-normal placeholder:text-accent-600" placeholder="Ex: Queima de Estoque">
-            
             <button onclick="createCampaign()" id="btnCreateCamp" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20">
                 Criar Agora
             </button>
+        </div>
+    </div>
+
+    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/95 backdrop-blur-xl md:p-6">
+        <div class="glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative border border-white/10 md:max-w-6xl bg-dark-900/90">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-dark-950/50 backdrop-blur-md z-10">
+                <div>
+                    <h3 class="text-xl font-black text-white tracking-tight" id="editModalTitle">...</h3>
+                    <p class="text-accent-400 text-xs mt-1 flex items-center gap-1"><i class="fas fa-shield-alt text-brand-500"></i> Modo de edição segura ativo</p>
+                </div>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-accent-400 hover:text-white flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 custom-scroll bg-dark-950/30" id="productListArea"></div>
+            <div class="p-6 border-t border-white/5 flex justify-between items-center bg-dark-950/80 backdrop-blur-md z-10">
+                <p class="text-xs text-accent-500 hidden md:block">Lembre-se de salvar cada item individualmente.</p>
+                <div class="flex gap-3">
+                    <button onclick="closeEditModal()" class="px-6 py-3 rounded-xl text-accent-400 hover:text-white hover:bg-white/5 font-bold text-sm transition-colors border border-transparent hover:border-white/10">Voltar</button>
+                    <button onclick="activateCampaign()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/30 transition-all active:scale-95 flex items-center gap-2 border border-brand-400/20">
+                        <i class="fas fa-check-circle"></i> Publicar Campanha
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -215,12 +239,11 @@
                     <input type="text" id="vendedorTelefone" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-brand-500 transition-all font-medium placeholder:text-accent-600" placeholder="5511999999999">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-1 block">Código do Link (O Apelido)</label>
+                    <label class="text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-1 block">Código do Link</label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-sm">?v=</span>
                         <input type="text" id="vendedorCodigo" class="w-full bg-dark-950 border border-brand-500/30 rounded-xl pl-11 pr-4 py-3 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all placeholder:text-accent-600 lowercase" placeholder="joao">
                     </div>
-                    <p class="text-[9px] text-accent-500 mt-1">Sugerido automaticamente. Não use espaços.</p>
                 </div>
             </div>
             
@@ -230,27 +253,39 @@
         </div>
     </div>
 
-    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/95 backdrop-blur-xl md:p-6">
-        <div class="glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative border border-white/10 md:max-w-6xl bg-dark-900/90">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-dark-950/50 backdrop-blur-md z-10">
+    <div id="editVendedorModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
+            <button onclick="closeEditVendedorModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+            <h3 class="text-xl font-black text-center mb-1 text-white tracking-tight">Editar Vendedor</h3>
+            <p class="text-center text-accent-400 text-xs mb-6">Atualize os dados ou desative o acesso</p>
+            
+            <input type="hidden" id="editVendedorId">
+            
+            <div class="space-y-4 mb-6 text-left">
                 <div>
-                    <h3 class="text-xl font-black text-white tracking-tight" id="editModalTitle">...</h3>
-                    <p class="text-accent-400 text-xs mt-1 flex items-center gap-1"><i class="fas fa-shield-alt text-brand-500"></i> Modo de edição segura ativo</p>
+                    <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">Nome Completo</label>
+                    <input type="text" id="editVendedorNome" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-brand-500 transition-all font-medium">
                 </div>
-                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-accent-400 hover:text-white flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
+                <div>
+                    <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">WhatsApp</label>
+                    <input type="text" id="editVendedorTelefone" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-brand-500 transition-all font-medium">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">Código do Link (Não alterável)</label>
+                    <input type="text" id="editVendedorCodigo" class="w-full bg-dark-950/50 border border-white/5 rounded-xl px-4 py-3 text-accent-500 font-mono outline-none cursor-not-allowed" readonly>
+                </div>
+                <div class="pt-4 border-t border-white/10 mt-2">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="editVendedorAtivo" class="sr-only peer">
+                        <div class="w-12 h-7 bg-dark-950 border border-white/10 rounded-full peer peer-checked:bg-green-500 peer-checked:border-green-400 transition-colors relative after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                        <span class="text-sm font-bold text-accent-300">Vendedor Ativo no Sistema</span>
+                    </label>
+                </div>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-6 custom-scroll bg-dark-950/30" id="productListArea"></div>
-            
-            <div class="p-6 border-t border-white/5 flex justify-between items-center bg-dark-950/80 backdrop-blur-md z-10">
-                <p class="text-xs text-accent-500 hidden md:block">Lembre-se de salvar cada item individualmente.</p>
-                <div class="flex gap-3">
-                    <button onclick="closeEditModal()" class="px-6 py-3 rounded-xl text-accent-400 hover:text-white hover:bg-white/5 font-bold text-sm transition-colors border border-transparent hover:border-white/10">Voltar</button>
-                    <button onclick="activateCampaign()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/30 transition-all active:scale-95 flex items-center gap-2 border border-brand-400/20">
-                        <i class="fas fa-check-circle"></i> Publicar Campanha
-                    </button>
-                </div>
-            </div>
+            <button onclick="updateVendedor()" id="btnUpdateVendedor" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20">
+                Salvar Alterações
+            </button>
         </div>
     </div>
 
@@ -282,6 +317,9 @@
         let currentUser = null;
         let currentCampaignId = null;
         let unsavedChanges = false;
+        
+        let allVendedores = []; // Armazena a lista de vendedores localmente
+        let currentVendedorFilter = 'todos'; // Filtro ativo
 
         window.onbeforeunload = function() {
             if (unsavedChanges) return "Você tem alterações não salvas. Deseja sair?";
@@ -354,7 +392,7 @@
 
         function initDashboard() {
             document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('bgGlow').classList.remove('hidden'); // Mostra o glow do dashboard
+            document.getElementById('bgGlow').classList.remove('hidden'); 
             document.getElementById('dashboard').classList.remove('hidden');
             if(!currentUser) currentUser = JSON.parse(localStorage.getItem('user_session'));
             document.getElementById('storeNameDisplay').innerText = currentUser.nome;
@@ -394,7 +432,7 @@
 
         function renderTable(list) {
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
-            const baseUrl = window.location.href.replace('admin.html', 'catalogo.html');
+            const baseUrl = window.location.href.split('?')[0].replace('admin.html', 'catalogo.html'); // Pega a base da loja
 
             list.forEach(c => {
                 const isActive = c.status && c.status.toLowerCase() === 'ativa';
@@ -420,6 +458,7 @@
             });
         }
 
+        // ================== FUNÇÕES DE CAMPANHA E PRODUTO (Mantidas Originais) ==================
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); document.getElementById('newCampaignName').focus(); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
 
@@ -427,45 +466,26 @@
             const name = document.getElementById('newCampaignName').value;
             const btn = document.getElementById('btnCreateCamp');
             if(!name.trim()) return;
-
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled = true;
-
             try {
                 await fetch(ENDPOINTS.MAIN, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        tipo_requisicao: "campanha", 
-                        Nome_campanha: name, 
-                        id_usuario: currentUser.id, 
-                        id_campanha: Math.floor(Math.random() * 900000) + 100000 
-                    })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ tipo_requisicao: "campanha", Nome_campanha: name, id_usuario: currentUser.id, id_campanha: Math.floor(Math.random() * 900000) + 100000 })
                 });
-                closeNewCampaignModal();
-                fetchDashboard();
-                showAlert("Campanha criada com sucesso!", "success");
-            } catch (e) {
-                showAlert("Erro ao criar campanha.");
-            } finally {
-                btn.innerHTML = 'Criar Agora'; btn.disabled = false;
-                document.getElementById('newCampaignName').value = '';
-            }
+                closeNewCampaignModal(); fetchDashboard(); showAlert("Campanha criada com sucesso!", "success");
+            } catch (e) { showAlert("Erro ao criar campanha."); } 
+            finally { btn.innerHTML = 'Criar Agora'; btn.disabled = false; document.getElementById('newCampaignName').value = ''; }
         }
 
         async function openEditor(id, name) {
-            currentCampaignId = id;
-            document.getElementById('editModalTitle').innerText = name;
+            currentCampaignId = id; document.getElementById('editModalTitle').innerText = name;
             document.getElementById('editProductsModal').classList.add('visible');
             const area = document.getElementById('productListArea');
             area.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-accent-500 gap-4"><i class="fas fa-circle-notch fa-spin text-4xl text-brand-500"></i><p class="font-medium">Sincronizando produtos...</p></div>';
-
             try {
                 const res = await fetch(`${ENDPOINTS.PRODUCTS}?id_campanha=${id}`);
-                const data = await res.json();
-                renderProducts(Array.isArray(data) ? data : (data.products || []));
-            } catch (e) {
-                area.innerHTML = '<div class="text-center py-20 text-red-400 font-bold">Falha ao carregar produtos.</div>';
-            }
+                const data = await res.json(); renderProducts(Array.isArray(data) ? data : (data.products || []));
+            } catch (e) { area.innerHTML = '<div class="text-center py-20 text-red-400 font-bold">Falha ao carregar produtos.</div>'; }
         }
 
         function renderProducts(list) {
@@ -474,20 +494,13 @@
                 area.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-accent-500 border-2 border-dashed border-white/10 rounded-3xl bg-dark-900/50"><i class="fas fa-camera text-4xl mb-4 opacity-50"></i><p class="font-medium">Esta campanha ainda não tem produtos.</p></div>';
                 return;
             }
-
             list.forEach(p => {
                 const pid = p.id_grupo || p.id;
-                
                 let midias = [];
-                if (p.midias_detalhadas && Array.isArray(p.midias_detalhadas)) {
-                    midias = p.midias_detalhadas;
-                } else if (p.imagens && Array.isArray(p.imagens)) {
-                    midias = p.imagens.map(url => ({ url: url, ativo: true }));
-                } else if (p.url_publica) {
-                    midias = [{ url: p.url_publica, ativo: true }];
-                } else {
-                    midias = [{ url: 'https://placehold.co/400/171717/525252?text=Sem+Foto', ativo: true }]; // Placeholder escuro
-                }
+                if (p.midias_detalhadas && Array.isArray(p.midias_detalhadas)) { midias = p.midias_detalhadas; } 
+                else if (p.imagens && Array.isArray(p.imagens)) { midias = p.imagens.map(url => ({ url: url, ativo: true })); } 
+                else if (p.url_publica) { midias = [{ url: p.url_publica, ativo: true }]; } 
+                else { midias = [{ url: 'https://placehold.co/400/171717/525252?text=Sem+Foto', ativo: true }]; }
 
                 const primeiraImg = midias.find(m => m.ativo)?.url || midias[0].url;
                 
@@ -495,7 +508,6 @@
                 midias.forEach((m) => {
                     const isVid = isVideo(m.url);
                     const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/90 text-xl shadow-sm"></i></div>' : '';
-                    
                     miniaturasHTML += `
                         <div class="thumbnail-item relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group bg-dark-950" onclick="changeMainMedia('${pid}', '${m.url}')">
                             ${buildMediaTag(m.url, "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity")}
@@ -508,8 +520,7 @@
                                 <span class="text-[8px] text-accent-300 font-bold">ORDEM</span>
                                 <button onclick="moveThumb(this, 'right', event)" class="text-white hover:text-brand-400 p-1"><i class="fas fa-chevron-right text-[10px]"></i></button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
                 miniaturasHTML += '</div>';
 
@@ -528,24 +539,22 @@
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Preço De (Opcional)</label>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-sm">R$</span>
+                                <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-sm">R$</span>
                                     <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-white font-medium focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                                 </div>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-2 block">Preço Por *</label>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-brand-500 font-bold text-sm">R$</span>
+                                <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-brand-500 font-bold text-sm">R$</span>
                                     <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-brand-500/10 border border-brand-500/30 rounded-xl pl-10 pr-4 py-3.5 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                                 </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Cor (Opcional)</label>
+                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Cor</label>
                                 <input type="text" id="color-${pid}" value="${p.cor || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Tamanho (Opcional)</label>
+                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Tamanho</label>
                                 <input type="text" id="size-${pid}" value="${p.tamanho || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                             </div>
                             <div class="md:col-span-2 border-t border-white/5 pt-6 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -563,8 +572,6 @@
             });
         }
 
-        function markUnsaved() { unsavedChanges = true; }
-
         async function saveProduct(pid) {
             const name = document.getElementById(`name-${pid}`).value.trim();
             const btn = document.getElementById(`btnSave-${pid}`);
@@ -576,59 +583,28 @@
 
             try {
                 const res = await fetch(ENDPOINTS.UPDATE, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: "update_product",
-                        id_campanha: currentCampaignId,
-                        id_grupo: pid,
-                        nome_produto: name,
-                        preco_de: document.getElementById(`priceFrom-${pid}`).value,
-                        preco_por: document.getElementById(`priceTo-${pid}`).value,
-                        cor: document.getElementById(`color-${pid}`).value,
-                        tamanho: document.getElementById(`size-${pid}`).value,
-                        ativo: document.getElementById(`active-${pid}`).checked,
-                        imagens_selecionadas: fotosSelecionadas 
-                    })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ action: "update_product", id_campanha: currentCampaignId, id_grupo: pid, nome_produto: name, preco_de: document.getElementById(`priceFrom-${pid}`).value, preco_por: document.getElementById(`priceTo-${pid}`).value, cor: document.getElementById(`color-${pid}`).value, tamanho: document.getElementById(`size-${pid}`).value, ativo: document.getElementById(`active-${pid}`).checked, imagens_selecionadas: fotosSelecionadas })
                 });
-                
                 if (res.ok) {
                     unsavedChanges = false;
-                    btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
-                    btn.classList.replace('bg-brand-600', 'bg-green-600');
-                    btn.classList.replace('border-brand-400/20', 'border-green-400/20');
-                    setTimeout(() => {
-                        btn.innerHTML = 'Salvar Produto <i class="fas fa-save"></i>';
-                        btn.classList.replace('bg-green-600', 'bg-brand-600');
-                        btn.classList.replace('border-green-400/20', 'border-brand-400/20');
-                        btn.disabled = false;
-                    }, 2000);
+                    btn.innerHTML = '<i class="fas fa-check"></i> Salvo!'; btn.classList.replace('bg-brand-600', 'bg-green-600'); btn.classList.replace('border-brand-400/20', 'border-green-400/20');
+                    setTimeout(() => { btn.innerHTML = 'Salvar Produto <i class="fas fa-save"></i>'; btn.classList.replace('bg-green-600', 'bg-brand-600'); btn.classList.replace('border-green-400/20', 'border-brand-400/20'); btn.disabled = false; }, 2000);
                 }
-            } catch (e) {
-                showAlert("Erro de conexão ao tentar salvar.");
-                btn.disabled = false;
-            }
+            } catch (e) { showAlert("Erro de conexão ao tentar salvar."); btn.disabled = false; }
         }
 
         async function activateCampaign() {
-            if(unsavedChanges && !confirm("Você tem alterações de produtos não salvas. Deseja publicar a campanha mesmo assim?")) return;
-            await fetch(ENDPOINTS.UPDATE, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: "update_status", id_campanha: currentCampaignId, status: "ativa" })
-            });
-            closeEditModal();
-            fetchDashboard();
-            showAlert("Campanha publicada e visível para os clientes!", "success");
+            if(unsavedChanges && !confirm("Você tem alterações não salvas. Publicar mesmo assim?")) return;
+            await fetch(ENDPOINTS.UPDATE, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: "update_status", id_campanha: currentCampaignId, status: "ativa" }) });
+            closeEditModal(); fetchDashboard(); showAlert("Campanha publicada com sucesso!", "success");
         }
 
         function closeEditModal() { 
             if(unsavedChanges && !confirm("Atenção: Você tem alterações não salvas. Deseja fechar e perder as modificações?")) return;
-            document.getElementById('editProductsModal').classList.remove('visible'); 
-            unsavedChanges = false;
+            document.getElementById('editProductsModal').classList.remove('visible'); unsavedChanges = false;
         }
-        function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
-        
+
         function copyLink(url) {
             navigator.clipboard.writeText(url);
             const btn = event.currentTarget, original = btn.innerHTML;
@@ -650,17 +626,12 @@
         }
 
         // ==========================================
-        // 🔄 SISTEMA DE NAVEGAÇÃO DO MENU LATERAL
+        // 🔄 NAVEGAÇÃO DO MENU LATERAL
         // ==========================================
         function switchMenu(viewId) {
-            document.getElementById('view-campanhas').classList.add('hidden');
-            document.getElementById('view-campanhas').classList.remove('flex');
-            
-            document.getElementById('view-vendedores').classList.add('hidden');
-            document.getElementById('view-vendedores').classList.remove('flex');
-            
-            document.getElementById('view-clientes').classList.add('hidden');
-            document.getElementById('view-clientes').classList.remove('flex');
+            document.getElementById('view-campanhas').classList.add('hidden'); document.getElementById('view-campanhas').classList.remove('flex');
+            document.getElementById('view-vendedores').classList.add('hidden'); document.getElementById('view-vendedores').classList.remove('flex');
+            document.getElementById('view-clientes').classList.add('hidden'); document.getElementById('view-clientes').classList.remove('flex');
 
             const menus = ['campanhas', 'vendedores', 'clientes'];
             menus.forEach(m => {
@@ -668,36 +639,28 @@
                 btn.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all shrink-0";
             });
 
-            document.getElementById('view-' + viewId).classList.remove('hidden');
-            document.getElementById('view-' + viewId).classList.add('flex');
-
+            document.getElementById('view-' + viewId).classList.remove('hidden'); document.getElementById('view-' + viewId).classList.add('flex');
             const activeMenu = document.getElementById('menu-' + viewId);
             activeMenu.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0 shadow-lg shadow-brand-600/20 border border-brand-400/20";
 
-            // Se for a aba de vendedores, busca eles
-            if (viewId === 'vendedores') {
-                fetchVendedores();
-            }
+            if (viewId === 'vendedores') fetchVendedores();
         }
 
         // ==========================================
-        // 👥 SISTEMA DE VENDEDORES (Fase 1)
+        // 👥 SISTEMA DE VENDEDORES (Com Filtro e Edição)
         // ==========================================
         function openNewVendedorModal() { 
-            const modal = document.getElementById('newVendedorModal');
-            modal.classList.add('visible');
+            document.getElementById('newVendedorModal').classList.add('visible');
             document.getElementById('vendedorNome').focus(); 
         }
         
         function closeNewVendedorModal() { 
-            const modal = document.getElementById('newVendedorModal');
-            modal.classList.remove('visible');
+            document.getElementById('newVendedorModal').classList.remove('visible');
             document.getElementById('vendedorNome').value = '';
             document.getElementById('vendedorTelefone').value = '';
             document.getElementById('vendedorCodigo').value = '';
         }
 
-        // Sugere um código baseado no nome (ex: João Silva -> joaosilva)
         document.getElementById('vendedorNome').addEventListener('keyup', function(e) {
             if(document.getElementById('vendedorCodigo').value === '' || e.key !== 'Backspace') {
                 let sugerido = this.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
@@ -711,62 +674,74 @@
             const codigo = document.getElementById('vendedorCodigo').value.trim().toLowerCase();
             const btn = document.getElementById('btnCreateVendedor');
 
-            if(!nome || !telefone || !codigo) return showAlert("Preencha todos os campos do vendedor!");
-
+            if(!nome || !telefone || !codigo) return showAlert("Preencha todos os campos!");
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled = true;
 
             try {
                 await fetch(ENDPOINTS.MAIN, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        tipo_requisicao: "criar_vendedor", 
-                        id_usuario: currentUser.id, 
-                        nome: nome,
-                        telefone: telefone,
-                        codigo_afiliado: codigo
-                    })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ tipo_requisicao: "criar_vendedor", id_usuario: currentUser.id, nome: nome, telefone: telefone, codigo_afiliado: codigo })
                 });
-                closeNewVendedorModal();
-                fetchVendedores(); // Atualiza a lista na tela
-                showAlert("Vendedor cadastrado com sucesso!", "success");
-            } catch (e) {
-                showAlert("Erro ao cadastrar vendedor.");
-            } finally {
-                btn.innerHTML = 'Salvar Vendedor'; btn.disabled = false;
-            }
+                closeNewVendedorModal(); fetchVendedores(); showAlert("Vendedor cadastrado com sucesso!", "success");
+            } catch (e) { showAlert("Erro ao cadastrar vendedor."); } 
+            finally { btn.innerHTML = 'Salvar Vendedor'; btn.disabled = false; }
         }
 
         async function fetchVendedores() {
             const tbody = document.getElementById('vendedorList');
-            tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-accent-500"><i class="fas fa-circle-notch fa-spin text-2xl"></i></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-accent-500"><i class="fas fa-circle-notch fa-spin text-2xl"></i></td></tr>';
 
             try {
                 const res = await fetch(ENDPOINTS.MAIN, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ tipo_requisicao: "listar_vendedores", id_usuario: currentUser.id })
                 });
                 const data = await res.json();
-                renderVendedores(Array.isArray(data) ? data : []);
+                allVendedores = Array.isArray(data) ? data : [];
+                renderVendedores();
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-400">Erro ao carregar equipe.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-red-400">Erro ao carregar equipe.</td></tr>';
             }
         }
 
-        function renderVendedores(list) {
+        function filterVendedores(status) {
+            currentVendedorFilter = status;
+            
+            // Atualiza botões de filtro
+            ['todos', 'ativos', 'inativos'].forEach(id => {
+                const btn = document.getElementById('filter-' + id);
+                if(id === status) {
+                    btn.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white transition-all shadow-lg shadow-brand-600/30 border border-brand-400/20";
+                } else {
+                    btn.className = "px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent";
+                }
+            });
+            renderVendedores();
+        }
+
+        function renderVendedores() {
             const tbody = document.getElementById('vendedorList'); tbody.innerHTML = '';
             
+            let list = allVendedores;
+            if(currentVendedorFilter === 'ativos') list = allVendedores.filter(v => v.ativo);
+            if(currentVendedorFilter === 'inativos') list = allVendedores.filter(v => !v.ativo);
+
             if(list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-accent-500">Nenhum vendedor cadastrado ainda.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-accent-500">Nenhum vendedor encontrado.</td></tr>';
                 return;
             }
 
+            // Monta o link base correto da loja (ex: site.com/catalogo.html)
+            const baseUrl = window.location.href.split('?')[0].replace('admin.html', 'catalogo.html');
+            
             list.forEach(v => {
                 const isActive = v.ativo !== false;
                 const statusBadge = isActive 
                     ? '<span class="text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">Ativo</span>' 
                     : '<span class="text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">Inativo</span>';
+
+                const fullLink = `${baseUrl}?v=${v.codigo_afiliado}`;
+                const vJsonStr = JSON.stringify(v).replace(/"/g, '&quot;');
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
@@ -775,18 +750,68 @@
                             <p class="font-bold text-white text-base">${v.nome}</p>
                             <p class="text-xs text-accent-500 font-mono mt-0.5"><i class="fab fa-whatsapp mr-1"></i> ${v.telefone}</p>
                         </td>
-                        <td class="p-5 text-right">
+                        <td class="p-5">
+                            <div class="bg-dark-950 border border-white/10 px-3 py-2 rounded-lg flex items-center gap-2 max-w-xs group-hover:border-brand-500/30 transition-colors">
+                                <i class="fas fa-link text-brand-500 text-[10px]"></i>
+                                <span class="text-xs text-accent-400 font-mono truncate cursor-help" title="${fullLink}">${baseUrl}...<strong class="text-brand-400">?v=${v.codigo_afiliado}</strong></span>
+                            </div>
+                        </td>
+                        <td class="p-5 text-right w-32">
                             <div class="flex justify-end items-center gap-2">
-                                <div class="bg-dark-950 border border-white/10 px-3 py-2 rounded-lg flex justify-between items-center group-hover:border-brand-500/30 transition-colors">
-                                    <span class="text-xs text-accent-400 font-mono truncate">?v=<strong class="text-brand-400">${v.codigo_afiliado}</strong></span>
-                                </div>
-                                <button onclick="copyLink('?v=${v.codigo_afiliado}')" class="w-10 h-10 rounded-xl bg-dark-950 border border-white/10 hover:bg-brand-600 text-accent-400 hover:text-white shadow-md flex items-center justify-center transition-all" title="Copiar Parâmetro">
+                                <button onclick="copyLink('${fullLink}')" class="w-10 h-10 rounded-xl bg-dark-950 border border-white/10 hover:bg-brand-600 text-accent-400 hover:text-white shadow-md flex items-center justify-center transition-all" title="Copiar Link de Vendas">
                                     <i class="fas fa-copy"></i>
+                                </button>
+                                <button onclick="openEditVendedorModal(${vJsonStr})" class="w-10 h-10 rounded-xl bg-white text-dark-900 hover:bg-slate-200 shadow-md flex items-center justify-center transition-all" title="Editar Vendedor">
+                                    <i class="fas fa-pen text-sm"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>`;
             });
+        }
+
+        // --- Edição de Vendedor ---
+        function openEditVendedorModal(v) {
+            document.getElementById('editVendedorId').value = v.id_vendedor;
+            document.getElementById('editVendedorNome').value = v.nome;
+            document.getElementById('editVendedorTelefone').value = v.telefone;
+            document.getElementById('editVendedorCodigo').value = v.codigo_afiliado;
+            document.getElementById('editVendedorAtivo').checked = (v.ativo !== false);
+            
+            document.getElementById('editVendedorModal').classList.add('visible');
+        }
+
+        function closeEditVendedorModal() {
+            document.getElementById('editVendedorModal').classList.remove('visible');
+        }
+
+        async function updateVendedor() {
+            const id = document.getElementById('editVendedorId').value;
+            const nome = document.getElementById('editVendedorNome').value.trim();
+            const telefone = document.getElementById('editVendedorTelefone').value.replace(/\D/g,'');
+            const ativo = document.getElementById('editVendedorAtivo').checked;
+            const btn = document.getElementById('btnUpdateVendedor');
+
+            if(!nome || !telefone) return showAlert("Nome e Telefone são obrigatórios!");
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>'; btn.disabled = true;
+
+            try {
+                await fetch(ENDPOINTS.MAIN, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        tipo_requisicao: "editar_vendedor", 
+                        id_usuario: currentUser.id, 
+                        id_vendedor: parseInt(id),
+                        nome: nome, 
+                        telefone: telefone, 
+                        ativo: ativo 
+                    })
+                });
+                closeEditVendedorModal(); 
+                fetchVendedores(); 
+                showAlert("Cadastro atualizado!", "success");
+            } catch (e) { showAlert("Erro ao atualizar vendedor."); } 
+            finally { btn.innerHTML = 'Salvar Alterações'; btn.disabled = false; }
         }
     </script>
 </body>
