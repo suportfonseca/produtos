@@ -26,8 +26,8 @@
         .glass-panel { background: rgba(23, 23, 23, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        #editProductsModal, #newCampaignModal, #newVendedorModal, #editVendedorModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
-        #editProductsModal.visible, #newCampaignModal.visible, #newVendedorModal.visible, #editVendedorModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
+        #editProductsModal, #newCampaignModal, #newVendedorModal, #editVendedorModal, #shareCampaignModal { transition: opacity 0.3s ease, visibility 0.3s; opacity: 0; pointer-events: none; visibility: hidden; }
+        #editProductsModal.visible, #newCampaignModal.visible, #newVendedorModal.visible, #editVendedorModal.visible, #shareCampaignModal.visible { opacity: 1; pointer-events: auto; visibility: visible; }
         .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
     </style>
@@ -41,12 +41,10 @@
             <div class="w-20 h-20 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl shadow-lg border border-brand-400/20"><i class="fas fa-layer-group"></i></div>
             <h2 class="text-2xl font-black mb-2 tracking-tight">MG<span class="text-accent-400">WARE</span></h2>
             <p class="text-accent-400 text-sm mb-8 uppercase tracking-widest font-bold text-[10px]">&lt; Painel Lojista &gt;</p>
-            
             <div class="space-y-4">
                 <input type="email" id="loginEmail" class="w-full bg-dark-900/80 border border-white/10 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-accent-500" placeholder="seu@email.com">
                 <input type="password" id="loginPass" class="w-full bg-dark-900/80 border border-white/10 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-accent-500" placeholder="Sua Senha">
             </div>
-            
             <button onclick="doLogin()" id="btnLogin" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-xl font-bold transition-all shadow-xl shadow-brand-600/30 mt-6 active:scale-95 border border-brand-400/20">
                 Entrar no Sistema
             </button>
@@ -145,11 +143,10 @@
                 <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl bg-dark-900/30">
                     <div class="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5">
                         <h3 class="font-bold text-white flex items-center gap-2 tracking-tight"><i class="fas fa-users text-accent-500"></i> Vendedores</h3>
-                        
                         <div class="flex gap-2 bg-dark-950 p-1 rounded-xl border border-white/10">
-                            <button onclick="filterVendedores('todos')" id="filter-todos" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white transition-all">Todos</button>
-                            <button onclick="filterVendedores('ativos')" id="filter-ativos" class="px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white transition-all">Ativos</button>
-                            <button onclick="filterVendedores('inativos')" id="filter-inativos" class="px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white transition-all">Inativos</button>
+                            <button onclick="filterVendedores('todos')" id="filter-todos" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white transition-all shadow-lg shadow-brand-600/30 border border-brand-400/20">Todos</button>
+                            <button onclick="filterVendedores('ativos')" id="filter-ativos" class="px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent">Ativos</button>
+                            <button onclick="filterVendedores('inativos')" id="filter-inativos" class="px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent">Inativos</button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -162,8 +159,7 @@
                                     <th class="p-5 text-center w-24">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="vendedorList" class="text-sm font-medium text-accent-400 divide-y divide-white/5">
-                                </tbody>
+                            <tbody id="vendedorList" class="text-sm font-medium text-accent-400 divide-y divide-white/5"></tbody>
                         </table>
                     </div>
                 </div>
@@ -189,6 +185,17 @@
         </div>
     </div>
 
+    <div id="shareCampaignModal" class="fixed inset-0 z-[80] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-lg p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10 flex flex-col max-h-[90vh]">
+            <button onclick="closeShareModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+            <h3 class="text-xl font-black mb-1 text-white tracking-tight pr-8 truncate" id="shareModalTitle">Compartilhar...</h3>
+            <p class="text-accent-400 text-xs mb-6">Copie e envie o link correto para sua equipe</p>
+            
+            <div id="shareLinksContainer" class="flex-1 overflow-y-auto">
+                </div>
+        </div>
+    </div>
+
     <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
         <div class="glass-panel w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
             <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
@@ -198,28 +205,6 @@
             <button onclick="createCampaign()" id="btnCreateCamp" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20">
                 Criar Agora
             </button>
-        </div>
-    </div>
-
-    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/95 backdrop-blur-xl md:p-6">
-        <div class="glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative border border-white/10 md:max-w-6xl bg-dark-900/90">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-dark-950/50 backdrop-blur-md z-10">
-                <div>
-                    <h3 class="text-xl font-black text-white tracking-tight" id="editModalTitle">...</h3>
-                    <p class="text-accent-400 text-xs mt-1 flex items-center gap-1"><i class="fas fa-shield-alt text-brand-500"></i> Modo de edição segura ativo</p>
-                </div>
-                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-accent-400 hover:text-white flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-6 custom-scroll bg-dark-950/30" id="productListArea"></div>
-            <div class="p-6 border-t border-white/5 flex justify-between items-center bg-dark-950/80 backdrop-blur-md z-10">
-                <p class="text-xs text-accent-500 hidden md:block">Lembre-se de salvar cada item individualmente.</p>
-                <div class="flex gap-3">
-                    <button onclick="closeEditModal()" class="px-6 py-3 rounded-xl text-accent-400 hover:text-white hover:bg-white/5 font-bold text-sm transition-colors border border-transparent hover:border-white/10">Voltar</button>
-                    <button onclick="activateCampaign()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/30 transition-all active:scale-95 flex items-center gap-2 border border-brand-400/20">
-                        <i class="fas fa-check-circle"></i> Publicar Campanha
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -289,6 +274,30 @@
         </div>
     </div>
 
+    <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/95 backdrop-blur-xl md:p-6">
+        <div class="glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative border border-white/10 md:max-w-6xl bg-dark-900/90">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-dark-950/50 backdrop-blur-md z-10">
+                <div>
+                    <h3 class="text-xl font-black text-white tracking-tight" id="editModalTitle">...</h3>
+                    <p class="text-accent-400 text-xs mt-1 flex items-center gap-1"><i class="fas fa-shield-alt text-brand-500"></i> Modo de edição segura ativo</p>
+                </div>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-accent-400 hover:text-white flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 custom-scroll bg-dark-950/30" id="productListArea"></div>
+            
+            <div class="p-6 border-t border-white/5 flex justify-between items-center bg-dark-950/80 backdrop-blur-md z-10">
+                <p class="text-xs text-accent-500 hidden md:block">Lembre-se de salvar cada item individualmente.</p>
+                <div class="flex gap-3">
+                    <button onclick="closeEditModal()" class="px-6 py-3 rounded-xl text-accent-400 hover:text-white hover:bg-white/5 font-bold text-sm transition-colors border border-transparent hover:border-white/10">Voltar</button>
+                    <button onclick="activateCampaign()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/30 transition-all active:scale-95 flex items-center gap-2 border border-brand-400/20">
+                        <i class="fas fa-check-circle"></i> Publicar Campanha
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-dark-950/90 backdrop-blur-sm hidden">
         <div class="bg-dark-900 border border-white/10 w-full max-w-xs p-8 rounded-3xl text-center shadow-2xl transform transition-all scale-100">
             <div id="alert-icon" class="text-3xl mb-4 text-brand-500 bg-brand-500/10 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center border border-brand-500/20">⚠️</div>
@@ -318,8 +327,8 @@
         let currentCampaignId = null;
         let unsavedChanges = false;
         
-        let allVendedores = []; // Armazena a lista de vendedores localmente
-        let currentVendedorFilter = 'todos'; // Filtro ativo
+        let allVendedores = [];
+        let currentVendedorFilter = 'todos';
 
         window.onbeforeunload = function() {
             if (unsavedChanges) return "Você tem alterações não salvas. Deseja sair?";
@@ -397,6 +406,7 @@
             if(!currentUser) currentUser = JSON.parse(localStorage.getItem('user_session'));
             document.getElementById('storeNameDisplay').innerText = currentUser.nome;
             fetchDashboard();
+            loadVendedoresSilently(); // Carrega os vendedores em background
         }
 
         if(localStorage.getItem('user_session')) initDashboard();
@@ -406,6 +416,7 @@
             location.reload();
         }
 
+        // --- Buscas Iniciais ---
         async function fetchDashboard() {
             const tbody = document.getElementById('campaignList');
             tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-accent-500"><i class="fas fa-circle-notch fa-spin text-2xl"></i></td></tr>';
@@ -430,13 +441,22 @@
             }
         }
 
+        async function loadVendedoresSilently() {
+            try {
+                const res = await fetch(ENDPOINTS.MAIN, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ tipo_requisicao: "listar_vendedores", id_usuario: currentUser.id })
+                });
+                const data = await res.json();
+                allVendedores = Array.isArray(data) ? data : [];
+            } catch (e) { console.error("Erro no load background dos vendedores."); }
+        }
+
         function renderTable(list) {
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
-            const baseUrl = window.location.href.split('?')[0].replace('admin.html', 'catalogo.html'); // Pega a base da loja
-
+            
             list.forEach(c => {
                 const isActive = c.status && c.status.toLowerCase() === 'ativa';
-                
                 const statusBadge = isActive 
                     ? '<span class="text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">● Ativa</span>' 
                     : '<span class="text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">● Rascunho</span>';
@@ -450,7 +470,7 @@
                         </td>
                         <td class="p-5 text-right">
                             <div class="flex justify-end gap-2">
-                                <button onclick="copyLink('${baseUrl}?id=${c.id_campanha}')" class="w-10 h-10 rounded-xl bg-dark-950 border border-white/10 hover:border-brand-500/50 hover:bg-brand-500/10 text-accent-400 hover:text-brand-400 shadow-md flex items-center justify-center transition-all" title="Copiar Link"><i class="fas fa-link"></i></button>
+                                <button onclick="openShareModal(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-dark-950 border border-white/10 hover:border-brand-500/50 hover:bg-brand-500/10 text-accent-400 hover:text-brand-400 shadow-md flex items-center justify-center transition-all" title="Compartilhar Links"><i class="fas fa-share-alt"></i></button>
                                 <button onclick="openEditor(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-white text-dark-900 hover:bg-slate-200 shadow-md flex items-center justify-center transition-all" title="Editar Produtos"><i class="fas fa-pen text-sm"></i></button>
                             </div>
                         </td>
@@ -458,7 +478,58 @@
             });
         }
 
-        // ================== FUNÇÕES DE CAMPANHA E PRODUTO (Mantidas Originais) ==================
+        // ================== COMPARTILHAR CAMPANHA (NOVA FUNCIONALIDADE) ==================
+        function openShareModal(campanhaId, campanhaNome) {
+            const baseUrl = window.location.href.split('?')[0].replace('admin.html', 'catalogo.html');
+            const officialLink = `${baseUrl}?id=${campanhaId}`;
+
+            document.getElementById('shareModalTitle').innerText = `Compartilhar: ${campanhaNome}`;
+            
+            let html = `
+                <div class="bg-dark-950 border border-white/10 p-4 rounded-xl mb-4 shadow-inner">
+                    <p class="text-[10px] text-accent-400 font-bold uppercase tracking-wider mb-2"><i class="fas fa-store text-brand-500 mr-1"></i> Loja Oficial (Central)</p>
+                    <div class="flex items-center gap-2">
+                        <input type="text" value="${officialLink}" class="w-full bg-dark-900 border border-white/5 rounded-lg px-3 py-2 text-white font-mono text-xs outline-none" readonly>
+                        <button onclick="copyLink('${officialLink}')" class="bg-brand-600 hover:bg-brand-500 text-white w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-lg"><i class="fas fa-copy"></i></button>
+                    </div>
+                </div>
+            `;
+
+            // Filtra os vendedores ativos
+            const ativos = allVendedores.filter(v => v.ativo !== false);
+            
+            if (ativos.length > 0) {
+                html += `<p class="text-[10px] text-accent-400 font-bold uppercase tracking-wider mb-2 mt-6"><i class="fas fa-users text-brand-500 mr-1"></i> Links da Equipe (Comissionados)</p>`;
+                html += `<div class="space-y-3 max-h-60 overflow-y-auto custom-scroll pr-2">`;
+                ativos.forEach(v => {
+                    const vLink = `${officialLink}&v=${v.codigo_afiliado}`;
+                    html += `
+                        <div class="bg-dark-950 border border-white/10 p-3 rounded-xl transition-all hover:border-brand-500/30 group">
+                            <p class="text-xs font-bold text-white mb-2 flex items-center justify-between">
+                                <span>${v.nome}</span> 
+                                <span class="text-[9px] text-accent-500 font-mono">?v=${v.codigo_afiliado}</span>
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <input type="text" value="${vLink}" class="w-full bg-dark-900 border border-white/5 rounded-lg px-3 py-2 text-accent-300 font-mono text-[10px] outline-none" readonly>
+                                <button onclick="copyLink('${vLink}')" class="bg-dark-800 group-hover:bg-brand-600 text-white w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors"><i class="fas fa-copy text-xs"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            } else {
+                html += `<p class="text-xs text-accent-500 text-center mt-6 bg-dark-950 p-4 rounded-xl border border-white/5 shadow-inner">Nenhum vendedor ativo cadastrado no painel.</p>`;
+            }
+
+            document.getElementById('shareLinksContainer').innerHTML = html;
+            document.getElementById('shareCampaignModal').classList.add('visible');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareCampaignModal').classList.remove('visible');
+        }
+
+        // ================== FUNÇÕES DE CAMPANHA E PRODUTO ==================
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); document.getElementById('newCampaignName').focus(); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
 
@@ -607,7 +678,8 @@
 
         function copyLink(url) {
             navigator.clipboard.writeText(url);
-            const btn = event.currentTarget, original = btn.innerHTML;
+            const btn = window.event.currentTarget;
+            const original = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
             setTimeout(() => btn.innerHTML = original, 1500);
         }
@@ -682,7 +754,7 @@
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ tipo_requisicao: "criar_vendedor", id_usuario: currentUser.id, nome: nome, telefone: telefone, codigo_afiliado: codigo })
                 });
-                closeNewVendedorModal(); fetchVendedores(); showAlert("Vendedor cadastrado com sucesso!", "success");
+                closeNewVendedorModal(); fetchVendedores(); loadVendedoresSilently(); showAlert("Vendedor cadastrado com sucesso!", "success");
             } catch (e) { showAlert("Erro ao cadastrar vendedor."); } 
             finally { btn.innerHTML = 'Salvar Vendedor'; btn.disabled = false; }
         }
@@ -731,7 +803,6 @@
                 return;
             }
 
-            // Monta o link base correto da loja (ex: site.com/catalogo.html)
             const baseUrl = window.location.href.split('?')[0].replace('admin.html', 'catalogo.html');
             
             list.forEach(v => {
@@ -809,6 +880,7 @@
                 });
                 closeEditVendedorModal(); 
                 fetchVendedores(); 
+                loadVendedoresSilently();
                 showAlert("Cadastro atualizado!", "success");
             } catch (e) { showAlert("Erro ao atualizar vendedor."); } 
             finally { btn.innerHTML = 'Salvar Alterações'; btn.disabled = false; }
