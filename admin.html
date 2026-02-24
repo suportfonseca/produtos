@@ -406,7 +406,7 @@
             if(!currentUser) currentUser = JSON.parse(localStorage.getItem('user_session'));
             document.getElementById('storeNameDisplay').innerText = currentUser.nome;
             fetchDashboard();
-            loadVendedoresSilently(); // Carrega os vendedores em background
+            loadVendedoresSilently();
         }
 
         if(localStorage.getItem('user_session')) initDashboard();
@@ -416,7 +416,6 @@
             location.reload();
         }
 
-        // --- Buscas Iniciais ---
         async function fetchDashboard() {
             const tbody = document.getElementById('campaignList');
             tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-accent-500"><i class="fas fa-circle-notch fa-spin text-2xl"></i></td></tr>';
@@ -478,7 +477,6 @@
             });
         }
 
-        // ================== COMPARTILHAR CAMPANHA (NOVA FUNCIONALIDADE) ==================
         function openShareModal(campanhaId, campanhaNome) {
             const baseUrl = window.location.href.split('?')[0].replace('admin.html', 'catalogo.html');
             const officialLink = `${baseUrl}?id=${campanhaId}`;
@@ -495,7 +493,6 @@
                 </div>
             `;
 
-            // Filtra os vendedores ativos
             const ativos = allVendedores.filter(v => v.ativo !== false);
             
             if (ativos.length > 0) {
@@ -529,7 +526,6 @@
             document.getElementById('shareCampaignModal').classList.remove('visible');
         }
 
-        // ================== FUNÇÕES DE CAMPANHA E PRODUTO ==================
         function openNewCampaignModal() { document.getElementById('newCampaignModal').classList.add('visible'); document.getElementById('newCampaignName').focus(); }
         function closeNewCampaignModal() { document.getElementById('newCampaignModal').classList.remove('visible'); }
 
@@ -621,12 +617,12 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Cor</label>
-                                <input type="text" id="color-${pid}" value="${p.cor || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Cor <span class="text-[9px] text-accent-600 lowercase">(Separe por vírgula)</span></label>
+                                <input type="text" id="color-${pid}" value="${p.cor || ''}" placeholder="Ex: Preto, Azul, Verde" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Tamanho</label>
-                                <input type="text" id="size-${pid}" value="${p.tamanho || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Tamanho <span class="text-[9px] text-accent-600 lowercase">(Separe por vírgula)</span></label>
+                                <input type="text" id="size-${pid}" value="${p.tamanho || ''}" placeholder="Ex: P, M, G, GG" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
                             </div>
                             <div class="md:col-span-2 border-t border-white/5 pt-6 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                 <label class="flex items-center gap-3 cursor-pointer">
@@ -642,6 +638,8 @@
                     </div>`;
             });
         }
+
+        function markUnsaved() { unsavedChanges = true; }
 
         async function saveProduct(pid) {
             const name = document.getElementById(`name-${pid}`).value.trim();
@@ -697,9 +695,6 @@
             document.getElementById('custom-alert').classList.remove('hidden');
         }
 
-        // ==========================================
-        // 🔄 NAVEGAÇÃO DO MENU LATERAL
-        // ==========================================
         function switchMenu(viewId) {
             document.getElementById('view-campanhas').classList.add('hidden'); document.getElementById('view-campanhas').classList.remove('flex');
             document.getElementById('view-vendedores').classList.add('hidden'); document.getElementById('view-vendedores').classList.remove('flex');
@@ -718,9 +713,6 @@
             if (viewId === 'vendedores') fetchVendedores();
         }
 
-        // ==========================================
-        // 👥 SISTEMA DE VENDEDORES (Com Filtro e Edição)
-        // ==========================================
         function openNewVendedorModal() { 
             document.getElementById('newVendedorModal').classList.add('visible');
             document.getElementById('vendedorNome').focus(); 
@@ -779,7 +771,6 @@
         function filterVendedores(status) {
             currentVendedorFilter = status;
             
-            // Atualiza botões de filtro
             ['todos', 'ativos', 'inativos'].forEach(id => {
                 const btn = document.getElementById('filter-' + id);
                 if(id === status) {
@@ -841,7 +832,6 @@
             });
         }
 
-        // --- Edição de Vendedor ---
         function openEditVendedorModal(v) {
             document.getElementById('editVendedorId').value = v.id_vendedor;
             document.getElementById('editVendedorNome').value = v.nome;
