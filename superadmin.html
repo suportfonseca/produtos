@@ -121,8 +121,8 @@
                         <input type="email" id="newStoreEmail" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500" placeholder="email@acesso.com">
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">WhatsApp (Número do lojista)</label>
-                        <input type="tel" id="newStorePhone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500" placeholder="55...">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">WhatsApp (Apenas Números)</label>
+                        <input type="tel" id="newStorePhone" maxlength="15" oninput="maskPhoneInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500 transition-all font-mono" placeholder="(51) 99999-9999">
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Senha de Acesso</label>
@@ -162,7 +162,34 @@
         const WEBHOOK_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/superadmin";
         let activeWebhookUrl = WEBHOOK_PROD;
         
-        let allClients = []; // Variável global para armazenar os clientes e facilitar edição/manual
+        let allClients = []; 
+
+        // ==========================
+        //  MÁSCARA DO TELEFONE
+        // ==========================
+        function maskPhoneInput(input) {
+            let v = input.value.replace(/\D/g, ''); // Remove tudo que não for número
+            
+            // Remove o '55' visualmente caso o usuário tenha colado, para formatar como nacional
+            if (v.startsWith('55') && v.length > 11) {
+                v = v.substring(2);
+            }
+            
+            // Limita a 11 dígitos (2 do DDD + 9 do número)
+            if (v.length > 11) v = v.substring(0, 11);
+            
+            let formatted = v;
+            if (v.length > 2) {
+                formatted = '(' + v.substring(0, 2) + ') ' + v.substring(2, 7);
+                if (v.length > 7) {
+                    formatted += '-' + v.substring(7, 11);
+                }
+            } else if (v.length > 0) {
+                formatted = '(' + v;
+            }
+            
+            input.value = formatted;
+        }
 
         async function smartFetch(payload) {
             try {
@@ -205,11 +232,7 @@
             document.getElementById('nav-' + tabId).classList.add('active');
         }
 
-        // ==========================
-        //  MODAL: ABRIR / EDITAR
-        // ==========================
         function openClientModal() {
-            // Limpa o modal para novo cadastro
             document.getElementById('editUserId').value = "";
             document.getElementById('newStoreName').value = "";
             document.getElementById('newStoreEmail').value = "";
@@ -230,20 +253,19 @@
             document.getElementById('newStoreLogo').value = c.logo_url || '';
             document.getElementById('newStorePlan').value = c.plano || 'mensal';
             document.getElementById('newStoreEmail').value = c.email || '';
-            document.getElementById('newStorePhone').value = c.telefone || '';
-            // Se tiver senha retornando no JSON coloca, senao deixa em branco pro admin preencher a nova se quiser
-            document.getElementById('newStorePass').value = c.senha || ''; 
             document.getElementById('newStoreChatId').value = c.chat_id || '';
+            document.getElementById('newStorePass').value = c.senha || ''; 
             
+            const phoneInput = document.getElementById('newStorePhone');
+            phoneInput.value = c.telefone || '';
+            maskPhoneInput(phoneInput); // Aplica a máscara assim que abrir para editar
+
             document.getElementById('clientModal').classList.add('visible');
         }
 
         function closeClientModal() { document.getElementById('clientModal').classList.remove('visible'); }
         function generatePass() { document.getElementById('newStorePass').value = Math.random().toString(36).slice(-8).toUpperCase(); }
 
-        // ==========================
-        //  BUSCAR E RENDERIZAR
-        // ==========================
         async function fetchClients() {
             try {
                 const res = await smartFetch({ action: 'list_users' });
@@ -260,6 +282,15 @@
             const list = document.getElementById('clientsList');
             list.innerHTML = clients.map(c => {
                 const clientId = c.id_usuario || c.id;
+                
+                // Formata o telefone apenas para exibir na tabela de forma bonita
+                let displayPhone = c.telefone || '-';
+                if(displayPhone !== '-') {
+                    let p = displayPhone.replace(/\D/g, '');
+                    if(p.startsWith('55') && p.length > 11) p = p.substring(2);
+                    if(p.length === 11) displayPhone = `(${p.substring(0,2)}) ${p.substring(2,7)}-${p.substring(7,11)}`;
+                }
+
                 return `
                 <tr class="hover:bg-white/5 transition-colors group">
                     <td class="p-6">
@@ -274,7 +305,7 @@
                         </div>
                     </td>
                     <td class="p-6 text-slate-400 font-medium">
-                        <p class="text-white font-bold">${c.telefone || '-'}</p>
+                        <p class="text-white font-bold">${displayPhone}</p>
                         <p class="text-xs opacity-50">${c.email}</p>
                     </td>
                     <td class="p-6 font-mono text-indigo-400 font-bold tracking-widest">${c.chat_id || 'NÃO CONFIG.'}</td>
@@ -297,26 +328,28 @@
             `}).join('');
         }
 
-        // ==========================
-        //  ENVIAR MANUAL WHATSAPP
-        // ==========================
         function sendManual(id) {
             const c = allClients.find(x => x.id_usuario == id || x.id == id);
             if(!c) return;
 
-            const telefoneNum = (c.telefone || "").replace(/\D/g, '');
-            if(!telefoneNum || telefoneNum.length < 10) {
+            let telefoneNum = (c.telefone || "").replace(/\D/g, '');
+            
+            // Inteligência: Adiciona o 55 automaticamente se não estiver salvo com ele
+            if(telefoneNum.length === 10 || telefoneNum.length === 11) {
+                telefoneNum = '55' + telefoneNum;
+            }
+
+            if(!telefoneNum || telefoneNum.length < 12) {
                 alert("O lojista não possui um número de WhatsApp válido cadastrado.");
                 return;
             }
 
-            // Você pode alterar o @ do bot oficial aqui caso mude no futuro
-            const botOficial = "https://t.me/Mg_vitrine_bot";
+            const botOficial = "https://t.me/Mg_vitrine_bot"; // Altere aqui para o robô da MGWARE
 
             const texto = 
 `Olá, *${c.nome_loja}*! Seu sistema MGWARE está pronto para uso. 🚀
 
-Acesse seu painel administrativo para criar sua loja e configurar preços:
+Acesse seu painel administrativo para criar suas campanhas e configurar preços:
 🔗 www.mgwaretecnologia.com.br/app/admin.html
 👤 *Login:* ${c.email}
 🔑 *Senha:* ${c.senha || 'Sua senha cadastrada'}
@@ -324,7 +357,7 @@ Acesse seu painel administrativo para criar sua loja e configurar preços:
 *COMO ALIMENTAR AS FOTOS DO SEU ESTOQUE:*
 Nós usamos a inteligência do Telegram para receber suas fotos de forma rápida e segura. Para isso:
 
-1️⃣ Busque no Telegram por *@userinfobot* (com o selo de bot), clique em "Começar" e ele te enviará um ID numérico.
+1️⃣ Busque no Telegram por *@userinfobot* (https://t.me/userinfobot), clique em "Começar" e ele te enviará um ID numérico.
 2️⃣ Me envie esse número aqui no WhatsApp para eu liberar seu acesso à câmera.
 3️⃣ Após minha liberação, busque no Telegram pelo nosso assistente *@${botOficial.replace('@','')}* e envie /start para criar seu primeiro catálogo!
 
@@ -332,7 +365,6 @@ Qualquer dúvida no processo, estou à disposição!`;
 
             window.open(`https://wa.me/${telefoneNum}?text=${encodeURIComponent(texto)}`, '_blank');
         }
-
 
         function impersonate(id, name, email) {
             const sessionData = { id: id, nome: name, email: email };
@@ -345,13 +377,22 @@ Qualquer dúvida no processo, estou à disposição!`;
 
         async function saveClient() {
             const btn = document.getElementById('btnSaveClient');
+            
+            // Pega o valor digitado e limpa os parênteses
+            let phoneToSave = document.getElementById('newStorePhone').value.replace(/\D/g, '');
+            
+            // Inteligência: Injeta o 55 automaticamente na hora de salvar no banco!
+            if(phoneToSave.length === 10 || phoneToSave.length === 11) {
+                phoneToSave = '55' + phoneToSave;
+            }
+
             const payload = {
                 action: 'save_user',
                 id: document.getElementById('editUserId').value,
                 nome_loja: document.getElementById('newStoreName').value,
                 logo_url: document.getElementById('newStoreLogo').value,
                 plano: document.getElementById('newStorePlan').value,
-                telefone: document.getElementById('newStorePhone').value,
+                telefone: phoneToSave, // Envia com o 55 garantido!
                 email: document.getElementById('newStoreEmail').value,
                 senha: document.getElementById('newStorePass').value,
                 chat_id: document.getElementById('newStoreChatId').value
