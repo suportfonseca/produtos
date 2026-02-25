@@ -121,7 +121,7 @@
                         <input type="email" id="newStoreEmail" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500" placeholder="email@acesso.com">
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">WhatsApp</label>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">WhatsApp (Número do lojista)</label>
                         <input type="tel" id="newStorePhone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500" placeholder="55...">
                     </div>
                     <div>
@@ -158,45 +158,35 @@
     <script>
         const MASTER_PASS = "admin123"; 
 
-        // URLs de Produção e Teste
         const WEBHOOK_PROD = "https://n8n.srv1327557.hstgr.cloud/webhook/superadmin";
         const WEBHOOK_TEST = "https://n8n.srv1327557.hstgr.cloud/webhook-test/superadmin";
-        
-        // Memória de qual URL está funcionando (começa assumindo a de Produção)
         let activeWebhookUrl = WEBHOOK_PROD;
+        
+        let allClients = []; // Variável global para armazenar os clientes e facilitar edição/manual
 
-        // --- INTELIGÊNCIA DE REDIRECIONAMENTO (SMART FETCH) ---
         async function smartFetch(payload) {
             try {
-                // Tenta a URL que está salva como ativa
                 let response = await fetch(activeWebhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
-                // Se o n8n retornar erro (ex: node inativo), dispara o catch abaixo
                 if (!response.ok) throw new Error("Erro no endpoint primário");
-                
                 return response;
 
             } catch (error) {
                 console.warn(`A URL ${activeWebhookUrl} falhou. Tentando ambiente alternativo...`);
-                
-                // Troca a URL ativa. Se era PROD, vira TEST. Se era TEST, vira PROD.
                 activeWebhookUrl = (activeWebhookUrl === WEBHOOK_PROD) ? WEBHOOK_TEST : WEBHOOK_PROD;
                 
-                // Dispara a requisição novamente para a nova URL
                 let retryResponse = await fetch(activeWebhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 if(retryResponse.ok) {
                     console.log(`Ambiente alternado com sucesso para: ${activeWebhookUrl}`);
                 }
-                
                 return retryResponse;
             }
         }
@@ -215,29 +205,52 @@
             document.getElementById('nav-' + tabId).classList.add('active');
         }
 
-        function openClientModal(id = null) {
+        // ==========================
+        //  MODAL: ABRIR / EDITAR
+        // ==========================
+        function openClientModal() {
+            // Limpa o modal para novo cadastro
+            document.getElementById('editUserId').value = "";
+            document.getElementById('newStoreName').value = "";
+            document.getElementById('newStoreEmail').value = "";
+            document.getElementById('newStoreLogo').value = "";
+            document.getElementById('newStorePhone').value = "";
+            document.getElementById('newStoreChatId').value = "";
+            document.getElementById('newStorePass').value = "123456";
+            document.getElementById('newStorePlan').value = "mensal";
             document.getElementById('clientModal').classList.add('visible');
-            if(!id) {
-                document.getElementById('editUserId').value = "";
-                document.getElementById('newStoreName').value = "";
-                document.getElementById('newStoreEmail').value = "";
-                document.getElementById('newStoreLogo').value = "";
-                document.getElementById('newStorePhone').value = "";
-                document.getElementById('newStoreChatId').value = "";
-            }
         }
+
+        function editClient(id) {
+            const c = allClients.find(x => x.id_usuario == id || x.id == id);
+            if(!c) return;
+
+            document.getElementById('editUserId').value = c.id_usuario || c.id || '';
+            document.getElementById('newStoreName').value = c.nome_loja || '';
+            document.getElementById('newStoreLogo').value = c.logo_url || '';
+            document.getElementById('newStorePlan').value = c.plano || 'mensal';
+            document.getElementById('newStoreEmail').value = c.email || '';
+            document.getElementById('newStorePhone').value = c.telefone || '';
+            // Se tiver senha retornando no JSON coloca, senao deixa em branco pro admin preencher a nova se quiser
+            document.getElementById('newStorePass').value = c.senha || ''; 
+            document.getElementById('newStoreChatId').value = c.chat_id || '';
+            
+            document.getElementById('clientModal').classList.add('visible');
+        }
+
         function closeClientModal() { document.getElementById('clientModal').classList.remove('visible'); }
         function generatePass() { document.getElementById('newStorePass').value = Math.random().toString(36).slice(-8).toUpperCase(); }
 
-        // --- FUNÇÃO PARA BUSCAR CLIENTES (VIA POST) ---
+        // ==========================
+        //  BUSCAR E RENDERIZAR
+        // ==========================
         async function fetchClients() {
             try {
                 const res = await smartFetch({ action: 'list_users' });
                 const data = await res.json();
                 
-                // Garante que a listagem não quebre se o retorno for diferente do esperado
-                const list = Array.isArray(data) ? data : (data.data || []);
-                renderClients(list);
+                allClients = Array.isArray(data) ? data : (data.data || []);
+                renderClients(allClients);
             } catch (e) {
                 console.warn("N8N não conectado ou erro na rota.", e);
             }
@@ -245,7 +258,9 @@
 
         function renderClients(clients) {
             const list = document.getElementById('clientsList');
-            list.innerHTML = clients.map(c => `
+            list.innerHTML = clients.map(c => {
+                const clientId = c.id_usuario || c.id;
+                return `
                 <tr class="hover:bg-white/5 transition-colors group">
                     <td class="p-6">
                         <div class="flex items-center gap-4">
@@ -265,16 +280,60 @@
                     <td class="p-6 font-mono text-indigo-400 font-bold tracking-widest">${c.chat_id || 'NÃO CONFIG.'}</td>
                     <td class="p-6 text-right">
                         <div class="flex justify-end gap-2">
-                            <button onclick="impersonate('${c.id_usuario}', '${c.nome_loja}', '${c.email}')" class="w-10 h-10 glass-panel rounded-xl flex items-center justify-center text-emerald-400 hover:bg-emerald-600 hover:text-white transition-all shadow-lg" title="Login como Lojista">
+                            <button onclick="sendManual('${clientId}')" class="w-10 h-10 glass-panel rounded-xl flex items-center justify-center text-green-400 hover:bg-green-500 hover:text-white transition-all shadow-lg" title="Enviar Manual via WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                            
+                            <button onclick="editClient('${clientId}')" class="w-10 h-10 glass-panel rounded-xl flex items-center justify-center text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-lg" title="Editar Dados da Loja">
+                                <i class="fas fa-edit"></i>
+                            </button>
+
+                            <button onclick="impersonate('${clientId}', '${c.nome_loja}', '${c.email}')" class="w-10 h-10 glass-panel rounded-xl flex items-center justify-center text-emerald-400 hover:bg-emerald-600 hover:text-white transition-all shadow-lg" title="Login como Lojista">
                                 <i class="fas fa-sign-in-alt"></i>
                             </button>
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
-        // --- FUNÇÃO MASTER: "LOGAR COMO O CLIENTE" ---
+        // ==========================
+        //  ENVIAR MANUAL WHATSAPP
+        // ==========================
+        function sendManual(id) {
+            const c = allClients.find(x => x.id_usuario == id || x.id == id);
+            if(!c) return;
+
+            const telefoneNum = (c.telefone || "").replace(/\D/g, '');
+            if(!telefoneNum || telefoneNum.length < 10) {
+                alert("O lojista não possui um número de WhatsApp válido cadastrado.");
+                return;
+            }
+
+            // Você pode alterar o @ do bot oficial aqui caso mude no futuro
+            const botOficial = "https://t.me/Mg_vitrine_bot";
+
+            const texto = 
+`Olá, *${c.nome_loja}*! Seu sistema MGWARE está pronto para uso. 🚀
+
+Acesse seu painel administrativo para criar sua loja e configurar preços:
+🔗 www.mgwaretecnologia.com.br/app/admin.html
+👤 *Login:* ${c.email}
+🔑 *Senha:* ${c.senha || 'Sua senha cadastrada'}
+
+*COMO ALIMENTAR AS FOTOS DO SEU ESTOQUE:*
+Nós usamos a inteligência do Telegram para receber suas fotos de forma rápida e segura. Para isso:
+
+1️⃣ Busque no Telegram por *@userinfobot* (com o selo de bot), clique em "Começar" e ele te enviará um ID numérico.
+2️⃣ Me envie esse número aqui no WhatsApp para eu liberar seu acesso à câmera.
+3️⃣ Após minha liberação, busque no Telegram pelo nosso assistente *@${botOficial.replace('@','')}* e envie /start para criar seu primeiro catálogo!
+
+Qualquer dúvida no processo, estou à disposição!`;
+
+            window.open(`https://wa.me/${telefoneNum}?text=${encodeURIComponent(texto)}`, '_blank');
+        }
+
+
         function impersonate(id, name, email) {
             const sessionData = { id: id, nome: name, email: email };
             localStorage.setItem('user_session', JSON.stringify(sessionData));
@@ -284,7 +343,6 @@
             }, 1000);
         }
 
-        // --- FUNÇÃO PARA SALVAR CLIENTE ---
         async function saveClient() {
             const btn = document.getElementById('btnSaveClient');
             const payload = {
@@ -299,8 +357,8 @@
                 chat_id: document.getElementById('newStoreChatId').value
             };
 
-            if(!payload.nome_loja || !payload.email || !payload.chat_id) {
-                return alert("Atenção: Nome, E-mail e Chat ID são obrigatórios!");
+            if(!payload.nome_loja || !payload.email) {
+                return alert("Atenção: Nome e E-mail são obrigatórios!");
             }
 
             btn.innerText = "Salvando...";
