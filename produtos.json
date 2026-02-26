@@ -10,16 +10,6 @@
     "tamanho": ""
   },
   {
-    "id": "GRP260226122842",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP260226122943",
     "name": "POLEGAR",
     "priceFrom": "1997.00",
@@ -28,5 +18,15 @@
     "category": "video",
     "cor": "BRANCO",
     "tamanho": "G"
+  },
+  {
+    "id": "GRP260226122842",
+    "name": "XICARA PATRICK",
+    "priceFrom": "198.00",
+    "priceTo": "10.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETO",
+    "tamanho": "M"
   }
 ]
