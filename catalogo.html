@@ -151,7 +151,6 @@
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
         let teamList = [];
         
-        // Variáveis de controle para seleção obrigatória
         let selectedColor = null;
         let selectedSize = null;
 
@@ -179,6 +178,14 @@
                     if (rawList.length > 0) {
                         const first = rawList[0].json || rawList[0];
                         if (first.nome_campanha) document.getElementById('campaignTitleDisplay').innerText = first.nome_campanha.toUpperCase();
+                        
+                        // ======== MÁGICA DO TELEFONE DA LOJA ========
+                        // Puxa o telefone do lojista que vem do banco e sobrescreve o seu fixo
+                        const telDonoLoja = first.telefone_loja || first.telefone_usuario || first.whatsapp_loja;
+                        if (telDonoLoja) {
+                            CONFIG.whatsappNumber = String(telDonoLoja).replace(/\D/g, '');
+                        }
+                        // ============================================
                     }
                     products = rawList.map((item, i) => {
                         const p = item.json || item;
@@ -228,7 +235,6 @@
                 const pDe = parseFloat(p.priceFrom), pPor = parseFloat(p.priceTo);
                 const descP = pDe && pDe > pPor ? Math.round(((pDe - pPor) / pDe) * 100) : 0;
                 
-                // Exibição amigável no card se tiver múltiplas opções
                 let displayCor = p.cor.includes(',') ? 'Várias Cores' : p.cor;
                 let displayTam = p.tamanho.includes(',') ? 'Vários Tamanhos' : p.tamanho;
 
@@ -240,25 +246,20 @@
             });
         }
 
-        // ==========================================
-        // LÓGICA DE CARRINHO COM OPÇÕES
-        // ==========================================
         function saveCart() { localStorage.setItem(`cart_${userPhone}_${CONFIG.campaignId}`, JSON.stringify(cart)); }
         
         function fastAdd(id) { 
             const p = products.find(x => x.id == id);
             if(!p) return;
 
-            // Se o produto tiver vírgulas (opções), força a abrir o modal para o cliente escolher!
             if (p.cor.includes(',') || p.tamanho.includes(',')) {
                 openProductModal(p);
                 return;
             }
 
-            // Se for peça única, adiciona direto
             const c = (p.cor && p.cor !== '-') ? p.cor.trim() : '-';
             const s = (p.tamanho && p.tamanho !== '-') ? p.tamanho.trim() : '-';
-            const cartKey = `${id}|${c}|${s}`; // Chave composta
+            const cartKey = `${id}|${c}|${s}`; 
             
             cart[cartKey] = (cart[cartKey] || 0) + 1; 
             saveCart(); 
@@ -341,7 +342,6 @@
                 if(saved) {
                     let temp = JSON.parse(saved);
                     let migrated = {};
-                    // Proteção para migrar carrinhos antigos
                     for(let key in temp) { if(!key.includes('|')) migrated[`${key}|-|-`] = temp[key]; else migrated[key] = temp[key]; }
                     cart = migrated;
                 }
@@ -351,9 +351,6 @@
         if(sessionStorage.getItem('logged_phone')) initApp();
         function logout() { sessionStorage.removeItem('logged_phone'); location.reload(); }
 
-        // ==========================================
-        // GERADOR DE BOTÕES NO MODAL
-        // ==========================================
         function openProductModal(p) {
             currentProduct = p; currentMediaIdx = 0; tempQty = 1;
             selectedColor = null; selectedSize = null;
@@ -367,7 +364,6 @@
             
             document.getElementById('tempQtyDisplay').innerText = "1";
             
-            // Renderiza as opções fatiadas
             renderVariants('modalColorContainer', p.cor, 'color');
             renderVariants('modalSizeContainer', p.tamanho, 'size');
             
@@ -389,12 +385,10 @@
             const options = dataStr.split(',').map(s => s.trim()).filter(s => s);
             
             if (options.length === 1) {
-                // Peça única, marca automático
                 container.innerHTML = `<span class="font-black text-slate-800 text-sm bg-white px-3 py-1.5 rounded-lg border border-slate-200 inline-block">${options[0]}</span>`;
                 if(type === 'color') selectedColor = options[0];
                 if(type === 'size') selectedSize = options[0];
             } else {
-                // Tem opções, cria os botões para clicar
                 options.forEach(opt => {
                     const btn = document.createElement('button');
                     btn.innerText = opt;
@@ -433,6 +427,7 @@
             const selectTarget = document.getElementById('vendedorSelect');
             const selectedPhone = selectTarget.value;
             
+            // Aqui a mágica acontece. Se for 'loja', ele puxa a variável CONFIG que acabou de ser atualizada com o telefone do dono!
             let whatsappTarget = selectedPhone === 'loja' ? CONFIG.whatsappNumber : selectedPhone;
 
             let msg = `🛒 *PEDIDO - CLIPS PAPELARIA*\n*Cliente:* ${userPhone}\n`;
