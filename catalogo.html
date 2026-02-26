@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Catálogo Oficial - Clips Papelaria</title>
+    <title>Catálogo Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -146,7 +146,9 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id') };
+        
+        // ADICIONEI a variável storeName aqui para iniciar o CONFIG
+        const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id'), storeName: "LOJA" };
         
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
         let teamList = [];
@@ -179,13 +181,14 @@
                         const first = rawList[0].json || rawList[0];
                         if (first.nome_campanha) document.getElementById('campaignTitleDisplay').innerText = first.nome_campanha.toUpperCase();
                         
-                        // ======== MÁGICA DO TELEFONE DA LOJA ========
-                        // Puxa o telefone do lojista que vem do banco e sobrescreve o seu fixo
+                        // Atualiza as variáveis CONFIG com os dados reais do banco
                         const telDonoLoja = first.telefone_loja || first.telefone_usuario || first.whatsapp_loja;
                         if (telDonoLoja) {
                             CONFIG.whatsappNumber = String(telDonoLoja).replace(/\D/g, '');
                         }
-                        // ============================================
+                        if (first.nome_loja) {
+                            CONFIG.storeName = first.nome_loja; // Captura o nome da loja
+                        }
                     }
                     products = rawList.map((item, i) => {
                         const p = item.json || item;
@@ -427,21 +430,21 @@
             const selectTarget = document.getElementById('vendedorSelect');
             const selectedPhone = selectTarget.value;
             
-            // Aqui a mágica acontece. Se for 'loja', ele puxa a variável CONFIG que acabou de ser atualizada com o telefone do dono!
             let whatsappTarget = selectedPhone === 'loja' ? CONFIG.whatsappNumber : selectedPhone;
 
-            let msg = `🛒 *PEDIDO - CLIPS PAPELARIA*\n*Cliente:* ${userPhone}\n`;
+            // AQUI ESTÁ A ATUALIZAÇÃO DO TEXTO E DOS EMOJIS!
+            let msg = `🛒 *PEDIDO - ${CONFIG.storeName.toUpperCase()}*\n📱 *Cliente:* ${userPhone}\n`;
             
             if(selectedPhone !== 'loja') {
                 const vendedorNome = selectTarget.options[selectTarget.selectedIndex].text;
-                msg += `*Atendimento:* ${vendedorNome}\n`;
+                msg += `👤 *Atendimento:* ${vendedorNome}\n`;
             }
             msg += `\n`;
 
             Object.entries(cart).forEach(([cartKey, qty]) => {
                 const [id, c, s] = cartKey.split('|');
                 const p = products.find(x => x.id == id);
-                if (p) msg += `▫️ *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
+                if (p) msg += `📦 *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
             });
             msg += `\n💰 *TOTAL: ${document.getElementById('summaryTotal').innerText}*`;
             
