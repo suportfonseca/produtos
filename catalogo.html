@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Catálogo Oficial - Clips Papelaria</title>
+    <title>Catálogo Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -73,14 +73,13 @@
             <div id="cartItemsList" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 no-scrollbar"></div>
             <div class="p-8 bg-white border-t border-slate-100">
                 <div class="flex justify-between text-slate-900 text-2xl font-black mb-6"><span>Total</span><span id="summaryTotal">R$ 0,00</span></div>
-
+                
                 <div class="mb-4">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Quem está te atendendo?</label>
                     <div class="relative">
                         <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-brand-500"></i>
                         <select id="vendedorSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-10 pr-4 font-bold text-slate-800 outline-none focus:border-brand-500 appearance-none cursor-pointer">
                             <option value="loja">Ninguém / Loja Oficial</option>
-                            </select>
                         </select>
                         <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
                     </div>
@@ -108,9 +107,6 @@
                         <p id="modalPrice" class="text-4xl font-black text-brand-600">R$ 0,00</p>
                         <p id="modalOldPrice" class="text-lg text-slate-400 line-through hidden font-medium">R$ 0,00</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 text-xs mb-10">
-                        <div class="bg-slate-50 p-4 rounded-2xl shadow-inner"><p class="text-slate-400 font-bold uppercase mb-2">Cor</p><p id="modalColor" class="font-black text-slate-800 text-sm">-</p></div>
-                        <div class="bg-slate-50 p-4 rounded-2xl shadow-inner"><p class="text-slate-400 font-bold uppercase mb-2">Tamanho</p><p id="modalSize" class="font-black text-slate-800 text-sm">-</p></div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-left">
                         <div class="bg-slate-50 p-4 rounded-2xl shadow-inner border border-slate-100">
@@ -122,7 +118,6 @@
                             <div id="modalSizeContainer" class="flex flex-wrap gap-2"></div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-4">
                     
                     <p id="variantError" class="text-red-500 font-bold text-xs hidden mb-6 transition-all uppercase tracking-wider"><i class="fas fa-exclamation-circle"></i> Selecione as opções acima!</p>
 
@@ -132,7 +127,6 @@
                             <span id="tempQtyDisplay" class="font-black text-xl w-10 text-center">1</span>
                             <button onclick="updateTempQty(1)" class="w-12 text-slate-600 text-xl font-bold">+</button>
                         </div>
-                        <button onclick="addToCartFromModal()" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase text-sm tracking-tighter">Adicionar ao Pedido</button>
                         <button onclick="addToCartFromModal()" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase text-sm tracking-tighter transition-all">Adicionar ao Pedido</button>
                     </div>
                 </div>
@@ -153,7 +147,7 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id') };
-
+        
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
         let teamList = [];
         
@@ -161,16 +155,11 @@
         let selectedColor = null;
         let selectedSize = null;
 
-        // ====== MAGICA DO LINK DE AFILIADO ======
         const vCode = urlParams.get('v');
-        if (vCode) {
-            localStorage.setItem('saved_vendedor_code', vCode);
-        }
-        // ========================================
         if (vCode) localStorage.setItem('saved_vendedor_code', vCode);
 
         function isVideo(url) { if (!url) return false; return url.includes('.mp4') || url.includes('.mov') || url.includes('.webm'); }
-
+        
         function buildMediaTag(url, classes, isCard = true, isStatic = false) {
             if (isVideo(url)) {
                 const videoAttrs = isStatic 
@@ -183,7 +172,6 @@
 
         async function loadProducts() {
             try {
-                // Passo 1: Busca os Produtos
                 const res = await fetch(`${CONFIG.apiUrl}?id_campanha=${CONFIG.campaignId}`);
                 if (res.ok) {
                     const data = await res.json();
@@ -201,49 +189,34 @@
                     renderProducts();
                 }
 
-                // Passo 2: Busca os Vendedores (Com blindagem inteligente para desembrulhar JSON do n8n)
                 const resVendedores = await fetch(`${CONFIG.apiUrl}?acao=vendedores&id_campanha=${CONFIG.campaignId}`);
                 if (resVendedores.ok) {
                     const dataVendedores = await resVendedores.json();
-                    
-                    // Extrai o array corretamente quer venha puro ou embrulhado em "data"
                     let rawVendedores = Array.isArray(dataVendedores) ? dataVendedores : (dataVendedores.data || [dataVendedores]);
-                    
-                    // Desembrulha a chave "json" que o nó do Postgres adiciona automaticamente
                     teamList = rawVendedores.map(v => v.json ? v.json : v).filter(v => v && v.nome);
-                    
                     renderVendedorDropdown();
                 }
-
             } catch (e) { console.error("Erro ao carregar dados da API:", e); }
         }
 
         function renderVendedorDropdown() {
             const select = document.getElementById('vendedorSelect');
             const savedCode = localStorage.getItem('saved_vendedor_code');
-
-            // Limpa as opções para evitar duplicações
             select.innerHTML = '<option value="loja">Ninguém / Loja Oficial</option>';
 
-            // Função mágica que remove acentos e deixa tudo minúsculo para comparar
             const normalizeStr = (str) => {
                 if(!str) return "";
                 return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
             };
 
             teamList.forEach(v => {
-                if(!v.nome) return; // Trava de segurança
-
                 if(!v.nome) return;
                 const opt = document.createElement('option');
                 opt.value = v.telefone; 
                 opt.text = v.nome;
-                
-                // Compara o código da URL com o código do banco, ignorando acentos!
                 if (savedCode && v.codigo_afiliado && normalizeStr(savedCode) === normalizeStr(v.codigo_afiliado)) {
                     opt.selected = true;
                 }
-                
                 select.appendChild(opt);
             });
         }
@@ -262,7 +235,6 @@
                 const card = document.createElement('div');
                 card.className = 'product-card bg-white rounded-[2rem] p-4 shadow-soft border border-slate-100 flex flex-col h-full cursor-pointer relative overflow-hidden group';
                 card.onclick = () => openProductModal(p);
-                card.innerHTML = `<div class="relative w-full aspect-square rounded-[1.8rem] overflow-hidden mb-4 bg-slate-50">${mediaHTML}${descP > 0 ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-[9px] font-black px-3 py-1.5 rounded-xl z-20 shadow-lg">-${descP}% OFF</div>` : ''}<button onclick="event.stopPropagation(); fastAdd('${p.id}')" class="absolute bottom-4 right-4 bg-brand-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-heavy z-30 transform hover:scale-110 active:scale-95 transition-all"><i class="fas fa-plus"></i></button></div><div class="flex-1 flex flex-col text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest mb-1">${p.cor} | ${p.tamanho}</p><h3 class="text-sm font-bold text-slate-800 line-clamp-2 mb-3 leading-snug">${p.name}</h3><div class="mt-auto">${pDe > pPor ? `<span class="text-[10px] text-slate-400 line-through font-medium">R$ ${pDe.toFixed(2)}</span>` : ''}<span class="text-xl font-black text-brand-600 block leading-none">R$ ${pPor.toFixed(2)}</span></div></div>`;
                 card.innerHTML = `<div class="relative w-full aspect-square rounded-[1.8rem] overflow-hidden mb-4 bg-slate-50">${mediaHTML}${descP > 0 ? `<div class="absolute top-4 left-4 bg-red-500 text-white text-[9px] font-black px-3 py-1.5 rounded-xl z-20 shadow-lg">-${descP}% OFF</div>` : ''}<button onclick="event.stopPropagation(); fastAdd('${p.id}')" class="absolute bottom-4 right-4 bg-brand-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-heavy z-30 transform hover:scale-110 active:scale-95 transition-all"><i class="fas fa-plus"></i></button></div><div class="flex-1 flex flex-col text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest mb-1">${displayCor} | ${displayTam}</p><h3 class="text-sm font-bold text-slate-800 line-clamp-2 mb-3 leading-snug">${p.name}</h3><div class="mt-auto">${pDe > pPor ? `<span class="text-[10px] text-slate-400 line-through font-medium">R$ ${pDe.toFixed(2)}</span>` : ''}<span class="text-xl font-black text-brand-600 block leading-none">R$ ${pPor.toFixed(2)}</span></div></div>`;
                 grid.appendChild(card);
             });
@@ -272,8 +244,6 @@
         // LÓGICA DE CARRINHO COM OPÇÕES
         // ==========================================
         function saveCart() { localStorage.setItem(`cart_${userPhone}_${CONFIG.campaignId}`, JSON.stringify(cart)); }
-        function fastAdd(id) { cart[id] = (cart[id] || 0) + 1; saveCart(); updateUI(); }
-        function addToCartFromModal() { cart[currentProduct.id] = (cart[currentProduct.id] || 0) + tempQty; saveCart(); closeProductModal(); updateUI(); }
         
         function fastAdd(id) { 
             const p = products.find(x => x.id == id);
@@ -310,10 +280,9 @@
             closeProductModal(); 
             updateUI(); 
         }
-
+        
         function updateUI() {
             const count = Object.values(cart).reduce((a,b)=>a+b, 0);
-            const total = Object.entries(cart).reduce((acc, [id, qty]) => {
             const total = Object.entries(cart).reduce((acc, [cartKey, qty]) => {
                 const [id] = cartKey.split('|');
                 const p = products.find(x => x.id == id);
@@ -328,7 +297,6 @@
                    document.getElementById('summaryTotal').innerText = `R$ ${total.toFixed(2)}`;
                    document.getElementById('cartSummaryText').innerText = `${count} itens`;
                 }
-            } else cb.classList.add('hidden');
             } else {
                 cb.classList.add('hidden');
             }
@@ -337,7 +305,6 @@
         function openCartModal() {
             const list = document.getElementById('cartItemsList'); list.innerHTML = '';
             let total = 0;
-            Object.entries(cart).forEach(([id, qty]) => {
             
             Object.entries(cart).forEach(([cartKey, qty]) => {
                 const [id, c, s] = cartKey.split('|');
@@ -345,7 +312,6 @@
                 if(p) {
                     const sub = parseFloat(p.priceTo) * qty; total += sub;
                     const imgTag = buildMediaTag(p.images[0], "w-14 h-14 rounded-xl object-cover bg-slate-100", true, true);
-                    list.innerHTML += `<div class="flex gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm items-center">${imgTag}<div class="flex-1 leading-tight"><h4 class="text-sm font-black">${p.name}</h4><p class="text-[10px] text-slate-400 mt-1 uppercase font-bold">${p.cor} | ${p.tamanho}</p></div><div class="flex items-center bg-slate-100 rounded-lg h-8 px-2"><button onclick="changeQty('${p.id}', -1)" class="px-2 font-bold">-</button><span class="w-4 text-center text-xs font-black">${qty}</span><button onclick="changeQty('${p.id}', 1)" class="px-2 font-bold">+</button></div></div>`;
                     list.innerHTML += `<div class="flex gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm items-center">${imgTag}<div class="flex-1 leading-tight"><h4 class="text-sm font-black">${p.name}</h4><p class="text-[10px] text-brand-600 mt-1 uppercase font-bold bg-brand-50 inline-block px-2 py-0.5 rounded">${c} | ${s}</p></div><div class="flex items-center bg-slate-100 rounded-lg h-8 px-2"><button onclick="changeQty('${cartKey}', -1)" class="px-2 font-bold">-</button><span class="w-4 text-center text-xs font-black">${qty}</span><button onclick="changeQty('${cartKey}', 1)" class="px-2 font-bold">+</button></div></div>`;
                 }
             });
@@ -354,7 +320,6 @@
             document.getElementById('cartModal').classList.remove('hidden');
         }
 
-        function changeQty(id, val) { cart[id] += val; if(cart[id] <= 0) delete cart[id]; saveCart(); openCartModal(); updateUI(); }
         function changeQty(cartKey, val) { cart[cartKey] += val; if(cart[cartKey] <= 0) delete cart[cartKey]; saveCart(); openCartModal(); updateUI(); }
         function clearCart() { if(confirm("Limpar carrinho?")) { cart = {}; saveCart(); closeCartModal(); updateUI(); } }
         function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
@@ -373,7 +338,6 @@
             document.getElementById('mainApp').classList.remove('hidden');
             loadProducts().then(() => {
                 const saved = localStorage.getItem(`cart_${userPhone}_${CONFIG.campaignId}`);
-                if(saved) cart = JSON.parse(saved);
                 if(saved) {
                     let temp = JSON.parse(saved);
                     let migrated = {};
@@ -397,14 +361,11 @@
             
             document.getElementById('modalTitle').innerText = p.name;
             document.getElementById('modalPrice').innerText = `R$ ${parseFloat(p.priceTo).toFixed(2)}`;
-            document.getElementById('modalColor').innerText = p.cor;
-            document.getElementById('modalSize').innerText = p.tamanho;
             
             const op = document.getElementById('modalOldPrice');
             if (p.priceFrom && parseFloat(p.priceFrom) > parseFloat(p.priceTo)) { op.innerText = `R$ ${parseFloat(p.priceFrom).toFixed(2)}`; op.classList.remove('hidden'); } else { op.classList.add('hidden'); }
             
             document.getElementById('tempQtyDisplay').innerText = "1";
-            renderModalMedia(); document.getElementById('productModal').classList.remove('hidden');
             
             // Renderiza as opções fatiadas
             renderVariants('modalColorContainer', p.cor, 'color');
@@ -471,26 +432,24 @@
         function finalizeOrder() {
             const selectTarget = document.getElementById('vendedorSelect');
             const selectedPhone = selectTarget.value;
-
+            
             let whatsappTarget = selectedPhone === 'loja' ? CONFIG.whatsappNumber : selectedPhone;
 
             let msg = `🛒 *PEDIDO - CLIPS PAPELARIA*\n*Cliente:* ${userPhone}\n`;
-
+            
             if(selectedPhone !== 'loja') {
                 const vendedorNome = selectTarget.options[selectTarget.selectedIndex].text;
                 msg += `*Atendimento:* ${vendedorNome}\n`;
             }
             msg += `\n`;
 
-            Object.entries(cart).forEach(([id, qty]) => {
             Object.entries(cart).forEach(([cartKey, qty]) => {
                 const [id, c, s] = cartKey.split('|');
                 const p = products.find(x => x.id == id);
-                if (p) msg += `▫️ *${qty}x ${p.name}* (${p.cor}|${p.tamanho}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
                 if (p) msg += `▫️ *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
             });
             msg += `\n💰 *TOTAL: ${document.getElementById('summaryTotal').innerText}*`;
-
+            
             window.open(`https://wa.me/${whatsappTarget}?text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
