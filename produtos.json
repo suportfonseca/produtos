@@ -10,16 +10,6 @@
     "tamanho": ""
   },
   {
-    "id": "GRP260226123110",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP260226122755",
     "name": "XICARA MGWARE PATRICK",
     "priceFrom": "19.00",
@@ -28,6 +18,16 @@
     "category": "foto",
     "cor": "BRANCO",
     "tamanho": "G"
+  },
+  {
+    "id": "GRP260226123110",
+    "name": "VARIEDADES",
+    "priceFrom": "197.00",
+    "priceTo": "12.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
   },
   {
     "id": "GRP260226122943",
