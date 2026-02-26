@@ -1,6 +1,6 @@
 [
   {
-    "id": "GRP240226195447",
+    "id": "GRP260226122755",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -10,13 +10,23 @@
     "tamanho": ""
   },
   {
-    "id": "GRP240226195600",
-    "name": "BACO",
-    "priceFrom": "197.00",
-    "priceTo": "97.00",
+    "id": "GRP260226122842",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "CARAMELO",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP260226122943",
+    "name": "POLEGAR",
+    "priceFrom": "1997.00",
+    "priceTo": "1.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "video",
+    "cor": "BRANCO",
     "tamanho": "G"
   }
 ]
