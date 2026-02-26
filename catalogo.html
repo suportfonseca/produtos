@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Catálogo Oficial</title>
+    <title>Catálogo Oficial - Clips Papelaria</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -73,7 +73,7 @@
             <div id="cartItemsList" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 no-scrollbar"></div>
             <div class="p-8 bg-white border-t border-slate-100">
                 <div class="flex justify-between text-slate-900 text-2xl font-black mb-6"><span>Total</span><span id="summaryTotal">R$ 0,00</span></div>
-                
+
                 <div class="mb-4">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Quem está te atendendo?</label>
                     <div class="relative">
@@ -107,7 +107,7 @@
                         <p id="modalPrice" class="text-4xl font-black text-brand-600">R$ 0,00</p>
                         <p id="modalOldPrice" class="text-lg text-slate-400 line-through hidden font-medium">R$ 0,00</p>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-left">
                         <div class="bg-slate-50 p-4 rounded-2xl shadow-inner border border-slate-100">
                             <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-3">Cor</p>
@@ -118,7 +118,7 @@
                             <div id="modalSizeContainer" class="flex flex-wrap gap-2"></div>
                         </div>
                     </div>
-                    
+
                     <p id="variantError" class="text-red-500 font-bold text-xs hidden mb-6 transition-all uppercase tracking-wider"><i class="fas fa-exclamation-circle"></i> Selecione as opções acima!</p>
 
                     <div class="flex items-center gap-4 mt-6">
@@ -146,13 +146,12 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        
-        // ADICIONEI a variável storeName aqui para iniciar o CONFIG
-        const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id'), storeName: "LOJA" };
-        
+        const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id') };
+
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
         let teamList = [];
-        
+
+        // Variáveis de controle para seleção obrigatória
         let selectedColor = null;
         let selectedSize = null;
 
@@ -160,7 +159,7 @@
         if (vCode) localStorage.setItem('saved_vendedor_code', vCode);
 
         function isVideo(url) { if (!url) return false; return url.includes('.mp4') || url.includes('.mov') || url.includes('.webm'); }
-        
+
         function buildMediaTag(url, classes, isCard = true, isStatic = false) {
             if (isVideo(url)) {
                 const videoAttrs = isStatic 
@@ -181,14 +180,13 @@
                         const first = rawList[0].json || rawList[0];
                         if (first.nome_campanha) document.getElementById('campaignTitleDisplay').innerText = first.nome_campanha.toUpperCase();
                         
-                        // Atualiza as variáveis CONFIG com os dados reais do banco
+                        // ======== MÁGICA DO TELEFONE DA LOJA ========
+                        // Puxa o telefone do lojista que vem do banco e sobrescreve o seu fixo
                         const telDonoLoja = first.telefone_loja || first.telefone_usuario || first.whatsapp_loja;
                         if (telDonoLoja) {
                             CONFIG.whatsappNumber = String(telDonoLoja).replace(/\D/g, '');
                         }
-                        if (first.nome_loja) {
-                            CONFIG.storeName = first.nome_loja; // Captura o nome da loja
-                        }
+                        // ============================================
                     }
                     products = rawList.map((item, i) => {
                         const p = item.json || item;
@@ -237,7 +235,8 @@
                 let mediaHTML = p.images.length > 0 ? buildMediaTag(p.images[0], `card-media absolute inset-0 w-full h-full object-cover opacity-100 z-10`) : `<img src="https://placehold.co/400?text=Sem+Foto" class="card-media absolute inset-0 w-full h-full object-cover opacity-100 z-10">`;
                 const pDe = parseFloat(p.priceFrom), pPor = parseFloat(p.priceTo);
                 const descP = pDe && pDe > pPor ? Math.round(((pDe - pPor) / pDe) * 100) : 0;
-                
+
+                // Exibição amigável no card se tiver múltiplas opções
                 let displayCor = p.cor.includes(',') ? 'Várias Cores' : p.cor;
                 let displayTam = p.tamanho.includes(',') ? 'Vários Tamanhos' : p.tamanho;
 
@@ -249,21 +248,27 @@
             });
         }
 
+        // ==========================================
+        // LÓGICA DE CARRINHO COM OPÇÕES
+        // ==========================================
         function saveCart() { localStorage.setItem(`cart_${userPhone}_${CONFIG.campaignId}`, JSON.stringify(cart)); }
-        
+
         function fastAdd(id) { 
             const p = products.find(x => x.id == id);
             if(!p) return;
 
+            // Se o produto tiver vírgulas (opções), força a abrir o modal para o cliente escolher!
             if (p.cor.includes(',') || p.tamanho.includes(',')) {
                 openProductModal(p);
                 return;
             }
 
+            // Se for peça única, adiciona direto
             const c = (p.cor && p.cor !== '-') ? p.cor.trim() : '-';
             const s = (p.tamanho && p.tamanho !== '-') ? p.tamanho.trim() : '-';
+            const cartKey = `${id}|${c}|${s}`; // Chave composta
             const cartKey = `${id}|${c}|${s}`; 
-            
+
             cart[cartKey] = (cart[cartKey] || 0) + 1; 
             saveCart(); 
             updateUI(); 
@@ -284,7 +289,7 @@
             closeProductModal(); 
             updateUI(); 
         }
-        
+
         function updateUI() {
             const count = Object.values(cart).reduce((a,b)=>a+b, 0);
             const total = Object.entries(cart).reduce((acc, [cartKey, qty]) => {
@@ -292,7 +297,7 @@
                 const p = products.find(x => x.id == id);
                 return acc + (p ? parseFloat(p.priceTo) * qty : 0);
             }, 0);
-            
+
             const cb = document.getElementById('cartBar');
             if(count > 0) {
                 cb.classList.remove('hidden');
@@ -309,7 +314,7 @@
         function openCartModal() {
             const list = document.getElementById('cartItemsList'); list.innerHTML = '';
             let total = 0;
-            
+
             Object.entries(cart).forEach(([cartKey, qty]) => {
                 const [id, c, s] = cartKey.split('|');
                 const p = products.find(x => x.id == id);
@@ -334,7 +339,7 @@
             sessionStorage.setItem('logged_phone', userPhone);
             initApp();
         };
-        
+
         function initApp() {
             userPhone = sessionStorage.getItem('logged_phone');
             document.getElementById('displayUserPhone').innerText = userPhone;
@@ -345,6 +350,7 @@
                 if(saved) {
                     let temp = JSON.parse(saved);
                     let migrated = {};
+                    // Proteção para migrar carrinhos antigos
                     for(let key in temp) { if(!key.includes('|')) migrated[`${key}|-|-`] = temp[key]; else migrated[key] = temp[key]; }
                     cart = migrated;
                 }
@@ -354,22 +360,26 @@
         if(sessionStorage.getItem('logged_phone')) initApp();
         function logout() { sessionStorage.removeItem('logged_phone'); location.reload(); }
 
+        // ==========================================
+        // GERADOR DE BOTÕES NO MODAL
+        // ==========================================
         function openProductModal(p) {
             currentProduct = p; currentMediaIdx = 0; tempQty = 1;
             selectedColor = null; selectedSize = null;
             document.getElementById('variantError').classList.add('hidden');
-            
+
             document.getElementById('modalTitle').innerText = p.name;
             document.getElementById('modalPrice').innerText = `R$ ${parseFloat(p.priceTo).toFixed(2)}`;
-            
+
             const op = document.getElementById('modalOldPrice');
             if (p.priceFrom && parseFloat(p.priceFrom) > parseFloat(p.priceTo)) { op.innerText = `R$ ${parseFloat(p.priceFrom).toFixed(2)}`; op.classList.remove('hidden'); } else { op.classList.add('hidden'); }
-            
+
             document.getElementById('tempQtyDisplay').innerText = "1";
-            
+
+            // Renderiza as opções fatiadas
             renderVariants('modalColorContainer', p.cor, 'color');
             renderVariants('modalSizeContainer', p.tamanho, 'size');
-            
+
             renderModalMedia(); 
             document.getElementById('productModal').classList.remove('hidden');
         }
@@ -377,7 +387,7 @@
         function renderVariants(containerId, dataStr, type) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
-            
+
             if (!dataStr || dataStr === '-' || dataStr.trim() === '') {
                 container.innerHTML = '<span class="text-slate-400 font-bold text-xs italic">N/A</span>';
                 if(type === 'color') selectedColor = '-';
@@ -386,12 +396,14 @@
             }
 
             const options = dataStr.split(',').map(s => s.trim()).filter(s => s);
-            
+
             if (options.length === 1) {
+                // Peça única, marca automático
                 container.innerHTML = `<span class="font-black text-slate-800 text-sm bg-white px-3 py-1.5 rounded-lg border border-slate-200 inline-block">${options[0]}</span>`;
                 if(type === 'color') selectedColor = options[0];
                 if(type === 'size') selectedSize = options[0];
             } else {
+                // Tem opções, cria os botões para clicar
                 options.forEach(opt => {
                     const btn = document.createElement('button');
                     btn.innerText = opt;
@@ -410,7 +422,7 @@
             });
             btnElement.classList.remove('border-slate-200', 'bg-white', 'text-slate-500');
             btnElement.classList.add('border-brand-600', 'bg-brand-100', 'text-brand-700');
-            
+
             if(type === 'color') selectedColor = val;
             if(type === 'size') selectedSize = val;
             document.getElementById('variantError').classList.add('hidden');
@@ -429,25 +441,25 @@
         function finalizeOrder() {
             const selectTarget = document.getElementById('vendedorSelect');
             const selectedPhone = selectTarget.value;
-            
+
+            // Aqui a mágica acontece. Se for 'loja', ele puxa a variável CONFIG que acabou de ser atualizada com o telefone do dono!
             let whatsappTarget = selectedPhone === 'loja' ? CONFIG.whatsappNumber : selectedPhone;
 
-            // AQUI ESTÁ A ATUALIZAÇÃO DO TEXTO E DOS EMOJIS!
-            let msg = `🛒 *PEDIDO - ${CONFIG.storeName.toUpperCase()}*\n📱 *Cliente:* ${userPhone}\n`;
-            
+            let msg = `🛒 *PEDIDO - CLIPS PAPELARIA*\n*Cliente:* ${userPhone}\n`;
+
             if(selectedPhone !== 'loja') {
                 const vendedorNome = selectTarget.options[selectTarget.selectedIndex].text;
-                msg += `👤 *Atendimento:* ${vendedorNome}\n`;
+                msg += `*Atendimento:* ${vendedorNome}\n`;
             }
             msg += `\n`;
 
             Object.entries(cart).forEach(([cartKey, qty]) => {
                 const [id, c, s] = cartKey.split('|');
                 const p = products.find(x => x.id == id);
-                if (p) msg += `📦 *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
+                if (p) msg += `▫️ *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
             });
             msg += `\n💰 *TOTAL: ${document.getElementById('summaryTotal').innerText}*`;
-            
+
             window.open(`https://wa.me/${whatsappTarget}?text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
