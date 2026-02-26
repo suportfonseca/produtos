@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP260226123050",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP260226122755",
     "name": "XICARA MGWARE PATRICK",
     "priceFrom": "19.00",
@@ -48,5 +38,15 @@
     "category": "foto",
     "cor": "PRETO",
     "tamanho": "M"
+  },
+  {
+    "id": "GRP260226123050",
+    "name": "GATINHO",
+    "priceFrom": "999999.00",
+    "priceTo": "1.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "AMARELA",
+    "tamanho": "PP"
   }
 ]
