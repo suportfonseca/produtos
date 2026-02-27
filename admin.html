@@ -22,7 +22,7 @@
         }
     </script>
     <style>
-        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; min-height: 100dvh; }
         .glass-panel { background: rgba(23, 23, 23, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -32,28 +32,28 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-dark-950 selection:bg-brand-500 selection:text-white relative">
+<body class="flex flex-col bg-dark-950 selection:bg-brand-500 selection:text-white relative">
 
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-600/10 blur-[150px] rounded-full pointer-events-none z-0 hidden" id="bgGlow"></div>
 
     <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-dark-950">
-        <div class="w-full max-w-sm glass-panel p-10 rounded-[2rem] text-center shadow-2xl relative z-10">
-            <div class="w-20 h-20 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl shadow-lg border border-brand-400/20"><i class="fas fa-layer-group"></i></div>
+        <div class="w-full max-w-sm glass-panel p-8 md:p-10 rounded-[2rem] text-center shadow-2xl relative z-10">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl mx-auto mb-6 flex items-center justify-center text-2xl md:text-3xl shadow-lg border border-brand-400/20"><i class="fas fa-layer-group"></i></div>
             <h2 class="text-2xl font-black mb-2 tracking-tight">MG<span class="text-accent-400">WARE</span></h2>
             <p class="text-accent-400 text-sm mb-8 uppercase tracking-widest font-bold text-[10px]">&lt; Painel Lojista &gt;</p>
             <div class="space-y-4">
-                <input type="email" id="loginEmail" class="w-full bg-dark-900/80 border border-white/10 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-accent-500" placeholder="seu@email.com">
-                <input type="password" id="loginPass" class="w-full bg-dark-900/80 border border-white/10 rounded-xl px-5 py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-accent-500" placeholder="Sua Senha">
+                <input type="email" id="loginEmail" class="w-full bg-dark-900/80 border border-white/10 rounded-xl px-5 py-3.5 md:py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-accent-500" placeholder="seu@email.com">
+                <input type="password" id="loginPass" class="w-full bg-dark-900/80 border border-white/10 rounded-xl px-5 py-3.5 md:py-4 text-white outline-none focus:border-brand-500 transition-all text-center placeholder:text-accent-500" placeholder="Sua Senha">
             </div>
-            <button onclick="doLogin()" id="btnLogin" class="w-full bg-brand-600 hover:bg-brand-500 py-4 rounded-xl font-bold transition-all shadow-xl shadow-brand-600/30 mt-6 active:scale-95 border border-brand-400/20">
+            <button onclick="doLogin()" id="btnLogin" class="w-full bg-brand-600 hover:bg-brand-500 py-3.5 md:py-4 rounded-xl font-bold transition-all shadow-xl shadow-brand-600/30 mt-6 active:scale-95 border border-brand-400/20">
                 Entrar no Sistema
             </button>
         </div>
     </div>
 
-    <div id="dashboard" class="hidden flex-1 w-full flex flex-col md:flex-row overflow-hidden fade-in relative z-10">
+    <div id="dashboard" class="hidden flex-1 w-full flex-col md:flex-row overflow-hidden fade-in relative z-10 pb-[72px] md:pb-0">
         
-        <aside class="w-full md:w-64 bg-dark-950/90 border-b md:border-b-0 md:border-r border-white/5 flex flex-col shrink-0 backdrop-blur-xl">
+        <aside class="w-full md:w-64 bg-dark-950/95 md:bg-dark-950/90 border-t md:border-t-0 md:border-r border-white/10 md:border-white/5 flex flex-col shrink-0 backdrop-blur-xl fixed md:relative bottom-0 left-0 z-40 md:z-auto h-[72px] md:h-auto shadow-[0_-10px_30px_rgba(0,0,0,0.5)] md:shadow-none">
             <div class="p-6 hidden md:block border-b border-white/5">
                 <h2 class="text-xl font-black text-white flex items-center gap-3 tracking-tight">
                     <div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center text-sm shadow-lg border border-brand-400/20"><i class="fas fa-layer-group"></i></div>
@@ -61,15 +61,15 @@
                 </h2>
             </div>
             
-            <nav class="flex-1 px-4 py-4 md:py-6 space-y-0 md:space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-hidden gap-2 md:gap-0 custom-scroll">
-                <button onclick="switchMenu('campanhas')" id="menu-campanhas" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0 shadow-lg shadow-brand-600/20 border border-brand-400/20">
-                    <i class="fas fa-layer-group w-5 text-center"></i> <span class="hidden md:inline">Campanhas</span>
+            <nav class="flex-1 px-2 py-2 md:px-4 md:py-6 space-y-0 md:space-y-2 flex flex-row md:flex-col justify-around md:justify-start items-center overflow-x-auto md:overflow-hidden gap-1 md:gap-0 custom-scroll h-full">
+                <button onclick="switchMenu('campanhas')" id="menu-campanhas" class="w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shadow-lg shadow-brand-600/20 border border-brand-400/20 text-[10px] md:text-base">
+                    <i class="fas fa-layer-group text-lg md:text-base"></i> <span class="block md:inline truncate w-full text-center md:text-left">Campanhas</span>
                 </button>
-                <button onclick="switchMenu('vendedores')" id="menu-vendedores" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all shrink-0">
-                    <i class="fas fa-users w-5 text-center"></i> <span class="hidden md:inline">Vendedores / Equipe</span>
+                <button onclick="switchMenu('vendedores')" id="menu-vendedores" class="w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all text-[10px] md:text-base border border-transparent">
+                    <i class="fas fa-users text-lg md:text-base"></i> <span class="block md:inline truncate w-full text-center md:text-left">Equipe</span>
                 </button>
-                <button onclick="switchMenu('clientes')" id="menu-clientes" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all shrink-0">
-                    <i class="fas fa-user-tag w-5 text-center"></i> <span class="hidden md:inline">Clientes</span>
+                <button onclick="switchMenu('clientes')" id="menu-clientes" class="w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all text-[10px] md:text-base border border-transparent">
+                    <i class="fas fa-user-tag text-lg md:text-base"></i> <span class="block md:inline truncate w-full text-center md:text-left">Clientes</span>
                 </button>
             </nav>
 
@@ -82,103 +82,103 @@
 
         <div class="flex-1 overflow-y-auto custom-scroll flex flex-col w-full relative">
 
-            <div id="view-campanhas" class="flex flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
-                <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <div class="text-center md:text-left">
-                        <h1 class="text-2xl font-black text-white">Painel Gestão <span class="text-brand-400 text-sm bg-brand-500/10 border border-brand-500/20 px-2 py-1 rounded ml-2">PRO</span></h1>
-                        <p class="text-accent-400 text-xs mt-1 font-bold">Loja: <span id="storeNameDisplay" class="text-white">...</span></p>
+            <div id="view-campanhas" class="flex flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 fade-in">
+                <header class="flex flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-2">
+                    <div class="text-left">
+                        <h1 class="text-xl md:text-2xl font-black text-white leading-tight">Painel Gestão <span class="text-brand-400 text-[10px] md:text-sm bg-brand-500/10 border border-brand-500/20 px-2 py-1 rounded ml-1 align-middle">PRO</span></h1>
+                        <p class="text-accent-400 text-[10px] md:text-xs mt-1 font-bold">Loja: <span id="storeNameDisplay" class="text-white">...</span></p>
                     </div>
-                    <button onclick="logout()" class="glass-panel px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 flex items-center gap-2 md:hidden">
+                    <button onclick="logout()" class="glass-panel px-3 py-2 md:px-5 md:py-2.5 rounded-xl text-[10px] md:text-xs font-bold hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 flex items-center gap-2 md:hidden shrink-0 mt-1">
                         <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
                 </header>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div class="glass-panel p-6 rounded-3xl border-l-4 border-brand-500 relative overflow-hidden bg-dark-900/50">
-                        <div class="absolute right-4 top-4 opacity-5"><i class="fas fa-layer-group text-6xl"></i></div>
-                        <p class="text-[10px] text-accent-400 font-bold uppercase tracking-widest">Minhas Campanhas</p>
-                        <p class="text-3xl font-black text-white mt-1" id="campaignCount">0</p>
+                <div class="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-8">
+                    <div class="glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl border-l-4 border-brand-500 relative overflow-hidden bg-dark-900/50 flex flex-col justify-center">
+                        <div class="absolute right-2 top-2 md:right-4 md:top-4 opacity-5"><i class="fas fa-layer-group text-4xl md:text-6xl"></i></div>
+                        <p class="text-[8px] md:text-[10px] text-accent-400 font-bold uppercase tracking-widest leading-tight mb-1">Minhas Campanhas</p>
+                        <p class="text-2xl md:text-3xl font-black text-white" id="campaignCount">0</p>
                     </div>
-                    <button onclick="openNewCampaignModal()" class="bg-dark-900 border border-white/5 hover:border-brand-500/50 p-6 rounded-3xl flex items-center justify-center gap-4 shadow-lg transition-all active:scale-95 group relative overflow-hidden">
+                    <button onclick="openNewCampaignModal()" class="bg-dark-900 border border-white/5 hover:border-brand-500/50 p-4 md:p-6 rounded-2xl md:rounded-3xl flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 shadow-lg transition-all active:scale-95 group relative overflow-hidden text-center md:text-left">
                         <div class="absolute inset-0 bg-gradient-to-r from-brand-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="w-12 h-12 bg-brand-500/20 border border-brand-500/30 text-brand-400 rounded-full flex items-center justify-center text-xl group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white transition-all z-10"><i class="fas fa-plus"></i></div>
-                        <div class="text-left z-10">
-                            <p class="text-xs font-bold text-accent-400 uppercase tracking-wider">Criar Nova</p>
-                            <span class="font-black text-xl text-white">Campanha</span>
+                        <div class="w-8 h-8 md:w-12 md:h-12 bg-brand-500/20 border border-brand-500/30 text-brand-400 rounded-full flex items-center justify-center text-sm md:text-xl group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white transition-all z-10 shrink-0"><i class="fas fa-plus"></i></div>
+                        <div class="z-10">
+                            <p class="text-[9px] md:text-xs font-bold text-accent-400 uppercase tracking-wider mb-0.5">Criar Nova</p>
+                            <span class="font-black text-sm md:text-xl text-white leading-none block">Campanha</span>
                         </div>
                     </button>
                 </div>
 
-                <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl bg-dark-900/30">
-                    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                        <h3 class="font-bold text-white flex items-center gap-2 tracking-tight"><i class="fas fa-history text-accent-500"></i> Histórico</h3>
+                <div class="glass-panel rounded-2xl md:rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl bg-dark-900/30">
+                    <div class="p-4 md:p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <h3 class="font-bold text-white flex items-center gap-2 tracking-tight text-sm md:text-base"><i class="fas fa-history text-accent-500"></i> Histórico</h3>
                         <button onclick="fetchDashboard()" class="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-accent-400 hover:text-white"><i class="fas fa-sync-alt text-xs"></i></button>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[600px]">
-                            <thead class="bg-dark-950/50 text-accent-500 text-[10px] uppercase font-bold tracking-wider">
+                    <div class="w-full overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[500px] md:min-w-[600px]">
+                            <thead class="bg-dark-950/50 text-accent-500 text-[9px] md:text-[10px] uppercase font-bold tracking-wider">
                                 <tr>
-                                    <th class="p-5">Status</th>
-                                    <th class="p-5">Campanha</th>
-                                    <th class="p-5 text-right">Ações</th>
+                                    <th class="p-4 md:p-5 w-20 md:w-24">Status</th>
+                                    <th class="p-4 md:p-5">Campanha</th>
+                                    <th class="p-4 md:p-5 text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="campaignList" class="text-sm font-medium text-accent-400 divide-y divide-white/5"></tbody>
+                            <tbody id="campaignList" class="text-xs md:text-sm font-medium text-accent-400 divide-y divide-white/5"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div id="view-vendedores" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
-                <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <div class="text-center md:text-left">
-                        <h1 class="text-2xl font-black text-white tracking-tight">Equipe de Vendas</h1>
-                        <p class="text-accent-400 text-xs mt-1 font-bold">Gerencie seus vendedores e links comissionados</p>
+            <div id="view-vendedores" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 fade-in">
+                <header class="flex flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
+                    <div class="text-left">
+                        <h1 class="text-xl md:text-2xl font-black text-white tracking-tight leading-tight">Equipe de Vendas</h1>
+                        <p class="text-accent-400 text-[10px] md:text-xs mt-1 font-bold line-clamp-1">Gerencie seus vendedores</p>
                     </div>
-                    <button onclick="openNewVendedorModal()" class="bg-brand-600 hover:bg-brand-500 px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all shadow-lg shadow-brand-600/30 flex items-center gap-2 border border-brand-400/20 active:scale-95">
-                        <i class="fas fa-user-plus"></i> Novo Vendedor
+                    <button onclick="openNewVendedorModal()" class="bg-brand-600 hover:bg-brand-500 px-3 py-2 md:px-5 md:py-2.5 rounded-xl text-[10px] md:text-xs font-bold text-white transition-all shadow-lg shadow-brand-600/30 flex items-center gap-1 md:gap-2 border border-brand-400/20 active:scale-95 shrink-0 mt-1">
+                        <i class="fas fa-user-plus"></i> <span class="hidden sm:inline">Novo Vendedor</span><span class="sm:hidden">Novo</span>
                     </button>
                 </header>
 
-                <div class="glass-panel rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl bg-dark-900/30">
-                    <div class="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5">
-                        <h3 class="font-bold text-white flex items-center gap-2 tracking-tight"><i class="fas fa-users text-accent-500"></i> Vendedores</h3>
-                        <div class="flex gap-2 bg-dark-950 p-1 rounded-xl border border-white/10">
-                            <button onclick="filterVendedores('todos')" id="filter-todos" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white transition-all shadow-lg shadow-brand-600/30 border border-brand-400/20">Todos</button>
-                            <button onclick="filterVendedores('ativos')" id="filter-ativos" class="px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent">Ativos</button>
-                            <button onclick="filterVendedores('inativos')" id="filter-inativos" class="px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent">Inativos</button>
+                <div class="glass-panel rounded-2xl md:rounded-[2rem] overflow-hidden flex-1 flex flex-col border border-white/5 shadow-2xl bg-dark-900/30">
+                    <div class="p-4 md:p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 bg-white/5">
+                        <h3 class="font-bold text-white flex items-center gap-2 tracking-tight text-sm md:text-base"><i class="fas fa-users text-accent-500"></i> Vendedores</h3>
+                        <div class="flex gap-1 bg-dark-950 p-1 rounded-xl border border-white/10 w-full md:w-auto overflow-x-auto">
+                            <button onclick="filterVendedores('todos')" id="filter-todos" class="px-3 md:px-4 py-1.5 rounded-lg text-[10px] md:text-xs font-bold bg-brand-600 text-white transition-all shadow-lg shadow-brand-600/30 border border-brand-400/20 whitespace-nowrap">Todos</button>
+                            <button onclick="filterVendedores('ativos')" id="filter-ativos" class="px-3 md:px-4 py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent whitespace-nowrap">Ativos</button>
+                            <button onclick="filterVendedores('inativos')" id="filter-inativos" class="px-3 md:px-4 py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent whitespace-nowrap">Inativos</button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[700px]">
-                            <thead class="bg-dark-950/50 text-accent-500 text-[10px] uppercase font-bold tracking-wider">
+                    <div class="w-full overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[600px] md:min-w-[700px]">
+                            <thead class="bg-dark-950/50 text-accent-500 text-[9px] md:text-[10px] uppercase font-bold tracking-wider">
                                 <tr>
-                                    <th class="p-5 w-24">Status</th>
-                                    <th class="p-5">Vendedor</th>
-                                    <th class="p-5">Link da Loja</th>
-                                    <th class="p-5 text-center w-24">Ações</th>
+                                    <th class="p-4 md:p-5 w-20 md:w-24">Status</th>
+                                    <th class="p-4 md:p-5">Vendedor</th>
+                                    <th class="p-4 md:p-5">Link da Loja</th>
+                                    <th class="p-4 md:p-5 text-center w-24">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="vendedorList" class="text-sm font-medium text-accent-400 divide-y divide-white/5"></tbody>
+                            <tbody id="vendedorList" class="text-xs md:text-sm font-medium text-accent-400 divide-y divide-white/5"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div id="view-clientes" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 pb-20 fade-in">
-                <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <div class="text-center md:text-left">
-                        <h1 class="text-2xl font-black text-white tracking-tight">Base de Clientes</h1>
-                        <p class="text-accent-400 text-xs mt-1 font-bold">Histórico e gestão de contatos</p>
+            <div id="view-clientes" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 fade-in">
+                <header class="flex flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
+                    <div class="text-left">
+                        <h1 class="text-xl md:text-2xl font-black text-white tracking-tight leading-tight">Base de Clientes</h1>
+                        <p class="text-accent-400 text-[10px] md:text-xs mt-1 font-bold">Histórico e gestão</p>
                     </div>
                 </header>
 
-                <div class="glass-panel p-10 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-20 bg-dark-900/30">
-                    <div class="w-20 h-20 bg-dark-950 border border-white/5 rounded-2xl flex items-center justify-center mb-6 shadow-inner text-accent-500">
-                        <i class="fas fa-address-book text-3xl"></i>
+                <div class="glass-panel p-8 md:p-10 rounded-2xl md:rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-16 md:py-20 bg-dark-900/30">
+                    <div class="w-16 h-16 md:w-20 md:h-20 bg-dark-950 border border-white/5 rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-inner text-accent-500">
+                        <i class="fas fa-address-book text-2xl md:text-3xl"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-white mb-2">Módulo em Construção</h2>
-                    <p class="text-accent-400 text-sm max-w-md">O CRM de clientes será ativado nas próximas atualizações do sistema.</p>
+                    <h2 class="text-lg md:text-xl font-bold text-white mb-2">Módulo em Construção</h2>
+                    <p class="text-accent-400 text-xs md:text-sm max-w-xs md:max-w-md">O CRM de clientes será ativado nas próximas atualizações do sistema.</p>
                 </div>
             </div>
 
@@ -186,89 +186,87 @@
     </div>
 
     <div id="shareCampaignModal" class="fixed inset-0 z-[80] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
-        <div class="glass-panel w-full max-w-lg p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10 flex flex-col max-h-[90vh]">
-            <button onclick="closeShareModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-black mb-1 text-white tracking-tight pr-8 truncate" id="shareModalTitle">Compartilhar...</h3>
-            <p class="text-accent-400 text-xs mb-6">Copie e envie o link correto para sua equipe</p>
-            
-            <div id="shareLinksContainer" class="flex-1 overflow-y-auto">
-                </div>
+        <div class="glass-panel w-full max-w-lg p-6 md:p-8 rounded-2xl md:rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10 flex flex-col max-h-[90vh]">
+            <button onclick="closeShareModal()" class="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 flex items-center justify-center text-accent-500 hover:text-white transition-colors bg-white/5 rounded-full"><i class="fas fa-times"></i></button>
+            <h3 class="text-lg md:text-xl font-black mb-1 text-white tracking-tight pr-8 truncate" id="shareModalTitle">Compartilhar...</h3>
+            <p class="text-accent-400 text-[10px] md:text-xs mb-4 md:mb-6">Copie e envie o link correto para sua equipe</p>
+            <div id="shareLinksContainer" class="flex-1 overflow-y-auto custom-scroll pr-1"></div>
         </div>
     </div>
 
-    <div id="newCampaignModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
-        <div class="glass-panel w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
-            <button onclick="closeNewCampaignModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-black text-center mb-1 text-white tracking-tight">Nova Campanha</h3>
-            <p class="text-center text-accent-400 text-xs mb-6">Dê um nome para identificar esta venda</p>
-            <input type="text" id="newCampaignName" class="w-full bg-dark-950 border border-white/10 rounded-xl px-5 py-4 mb-6 text-white outline-none focus:border-brand-500 transition-all font-bold placeholder:font-normal placeholder:text-accent-600" placeholder="Ex: Queima de Estoque">
-            <button onclick="createCampaign()" id="btnCreateCamp" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20">
+    <div id="newCampaignModal" class="fixed inset-0 z-[80] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-md p-6 md:p-8 rounded-2xl md:rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
+            <button onclick="closeNewCampaignModal()" class="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 flex items-center justify-center text-accent-500 hover:text-white transition-colors bg-white/5 rounded-full"><i class="fas fa-times"></i></button>
+            <h3 class="text-lg md:text-xl font-black text-center mb-1 text-white tracking-tight">Nova Campanha</h3>
+            <p class="text-center text-accent-400 text-[10px] md:text-xs mb-5 md:mb-6">Dê um nome para identificar esta venda</p>
+            <input type="text" id="newCampaignName" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3.5 md:py-4 mb-5 md:mb-6 text-white outline-none focus:border-brand-500 transition-all text-sm md:text-base font-bold placeholder:font-normal placeholder:text-accent-600" placeholder="Ex: Queima de Estoque">
+            <button onclick="createCampaign()" id="btnCreateCamp" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 md:py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20 text-sm md:text-base">
                 Criar Agora
             </button>
         </div>
     </div>
 
-    <div id="newVendedorModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
-        <div class="glass-panel w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
-            <button onclick="closeNewVendedorModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-black text-center mb-1 text-white tracking-tight">Cadastrar Vendedor</h3>
-            <p class="text-center text-accent-400 text-xs mb-6">Crie o acesso para o seu afiliado</p>
+    <div id="newVendedorModal" class="fixed inset-0 z-[80] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-md p-6 md:p-8 rounded-2xl md:rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
+            <button onclick="closeNewVendedorModal()" class="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 flex items-center justify-center text-accent-500 hover:text-white transition-colors bg-white/5 rounded-full"><i class="fas fa-times"></i></button>
+            <h3 class="text-lg md:text-xl font-black text-center mb-1 text-white tracking-tight">Cadastrar Vendedor</h3>
+            <p class="text-center text-accent-400 text-[10px] md:text-xs mb-5 md:mb-6">Crie o acesso para o seu afiliado</p>
             
-            <div class="space-y-4 mb-6 text-left">
+            <div class="space-y-3 md:space-y-4 mb-5 md:mb-6 text-left">
                 <div>
-                    <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">Nome Completo</label>
-                    <input type="text" id="vendedorNome" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-brand-500 transition-all font-medium placeholder:text-accent-600" placeholder="Ex: João Silva">
+                    <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">Nome Completo</label>
+                    <input type="text" id="vendedorNome" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 md:py-3.5 text-white outline-none focus:border-brand-500 transition-all text-sm md:text-base font-medium placeholder:text-accent-600" placeholder="Ex: João Silva">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">WhatsApp (Somente números)</label>
-                    <input type="text" id="vendedorTelefone" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-brand-500 transition-all font-medium placeholder:text-accent-600" placeholder="5511999999999">
+                    <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">WhatsApp (Apenas números)</label>
+                    <input type="tel" id="vendedorTelefone" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 md:py-3.5 text-white outline-none focus:border-brand-500 transition-all text-sm md:text-base font-medium placeholder:text-accent-600" placeholder="5511999999999">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-1 block">Código do Link</label>
+                    <label class="text-[9px] md:text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-1 block">Código do Link</label>
                     <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-sm">?v=</span>
-                        <input type="text" id="vendedorCodigo" class="w-full bg-dark-950 border border-brand-500/30 rounded-xl pl-11 pr-4 py-3 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all placeholder:text-accent-600 lowercase" placeholder="joao">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-xs md:text-sm">?v=</span>
+                        <input type="text" id="vendedorCodigo" class="w-full bg-dark-950 border border-brand-500/30 rounded-xl pl-10 md:pl-11 pr-4 py-3 md:py-3.5 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all text-sm md:text-base placeholder:text-accent-600 lowercase" placeholder="joao">
                     </div>
                 </div>
             </div>
             
-            <button onclick="createVendedor()" id="btnCreateVendedor" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20">
+            <button onclick="createVendedor()" id="btnCreateVendedor" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 md:py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20 text-sm md:text-base">
                 Salvar Vendedor
             </button>
         </div>
     </div>
 
-    <div id="editVendedorModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
-        <div class="glass-panel w-full max-w-md p-8 rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
-            <button onclick="closeEditVendedorModal()" class="absolute top-6 right-6 text-accent-500 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-black text-center mb-1 text-white tracking-tight">Editar Vendedor</h3>
-            <p class="text-center text-accent-400 text-xs mb-6">Atualize os dados ou desative o acesso</p>
+    <div id="editVendedorModal" class="fixed inset-0 z-[80] flex items-center justify-center bg-dark-950/90 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-md p-6 md:p-8 rounded-2xl md:rounded-[2rem] shadow-2xl relative bg-dark-900 border border-white/10">
+            <button onclick="closeEditVendedorModal()" class="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 flex items-center justify-center text-accent-500 hover:text-white transition-colors bg-white/5 rounded-full"><i class="fas fa-times"></i></button>
+            <h3 class="text-lg md:text-xl font-black text-center mb-1 text-white tracking-tight">Editar Vendedor</h3>
+            <p class="text-center text-accent-400 text-[10px] md:text-xs mb-5 md:mb-6">Atualize os dados ou desative o acesso</p>
             
             <input type="hidden" id="editVendedorId">
             
-            <div class="space-y-4 mb-6 text-left">
+            <div class="space-y-3 md:space-y-4 mb-5 md:mb-6 text-left">
                 <div>
-                    <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">Nome Completo</label>
-                    <input type="text" id="editVendedorNome" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-brand-500 transition-all font-medium">
+                    <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">Nome Completo</label>
+                    <input type="text" id="editVendedorNome" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 md:py-3.5 text-white outline-none focus:border-brand-500 transition-all text-sm md:text-base font-medium">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">WhatsApp</label>
-                    <input type="text" id="editVendedorTelefone" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-brand-500 transition-all font-medium">
+                    <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">WhatsApp</label>
+                    <input type="tel" id="editVendedorTelefone" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 md:py-3.5 text-white outline-none focus:border-brand-500 transition-all text-sm md:text-base font-medium">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">Código do Link (Não alterável)</label>
-                    <input type="text" id="editVendedorCodigo" class="w-full bg-dark-950/50 border border-white/5 rounded-xl px-4 py-3 text-accent-500 font-mono outline-none cursor-not-allowed" readonly>
+                    <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1 block">Código do Link (Não alterável)</label>
+                    <input type="text" id="editVendedorCodigo" class="w-full bg-dark-950/50 border border-white/5 rounded-xl px-4 py-3 md:py-3.5 text-accent-500 font-mono text-xs md:text-sm outline-none cursor-not-allowed" readonly>
                 </div>
-                <div class="pt-4 border-t border-white/10 mt-2">
+                <div class="pt-3 md:pt-4 border-t border-white/10 mt-2">
                     <label class="flex items-center gap-3 cursor-pointer">
                         <input type="checkbox" id="editVendedorAtivo" class="sr-only peer">
-                        <div class="w-12 h-7 bg-dark-950 border border-white/10 rounded-full peer peer-checked:bg-green-500 peer-checked:border-green-400 transition-colors relative after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-                        <span class="text-sm font-bold text-accent-300">Vendedor Ativo no Sistema</span>
+                        <div class="w-10 h-6 md:w-12 md:h-7 bg-dark-950 border border-white/10 rounded-full peer peer-checked:bg-green-500 peer-checked:border-green-400 transition-colors relative after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:after:translate-x-4 md:peer-checked:after:translate-x-5"></div>
+                        <span class="text-xs md:text-sm font-bold text-accent-300">Vendedor Ativo no Sistema</span>
                     </label>
                 </div>
             </div>
             
-            <button onclick="updateVendedor()" id="btnUpdateVendedor" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20">
+            <button onclick="updateVendedor()" id="btnUpdateVendedor" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 md:py-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-95 transition-all border border-brand-400/20 text-sm md:text-base">
                 Salvar Alterações
             </button>
         </div>
@@ -276,22 +274,22 @@
 
     <div id="editProductsModal" class="fixed inset-0 z-[70] flex items-center justify-center bg-dark-950/95 backdrop-blur-xl md:p-6">
         <div class="glass-panel w-full h-full md:rounded-[2.5rem] flex flex-col shadow-2xl relative border border-white/10 md:max-w-6xl bg-dark-900/90">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-dark-950/50 backdrop-blur-md z-10">
-                <div>
-                    <h3 class="text-xl font-black text-white tracking-tight" id="editModalTitle">...</h3>
-                    <p class="text-accent-400 text-xs mt-1 flex items-center gap-1"><i class="fas fa-shield-alt text-brand-500"></i> Modo de edição segura ativo</p>
+            <div class="p-4 md:p-6 border-b border-white/5 flex justify-between items-center bg-dark-950/50 backdrop-blur-md z-10">
+                <div class="pr-4">
+                    <h3 class="text-lg md:text-xl font-black text-white tracking-tight line-clamp-1" id="editModalTitle">...</h3>
+                    <p class="text-accent-400 text-[10px] md:text-xs mt-0.5 flex items-center gap-1"><i class="fas fa-shield-alt text-brand-500"></i> Edição segura ativa</p>
                 </div>
-                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-accent-400 hover:text-white flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
+                <button onclick="closeEditModal()" class="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-accent-400 hover:text-white flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-6 custom-scroll bg-dark-950/30" id="productListArea"></div>
+            <div class="flex-1 overflow-y-auto p-4 md:p-6 custom-scroll bg-dark-950/30" id="productListArea"></div>
             
-            <div class="p-6 border-t border-white/5 flex justify-between items-center bg-dark-950/80 backdrop-blur-md z-10">
-                <p class="text-xs text-accent-500 hidden md:block">Lembre-se de salvar cada item individualmente.</p>
-                <div class="flex gap-3">
-                    <button onclick="closeEditModal()" class="px-6 py-3 rounded-xl text-accent-400 hover:text-white hover:bg-white/5 font-bold text-sm transition-colors border border-transparent hover:border-white/10">Voltar</button>
-                    <button onclick="activateCampaign()" class="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/30 transition-all active:scale-95 flex items-center gap-2 border border-brand-400/20">
-                        <i class="fas fa-check-circle"></i> Publicar Campanha
+            <div class="p-4 md:p-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-3 bg-dark-950/80 backdrop-blur-md z-10">
+                <p class="text-[10px] md:text-xs text-accent-500 text-center sm:text-left">Lembre-se de salvar cada item individualmente.</p>
+                <div class="flex gap-2 md:gap-3 w-full sm:w-auto">
+                    <button onclick="closeEditModal()" class="flex-1 sm:flex-none px-4 md:px-6 py-3 rounded-xl text-accent-400 hover:text-white hover:bg-white/5 font-bold text-xs md:text-sm transition-colors border border-transparent hover:border-white/10">Voltar</button>
+                    <button onclick="activateCampaign()" class="flex-1 sm:flex-none bg-brand-600 hover:bg-brand-500 text-white px-4 md:px-8 py-3 rounded-xl font-bold text-xs md:text-sm shadow-lg shadow-brand-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 border border-brand-400/20">
+                        <i class="fas fa-check-circle"></i> Publicar
                     </button>
                 </div>
             </div>
@@ -299,10 +297,10 @@
     </div>
 
     <div id="custom-alert" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-dark-950/90 backdrop-blur-sm hidden">
-        <div class="bg-dark-900 border border-white/10 w-full max-w-xs p-8 rounded-3xl text-center shadow-2xl transform transition-all scale-100">
-            <div id="alert-icon" class="text-3xl mb-4 text-brand-500 bg-brand-500/10 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center border border-brand-500/20">⚠️</div>
-            <p id="alert-msg" class="text-white font-bold mb-6">Mensagem</p>
-            <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all">Entendido</button>
+        <div class="bg-dark-900 border border-white/10 w-full max-w-xs p-6 md:p-8 rounded-3xl text-center shadow-2xl transform transition-all scale-100">
+            <div id="alert-icon" class="text-2xl md:text-3xl mb-4 text-brand-500 bg-brand-500/10 w-12 h-12 md:w-16 md:h-16 mx-auto rounded-2xl flex items-center justify-center border border-brand-500/20">⚠️</div>
+            <p id="alert-msg" class="text-white font-bold mb-5 md:mb-6 text-sm md:text-base">Mensagem</p>
+            <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold py-2.5 md:py-3 rounded-xl transition-all text-sm">Entendido</button>
         </div>
     </div>
 
@@ -403,6 +401,7 @@
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('bgGlow').classList.remove('hidden'); 
             document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('flex'); // Garante que o display é flex
             if(!currentUser) currentUser = JSON.parse(localStorage.getItem('user_session'));
             document.getElementById('storeNameDisplay').innerText = currentUser.nome;
             fetchDashboard();
@@ -457,20 +456,20 @@
             list.forEach(c => {
                 const isActive = c.status && c.status.toLowerCase() === 'ativa';
                 const statusBadge = isActive 
-                    ? '<span class="text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">● Ativa</span>' 
-                    : '<span class="text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">● Rascunho</span>';
+                    ? '<span class="text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-[9px] md:text-[10px] font-black uppercase tracking-wide whitespace-nowrap">● Ativa</span>' 
+                    : '<span class="text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded text-[9px] md:text-[10px] font-black uppercase tracking-wide whitespace-nowrap">● Rascunho</span>';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
-                        <td class="p-5">${statusBadge}</td>
-                        <td class="p-5">
-                            <p class="font-bold text-white text-base">${c.nome_campanha}</p>
-                            <p class="text-xs text-accent-500 font-mono mt-0.5">ID: ${c.id_campanha}</p>
+                        <td class="p-4 md:p-5">${statusBadge}</td>
+                        <td class="p-4 md:p-5">
+                            <p class="font-bold text-white text-sm md:text-base line-clamp-1">${c.nome_campanha}</p>
+                            <p class="text-[10px] md:text-xs text-accent-500 font-mono mt-0.5">ID: ${c.id_campanha}</p>
                         </td>
-                        <td class="p-5 text-right">
-                            <div class="flex justify-end gap-2">
-                                <button onclick="openShareModal(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-dark-950 border border-white/10 hover:border-brand-500/50 hover:bg-brand-500/10 text-accent-400 hover:text-brand-400 shadow-md flex items-center justify-center transition-all" title="Compartilhar Links"><i class="fas fa-share-alt"></i></button>
-                                <button onclick="openEditor(${c.id_campanha}, '${c.nome_campanha}')" class="w-10 h-10 rounded-xl bg-white text-dark-900 hover:bg-slate-200 shadow-md flex items-center justify-center transition-all" title="Editar Produtos"><i class="fas fa-pen text-sm"></i></button>
+                        <td class="p-4 md:p-5 text-right">
+                            <div class="flex justify-end gap-1.5 md:gap-2">
+                                <button onclick="openShareModal(${c.id_campanha}, '${c.nome_campanha}')" class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-dark-950 border border-white/10 hover:border-brand-500/50 hover:bg-brand-500/10 text-accent-400 hover:text-brand-400 shadow-md flex items-center justify-center transition-all" title="Compartilhar Links"><i class="fas fa-share-alt text-xs md:text-sm"></i></button>
+                                <button onclick="openEditor(${c.id_campanha}, '${c.nome_campanha}')" class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white text-dark-900 hover:bg-slate-200 shadow-md flex items-center justify-center transition-all" title="Editar Produtos"><i class="fas fa-pen text-xs md:text-sm"></i></button>
                             </div>
                         </td>
                     </tr>`;
@@ -484,11 +483,11 @@
             document.getElementById('shareModalTitle').innerText = `Compartilhar: ${campanhaNome}`;
             
             let html = `
-                <div class="bg-dark-950 border border-white/10 p-4 rounded-xl mb-4 shadow-inner">
-                    <p class="text-[10px] text-accent-400 font-bold uppercase tracking-wider mb-2"><i class="fas fa-store text-brand-500 mr-1"></i> Loja Oficial (Central)</p>
+                <div class="bg-dark-950 border border-white/10 p-3 md:p-4 rounded-xl mb-4 shadow-inner">
+                    <p class="text-[9px] md:text-[10px] text-accent-400 font-bold uppercase tracking-wider mb-2"><i class="fas fa-store text-brand-500 mr-1"></i> Loja Oficial (Central)</p>
                     <div class="flex items-center gap-2">
-                        <input type="text" value="${officialLink}" class="w-full bg-dark-900 border border-white/5 rounded-lg px-3 py-2 text-white font-mono text-xs outline-none" readonly>
-                        <button onclick="copyLink('${officialLink}')" class="bg-brand-600 hover:bg-brand-500 text-white w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-lg"><i class="fas fa-copy"></i></button>
+                        <input type="text" value="${officialLink}" class="w-full bg-dark-900 border border-white/5 rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-white font-mono text-[10px] md:text-xs outline-none" readonly>
+                        <button onclick="copyLink('${officialLink}')" class="bg-brand-600 hover:bg-brand-500 text-white w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-lg"><i class="fas fa-copy text-xs md:text-base"></i></button>
                     </div>
                 </div>
             `;
@@ -496,26 +495,26 @@
             const ativos = allVendedores.filter(v => v.ativo !== false);
             
             if (ativos.length > 0) {
-                html += `<p class="text-[10px] text-accent-400 font-bold uppercase tracking-wider mb-2 mt-6"><i class="fas fa-users text-brand-500 mr-1"></i> Links da Equipe (Comissionados)</p>`;
-                html += `<div class="space-y-3 max-h-60 overflow-y-auto custom-scroll pr-2">`;
+                html += `<p class="text-[9px] md:text-[10px] text-accent-400 font-bold uppercase tracking-wider mb-2 mt-4 md:mt-6"><i class="fas fa-users text-brand-500 mr-1"></i> Links da Equipe (Comissionados)</p>`;
+                html += `<div class="space-y-2 md:space-y-3 max-h-48 md:max-h-60 overflow-y-auto custom-scroll pr-1">`;
                 ativos.forEach(v => {
                     const vLink = `${officialLink}&v=${v.codigo_afiliado}`;
                     html += `
-                        <div class="bg-dark-950 border border-white/10 p-3 rounded-xl transition-all hover:border-brand-500/30 group">
-                            <p class="text-xs font-bold text-white mb-2 flex items-center justify-between">
-                                <span>${v.nome}</span> 
-                                <span class="text-[9px] text-accent-500 font-mono">?v=${v.codigo_afiliado}</span>
+                        <div class="bg-dark-950 border border-white/10 p-2.5 md:p-3 rounded-xl transition-all hover:border-brand-500/30 group">
+                            <p class="text-[10px] md:text-xs font-bold text-white mb-1.5 md:mb-2 flex items-center justify-between">
+                                <span class="truncate pr-2">${v.nome}</span> 
+                                <span class="text-[8px] md:text-[9px] text-accent-500 font-mono shrink-0">?v=${v.codigo_afiliado}</span>
                             </p>
                             <div class="flex items-center gap-2">
-                                <input type="text" value="${vLink}" class="w-full bg-dark-900 border border-white/5 rounded-lg px-3 py-2 text-accent-300 font-mono text-[10px] outline-none" readonly>
-                                <button onclick="copyLink('${vLink}')" class="bg-dark-800 group-hover:bg-brand-600 text-white w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors"><i class="fas fa-copy text-xs"></i></button>
+                                <input type="text" value="${vLink}" class="w-full bg-dark-900 border border-white/5 rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-accent-300 font-mono text-[9px] md:text-[10px] outline-none" readonly>
+                                <button onclick="copyLink('${vLink}')" class="bg-dark-800 group-hover:bg-brand-600 text-white w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors"><i class="fas fa-copy text-[10px] md:text-xs"></i></button>
                             </div>
                         </div>
                     `;
                 });
                 html += `</div>`;
             } else {
-                html += `<p class="text-xs text-accent-500 text-center mt-6 bg-dark-950 p-4 rounded-xl border border-white/5 shadow-inner">Nenhum vendedor ativo cadastrado no painel.</p>`;
+                html += `<p class="text-[10px] md:text-xs text-accent-500 text-center mt-4 md:mt-6 bg-dark-950 p-4 rounded-xl border border-white/5 shadow-inner">Nenhum vendedor ativo cadastrado no painel.</p>`;
             }
 
             document.getElementById('shareLinksContainer').innerHTML = html;
@@ -548,7 +547,7 @@
             currentCampaignId = id; document.getElementById('editModalTitle').innerText = name;
             document.getElementById('editProductsModal').classList.add('visible');
             const area = document.getElementById('productListArea');
-            area.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-accent-500 gap-4"><i class="fas fa-circle-notch fa-spin text-4xl text-brand-500"></i><p class="font-medium">Sincronizando produtos...</p></div>';
+            area.innerHTML = '<div class="h-64 flex flex-col items-center justify-center text-accent-500 gap-4"><i class="fas fa-circle-notch fa-spin text-3xl md:text-4xl text-brand-500"></i><p class="font-medium text-sm md:text-base">Sincronizando produtos...</p></div>';
             try {
                 const res = await fetch(`${ENDPOINTS.PRODUCTS}?id_campanha=${id}`);
                 const data = await res.json(); renderProducts(Array.isArray(data) ? data : (data.products || []));
@@ -558,7 +557,7 @@
         function renderProducts(list) {
             const area = document.getElementById('productListArea'); area.innerHTML = '';
             if(list.length === 0) {
-                area.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-accent-500 border-2 border-dashed border-white/10 rounded-3xl bg-dark-900/50"><i class="fas fa-camera text-4xl mb-4 opacity-50"></i><p class="font-medium">Esta campanha ainda não tem produtos.</p></div>';
+                area.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-accent-500 border-2 border-dashed border-white/10 rounded-2xl md:rounded-3xl bg-dark-900/50 p-6 text-center"><i class="fas fa-camera text-3xl md:text-4xl mb-4 opacity-50"></i><p class="font-medium text-sm md:text-base">Esta campanha ainda não tem produtos.</p></div>';
                 return;
             }
             list.forEach(p => {
@@ -574,63 +573,64 @@
                 let miniaturasHTML = '<div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2">';
                 midias.forEach((m) => {
                     const isVid = isVideo(m.url);
-                    const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/90 text-xl shadow-sm"></i></div>' : '';
+                    const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/90 text-sm md:text-xl shadow-sm"></i></div>' : '';
                     miniaturasHTML += `
-                        <div class="thumbnail-item relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group bg-dark-950" onclick="changeMainMedia('${pid}', '${m.url}')">
+                        <div class="thumbnail-item relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group bg-dark-950" onclick="changeMainMedia('${pid}', '${m.url}')">
                             ${buildMediaTag(m.url, "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity")}
                             ${overlayIcon}
-                            <div class="absolute top-1 right-1 bg-dark-950/90 rounded flex items-center justify-center p-1 shadow-md z-10 border border-white/10" onclick="event.stopPropagation();">
-                                <input type="checkbox" class="img-check-${pid} w-4 h-4 accent-brand-500 cursor-pointer" value="${m.url}" ${m.ativo ? 'checked' : ''} onchange="markUnsaved();">
+                            <div class="absolute top-1 right-1 bg-dark-950/90 rounded flex items-center justify-center p-0.5 md:p-1 shadow-md z-10 border border-white/10" onclick="event.stopPropagation();">
+                                <input type="checkbox" class="img-check-${pid} w-3 h-3 md:w-4 md:h-4 accent-brand-500 cursor-pointer" value="${m.url}" ${m.ativo ? 'checked' : ''} onchange="markUnsaved();">
                             </div>
-                            <div class="absolute bottom-0 left-0 right-0 h-6 bg-black/80 backdrop-blur-sm flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                <button onclick="moveThumb(this, 'left', event)" class="text-white hover:text-brand-400 p-1"><i class="fas fa-chevron-left text-[10px]"></i></button>
-                                <span class="text-[8px] text-accent-300 font-bold">ORDEM</span>
-                                <button onclick="moveThumb(this, 'right', event)" class="text-white hover:text-brand-400 p-1"><i class="fas fa-chevron-right text-[10px]"></i></button>
+                            <div class="absolute bottom-0 left-0 right-0 h-5 md:h-6 bg-black/80 backdrop-blur-sm flex items-center justify-between px-1 md:px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <button onclick="moveThumb(this, 'left', event)" class="text-white hover:text-brand-400 p-0.5 md:p-1"><i class="fas fa-chevron-left text-[8px] md:text-[10px]"></i></button>
+                                <span class="text-[6px] md:text-[8px] text-accent-300 font-bold">ORDEM</span>
+                                <button onclick="moveThumb(this, 'right', event)" class="text-white hover:text-brand-400 p-0.5 md:p-1"><i class="fas fa-chevron-right text-[8px] md:text-[10px]"></i></button>
                             </div>
                         </div>`;
                 });
                 miniaturasHTML += '</div>';
 
+                // AJUSTADO LAYOUT DO CARD PARA MOBILE (Empilhando Imagem e Formulário)
                 area.innerHTML += `
-                    <div class="glass-panel p-0 rounded-[1.5rem] mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950/80 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
-                        <div class="w-full xl:w-80 p-5 bg-dark-900/50 border-r border-white/5 relative shrink-0 flex flex-col justify-center">
-                            <div class="w-full aspect-square rounded-2xl overflow-hidden bg-dark-950 relative shadow-inner border border-white/5" id="main-media-container-${pid}">
+                    <div class="glass-panel p-0 rounded-2xl md:rounded-[1.5rem] mb-4 md:mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950/80 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
+                        <div class="w-full xl:w-80 p-4 md:p-5 bg-dark-900/50 border-b xl:border-b-0 xl:border-r border-white/5 relative shrink-0 flex flex-col justify-center">
+                            <div class="w-full aspect-square rounded-xl md:rounded-2xl overflow-hidden bg-dark-950 relative shadow-inner border border-white/5" id="main-media-container-${pid}">
                                 ${buildMediaTag(primeiraImg, "w-full h-full object-cover transition-opacity duration-300")}
                             </div>
                             ${miniaturasHTML}
                         </div>
-                        <div class="flex-1 p-6 lg:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                        <div class="flex-1 p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative">
                             <div class="md:col-span-2">
-                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Nome do Produto *</label>
-                                <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3.5 text-white font-medium focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1.5 md:mb-2 block">Nome do Produto *</label>
+                                <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-3 py-2.5 md:px-4 md:py-3 text-white font-medium focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Preço De (Opcional)</label>
-                                <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-sm">R$</span>
-                                    <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl pl-10 pr-4 py-3.5 text-white font-medium focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1.5 md:mb-2 block">Preço De (Opcional)</label>
+                                <div class="relative"><span class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-xs md:text-sm">R$</span>
+                                    <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 md:pl-10 md:pr-4 md:py-3 text-white font-medium focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
                                 </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-2 block">Preço Por *</label>
-                                <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-brand-500 font-bold text-sm">R$</span>
-                                    <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-brand-500/10 border border-brand-500/30 rounded-xl pl-10 pr-4 py-3.5 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                <label class="text-[9px] md:text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-1.5 md:mb-2 block">Preço Por *</label>
+                                <div class="relative"><span class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-brand-500 font-bold text-xs md:text-sm">R$</span>
+                                    <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-brand-500/10 border border-brand-500/30 rounded-xl pl-8 pr-3 py-2.5 md:pl-10 md:pr-4 md:py-3 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
                                 </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Cor <span class="text-[9px] text-accent-600 lowercase">(Separe por vírgula)</span></label>
-                                <input type="text" id="color-${pid}" value="${p.cor || ''}" placeholder="Ex: Preto, Azul, Verde" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1.5 md:mb-2 block">Cor <span class="text-[8px] md:text-[9px] text-accent-600 lowercase">(Separe por vírgula)</span></label>
+                                <input type="text" id="color-${pid}" value="${p.cor || ''}" placeholder="Ex: Preto, Azul, Verde" class="w-full bg-dark-950 border border-white/10 rounded-xl px-3 py-2.5 md:px-4 md:py-3 text-white focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-2 block">Tamanho <span class="text-[9px] text-accent-600 lowercase">(Separe por vírgula)</span></label>
-                                <input type="text" id="size-${pid}" value="${p.tamanho || ''}" placeholder="Ex: P, M, G, GG" class="w-full bg-dark-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-500 outline-none transition-all" onchange="markUnsaved()">
+                                <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1.5 md:mb-2 block">Tamanho <span class="text-[8px] md:text-[9px] text-accent-600 lowercase">(Separe por vírgula)</span></label>
+                                <input type="text" id="size-${pid}" value="${p.tamanho || ''}" placeholder="Ex: P, M, G, GG" class="w-full bg-dark-950 border border-white/10 rounded-xl px-3 py-2.5 md:px-4 md:py-3 text-white focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
                             </div>
-                            <div class="md:col-span-2 border-t border-white/5 pt-6 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                <label class="flex items-center gap-3 cursor-pointer">
+                            <div class="md:col-span-2 border-t border-white/5 pt-4 md:pt-6 mt-1 md:mt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <label class="flex items-center gap-3 cursor-pointer w-full sm:w-auto justify-center sm:justify-start">
                                     <input type="checkbox" id="active-${pid}" ${p.ativo !== false ? 'checked' : ''} class="sr-only peer" onchange="markUnsaved()">
-                                    <div class="w-12 h-7 bg-dark-900 border border-white/10 rounded-full peer peer-checked:bg-green-500 peer-checked:border-green-400 transition-colors relative after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-                                    <span class="text-sm font-bold text-accent-300">Visível na Loja</span>
+                                    <div class="w-10 h-6 md:w-12 md:h-7 bg-dark-900 border border-white/10 rounded-full peer peer-checked:bg-green-500 peer-checked:border-green-400 transition-colors relative after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:after:translate-x-4 md:peer-checked:after:translate-x-5"></div>
+                                    <span class="text-xs md:text-sm font-bold text-accent-300">Visível na Loja</span>
                                 </label>
-                                <button onclick="saveProduct('${pid}')" id="btnSave-${pid}" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2 border border-brand-400/20 active:scale-95">
+                                <button onclick="saveProduct('${pid}')" id="btnSave-${pid}" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-6 md:px-8 py-3 md:py-3.5 rounded-xl font-bold text-xs md:text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2 border border-brand-400/20 active:scale-95">
                                     Salvar Produto <i class="fas fa-save"></i>
                                 </button>
                             </div>
@@ -678,7 +678,7 @@
             navigator.clipboard.writeText(url);
             const btn = window.event.currentTarget;
             const original = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+            btn.innerHTML = '<i class="fas fa-check text-green-400 text-xs md:text-base"></i>';
             setTimeout(() => btn.innerHTML = original, 1500);
         }
 
@@ -687,10 +687,10 @@
             const icon = document.getElementById('alert-icon');
             if(type === 'success') {
                 icon.innerHTML = '<i class="fas fa-check"></i>';
-                icon.className = "text-3xl mb-4 text-green-500 bg-green-500/10 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center border border-green-500/20";
+                icon.className = "text-2xl md:text-3xl mb-4 text-green-500 bg-green-500/10 w-12 h-12 md:w-16 md:h-16 mx-auto rounded-xl md:rounded-2xl flex items-center justify-center border border-green-500/20";
             } else {
                 icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-                icon.className = "text-3xl mb-4 text-brand-500 bg-brand-500/10 w-16 h-16 mx-auto rounded-2xl flex items-center justify-center border border-brand-500/20";
+                icon.className = "text-2xl md:text-3xl mb-4 text-brand-500 bg-brand-500/10 w-12 h-12 md:w-16 md:h-16 mx-auto rounded-xl md:rounded-2xl flex items-center justify-center border border-brand-500/20";
             }
             document.getElementById('custom-alert').classList.remove('hidden');
         }
@@ -701,14 +701,19 @@
             document.getElementById('view-clientes').classList.add('hidden'); document.getElementById('view-clientes').classList.remove('flex');
 
             const menus = ['campanhas', 'vendedores', 'clientes'];
+            
+            // Classes atualizadas para o novo formato responsivo de menu inferior/lateral
+            const inactiveClass = "w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all text-[10px] md:text-base border border-transparent";
+            const activeClass = "w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shadow-lg shadow-brand-600/20 border border-brand-400/20 text-[10px] md:text-base";
+
             menus.forEach(m => {
                 const btn = document.getElementById('menu-' + m);
-                btn.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all shrink-0";
+                btn.className = inactiveClass;
             });
 
             document.getElementById('view-' + viewId).classList.remove('hidden'); document.getElementById('view-' + viewId).classList.add('flex');
             const activeMenu = document.getElementById('menu-' + viewId);
-            activeMenu.className = "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shrink-0 shadow-lg shadow-brand-600/20 border border-brand-400/20";
+            activeMenu.className = activeClass;
 
             if (viewId === 'vendedores') fetchVendedores();
         }
@@ -753,7 +758,7 @@
 
         async function fetchVendedores() {
             const tbody = document.getElementById('vendedorList');
-            tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-accent-500"><i class="fas fa-circle-notch fa-spin text-2xl"></i></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-accent-500"><i class="fas fa-circle-notch fa-spin text-3xl"></i></td></tr>';
 
             try {
                 const res = await fetch(ENDPOINTS.MAIN, {
@@ -774,9 +779,9 @@
             ['todos', 'ativos', 'inativos'].forEach(id => {
                 const btn = document.getElementById('filter-' + id);
                 if(id === status) {
-                    btn.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white transition-all shadow-lg shadow-brand-600/30 border border-brand-400/20";
+                    btn.className = "px-3 md:px-4 py-1.5 rounded-lg text-[10px] md:text-xs font-bold bg-brand-600 text-white transition-all shadow-lg shadow-brand-600/30 border border-brand-400/20 whitespace-nowrap";
                 } else {
-                    btn.className = "px-4 py-1.5 rounded-lg text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent";
+                    btn.className = "px-3 md:px-4 py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-accent-400 hover:text-white hover:bg-white/5 transition-all border border-transparent whitespace-nowrap";
                 }
             });
             renderVendedores();
@@ -790,7 +795,7 @@
             if(currentVendedorFilter === 'inativos') list = allVendedores.filter(v => !v.ativo);
 
             if(list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-accent-500">Nenhum vendedor encontrado.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-accent-500 text-sm">Nenhum vendedor encontrado.</td></tr>';
                 return;
             }
 
@@ -799,32 +804,32 @@
             list.forEach(v => {
                 const isActive = v.ativo !== false;
                 const statusBadge = isActive 
-                    ? '<span class="text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">Ativo</span>' 
-                    : '<span class="text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide">Inativo</span>';
+                    ? '<span class="text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-[9px] md:text-[10px] font-black uppercase tracking-wide">Ativo</span>' 
+                    : '<span class="text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-[9px] md:text-[10px] font-black uppercase tracking-wide">Inativo</span>';
 
                 const fullLink = `${baseUrl}?v=${v.codigo_afiliado}`;
                 const vJsonStr = JSON.stringify(v).replace(/"/g, '&quot;');
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-white/5 transition-colors border-b border-white/5 group">
-                        <td class="p-5 w-24">${statusBadge}</td>
-                        <td class="p-5">
-                            <p class="font-bold text-white text-base">${v.nome}</p>
-                            <p class="text-xs text-accent-500 font-mono mt-0.5"><i class="fab fa-whatsapp mr-1"></i> ${v.telefone}</p>
+                        <td class="p-4 md:p-5 w-20 md:w-24">${statusBadge}</td>
+                        <td class="p-4 md:p-5">
+                            <p class="font-bold text-white text-sm md:text-base line-clamp-1">${v.nome}</p>
+                            <p class="text-[10px] md:text-xs text-accent-500 font-mono mt-0.5"><i class="fab fa-whatsapp mr-1"></i> ${v.telefone}</p>
                         </td>
-                        <td class="p-5">
-                            <div class="bg-dark-950 border border-white/10 px-3 py-2 rounded-lg flex items-center gap-2 max-w-xs group-hover:border-brand-500/30 transition-colors">
-                                <i class="fas fa-link text-brand-500 text-[10px]"></i>
-                                <span class="text-xs text-accent-400 font-mono truncate cursor-help" title="${fullLink}">${baseUrl}...<strong class="text-brand-400">?v=${v.codigo_afiliado}</strong></span>
+                        <td class="p-4 md:p-5">
+                            <div class="bg-dark-950 border border-white/10 px-2 md:px-3 py-1.5 md:py-2 rounded-lg flex items-center gap-1.5 md:gap-2 max-w-[120px] sm:max-w-xs group-hover:border-brand-500/30 transition-colors">
+                                <i class="fas fa-link text-brand-500 text-[8px] md:text-[10px] shrink-0"></i>
+                                <span class="text-[10px] md:text-xs text-accent-400 font-mono truncate cursor-help" title="${fullLink}">...<strong class="text-brand-400">?v=${v.codigo_afiliado}</strong></span>
                             </div>
                         </td>
-                        <td class="p-5 text-right w-32">
-                            <div class="flex justify-end items-center gap-2">
-                                <button onclick="copyLink('${fullLink}')" class="w-10 h-10 rounded-xl bg-dark-950 border border-white/10 hover:bg-brand-600 text-accent-400 hover:text-white shadow-md flex items-center justify-center transition-all" title="Copiar Link de Vendas">
-                                    <i class="fas fa-copy"></i>
+                        <td class="p-4 md:p-5 text-right w-28 md:w-32">
+                            <div class="flex justify-end items-center gap-1.5 md:gap-2">
+                                <button onclick="copyLink('${fullLink}')" class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-dark-950 border border-white/10 hover:bg-brand-600 text-accent-400 hover:text-white shadow-md flex items-center justify-center transition-all" title="Copiar Link de Vendas">
+                                    <i class="fas fa-copy text-xs md:text-base"></i>
                                 </button>
-                                <button onclick="openEditVendedorModal(${vJsonStr})" class="w-10 h-10 rounded-xl bg-white text-dark-900 hover:bg-slate-200 shadow-md flex items-center justify-center transition-all" title="Editar Vendedor">
-                                    <i class="fas fa-pen text-sm"></i>
+                                <button onclick="openEditVendedorModal(${vJsonStr})" class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white text-dark-900 hover:bg-slate-200 shadow-md flex items-center justify-center transition-all" title="Editar Vendedor">
+                                    <i class="fas fa-pen text-[10px] md:text-sm"></i>
                                 </button>
                             </div>
                         </td>
