@@ -10,16 +10,15 @@
     <style>
         /* MÁGICA 1: Variáveis nativas de cor (Seguro e não quebra o Tailwind) */
         :root {
-            --brand-primary: #2563eb; /* Azul Padrão */
-            --brand-dark: #1e3a8a;    /* Azul Escuro Padrão */
-            --brand-light: #eff6ff;   /* Fundo claro para botões selecionados */
+            --brand-primary: #2563eb; 
+            --brand-dark: #1e3a8a;    
+            --brand-light: #eff6ff;   
         }
     </style>
     <script>
         tailwind.config = {
             theme: { 
                 extend: { 
-                    /* MÁGICA 2: O Tailwind agora lê as variáveis de cor dinâmicas */
                     colors: { 
                         brand: { 
                             50: 'var(--brand-light)', 
@@ -168,6 +167,7 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
+        
         const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id'), storeName: "LOJA OFICIAL" };
         
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
@@ -182,9 +182,7 @@
         
         function buildMediaTag(url, classes, isCard = true, isStatic = false) {
             if (isVideo(url)) {
-                const videoAttrs = isStatic 
-                    ? `preload="metadata" muted playsinline` 
-                    : `autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}`;
+                const videoAttrs = isStatic ? `preload="metadata" muted playsinline` : `autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}`;
                 return `<video src="${url}" class="${classes}" ${videoAttrs}></video>`;
             }
             return `<img src="${url}" class="${classes}" onerror="this.src='https://placehold.co/400?text=Erro+Imagem'">`;
@@ -200,27 +198,30 @@
                         const first = rawList[0].json || rawList[0];
                         if (first.nome_campanha) document.getElementById('campaignTitleDisplay').innerText = first.nome_campanha.toUpperCase();
                         
-                        // Captura os dados da loja
+                        // Captura Telefone e Nome
                         const telDonoLoja = first.telefone_loja || first.telefone_usuario || first.whatsapp_loja;
                         if (telDonoLoja) CONFIG.whatsappNumber = String(telDonoLoja).replace(/\D/g, '');
-                        if (first.nome_loja) CONFIG.storeName = first.nome_loja;
+                        if (first.nome_loja) CONFIG.storeName = first.nome_loja; 
 
-                        // MÁGICA 3: Aplica a Logo visualmente se existir
+                        // ==========================================
+                        // AQUI ESTÁ A MÁGICA QUE EU TINHA ESQUECIDO
+                        // ==========================================
+                        
+                        // 1. Aplica a Logo visualmente se ela existir
                         if (first.logo_url && first.logo_url !== 'null' && first.logo_url.trim() !== '') {
-                            document.getElementById('brandLogoContainer').innerHTML = `<img src="${first.logo_url}" class="h-10 md:h-12 object-contain" alt="Logo da Loja">`;
+                            document.getElementById('brandLogoContainer').innerHTML = `<img src="${first.logo_url}" class="h-10 md:h-12 max-w-[150px] object-contain" alt="Logo da Loja">`;
                         }
 
-                        // MÁGICA 4: Injeta a cor nativamente no CSS sem quebrar o Tailwind
+                        // 2. Injeta a cor no CSS
                         if (first.cor_tema && first.cor_tema !== 'null' && first.cor_tema.trim() !== '') {
                             document.documentElement.style.setProperty('--brand-primary', first.cor_tema);
                             document.documentElement.style.setProperty('--brand-dark', first.cor_tema); 
-                            document.documentElement.style.setProperty('--brand-light', first.cor_tema + '15'); // Gera um tom clarinho pro fundo dos botões
+                            document.documentElement.style.setProperty('--brand-light', first.cor_tema + '15'); // 15 = opacidade para fundo claro
                         }
                     }
+
                     products = rawList.map((item, i) => {
                         const p = item.json || item;
-                        
-                        // Filtro que impede que imagens vazias quebrem a tela
                         let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo && m.url && m.url !== 'null').map(m => m.url) : (p.imagens || []);
                         if(midias.length === 0 && p.url_publica && p.url_publica !== 'null') midias.push(p.url_publica);
                         
