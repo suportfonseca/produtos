@@ -7,12 +7,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* MÁGICA 1: Variáveis nativas de cor (Seguro e não quebra o Tailwind) */
+        :root {
+            --brand-primary: #2563eb; /* Azul Padrão */
+            --brand-dark: #1e3a8a;    /* Azul Escuro Padrão */
+            --brand-light: #eff6ff;   /* Fundo claro para botões selecionados */
+        }
+    </style>
     <script>
-        // O Tailwind inicia com a cor padrão, mas criamos uma função para mudar isso dinamicamente depois
         tailwind.config = {
             theme: { 
                 extend: { 
-                    colors: { brand: { 500: '#2563eb', 600: '#1d4ed8', 900: '#1e3a8a' }, dark: { 950: '#020617', 900: '#0f172a' } }, 
+                    /* MÁGICA 2: O Tailwind agora lê as variáveis de cor dinâmicas */
+                    colors: { 
+                        brand: { 
+                            50: 'var(--brand-light)', 
+                            100: 'var(--brand-light)', 
+                            500: 'var(--brand-primary)', 
+                            600: 'var(--brand-primary)', 
+                            700: 'var(--brand-dark)', 
+                            900: 'var(--brand-dark)' 
+                        }, 
+                        dark: { 950: '#020617', 900: '#0f172a' } 
+                    }, 
                     fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Poppins', 'sans-serif'] },
                     boxShadow: { 'soft': '0 10px 40px -10px rgba(0,0,0,0.08)', 'heavy': '0 20px 50px -10px rgba(0,0,0,0.3)' }
                 } 
@@ -34,7 +52,7 @@
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
-    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-brand-600 text-white text-center transition-colors duration-500" id="loginBg">
+    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-brand-600 text-white text-center">
         <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
         <div class="w-full max-w-sm bg-white p-10 rounded-[3rem] shadow-2xl relative fade-in border border-white/20">
             <div class="w-20 h-20 bg-brand-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-brand-600 text-4xl animate-bounce"><i class="fas fa-gift"></i></div>
@@ -48,15 +66,15 @@
     <div id="mainApp" class="hidden flex-1 pb-32">
         <header class="glass sticky top-0 z-40 p-4">
             <div class="max-w-6xl mx-auto flex justify-between items-center mb-4">
-                <div id="logoContainer" class="flex items-center gap-3 text-brand-600">
+                <div id="brandLogoContainer" class="flex items-center gap-3 text-brand-600">
                     <i class="fas fa-paperclip text-xl"></i>
                     <span class="font-black uppercase tracking-tighter text-lg text-center">Catálogo Digital</span>
                 </div>
                 <button onclick="logout()" class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase"><i class="fas fa-sign-out-alt mr-1"></i> Sair</button>
             </div>
             <div class="max-w-6xl mx-auto">
-                <div class="bg-gradient-to-br from-brand-600 to-brand-900 rounded-[2rem] p-8 text-white shadow-heavy relative overflow-hidden text-center uppercase transition-all duration-500">
-                    <p class="text-xs font-bold text-white/70 mb-2 uppercase tracking-[0.2em]"><i class="fas fa-bolt mr-1 text-yellow-300"></i> Cliente: <span id="displayUserPhone">...</span></p>
+                <div class="bg-gradient-to-br from-brand-600 to-brand-900 rounded-[2rem] p-8 text-white shadow-heavy relative overflow-hidden text-center uppercase">
+                    <p class="text-xs font-bold text-white/80 mb-2 uppercase tracking-[0.2em]"><i class="fas fa-bolt mr-1 text-yellow-300"></i> Cliente: <span id="displayUserPhone">...</span></p>
                     <h2 id="campaignTitleDisplay" class="text-2xl md:text-3xl font-display font-black tracking-tight leading-tight uppercase">Carregando...</h2>
                 </div>
             </div>
@@ -150,7 +168,6 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        
         const CONFIG = { whatsappNumber: "5551999301100", apiUrl: "https://n8n.srv1327557.hstgr.cloud/webhook/d7fa7895-7f17-45bb-95a4-92e18f1c1692", campaignId: urlParams.get('id'), storeName: "LOJA OFICIAL" };
         
         let products = [], cart = {}, tempQty = 1, currentProduct = null, currentMediaIdx = 0, userPhone = "";
@@ -161,31 +178,13 @@
         const vCode = urlParams.get('v');
         if (vCode) localStorage.setItem('saved_vendedor_code', vCode);
 
-        // FUNÇÃO MÁGICA: Injeta a cor do cliente no Tailwind
-        function applyCustomTheme(hexColor) {
-            if(!hexColor) return;
-            // Atualiza o Tailwind em tempo real
-            tailwind.config.theme.extend.colors.brand = {
-                50: `${hexColor}10`, 100: `${hexColor}20`, 500: hexColor, 600: hexColor, 700: hexColor, 900: `${hexColor}e6`
-            };
-            // Força o navegador a renderizar as novas cores em elementos críticos que possam já estar na tela
-            document.querySelectorAll('.bg-brand-600').forEach(el => el.style.backgroundColor = hexColor);
-            document.querySelectorAll('.text-brand-600').forEach(el => el.style.color = hexColor);
-            document.getElementById('loginScreen').style.backgroundColor = hexColor;
-        }
-
-        // FUNÇÃO MÁGICA: Aplica a logo do cliente
-        function applyCustomLogo(logoUrl) {
-            if(!logoUrl || logoUrl === 'null' || logoUrl.trim() === '') return;
-            const container = document.getElementById('logoContainer');
-            container.innerHTML = `<img src="${logoUrl}" class="h-10 md:h-12 object-contain" alt="Logo da Loja">`;
-        }
-
         function isVideo(url) { if (!url) return false; return url.includes('.mp4') || url.includes('.mov') || url.includes('.webm'); }
         
         function buildMediaTag(url, classes, isCard = true, isStatic = false) {
             if (isVideo(url)) {
-                const videoAttrs = isStatic ? `preload="metadata" muted playsinline` : `autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}`;
+                const videoAttrs = isStatic 
+                    ? `preload="metadata" muted playsinline` 
+                    : `autoplay loop muted playsinline ${isCard ? 'disableRemotePlayback' : 'controls'}`;
                 return `<video src="${url}" class="${classes}" ${videoAttrs}></video>`;
             }
             return `<img src="${url}" class="${classes}" onerror="this.src='https://placehold.co/400?text=Erro+Imagem'">`;
@@ -201,19 +200,30 @@
                         const first = rawList[0].json || rawList[0];
                         if (first.nome_campanha) document.getElementById('campaignTitleDisplay').innerText = first.nome_campanha.toUpperCase();
                         
-                        // Captura Telefone e Nome
+                        // Captura os dados da loja
                         const telDonoLoja = first.telefone_loja || first.telefone_usuario || first.whatsapp_loja;
                         if (telDonoLoja) CONFIG.whatsappNumber = String(telDonoLoja).replace(/\D/g, '');
-                        if (first.nome_loja) CONFIG.storeName = first.nome_loja; 
+                        if (first.nome_loja) CONFIG.storeName = first.nome_loja;
 
-                        // APLICA O TEMA E A LOGO SE EXISTIREM NO BANCO
-                        if (first.cor_tema) applyCustomTheme(first.cor_tema);
-                        if (first.logo_url) applyCustomLogo(first.logo_url);
+                        // MÁGICA 3: Aplica a Logo visualmente se existir
+                        if (first.logo_url && first.logo_url !== 'null' && first.logo_url.trim() !== '') {
+                            document.getElementById('brandLogoContainer').innerHTML = `<img src="${first.logo_url}" class="h-10 md:h-12 object-contain" alt="Logo da Loja">`;
+                        }
+
+                        // MÁGICA 4: Injeta a cor nativamente no CSS sem quebrar o Tailwind
+                        if (first.cor_tema && first.cor_tema !== 'null' && first.cor_tema.trim() !== '') {
+                            document.documentElement.style.setProperty('--brand-primary', first.cor_tema);
+                            document.documentElement.style.setProperty('--brand-dark', first.cor_tema); 
+                            document.documentElement.style.setProperty('--brand-light', first.cor_tema + '15'); // Gera um tom clarinho pro fundo dos botões
+                        }
                     }
                     products = rawList.map((item, i) => {
                         const p = item.json || item;
-                        let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo).map(m => m.url) : (p.imagens || []);
-                        if(midias.length === 0 && p.url_publica) midias.push(p.url_publica);
+                        
+                        // Filtro que impede que imagens vazias quebrem a tela
+                        let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo && m.url && m.url !== 'null').map(m => m.url) : (p.imagens || []);
+                        if(midias.length === 0 && p.url_publica && p.url_publica !== 'null') midias.push(p.url_publica);
+                        
                         return { id: p.id_grupo || p.id || i, name: p.nome_produto, desc: p.descricao, priceFrom: p.preco_de, priceTo: p.preco_por || "0.00", cor: p.cor || "-", tamanho: p.tamanho || "-", images: midias, active: p.ativo !== false };
                     }).filter(p => p.active);
                     renderProducts();
@@ -452,20 +462,20 @@
             
             let whatsappTarget = selectedPhone === 'loja' ? CONFIG.whatsappNumber : selectedPhone;
 
-            let msg = `*PEDIDO - ${CONFIG.storeName.toUpperCase()}*\n*Cliente:* ${userPhone}\n`;
+            let msg = `🛒 *PEDIDO - ${CONFIG.storeName.toUpperCase()}*\n📱 *Cliente:* ${userPhone}\n`;
             
             if(selectedPhone !== 'loja') {
                 const vendedorNome = selectTarget.options[selectTarget.selectedIndex].text;
-                msg += `*Atendimento:* ${vendedorNome}\n`;
+                msg += `👤 *Atendimento:* ${vendedorNome}\n`;
             }
             msg += `\n`;
 
             Object.entries(cart).forEach(([cartKey, qty]) => {
                 const [id, c, s] = cartKey.split('|');
                 const p = products.find(x => x.id == id);
-                if (p) msg += `- *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
+                if (p) msg += `▫️ *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
             });
-            msg += `\n*TOTAL: ${document.getElementById('summaryTotal').innerText}*`;
+            msg += `\n💰 *TOTAL: ${document.getElementById('summaryTotal').innerText}*`;
             
             window.open(`https://wa.me/${whatsappTarget}?text=${encodeURIComponent(msg)}`, '_blank');
         }
