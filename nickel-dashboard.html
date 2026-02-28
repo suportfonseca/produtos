@@ -12,6 +12,8 @@
         .section-content { display: none; }
         .section-content.active { display: block; }
         .nav-link.active { @apply bg-blue-600 text-white shadow-md; }
+        .modal { display: none; }
+        .modal.active { display: flex; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans flex h-screen overflow-hidden">
@@ -26,7 +28,7 @@
                 <i class="fas fa-exchange-alt w-5"></i> Lançamentos
             </button>
             <button onclick="changeTab('fixas')" id="btn-fixas" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition">
-                <i class="fas fa-thumbtack w-5"></i> Despesas Fixas
+                <i class="fas fa-sync w-5"></i> Gastos Fixos
             </button>
             <button onclick="changeTab('charts')" id="btn-charts" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition">
                 <i class="fas fa-chart-line w-5"></i> Gráficos
@@ -51,7 +53,7 @@
             <div id="sec-dash" class="section-content active">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                        <p class="text-slate-500 text-xs font-bold uppercase mb-1">Saldo Atual</p>
+                        <p class="text-slate-500 text-xs font-bold uppercase mb-1">Saldo Total</p>
                         <h3 id="resumo-saldo" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-l-green-500">
@@ -63,25 +65,28 @@
                         <h3 id="resumo-saidas" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
                     </div>
                     <div class="bg-blue-600 p-6 rounded-2xl shadow-lg text-white">
-                        <p class="text-blue-100 text-xs font-bold uppercase mb-2">Insight da IA 🤖</p>
-                        <p id="ia-insight" class="text-sm font-medium italic">Sincronizando...</p>
+                        <p class="text-blue-100 text-xs font-bold uppercase mb-1">Taxa de Poupança</p>
+                        <h3 id="savings-rate" class="text-2xl font-black">0%</h3>
+                        <p class="text-[10px] text-blue-100">Do que você ganha, isso é o que sobra.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                        <h4 class="font-bold text-slate-800 mb-6 italic text-center underline">Divisão por Categoria</h4>
-                        <div class="h-64"><canvas id="chartPie"></canvas></div>
+                        <h4 class="font-bold text-slate-800 mb-6 italic text-center underline">Frequência de Movimentação</h4>
+                        <div class="h-64"><canvas id="chartActivity"></canvas></div>
+                        <p class="text-center text-[10px] text-slate-400 mt-4 uppercase font-bold">Data com mais gastos: <span id="top-expense-day" class="text-red-500">--</span></p>
                     </div>
+
                     <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                        <h4 class="font-bold text-slate-800 mb-6 italic">Análise ABC (Maiores Gastos)</h4>
+                        <h4 class="font-bold text-slate-800 mb-6 italic">Onde está seu dinheiro? (Top 5)</h4>
                         <div id="abc-container" class="space-y-6"></div>
                     </div>
                 </div>
             </div>
 
             <div id="sec-logs" class="section-content">
-                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold">
                             <tr>
@@ -92,19 +97,54 @@
                                 <th class="p-4 text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="table-body" class="text-sm divide-y"></tbody>
+                        <tbody id="table-body" class="text-sm divide-y divide-slate-100">
+                            </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div id="sec-fixas" class="section-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                        <h4 class="font-bold text-green-600 mb-4">Entradas Fixas (Salários, Aluguéis)</h4>
+                        <div id="fixas-in" class="space-y-3"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                        <h4 class="font-bold text-red-600 mb-4">Saídas Fixas (Netflix, Internet)</h4>
+                        <div id="fixas-out" class="space-y-3"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <div id="editModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-bold mb-4">Editar Lançamento</h3>
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição</label>
+                    <input type="text" id="edit-desc" class="w-full border p-2 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor</label>
+                    <input type="number" id="edit-amount" step="0.01" class="w-full border p-2 rounded-lg">
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="closeModal()" class="w-full bg-gray-200 p-2 rounded-lg font-bold">Cancelar</button>
+                    <button type="button" onclick="saveEdit()" class="w-full bg-blue-600 text-white p-2 rounded-lg font-bold">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         const S_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
         const supa = window.supabase.createClient(S_URL, S_KEY);
 
-        let pieChart;
+        let activityChart;
 
         function changeTab(id) {
             document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
@@ -116,70 +156,67 @@
         async function fetchData() {
             const { data: { user } } = await supa.auth.getUser();
             if (!user) return window.location.href = "nickel-login.html";
-            
             document.getElementById('userDisplay').innerText = user.email;
 
-            // Busca os dados filtrando pelo e-mail em minúsculo
             const { data, error } = await supa
                 .from('transactions')
                 .select('*')
-                .eq('user_email', user.email.toLowerCase());
+                .eq('user_email', user.email.toLowerCase())
+                .order('date', { ascending: true });
 
-            if (error) {
-                console.error("ERRO NA BUSCA:", error.message);
-                document.getElementById('ia-insight').innerText = "Erro ao carregar banco de dados.";
-                return;
-            }
-
+            if (error) return console.error(error);
             renderDashboard(data);
         }
 
         function renderDashboard(data) {
-            let totalIn = 0, totalOut = 0, cats = {};
+            let totalIn = 0, totalOut = 0, cats = {}, daily = {};
             const table = document.getElementById('table-body');
             const abc = document.getElementById('abc-container');
             
             table.innerHTML = "";
             abc.innerHTML = "";
 
-            if(!data || data.length === 0) {
-                table.innerHTML = "<tr><td colspan='5' class='p-8 text-center text-slate-400'>Nenhum dado encontrado para " + document.getElementById('userDisplay').innerText + "</td></tr>";
-                return;
-            }
-
             data.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(item => {
-                const val = parseFloat(item.amount) || 0;
+                const val = parseFloat(item.amount);
                 const isOut = item.type === 'EXPENSE';
+                const dateKey = new Date(item.date).toLocaleDateString('pt-BR');
                 
-                if(isOut) { totalOut += val; cats[item.category] = (cats[item.category] || 0) + val; }
-                else { totalIn += val; }
+                if(isOut) { 
+                    totalOut += val; 
+                    cats[item.category] = (cats[item.category] || 0) + val; 
+                } else { 
+                    totalIn += val; 
+                }
+
+                // Agrupamento diário para o gráfico de atividade
+                daily[dateKey] = (daily[dateKey] || 0) + val;
 
                 table.innerHTML += `
                     <tr>
-                        <td class="p-4">${item.date ? new Date(item.date).toLocaleDateString('pt-BR') : '---'}</td>
-                        <td class="p-4 font-bold text-slate-700">${item.description || 'Sem descrição'}</td>
+                        <td class="p-4">${dateKey}</td>
+                        <td class="p-4 font-bold text-slate-700">${item.description}</td>
                         <td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[10px] font-black uppercase text-slate-500">${item.category}</span></td>
                         <td class="p-4 font-black ${isOut ? 'text-red-500' : 'text-green-500'}">
-                            ${isOut ? '-' : '+'} R$ ${val.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+                            R$ ${val.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
                         </td>
-                        <td class="p-4 text-center"><i class="fas fa-trash text-slate-200 hover:text-red-500 cursor-pointer transition"></i></td>
+                        <td class="p-4 text-center space-x-3">
+                            <button onclick="openEdit('${item.id}', '${item.description}', ${item.amount})" class="text-blue-400 hover:text-blue-600"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteItem('${item.id}')" class="text-red-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                        </td>
                     </tr>`;
             });
 
-            document.getElementById('resumo-entradas').innerText = `R$ ${totalIn.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            document.getElementById('resumo-saidas').innerText = `R$ ${totalOut.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            document.getElementById('resumo-saldo').innerText = `R$ ${(totalIn - totalOut).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-
-            // Gráfico de Categorias
-            if(pieChart) pieChart.destroy();
-            pieChart = new Chart(document.getElementById('chartPie'), {
-                type: 'doughnut',
-                data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] },
-                options: { maintainAspectRatio: false }
-            });
+            // KPIs
+            document.getElementById('resumo-entradas').innerText = `R$ ${totalIn.toLocaleString('pt-BR')}`;
+            document.getElementById('resumo-saidas').innerText = `R$ ${totalOut.toLocaleString('pt-BR')}`;
+            document.getElementById('resumo-saldo').innerText = `R$ ${(totalIn - totalOut).toLocaleString('pt-BR')}`;
+            
+            const savings = totalIn > 0 ? (((totalIn - totalOut) / totalIn) * 100).toFixed(0) : 0;
+            document.getElementById('savings-rate').innerText = `${savings}%`;
 
             // Curva ABC
-            Object.entries(cats).sort((a,b) => b[1] - a[1]).slice(0, 5).forEach(([name, value]) => {
+            const sortedCats = Object.entries(cats).sort((a,b) => b[1] - a[1]);
+            sortedCats.slice(0, 5).forEach(([name, value]) => {
                 const perc = totalOut > 0 ? (value / totalOut * 100).toFixed(0) : 0;
                 abc.innerHTML += `
                     <div>
@@ -188,7 +225,58 @@
                     </div>`;
             });
 
-            document.getElementById('ia-insight').innerText = "Tudo certo! Dados sincronizados com o Telegram.";
+            updateActivityChart(daily);
+        }
+
+        function updateActivityChart(dailyData) {
+            const labels = Object.keys(dailyData).reverse();
+            const values = Object.values(dailyData).reverse();
+            
+            const maxVal = Math.max(...values);
+            const topDay = labels[values.indexOf(maxVal)] || '--';
+            document.getElementById('top-expense-day').innerText = topDay;
+
+            if(activityChart) activityChart.destroy();
+            activityChart = new Chart(document.getElementById('chartActivity'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'Movimentação', data: values, backgroundColor: '#3b82f6', borderRadius: 5 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        // --- FUNÇÕES DE BANCO DE DADOS (DELETE E EDIT) ---
+
+        async function deleteItem(id) {
+            if(!confirm("Tem certeza que deseja excluir este lançamento?")) return;
+            const { error } = await supa.from('transactions').delete().eq('id', id);
+            if(error) alert("Erro ao excluir!");
+            else fetchData();
+        }
+
+        function openEdit(id, desc, amount) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-desc').value = desc;
+            document.getElementById('edit-amount').value = amount;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('editModal').classList.remove('active'); }
+
+        async function saveEdit() {
+            const id = document.getElementById('edit-id').value;
+            const description = document.getElementById('edit-desc').value;
+            const amount = document.getElementById('edit-amount').value;
+
+            const { error } = await supa
+                .from('transactions')
+                .update({ description, amount })
+                .eq('id', id);
+
+            if(error) alert("Erro ao salvar!");
+            else { closeModal(); fetchData(); }
         }
 
         async function handleLogout() { await supa.auth.signOut(); window.location.href = "nickel-login.html"; }
