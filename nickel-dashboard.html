@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Nickel IA</title>
+    <title>Dashboard Profissional | Nickel IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,138 +11,183 @@
     <style>
         .section-content { display: none; }
         .section-content.active { display: block; }
-        .nav-link.active { @apply bg-blue-600 text-white shadow-md; }
+        .nav-link.active { @apply bg-blue-600 text-white shadow-lg scale-105; }
         .modal { display: none; }
         .modal.active { display: flex; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans flex h-screen overflow-hidden">
+<body class="bg-slate-50 font-sans flex h-screen overflow-hidden">
 
-    <aside class="w-64 bg-slate-900 text-white flex flex-col shrink-0">
-        <div class="p-6 text-2xl font-bold border-b border-slate-800 text-blue-400">🤖 Nickel IA</div>
-        <nav class="flex-1 p-4 space-y-2">
-            <button onclick="changeTab('dash')" id="btn-dash" class="nav-link active w-full text-left p-3 rounded-xl flex items-center gap-3 transition">
-                <i class="fas fa-th-large w-5"></i> Dashboard
+    <aside class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl">
+        <div class="p-6 border-b border-slate-800">
+            <div class="text-2xl font-black text-blue-400 flex items-center gap-2">
+                <i class="fas fa-robot"></i> Nickel IA
+            </div>
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">Gestão Inteligente</p>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-2 mt-4">
+            <button onclick="changeTab('dash')" id="btn-dash" class="nav-link active w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all duration-300">
+                <i class="fas fa-chart-pie w-5"></i> Dashboard
             </button>
-            <button onclick="changeTab('logs')" id="btn-logs" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition">
-                <i class="fas fa-exchange-alt w-5"></i> Lançamentos
+            <button onclick="changeTab('logs')" id="btn-logs" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition-all">
+                <i class="fas fa-list-ul w-5"></i> Lançamentos
             </button>
-            <button onclick="changeTab('fixas')" id="btn-fixas" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition">
-                <i class="fas fa-sync w-5"></i> Gastos Fixos
+            <button onclick="changeTab('fixas')" id="btn-fixas" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition-all">
+                <i class="fas fa-calendar-alt w-5"></i> Gastos Fixos
             </button>
-            <button onclick="changeTab('charts')" id="btn-charts" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition">
-                <i class="fas fa-chart-line w-5"></i> Gráficos
+            <button onclick="changeTab('charts')" id="btn-charts" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition-all">
+                <i class="fas fa-history w-5"></i> Evolução
             </button>
         </nav>
-        <div class="p-4 border-t border-slate-800">
-            <button onclick="handleLogout()" class="w-full text-left p-3 text-slate-400 hover:text-red-400 flex items-center gap-3 transition">
-                <i class="fas fa-sign-out-alt w-5"></i> Sair
+
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+            <div id="userInfo" class="flex items-center gap-3 mb-4 p-2">
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-xs">M</div>
+                <div class="overflow-hidden">
+                    <p id="userDisplay" class="text-xs font-bold truncate">carregando...</p>
+                    <p class="text-[9px] text-green-400 font-bold uppercase">Plano Pro</p>
+                </div>
+            </div>
+            <button onclick="handleLogout()" class="w-full text-left p-3 text-slate-500 hover:text-red-400 flex items-center gap-3 transition text-sm">
+                <i class="fas fa-power-off w-5"></i> Sair do Painel
             </button>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col overflow-y-auto">
-        <header class="bg-white border-b p-4 flex justify-between items-center sticky top-0 z-10">
-            <h2 id="page-title" class="text-xl font-bold text-slate-800">Dashboard</h2>
-            <div class="flex items-center gap-4">
-                <span id="userDisplay" class="text-slate-500 text-sm font-medium italic">Carregando...</span>
+        <header class="bg-white/80 backdrop-blur-md border-b p-4 flex justify-between items-center sticky top-0 z-10">
+            <h2 id="page-title" class="text-xl font-black text-slate-800 tracking-tight">Dashboard de Visão Geral</h2>
+            <div class="flex items-center gap-3">
+                <button onclick="fetchData()" class="p-2 hover:bg-slate-100 rounded-full transition text-slate-400" title="Sincronizar Dados">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
             </div>
         </header>
 
-        <div class="p-8">
-            <div id="sec-dash" class="section-content active">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                        <p class="text-slate-500 text-xs font-bold uppercase mb-1">Saldo Total</p>
-                        <h3 id="resumo-saldo" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
+        <div class="p-8 space-y-8">
+            <div id="sec-dash" class="section-content active space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group">
+                        <div class="absolute right-[-10px] top-[-10px] text-slate-50 text-6xl group-hover:text-blue-50 transition-colors"><i class="fas fa-wallet"></i></div>
+                        <p class="text-slate-400 text-[10px] font-black uppercase mb-1 relative z-10">Saldo Atual</p>
+                        <h3 id="resumo-saldo" class="text-2xl font-black text-slate-900 relative z-10">R$ 0,00</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-l-green-500">
-                        <p class="text-green-600 text-xs font-bold uppercase mb-1">Entradas</p>
-                        <h3 id="resumo-entradas" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-l-blue-500">
+                        <p class="text-blue-600 text-[10px] font-black uppercase mb-1">Projeção Final do Mês</p>
+                        <h3 id="projecao-saldo" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-l-red-500">
-                        <p class="text-red-600 text-xs font-bold uppercase mb-1">Saídas</p>
-                        <h3 id="resumo-saidas" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-l-red-500">
+                        <p class="text-red-600 text-[10px] font-black uppercase mb-1">Custo Fixo Mensal</p>
+                        <h3 id="total-fixo-out" class="text-2xl font-black text-red-600">R$ 0,00</h3>
                     </div>
-                    <div class="bg-blue-600 p-6 rounded-2xl shadow-lg text-white">
-                        <p class="text-blue-100 text-xs font-bold uppercase mb-1">Taxa de Poupança</p>
-                        <h3 id="savings-rate" class="text-2xl font-black">0%</h3>
-                        <p class="text-[10px] text-blue-100">Do que você ganha, isso é o que sobra.</p>
+                    <div class="bg-indigo-600 p-6 rounded-3xl shadow-xl text-white">
+                        <p class="text-indigo-200 text-[10px] font-black uppercase mb-2">Insight da IA 🤖</p>
+                        <p id="ia-insight" class="text-sm font-bold leading-tight">Mantenha seus gastos fixos atualizados para projeções precisas.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                        <h4 class="font-bold text-slate-800 mb-6 italic text-center underline">Frequência de Movimentação</h4>
+                    <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-8">
+                            <h4 class="font-black text-slate-800 italic">Frequência de Gastos</h4>
+                            <span id="top-day-display" class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-[10px] font-black">DIA PICO: --</span>
+                        </div>
                         <div class="h-64"><canvas id="chartActivity"></canvas></div>
-                        <p class="text-center text-[10px] text-slate-400 mt-4 uppercase font-bold">Data com mais gastos: <span id="top-expense-day" class="text-red-500">--</span></p>
                     </div>
-
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                        <h4 class="font-bold text-slate-800 mb-6 italic">Onde está seu dinheiro? (Top 5)</h4>
-                        <div id="abc-container" class="space-y-6"></div>
+                    <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                        <h4 class="font-black text-slate-800 mb-8 italic">Curva ABC (Onde o dinheiro vai)</h4>
+                        <div id="abc-container" class="space-y-6">
+                            </div>
                     </div>
                 </div>
             </div>
 
             <div id="sec-logs" class="section-content">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold">
+                        <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black">
                             <tr>
-                                <th class="p-4">Data</th>
-                                <th class="p-4">Descrição</th>
-                                <th class="p-4">Categoria</th>
-                                <th class="p-4">Valor</th>
-                                <th class="p-4 text-center">Ações</th>
+                                <th class="p-6">Data</th>
+                                <th class="p-6">Descrição</th>
+                                <th class="p-6">Categoria</th>
+                                <th class="p-6 text-right">Valor</th>
+                                <th class="p-6 text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="table-body" class="text-sm divide-y divide-slate-100">
+                        <tbody id="table-body" class="text-sm divide-y divide-slate-100 font-medium">
                             </tbody>
                     </table>
                 </div>
             </div>
 
             <div id="sec-fixas" class="section-content">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                        <h4 class="font-bold text-green-600 mb-4">Entradas Fixas (Salários, Aluguéis)</h4>
-                        <div id="fixas-in" class="space-y-3"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border h-fit sticky top-24">
+                        <h4 class="font-black text-slate-800 mb-6">Cadastrar Fixo</h4>
+                        <form id="formFixed" class="space-y-4">
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase">Nome da Conta</label>
+                                <input type="text" id="fix-desc" placeholder="Ex: Aluguel" class="w-full border-slate-200 border p-3 rounded-xl mt-1 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase">Valor</label>
+                                <input type="number" id="fix-amount" step="0.01" placeholder="0.00" class="w-full border-slate-200 border p-3 rounded-xl mt-1 text-sm font-bold" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase">Dia Venc.</label>
+                                    <input type="number" id="fix-day" min="1" max="31" class="w-full border-slate-200 border p-3 rounded-xl mt-1 text-sm" required>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase">Tipo</label>
+                                    <select id="fix-type" class="w-full border-slate-200 border p-3 rounded-xl mt-1 text-sm font-bold">
+                                        <option value="FIXED_EXPENSE">Saída Fixa</option>
+                                        <option value="FIXED_INCOME">Entrada Fixa</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" onclick="saveFixed()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-blue-600 shadow-xl transition-all duration-300 transform active:scale-95">Salvar Compromisso</button>
+                        </form>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                        <h4 class="font-bold text-red-600 mb-4">Saídas Fixas (Netflix, Internet)</h4>
-                        <div id="fixas-out" class="space-y-3"></div>
+                    <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border overflow-hidden">
+                        <table class="w-full text-left text-sm font-medium">
+                            <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black">
+                                <tr>
+                                    <th class="p-6">Dia</th>
+                                    <th class="p-6">Compromisso</th>
+                                    <th class="p-6 text-right">Valor</th>
+                                    <th class="p-6 text-center">Remover</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-fixed" class="divide-y divide-slate-100">
+                                </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="editModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h3 class="text-xl font-bold mb-4">Editar Lançamento</h3>
-            <form id="editForm" class="space-y-4">
+    <div id="editModal" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-black mb-6 flex items-center gap-2"><i class="fas fa-edit text-blue-500"></i> Ajustar Registro</h3>
+            <form class="space-y-4">
                 <input type="hidden" id="edit-id">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição</label>
-                    <input type="text" id="edit-desc" class="w-full border p-2 rounded-lg">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor</label>
-                    <input type="number" id="edit-amount" step="0.01" class="w-full border p-2 rounded-lg">
-                </div>
-                <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeModal()" class="w-full bg-gray-200 p-2 rounded-lg font-bold">Cancelar</button>
-                    <button type="button" onclick="saveEdit()" class="w-full bg-blue-600 text-white p-2 rounded-lg font-bold">Salvar</button>
+                <input type="text" id="edit-desc" class="w-full border p-3 rounded-xl" placeholder="Descrição">
+                <input type="number" id="edit-amount" step="0.01" class="w-full border p-3 rounded-xl font-bold" placeholder="Valor">
+                <div class="flex gap-4 mt-6">
+                    <button type="button" onclick="closeModal()" class="flex-1 p-3 bg-slate-100 rounded-xl font-bold">Voltar</button>
+                    <button type="button" onclick="saveEdit()" class="flex-1 p-3 bg-blue-600 text-white rounded-xl font-bold">Salvar Alteração</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const S_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
-        const supa = window.supabase.createClient(S_URL, S_KEY);
+        const API_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
+        const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
+        const supa_client = window.supabase.createClient(API_URL, API_KEY);
 
         let activityChart;
 
@@ -151,135 +196,130 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'bg-blue-600', 'text-white'));
             document.getElementById('sec-' + id).classList.add('active');
             document.getElementById('btn-' + id).classList.add('active', 'bg-blue-600', 'text-white');
+            
+            const titles = { dash: 'Dashboard Geral', logs: 'Gestão de Lançamentos', fixas: 'Planejamento de Fixos', charts: 'Gráficos de Evolução' };
+            document.getElementById('page-title').innerText = titles[id];
         }
 
         async function fetchData() {
-            const { data: { user } } = await supa.auth.getUser();
+            const { data: { user } } = await supa_client.auth.getUser();
             if (!user) return window.location.href = "nickel-login.html";
-            document.getElementById('userDisplay').innerText = user.email;
+            document.getElementById('userDisplay').innerText = user.email.toLowerCase();
 
-            const { data, error } = await supa
-                .from('transactions')
-                .select('*')
-                .eq('user_email', user.email.toLowerCase())
-                .order('date', { ascending: true });
+            // Puxa Transações e Gastos Fixos
+            const [tRes, fRes] = await Promise.all([
+                supa_client.from('transactions').select('*').eq('user_email', user.email.toLowerCase()).order('date', {ascending: false}),
+                supa_client.from('fixed_expenses').select('*').eq('user_email', user.email.toLowerCase())
+            ]);
 
-            if (error) return console.error(error);
-            renderDashboard(data);
+            renderAll(tRes.data || [], fRes.data || []);
         }
 
-        function renderDashboard(data) {
+        function renderAll(trans, fixos) {
             let totalIn = 0, totalOut = 0, cats = {}, daily = {};
-            const table = document.getElementById('table-body');
-            const abc = document.getElementById('abc-container');
-            
-            table.innerHTML = "";
-            abc.innerHTML = "";
+            let fIn = 0, fOut = 0;
 
-            data.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(item => {
-                const val = parseFloat(item.amount);
-                const isOut = item.type === 'EXPENSE';
-                const dateKey = new Date(item.date).toLocaleDateString('pt-BR');
+            // Transações
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = trans.map(i => {
+                const val = parseFloat(i.amount);
+                const isExpense = i.type === 'EXPENSE';
+                const dateStr = new Date(i.date).toLocaleDateString('pt-BR');
                 
-                if(isOut) { 
-                    totalOut += val; 
-                    cats[item.category] = (cats[item.category] || 0) + val; 
-                } else { 
-                    totalIn += val; 
-                }
+                if(isExpense) { totalOut += val; cats[i.category] = (cats[i.category] || 0) + val; }
+                else totalIn += val;
 
-                // Agrupamento diário para o gráfico de atividade
-                daily[dateKey] = (daily[dateKey] || 0) + val;
+                daily[dateStr] = (daily[dateStr] || 0) + (isExpense ? -val : val);
 
-                table.innerHTML += `
-                    <tr>
-                        <td class="p-4">${dateKey}</td>
-                        <td class="p-4 font-bold text-slate-700">${item.description}</td>
-                        <td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[10px] font-black uppercase text-slate-500">${item.category}</span></td>
-                        <td class="p-4 font-black ${isOut ? 'text-red-500' : 'text-green-500'}">
-                            R$ ${val.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
-                        </td>
-                        <td class="p-4 text-center space-x-3">
-                            <button onclick="openEdit('${item.id}', '${item.description}', ${item.amount})" class="text-blue-400 hover:text-blue-600"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteItem('${item.id}')" class="text-red-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-6 text-slate-500 font-bold">${dateStr}</td>
+                        <td class="p-6 text-slate-900">${i.description}</td>
+                        <td class="p-6"><span class="bg-slate-100 text-slate-500 px-2 py-1 rounded-md text-[9px] font-black uppercase">${i.category}</span></td>
+                        <td class="p-6 text-right font-black ${isExpense ? 'text-red-500' : 'text-green-500'}">R$ ${val.toFixed(2)}</td>
+                        <td class="p-6 text-center space-x-3">
+                            <button onclick="openEdit('${i.id}','${i.description}',${val})" class="text-blue-400 hover:text-blue-600"><i class="fas fa-pen text-xs"></i></button>
+                            <button onclick="deleteItem('${i.id}')" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash text-xs"></i></button>
                         </td>
                     </tr>`;
+            }).join('');
+
+            // Fixos para Projeção
+            fixos.forEach(f => {
+                const v = parseFloat(f.amount);
+                if(f.type === 'FIXED_EXPENSE') fOut += v;
+                else fIn += v;
             });
 
-            // KPIs
-            document.getElementById('resumo-entradas').innerText = `R$ ${totalIn.toLocaleString('pt-BR')}`;
-            document.getElementById('resumo-saidas').innerText = `R$ ${totalOut.toLocaleString('pt-BR')}`;
+            // Gastos Fixos Tabela
+            document.getElementById('table-fixed').innerHTML = fixos.map(f => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-6 font-black text-blue-600">Dia ${f.due_day}</td>
+                    <td class="p-6 text-slate-700">${f.description}</td>
+                    <td class="p-6 text-right font-black ${f.type === 'FIXED_EXPENSE' ? 'text-red-500' : 'text-green-500'}">R$ ${parseFloat(f.amount).toFixed(2)}</td>
+                    <td class="p-6 text-center"><button onclick="deleteFixed('${f.id}')" class="text-slate-200 hover:text-red-500"><i class="fas fa-times"></i></button></td>
+                </tr>`).join('');
+
+            // Atualiza KPI
             document.getElementById('resumo-saldo').innerText = `R$ ${(totalIn - totalOut).toLocaleString('pt-BR')}`;
-            
-            const savings = totalIn > 0 ? (((totalIn - totalOut) / totalIn) * 100).toFixed(0) : 0;
-            document.getElementById('savings-rate').innerText = `${savings}%`;
+            document.getElementById('total-fixo-out').innerText = `R$ ${fOut.toLocaleString('pt-BR')}`;
+            document.getElementById('projecao-saldo').innerText = `R$ ${(totalIn - totalOut + fIn - fOut).toLocaleString('pt-BR')}`;
 
-            // Curva ABC
-            const sortedCats = Object.entries(cats).sort((a,b) => b[1] - a[1]);
-            sortedCats.slice(0, 5).forEach(([name, value]) => {
-                const perc = totalOut > 0 ? (value / totalOut * 100).toFixed(0) : 0;
-                abc.innerHTML += `
-                    <div>
-                        <div class="flex justify-between font-bold text-slate-700 mb-1 text-xs"><span>${name}</span><span>R$ ${value.toFixed(2)}</span></div>
-                        <div class="w-full bg-slate-100 rounded-full h-1.5"><div class="bg-blue-600 h-1.5 rounded-full" style="width: ${perc}%"></div></div>
-                    </div>`;
-            });
+            // ABC
+            const sorted = Object.entries(cats).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            document.getElementById('abc-container').innerHTML = sorted.map(([name, val]) => `
+                <div>
+                    <div class="flex justify-between text-xs font-black text-slate-700 mb-2 uppercase tracking-tighter"><span>${name}</span><span>R$ ${val.toFixed(2)}</span></div>
+                    <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full shadow-lg transition-all duration-1000" style="width: ${(val/totalOut*100).toFixed(0)}%"></div></div>
+                </div>`).join('');
 
-            updateActivityChart(daily);
+            updateChart(daily);
         }
 
-        function updateActivityChart(dailyData) {
-            const labels = Object.keys(dailyData).reverse();
-            const values = Object.values(dailyData).reverse();
-            
-            const maxVal = Math.max(...values);
-            const topDay = labels[values.indexOf(maxVal)] || '--';
-            document.getElementById('top-expense-day').innerText = topDay;
-
+        function updateChart(daily) {
+            const labels = Object.keys(daily).reverse().slice(-10);
+            const vals = Object.values(daily).reverse().slice(-10);
             if(activityChart) activityChart.destroy();
             activityChart = new Chart(document.getElementById('chartActivity'), {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{ label: 'Movimentação', data: values, backgroundColor: '#3b82f6', borderRadius: 5 }]
-                },
+                data: { labels, datasets: [{ label: 'Movimento R$', data: vals, backgroundColor: '#3b82f6', borderRadius: 8 }] },
                 options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
-        // --- FUNÇÕES DE BANCO DE DADOS (DELETE E EDIT) ---
-
-        async function deleteItem(id) {
-            if(!confirm("Tem certeza que deseja excluir este lançamento?")) return;
-            const { error } = await supa.from('transactions').delete().eq('id', id);
-            if(error) alert("Erro ao excluir!");
-            else fetchData();
+        // --- BANCO ---
+        async function saveFixed() {
+            const { data: { user } } = await supa_client.auth.getUser();
+            const payload = {
+                description: document.getElementById('fix-desc').value,
+                amount: document.getElementById('fix-amount').value,
+                due_day: document.getElementById('fix-day').value,
+                type: document.getElementById('fix-type').value,
+                user_email: user.email.toLowerCase()
+            };
+            const { error } = await supa_client.from('fixed_expenses').insert([payload]);
+            if(!error) { document.getElementById('formFixed').reset(); fetchData(); }
         }
 
-        function openEdit(id, desc, amount) {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-desc').value = desc;
-            document.getElementById('edit-amount').value = amount;
-            document.getElementById('editModal').classList.add('active');
-        }
+        async function deleteItem(id) { if(confirm("Apagar?")) { await supa_client.from('transactions').delete().eq('id', id); fetchData(); } }
+        async function deleteFixed(id) { if(confirm("Apagar?")) { await supa_client.from('fixed_expenses').delete().eq('id', id); fetchData(); } }
 
+        function openEdit(id, desc, val) { 
+            document.getElementById('edit-id').value = id; 
+            document.getElementById('edit-desc').value = desc; 
+            document.getElementById('edit-amount').value = val;
+            document.getElementById('editModal').classList.add('active'); 
+        }
         function closeModal() { document.getElementById('editModal').classList.remove('active'); }
-
         async function saveEdit() {
             const id = document.getElementById('edit-id').value;
             const description = document.getElementById('edit-desc').value;
             const amount = document.getElementById('edit-amount').value;
-
-            const { error } = await supa
-                .from('transactions')
-                .update({ description, amount })
-                .eq('id', id);
-
-            if(error) alert("Erro ao salvar!");
-            else { closeModal(); fetchData(); }
+            await supa_client.from('transactions').update({ description, amount }).eq('id', id);
+            closeModal(); fetchData();
         }
 
-        async function handleLogout() { await supa.auth.signOut(); window.location.href = "nickel-login.html"; }
+        async function handleLogout() { await supa_client.auth.signOut(); window.location.href = "nickel-login.html"; }
         window.onload = fetchData;
     </script>
 </body>
