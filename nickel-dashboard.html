@@ -50,7 +50,7 @@
         <div class="p-8">
             <div id="sec-dash" class="section-content active">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border">
                         <p class="text-slate-500 text-xs font-bold uppercase mb-1">Saldo Atual</p>
                         <h3 id="resumo-saldo" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
                     </div>
@@ -64,25 +64,24 @@
                     </div>
                     <div class="bg-blue-600 p-6 rounded-2xl shadow-lg text-white">
                         <p class="text-blue-100 text-xs font-bold uppercase mb-2">Insight da IA 🤖</p>
-                        <p id="ia-insight" class="text-sm font-medium">Analisando seus dados...</p>
+                        <p id="ia-insight" class="text-sm font-medium italic">Sincronizando...</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm">
                         <h4 class="font-bold text-slate-800 mb-6 italic text-center underline">Divisão por Categoria</h4>
                         <div class="h-64"><canvas id="chartPie"></canvas></div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <h4 class="font-bold text-slate-800 mb-6 italic">Análise ABC (Top Gastos)</h4>
-                        <div id="abc-container" class="space-y-6 text-sm">
-                            </div>
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                        <h4 class="font-bold text-slate-800 mb-6 italic">Análise ABC (Maiores Gastos)</h4>
+                        <div id="abc-container" class="space-y-6"></div>
                     </div>
                 </div>
             </div>
 
             <div id="sec-logs" class="section-content">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold">
                             <tr>
@@ -93,27 +92,19 @@
                                 <th class="p-4 text-center">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="table-body" class="text-sm divide-y divide-slate-100">
-                            </tbody>
+                        <tbody id="table-body" class="text-sm divide-y"></tbody>
                     </table>
-                </div>
-            </div>
-
-            <div id="sec-charts" class="section-content">
-                <div class="bg-white p-8 rounded-2xl shadow-sm border">
-                    <h4 class="font-bold text-slate-800 mb-8 italic underline">Evolução Mensal</h4>
-                    <div class="h-[400px]"><canvas id="chartLine"></canvas></div>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        const SUPA_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
-        const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
-        const supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+        const S_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
+        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
+        const supa = window.supabase.createClient(S_URL, S_KEY);
 
-        let pieChart, lineChart;
+        let pieChart;
 
         function changeTab(id) {
             document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
@@ -128,15 +119,15 @@
             
             document.getElementById('userDisplay').innerText = user.email;
 
-            // ✅ BUSCA COM FILTRO MINÚSCULO: Resolve o problema de Maiúsculas/Minúsculas
+            // Busca os dados filtrando pelo e-mail em minúsculo
             const { data, error } = await supa
                 .from('transactions')
                 .select('*')
-                .eq('user_email', user.email.toLowerCase()) 
-                .order('date', { ascending: true });
+                .eq('user_email', user.email.toLowerCase());
 
             if (error) {
-                console.error("Erro:", error.message);
+                console.error("ERRO NA BUSCA:", error.message);
+                document.getElementById('ia-insight').innerText = "Erro ao carregar banco de dados.";
                 return;
             }
 
@@ -151,31 +142,27 @@
             table.innerHTML = "";
             abc.innerHTML = "";
 
-            if(data.length === 0) {
-                table.innerHTML = "<tr><td colspan='5' class='p-8 text-center text-gray-400 italic'>Nenhum gasto registrado para este e-mail ainda.</td></tr>";
+            if(!data || data.length === 0) {
+                table.innerHTML = "<tr><td colspan='5' class='p-8 text-center text-slate-400'>Nenhum dado encontrado para " + document.getElementById('userDisplay').innerText + "</td></tr>";
                 return;
             }
 
-            [...data].reverse().forEach(item => {
-                const val = parseFloat(item.amount);
+            data.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(item => {
+                const val = parseFloat(item.amount) || 0;
                 const isOut = item.type === 'EXPENSE';
                 
-                if(isOut) { 
-                    totalOut += val; 
-                    cats[item.category] = (cats[item.category] || 0) + val; 
-                } else { 
-                    totalIn += val; 
-                }
+                if(isOut) { totalOut += val; cats[item.category] = (cats[item.category] || 0) + val; }
+                else { totalIn += val; }
 
                 table.innerHTML += `
                     <tr>
-                        <td class="p-4 font-medium text-slate-500">${new Date(item.date).toLocaleDateString('pt-BR')}</td>
-                        <td class="p-4 font-bold text-slate-800">${item.description}</td>
-                        <td class="p-4"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-[10px] font-black uppercase">${item.category}</span></td>
+                        <td class="p-4">${item.date ? new Date(item.date).toLocaleDateString('pt-BR') : '---'}</td>
+                        <td class="p-4 font-bold text-slate-700">${item.description || 'Sem descrição'}</td>
+                        <td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[10px] font-black uppercase text-slate-500">${item.category}</span></td>
                         <td class="p-4 font-black ${isOut ? 'text-red-500' : 'text-green-500'}">
                             ${isOut ? '-' : '+'} R$ ${val.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
                         </td>
-                        <td class="p-4 text-center"><i class="fas fa-trash text-slate-200 hover:text-red-500 cursor-pointer"></i></td>
+                        <td class="p-4 text-center"><i class="fas fa-trash text-slate-200 hover:text-red-500 cursor-pointer transition"></i></td>
                     </tr>`;
             });
 
@@ -183,21 +170,7 @@
             document.getElementById('resumo-saidas').innerText = `R$ ${totalOut.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
             document.getElementById('resumo-saldo').innerText = `R$ ${(totalIn - totalOut).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
 
-            const sortedCats = Object.entries(cats).sort((a,b) => b[1] - a[1]);
-            sortedCats.slice(0, 5).forEach(([name, value]) => {
-                const perc = (value / totalOut * 100).toFixed(0);
-                abc.innerHTML += `
-                    <div>
-                        <div class="flex justify-between font-bold text-slate-700 mb-1"><span>${name}</span><span>R$ ${value.toFixed(2)}</span></div>
-                        <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${perc}%"></div></div>
-                    </div>`;
-            });
-
-            document.getElementById('ia-insight').innerText = totalOut > totalIn ? "⚠️ Atenção aos gastos excedentes!" : "✅ Saldo positivo! Continue assim.";
-            updateCharts(cats, data);
-        }
-
-        function updateCharts(cats, allData) {
+            // Gráfico de Categorias
             if(pieChart) pieChart.destroy();
             pieChart = new Chart(document.getElementById('chartPie'), {
                 type: 'doughnut',
@@ -205,19 +178,17 @@
                 options: { maintainAspectRatio: false }
             });
 
-            if(lineChart) lineChart.destroy();
-            const dates = [...new Set(allData.map(d => new Date(d.date).toLocaleDateString('pt-BR')))];
-            lineChart = new Chart(document.getElementById('chartLine'), {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [
-                        { label: 'Gastos', data: dates.map(d => allData.filter(x => new Date(x.date).toLocaleDateString('pt-BR') === d && x.type === 'EXPENSE').reduce((a,b) => a + parseFloat(b.amount), 0)), borderColor: '#ef4444', tension: 0.3 },
-                        { label: 'Entradas', data: dates.map(d => allData.filter(x => new Date(x.date).toLocaleDateString('pt-BR') === d && x.type === 'INCOME').reduce((a,b) => a + parseFloat(b.amount), 0)), borderColor: '#10b981', tension: 0.3 }
-                    ]
-                },
-                options: { maintainAspectRatio: false }
+            // Curva ABC
+            Object.entries(cats).sort((a,b) => b[1] - a[1]).slice(0, 5).forEach(([name, value]) => {
+                const perc = totalOut > 0 ? (value / totalOut * 100).toFixed(0) : 0;
+                abc.innerHTML += `
+                    <div>
+                        <div class="flex justify-between font-bold text-slate-700 mb-1 text-xs"><span>${name}</span><span>R$ ${value.toFixed(2)}</span></div>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5"><div class="bg-blue-600 h-1.5 rounded-full" style="width: ${perc}%"></div></div>
+                    </div>`;
             });
+
+            document.getElementById('ia-insight').innerText = "Tudo certo! Dados sincronizados com o Telegram.";
         }
 
         async function handleLogout() { await supa.auth.signOut(); window.location.href = "nickel-login.html"; }
