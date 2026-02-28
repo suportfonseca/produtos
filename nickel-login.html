@@ -46,11 +46,11 @@
     </div>
 
     <script>
-        // Chaves configuradas conforme solicitado
+        // Suas chaves configuradas corretamente
         const supabaseUrl = 'https://eadrnruhmcnzleukmlvj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
         
-        // Inicialização usando window.supabase para garantir funcionamento no navegador
+        // Inicialização única
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const emailInput = document.getElementById('email');
@@ -76,7 +76,7 @@
             if (error) {
                 mostrarMensagem(msgErro, error.message);
             } else {
-                mostrarMensagem(msgSucesso, "Conta criada! Verifique seu e-mail ou faça login.");
+                mostrarMensagem(msgSucesso, "Conta criada! Verifique seu e-mail.");
             }
         }
 
@@ -92,7 +92,6 @@
                 mostrarMensagem(msgErro, "Login falhou! Verifique suas credenciais.");
             } else {
                 mostrarMensagem(msgSucesso, "Login com sucesso! Redirecionando...");
-                // Redirecionamento para a próxima etapa (Dashboard)
                 setTimeout(() => { window.location.href = "nickel-dashboard.html"; }, 1500);
             }
         }
