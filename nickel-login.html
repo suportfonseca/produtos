@@ -45,46 +45,69 @@
     </div>
 
     <script>
-        // Configuração única e direta
-        const S_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
+        // CONFIGURAÇÃO ÚNICA - NÃO REPETIR ESTAS LINHAS
+        const URL_PROJETO = 'https://eadrnruhmcnzleukmlvj.supabase.co';
+        const CHAVE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
         
-        const supabase = window.supabase.createClient(S_URL, S_KEY);
+        // Inicialização única do cliente Supabase
+        const supabase = window.supabase.createClient(URL_PROJETO, CHAVE_ANON);
 
-        const emailInput = document.getElementById('email');
-        const senhaInput = document.getElementById('senha');
-        const msgErro = document.getElementById('mensagem-erro');
-        const msgSucesso = document.getElementById('mensagem-sucesso');
+        const emailField = document.getElementById('email');
+        const senhaField = document.getElementById('senha');
+        const erroDiv = document.getElementById('mensagem-erro');
+        const sucessoDiv = document.getElementById('mensagem-sucesso');
 
-        function exibirMsg(elemento, texto) {
-            msgErro.classList.add('hidden');
-            msgSucesso.classList.add('hidden');
-            elemento.innerText = texto;
-            elemento.classList.remove('hidden');
+        function limparAlertas() {
+            erroDiv.classList.add('hidden');
+            sucessoDiv.classList.add('hidden');
         }
 
-        // Função Criar Conta
+        // AÇÃO: CRIAR CONTA
         document.getElementById('btnCriar').addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = senhaInput.value;
-            if(!email || !password) return exibirMsg(msgErro, "Preencha os campos!");
+            limparAlertas();
+            const email = emailField.value;
+            const password = senhaField.value;
 
-            const { error } = await supabase.auth.signUp({ email, password });
-            if (error) exibirMsg(msgErro, error.message);
-            else exibirMsg(msgSucesso, "Conta criada! Verifique seu e-mail.");
+            if (!email || !password) {
+                erroDiv.innerText = "Preencha todos os campos!";
+                erroDiv.classList.remove('hidden');
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signUp({ email, password });
+
+            if (error) {
+                erroDiv.innerText = error.message;
+                erroDiv.classList.remove('hidden');
+            } else {
+                sucessoDiv.innerText = "Conta criada! Verifique seu e-mail.";
+                sucessoDiv.classList.remove('hidden');
+            }
         });
 
-        // Função Login
+        // AÇÃO: FAZER LOGIN
         document.getElementById('btnEntrar').addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = senhaInput.value;
-            if(!email || !password) return exibirMsg(msgErro, "Preencha os campos!");
+            limparAlertas();
+            const email = emailField.value;
+            const password = senhaField.value;
 
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) exibirMsg(msgErro, "Erro no login. Verifique os dados.");
-            else {
-                exibirMsg(msgSucesso, "Sucesso! Redirecionando...");
-                setTimeout(() => { window.location.href = "nickel-dashboard.html"; }, 1500);
+            if (!email || !password) {
+                erroDiv.innerText = "Preencha todos os campos!";
+                erroDiv.classList.remove('hidden');
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                erroDiv.innerText = "Dados incorretos ou erro no login.";
+                erroDiv.classList.remove('hidden');
+            } else {
+                sucessoDiv.innerText = "Login realizado! Entrando...";
+                sucessoDiv.classList.remove('hidden');
+                setTimeout(() => {
+                    window.location.href = "nickel-dashboard.html";
+                }, 1500);
             }
         });
     </script>
