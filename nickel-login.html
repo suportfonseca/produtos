@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Nickel IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center h-screen font-sans antialiased">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-600 mb-2">🤖 Nickel IA</h1>
+            <p class="text-gray-500">Acesse seu painel financeiro</p>
+        </div>
+
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">E-mail</label>
+                <input type="email" id="email" required class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none transition" placeholder="seu@email.com">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Senha</label>
+                <input type="password" id="senha" required class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none transition" placeholder="••••••••">
+            </div>
+
+            <div id="mensagem-erro" class="text-red-500 text-sm hidden font-medium text-center"></div>
+            <div id="mensagem-sucesso" class="text-green-500 text-sm hidden font-medium text-center"></div>
+
+            <div class="flex gap-4 pt-2">
+                <button type="button" onclick="fazerLogin()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
+                    Entrar
+                </button>
+                <button type="button" onclick="criarConta()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-gray-900 transition">
+                    Criar Conta
+                </button>
+            </div>
+        </form>
+        
+        <div class="text-center mt-6">
+            <a href="index.html" class="text-blue-600 hover:underline text-sm font-medium">← Voltar para a página inicial</a>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ ATENÇÃO: COLOQUE SUAS CHAVES DO SUPABASE AQUI ⚠️
+        const supabaseUrl = 'COLE_AQUI_SUA_URL_DO_SUPABASE';
+        const supabaseKey = 'COLE_AQUI_SUA_CHAVE_ANON_DO_SUPABASE';
+        const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+
+        const emailInput = document.getElementById('email');
+        const senhaInput = document.getElementById('senha');
+        const msgErro = document.getElementById('mensagem-erro');
+        const msgSucesso = document.getElementById('mensagem-sucesso');
+
+        function mostrarMensagem(elemento, texto) {
+            msgErro.classList.add('hidden');
+            msgSucesso.classList.add('hidden');
+            elemento.innerText = texto;
+            elemento.classList.remove('hidden');
+        }
+
+        // Função para CRIAR CONTA (Sign Up)
+        async function criarConta() {
+            const email = emailInput.value;
+            const password = senhaInput.value;
+            
+            if(!email || !password) return mostrarMensagem(msgErro, "Preencha e-mail e senha!");
+
+            const { data, error } = await supabase.auth.signUp({ email, password });
+
+            if (error) {
+                mostrarMensagem(msgErro, error.message);
+            } else {
+                mostrarMensagem(msgSucesso, "Conta criada! Verifique seu e-mail para confirmar (se ativado), ou faça login.");
+            }
+        }
+
+        // Função para ENTRAR (Sign In)
+        async function fazerLogin() {
+            const email = emailInput.value;
+            const password = senhaInput.value;
+
+            if(!email || !password) return mostrarMensagem(msgErro, "Preencha e-mail e senha!");
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                mostrarMensagem(msgErro, "Login falhou! Verifique suas credenciais.");
+            } else {
+                mostrarMensagem(msgSucesso, "Login com sucesso! Redirecionando...");
+                // Aqui nós vamos redirecionar ele para o Dashboard depois!
+                setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
