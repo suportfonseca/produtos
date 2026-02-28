@@ -26,8 +26,8 @@
                 <input type="password" id="senha" required class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none transition" placeholder="••••••••">
             </div>
 
-            <div id="mensagem-erro" class="text-red-500 text-sm hidden font-medium text-center bg-red-50 p-2 rounded"></div>
-            <div id="mensagem-sucesso" class="text-green-500 text-sm hidden font-medium text-center bg-green-50 p-2 rounded"></div>
+            <div id="mensagem-erro" class="text-red-500 text-sm hidden font-medium text-center bg-red-50 p-2 rounded border border-red-100"></div>
+            <div id="mensagem-sucesso" class="text-green-500 text-sm hidden font-medium text-center bg-green-50 p-2 rounded border border-green-100"></div>
 
             <div class="flex gap-4 pt-2">
                 <button type="button" id="btnEntrar" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
@@ -45,90 +45,80 @@
     </div>
 
     <script>
-        // Usei nomes de variáveis bem específicos para não dar conflito com nada
         const PROJETO_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
         const PROJETO_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
         
-        // Inicialização protegida
-        const supabase_client = window.supabase.createClient(PROJETO_URL, PROJETO_KEY);
+        const supabase_final = window.supabase.createClient(PROJETO_URL, PROJETO_KEY);
 
-        const inputEmail = document.getElementById('email');
-        const inputSenha = document.getElementById('senha');
-        const divErro = document.getElementById('mensagem-erro');
-        const divSucesso = document.getElementById('mensagem-sucesso');
-        const bEntrar = document.getElementById('btnEntrar');
-        const bCriar = document.getElementById('btnCriar');
+        const emailIn = document.getElementById('email');
+        const senhaIn = document.getElementById('senha');
+        const erroBox = document.getElementById('mensagem-erro');
+        const sucessoBox = document.getElementById('mensagem-sucesso');
+        const btnLogin = document.getElementById('btnEntrar');
+        const btnSignUp = document.getElementById('btnCriar');
 
-        function limparAlertas() {
-            divErro.classList.add('hidden');
-            divSucesso.classList.add('hidden');
+        function limpar() {
+            erroBox.classList.add('hidden');
+            sucessoBox.classList.add('hidden');
         }
 
-        function setLoading(estado) {
-            bEntrar.disabled = estado;
-            bCriar.disabled = estado;
-            bEntrar.innerText = estado ? 'Carregando...' : 'Entrar';
-        }
-
-        // Lógica de ENTRAR (Verificação real)
-        bEntrar.addEventListener('click', async () => {
-            limparAlertas();
-            const email = inputEmail.value;
-            const password = inputSenha.value;
+        // ENTRAR
+        btnLogin.addEventListener('click', async () => {
+            limpar();
+            const email = emailIn.value;
+            const password = senhaIn.value;
 
             if (!email || !password) {
-                divErro.innerText = "Preencha e-mail e senha!";
-                divErro.classList.remove('hidden');
+                erroBox.innerText = "Preencha e-mail e senha!";
+                erroBox.classList.remove('hidden');
                 return;
             }
 
-            setLoading(true);
-            const { data, error } = await supabase_client.auth.signInWithPassword({ email, password });
+            btnLogin.disabled = true;
+            btnLogin.innerText = "Verificando...";
+
+            const { data, error } = await supabase_final.auth.signInWithPassword({ email, password });
 
             if (error) {
-                divErro.innerText = "Usuário não encontrado ou senha incorreta.";
-                divErro.classList.remove('hidden');
-                setLoading(false);
+                // Aqui ele vai te dizer o motivo real do erro de POST
+                erroBox.innerText = "Erro: " + error.message;
+                erroBox.classList.remove('hidden');
+                btnLogin.disabled = false;
+                btnLogin.innerText = "Entrar";
             } else {
-                divSucesso.innerText = "Login realizado! Entrando no Dashboard...";
-                divSucesso.classList.remove('hidden');
-                setTimeout(() => {
-                    window.location.href = "nickel-dashboard.html";
-                }, 1500);
+                sucessoBox.innerText = "Login autorizado! Abrindo Dashboard...";
+                sucessoBox.classList.remove('hidden');
+                setTimeout(() => { window.location.href = "nickel-dashboard.html"; }, 1500);
             }
         });
 
-        // Lógica de CRIAR CONTA
-        bCriar.addEventListener('click', async () => {
-            limparAlertas();
-            const email = inputEmail.value;
-            const password = inputSenha.value;
+        // CRIAR CONTA
+        btnSignUp.addEventListener('click', async () => {
+            limpar();
+            const email = emailIn.value;
+            const password = senhaIn.value;
 
             if (!email || !password) {
-                divErro.innerText = "Defina um e-mail e senha para o cadastro.";
-                divErro.classList.remove('hidden');
+                erroBox.innerText = "Preencha e-mail e senha!";
+                erroBox.classList.remove('hidden');
                 return;
             }
 
-            bCriar.disabled = true;
-            bCriar.innerText = 'Cadastrando...';
+            btnSignUp.disabled = true;
+            btnSignUp.innerText = "Cadastrando...";
 
-            const { data, error } = await supabase_client.auth.signUp({ email, password });
+            const { data, error } = await supabase_final.auth.signUp({ email, password });
 
             if (error) {
-                divErro.innerText = error.message;
-                divErro.classList.remove('hidden');
-                bCriar.disabled = false;
-                bCriar.innerText = 'Criar Conta';
+                erroBox.innerText = error.message;
+                erroBox.classList.remove('hidden');
+                btnSignUp.disabled = false;
+                btnSignUp.innerText = "Criar Conta";
             } else {
-                divSucesso.innerText = "Conta criada com sucesso!";
-                divSucesso.classList.remove('hidden');
-                // Futuramente aqui redirecionaremos para a tela de planos
-                setTimeout(() => {
-                    alert("Redirecionando para a tela de Assinaturas (Em breve)...");
-                    bCriar.disabled = false;
-                    bCriar.innerText = 'Criar Conta';
-                }, 2000);
+                sucessoBox.innerText = "Conta criada! Já pode clicar em Entrar.";
+                sucessoBox.classList.remove('hidden');
+                btnSignUp.disabled = false;
+                btnSignUp.innerText = "Criar Conta";
             }
         });
     </script>
