@@ -3,42 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nickel IA | Planejamento Estratégico</title>
+    <title>Nickel IA | Estratégia & Controle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        // Configuração do Tailwind para aceitar modo dark
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <style>
         .section-content { display: none; }
         .section-content.active { display: block; }
         .nav-link.active { @apply bg-blue-600 text-white shadow-xl; }
-        .calendar-day { min-height: 80px; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .calendar-day { min-height: 100px; }
+        /* Transição suave para o tema */
+        body { transition: background-color 0.3s, color 0.3s; }
+        .dark .bg-white { background-color: #1e293b !important; color: white; border-color: #334155 !important; }
+        .dark .text-slate-900 { color: #f1f5f9 !important; }
+        .dark .text-slate-800 { color: #f1f5f9 !important; }
+        .dark .text-slate-700 { color: #cbd5e1 !important; }
+        .dark .bg-slate-50 { background-color: #0f172a !important; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans flex h-screen overflow-hidden text-slate-900">
 
     <aside class="w-20 md:w-64 bg-slate-900 text-white flex flex-col shrink-0 z-20">
-        <div class="p-6 border-b border-slate-800 text-center md:text-left">
-            <div class="text-xl font-black text-blue-400 flex items-center justify-center md:justify-start gap-2">
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <div class="text-xl font-black text-blue-400 flex items-center gap-2">
                 <i class="fas fa-robot"></i> <span class="hidden md:inline">Nickel IA</span>
             </div>
         </div>
         <nav class="flex-1 p-4 space-y-2">
-            <button onclick="changeTab('dash')" id="btn-dash" class="nav-link active w-full p-3 rounded-xl flex items-center justify-center md:justify-start gap-3 transition-all"><i class="fas fa-home"></i> <span class="hidden md:inline">Início</span></button>
+            <button onclick="changeTab('dash')" id="btn-dash" class="nav-link active w-full p-3 rounded-xl flex items-center justify-center md:justify-start gap-3 transition-all"><i class="fas fa-home"></i> <span class="hidden md:inline">Dashboard</span></button>
             <button onclick="changeTab('fixas')" id="btn-fixas" class="nav-link w-full p-3 rounded-xl flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:text-white transition-all"><i class="fas fa-calendar-alt"></i> <span class="hidden md:inline">Planejamento</span></button>
-            <button onclick="changeTab('logs')" id="btn-logs" class="nav-link w-full p-3 rounded-xl flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:text-white transition-all"><i class="fas fa-list-ul"></i> <span class="hidden md:inline">Extrato</span></button>
+            <button onclick="changeTab('logs')" id="btn-logs" class="nav-link w-full p-3 rounded-xl flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:text-white transition-all"><i class="fas fa-list-ul"></i> <span class="hidden md:inline">Extrato Real</span></button>
         </nav>
-        <div class="p-4 border-t border-slate-800">
+        <div class="p-4 border-t border-slate-800 space-y-4">
+            <button onclick="toggleTheme()" class="w-full p-3 text-slate-400 hover:text-blue-400 flex items-center justify-center md:justify-start gap-3 transition">
+                <i id="theme-icon" class="fas fa-moon"></i> <span class="hidden md:inline" id="theme-text">Modo Escuro</span>
+            </button>
             <button onclick="handleLogout()" class="w-full p-3 text-slate-500 hover:text-red-400 flex items-center justify-center md:justify-start gap-3 transition"><i class="fas fa-power-off"></i> <span class="hidden md:inline">Sair</span></button>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col overflow-y-auto">
-        <header class="bg-white/80 backdrop-blur-md p-6 border-b sticky top-0 z-10 flex justify-between items-center">
-            <h2 id="page-title" class="text-lg font-black uppercase tracking-tight text-slate-700 italic">Visão Geral</h2>
-            <div id="userDisplay" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full">carregando...</div>
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-6 border-b dark:border-slate-800 sticky top-0 z-10 flex justify-between items-center">
+            <h2 id="page-title" class="text-lg font-black uppercase italic text-slate-700 dark:text-slate-200">Visão Geral</h2>
+            <div id="userDisplay" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">carregando...</div>
         </header>
 
         <div class="p-4 md:p-8 space-y-8">
@@ -46,122 +58,151 @@
             <div id="sec-dash" class="section-content active space-y-8">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                        <p class="text-slate-400 text-[10px] font-black uppercase mb-1">Saldo em Conta</p>
+                        <p class="text-slate-400 text-[10px] font-black uppercase mb-1">Saldo Atual</p>
                         <h3 id="resumo-saldo" class="text-2xl font-black">R$ 0,00</h3>
                     </div>
                     <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-l-blue-500">
                         <p class="text-blue-600 text-[10px] font-black uppercase mb-1">Projeção Fim do Mês</p>
-                        <h3 id="projecao-saldo" class="text-2xl font-black text-slate-800">R$ 0,00</h3>
+                        <h3 id="projecao-saldo" class="text-2xl font-black">R$ 0,00</h3>
                     </div>
                     <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-l-rose-500">
-                        <p class="text-rose-600 text-[10px] font-black uppercase mb-1">Total de Gastos Fixos</p>
-                        <h3 id="total-fixo-out" class="text-2xl font-black text-slate-800">R$ 0,00</h3>
+                        <p class="text-rose-600 text-[10px] font-black uppercase mb-1">Fixos do Mês</p>
+                        <h3 id="total-fixo-out" class="text-2xl font-black">R$ 0,00</h3>
                     </div>
                     <div class="bg-slate-900 p-6 rounded-3xl shadow-xl text-white">
                         <p class="text-blue-400 text-[10px] font-black uppercase mb-2">IA Insight 🤖</p>
-                        <p id="ia-insight" class="text-xs font-medium italic">Sincronizando com Telegram...</p>
+                        <p id="ia-insight" class="text-xs font-medium italic">Dados atualizados.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white p-8 rounded-3xl border shadow-sm">
+                    <div class="bg-white p-8 rounded-3xl border shadow-sm h-full">
                         <h4 class="font-black text-slate-800 mb-6 text-sm uppercase italic">Gastos por Categoria</h4>
                         <div class="h-64"><canvas id="chartPie"></canvas></div>
                     </div>
                     <div class="bg-white p-8 rounded-3xl border shadow-sm">
-                        <h4 class="font-black text-slate-800 mb-6 text-sm uppercase italic">Onde está seu dinheiro?</h4>
-                        <div id="abc-container" class="space-y-6"></div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
-                    <div class="p-6 border-b flex justify-between items-center">
-                        <h4 class="font-black text-slate-800 text-sm uppercase">Histórico Recente</h4>
-                        <button onclick="changeTab('logs')" class="text-blue-600 text-xs font-bold">Ver Completo</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <tbody id="quick-logs" class="text-sm divide-y"></tbody>
-                        </table>
+                        <h4 class="font-black text-slate-800 mb-6 text-sm uppercase italic">Últimos Lançamentos (Reais)</h4>
+                        <div class="overflow-hidden">
+                            <table class="w-full text-left text-sm">
+                                <tbody id="quick-logs" class="divide-y"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div id="sec-fixas" class="section-content space-y-8">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <h3 class="text-xl font-black italic">Calendário de Compromissos</h3>
+                    <h3 class="text-xl font-black italic">Gestão de Projeções Fixas</h3>
                     <div class="flex gap-2">
                         <button onclick="moveMonth(-1)" class="p-2 bg-white border rounded-xl hover:bg-slate-100 transition"><i class="fas fa-chevron-left"></i></button>
                         <span id="current-month-display" class="bg-white px-6 py-2 border rounded-xl font-black text-sm uppercase">Março 2026</span>
                         <button onclick="moveMonth(1)" class="p-2 bg-white border rounded-xl hover:bg-slate-100 transition"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <button onclick="toggleFixedForm()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg shadow-blue-200">+ Novo Compromisso</button>
+                    <button onclick="toggleFixedForm()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg shadow-blue-200">+ Nova Projeção</button>
                 </div>
 
-                <div class="bg-white p-2 rounded-3xl border shadow-sm">
-                    <div class="grid grid-cols-7 gap-1">
-                        <template id="cal-header">
-                            <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">DOM</div>
-                            <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">SEG</div>
-                            <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">TER</div>
-                            <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">QUA</div>
-                            <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">QUI</div>
-                            <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">SEX</div>
-                            <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">SÁB</div>
-                        </template>
+                <div class="bg-white p-2 rounded-3xl border shadow-sm overflow-x-auto">
+                    <div class="grid grid-cols-7 gap-1 min-w-[700px]">
+                        <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">DOM</div>
+                        <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">SEG</div>
+                        <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">TER</div>
+                        <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">QUA</div>
+                        <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">QUI</div>
+                        <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">SEX</div>
+                        <div class="p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">SÁB</div>
                         <div id="calendar-grid" class="contents"></div>
                     </div>
                 </div>
 
-                <div id="fixedForm" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
-                    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
-                        <h4 class="font-black mb-6">Novo Lançamento Fixo</h4>
-                        <div class="space-y-4">
-                            <input type="text" id="fix-desc" placeholder="Ex: Aluguel" class="w-full border p-3 rounded-xl text-sm">
-                            <input type="number" id="fix-amount" placeholder="Valor" class="w-full border p-3 rounded-xl font-bold">
-                            <div class="grid grid-cols-2 gap-4">
-                                <input type="number" id="fix-day" placeholder="Dia" class="border p-3 rounded-xl">
-                                <select id="fix-type" class="border p-3 rounded-xl font-bold">
-                                    <option value="FIXED_EXPENSE">Saída Fixa</option>
-                                    <option value="FIXED_INCOME">Entrada Fixa</option>
-                                </select>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="toggleFixedForm()" class="flex-1 bg-slate-100 py-3 rounded-xl font-bold">Cancelar</button>
-                                <button onclick="saveFixed()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold">Salvar</button>
-                            </div>
-                        </div>
+                <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+                    <div class="p-6 border-b bg-slate-50 dark:bg-slate-800/50">
+                        <h4 class="font-black text-slate-800 text-sm uppercase">Lista de Compromissos (Templates)</h4>
+                        <p class="text-[10px] text-slate-400 font-bold italic">Edite aqui para mudar as projeções do calendário.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 dark:bg-slate-800 text-[10px] font-black text-slate-400 uppercase">
+                                <tr>
+                                    <th class="p-6">Dia Venc.</th>
+                                    <th class="p-6">Compromisso</th>
+                                    <th class="p-6">Valor Projetado</th>
+                                    <th class="p-6 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fixed-list-logs" class="divide-y font-medium"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
             <div id="sec-logs" class="section-content">
                 <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
-                            <tr><th class="p-6">Data</th><th class="p-6">Descrição</th><th class="p-6">Categoria</th><th class="p-6">Valor</th><th class="p-6 text-center">Ações</th></tr>
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 dark:bg-slate-800 text-[10px] font-black text-slate-400 uppercase">
+                            <tr><th class="p-6">Data</th><th class="p-6">Descrição</th><th class="p-6">Categoria</th><th class="p-6">Valor</th><th class="p-6 text-center">Remover</th></tr>
                         </thead>
-                        <tbody id="full-logs" class="divide-y text-sm"></tbody>
+                        <tbody id="full-logs" class="divide-y"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </main>
 
+    <div id="fixedForm" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+            <h4 id="fixed-modal-title" class="font-black mb-6">Novo Lançamento Fixo</h4>
+            <div class="space-y-4">
+                <input type="hidden" id="edit-fixed-id">
+                <input type="text" id="fix-desc" placeholder="Ex: Salário, Aluguel" class="w-full border p-3 rounded-xl text-sm dark:bg-slate-800">
+                <input type="number" id="fix-amount" placeholder="Valor" class="w-full border p-3 rounded-xl font-bold dark:bg-slate-800">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="fix-day" placeholder="Dia" class="border p-3 rounded-xl dark:bg-slate-800">
+                    <select id="fix-type" class="border p-3 rounded-xl font-bold dark:bg-slate-800">
+                        <option value="FIXED_EXPENSE">Saída Fixa</option>
+                        <option value="FIXED_INCOME">Entrada Fixa</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="toggleFixedForm()" class="flex-1 bg-slate-100 py-3 rounded-xl font-bold dark:text-slate-900">Cancelar</button>
+                    <button onclick="saveFixed()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
         const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
         const supa = window.supabase.createClient(API_URL, API_KEY);
 
-        let pieChart;
-        let viewDate = new Date(); // Mês visualizado no calendário
+        let pieChart, viewDate = new Date();
+        let isDarkMode = localStorage.getItem('theme') === 'dark';
+
+        // --- GESTÃO DE TEMA ---
+        function applyTheme() {
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fas fa-sun text-yellow-400';
+                document.getElementById('theme-text').innerText = 'Modo Claro';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').className = 'fas fa-moon';
+                document.getElementById('theme-text').innerText = 'Modo Escuro';
+            }
+        }
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            applyTheme();
+        }
 
         function changeTab(id) {
             document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'bg-blue-600', 'text-white'));
             document.getElementById('sec-' + id).classList.add('active');
             document.getElementById('btn-' + id).classList.add('active', 'bg-blue-600', 'text-white');
-            document.getElementById('page-title').innerText = {dash: 'Visão Geral', fixas: 'Planejamento', logs: 'Extrato'}[id];
+            document.getElementById('page-title').innerText = {dash: 'Painel Geral', fixas: 'Planejamento Mensal', logs: 'Extrato de Lançamentos'}[id];
             if(id === 'fixas') renderCalendar();
         }
 
@@ -172,9 +213,8 @@
 
             const [tRes, fRes] = await Promise.all([
                 supa.from('transactions').select('*').eq('user_email', user.email.toLowerCase()).order('date', {ascending: false}),
-                supa.from('fixed_expenses').select('*').eq('user_email', user.email.toLowerCase())
+                supa.from('fixed_expenses').select('*').eq('user_email', user.email.toLowerCase()).order('due_day', {ascending: true})
             ]);
-
             renderDashboard(tRes.data || [], fRes.data || []);
         }
 
@@ -182,35 +222,48 @@
             let totalIn = 0, totalOut = 0, cats = {}, fIn = 0, fOut = 0;
             const quickLogs = document.getElementById('quick-logs');
             const fullLogs = document.getElementById('full-logs');
-            quickLogs.innerHTML = ""; fullLogs.innerHTML = "";
+            const fixedLogs = document.getElementById('fixed-list-logs');
+            quickLogs.innerHTML = ""; fullLogs.innerHTML = ""; fixedLogs.innerHTML = "";
 
+            // Lançamentos Reais
             trans.forEach((i, idx) => {
                 const val = parseFloat(i.amount); const isOut = i.type === 'EXPENSE';
                 if(isOut) { totalOut += val; cats[i.category] = (cats[i.category] || 0) + val; } else totalIn += val;
                 
                 const row = `
-                    <tr class="hover:bg-slate-50 transition">
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                         <td class="p-6 text-slate-400 font-bold">${new Date(i.date).toLocaleDateString()}</td>
-                        <td class="p-6 font-bold text-slate-800">${i.description}</td>
-                        <td class="p-6 uppercase text-[9px] font-black text-slate-500">${i.category}</td>
+                        <td class="p-6 font-bold text-slate-700 dark:text-slate-200">${i.description}</td>
+                        <td class="p-6 uppercase text-[9px] font-black bg-slate-100 dark:bg-slate-800 px-2 rounded w-fit">${i.category}</td>
                         <td class="p-6 font-black ${isOut ? 'text-rose-500' : 'text-emerald-500'}">R$ ${val.toFixed(2)}</td>
-                        <td class="p-6 text-center"><button onclick="deleteItem('${i.id}')" class="text-slate-200 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
+                        <td class="p-6 text-center"><button onclick="deleteItem('${i.id}')" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
                     </tr>`;
                 fullLogs.innerHTML += row;
                 if(idx < 5) quickLogs.innerHTML += row;
             });
 
-            fixos.forEach(f => { if(f.type === 'FIXED_EXPENSE') fOut += parseFloat(f.amount); else fIn += parseFloat(f.amount); });
-            
-            const saldoFinal = totalIn - totalOut;
-            const saldoEl = document.getElementById('resumo-saldo');
-            saldoEl.innerText = `R$ ${saldoFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            saldoEl.className = `text-2xl font-black ${saldoFinal < 0 ? 'text-rose-500' : 'text-emerald-500'}`;
-            
-            document.getElementById('total-fixo-out').innerText = `R$ ${fOut.toFixed(2)}`;
-            document.getElementById('projecao-saldo').innerText = `R$ ${(saldoFinal + fIn - fOut).toFixed(2)}`;
+            // Gastos Fixos (Tabela de Edição)
+            fixos.forEach(f => {
+                const v = parseFloat(f.amount); const isOut = f.type === 'FIXED_EXPENSE';
+                if(isOut) fOut += v; else fIn += v;
+                fixedLogs.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                        <td class="p-6 font-black text-blue-500">Todo dia ${f.due_day}</td>
+                        <td class="p-6 font-bold">${f.description}</td>
+                        <td class="p-6 font-black ${isOut ? 'text-rose-500' : 'text-emerald-500'}">R$ ${v.toFixed(2)}</td>
+                        <td class="p-6 text-center space-x-3">
+                            <button onclick="editFixed('${f.id}', '${f.description}', ${f.amount}, ${f.due_day}, '${f.type}')" class="text-blue-400"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteFixed('${f.id}')" class="text-red-300"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
 
-            // Chart
+            const saldo = totalIn - totalOut;
+            document.getElementById('resumo-saldo').innerText = `R$ ${saldo.toLocaleString('pt-BR')}`;
+            document.getElementById('resumo-saldo').className = `text-2xl font-black ${saldo < 0 ? 'text-rose-500' : 'text-emerald-500'}`;
+            document.getElementById('total-fixo-out').innerText = `R$ ${fOut.toFixed(2)}`;
+            document.getElementById('projecao-saldo').innerText = `R$ ${(saldo + fIn - fOut).toFixed(2)}`;
+
             if(pieChart) pieChart.destroy();
             pieChart = new Chart(document.getElementById('chartPie'), {
                 type: 'doughnut',
@@ -218,55 +271,56 @@
                 options: { maintainAspectRatio: false }
             });
 
-            // ABC
             document.getElementById('abc-container').innerHTML = Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,v]) => `
                 <div>
                     <div class="flex justify-between font-bold text-[10px] uppercase mb-1"><span>${n}</span><span>R$ ${v.toFixed(2)}</span></div>
-                    <div class="w-full bg-slate-100 rounded-full h-1.5"><div class="bg-blue-600 h-1.5 rounded-full" style="width: ${(v/totalOut*100).toFixed(0)}%"></div></div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5"><div class="bg-blue-600 h-1.5 rounded-full" style="width: ${(v/totalOut*100).toFixed(0)}%"></div></div>
                 </div>`).join('');
             
-            window.fixedData = fixos; // Cache para o calendário
+            window.fixedData = fixos;
         }
 
-        // --- LÓGICA DO CALENDÁRIO ---
-        async function renderCalendar() {
+        function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = document.getElementById('cal-header').innerHTML;
-            
-            const month = viewDate.getMonth();
-            const year = viewDate.getFullYear();
+            grid.innerHTML = "";
+            const month = viewDate.getMonth(); const year = viewDate.getFullYear();
             document.getElementById('current-month-display').innerText = `${viewDate.toLocaleDateString('pt-BR', {month:'long', year:'numeric'})}`;
+            const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            // Espaços vazios antes do dia 1
-            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="bg-slate-50/50 calendar-day border-r border-b"></div>`;
-
-            // Dias do Mês
+            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="bg-slate-50/50 dark:bg-slate-900/50 calendar-day border-r border-b dark:border-slate-800"></div>`;
             for(let d=1; d<=daysInMonth; d++) {
-                const isToday = new Date().toDateString() === new Date(year, month, d).toDateString();
-                const commitments = window.fixedData.filter(f => parseInt(f.due_day) === d);
-                
+                const comps = window.fixedData.filter(f => parseInt(f.due_day) === d);
                 grid.innerHTML += `
-                    <div class="p-2 calendar-day border-r border-b bg-white relative hover:bg-slate-50 transition ${isToday ? 'ring-2 ring-blue-500 ring-inset' : ''}">
-                        <span class="text-[10px] font-black text-slate-300">${d}</span>
-                        <div class="mt-1 space-y-1">
-                            ${commitments.map(c => `
-                                <div class="text-[8px] font-black p-1 rounded leading-none ${c.type === 'FIXED_EXPENSE' ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'}">
-                                    ${c.description}
-                                </div>
-                            `).join('')}
+                    <div class="p-2 calendar-day border-r border-b dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col">
+                        <span class="text-[10px] font-black text-slate-300 mb-1">${d}</span>
+                        <div class="space-y-1">
+                            ${comps.map(c => `<div class="text-[7px] font-black p-1 rounded leading-none ${c.type === 'FIXED_EXPENSE' ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'}">${c.description}</div>`).join('')}
                         </div>
                     </div>`;
             }
         }
 
-        function moveMonth(dir) { viewDate.setMonth(viewDate.getMonth() + dir); renderCalendar(); }
-        function toggleFixedForm() { document.getElementById('fixedForm').classList.toggle('hidden'); document.getElementById('fixedForm').classList.toggle('flex'); }
+        function toggleFixedForm() {
+            document.getElementById('edit-fixed-id').value = "";
+            document.getElementById('fixed-modal-title').innerText = "Novo Lançamento Fixo";
+            document.getElementById('fixedForm').classList.toggle('hidden');
+            document.getElementById('fixedForm').classList.toggle('flex');
+        }
+
+        function editFixed(id, desc, amount, day, type) {
+            document.getElementById('edit-fixed-id').value = id;
+            document.getElementById('fix-desc').value = desc;
+            document.getElementById('fix-amount').value = amount;
+            document.getElementById('fix-day').value = day;
+            document.getElementById('fix-type').value = type;
+            document.getElementById('fixed-modal-title').innerText = "Editar Projeção";
+            document.getElementById('fixedForm').classList.remove('hidden');
+            document.getElementById('fixedForm').classList.add('flex');
+        }
 
         async function saveFixed() {
             const { data: { user } } = await supa.auth.getUser();
+            const id = document.getElementById('edit-fixed-id').value;
             const payload = {
                 description: document.getElementById('fix-desc').value,
                 amount: document.getElementById('fix-amount').value,
@@ -274,13 +328,17 @@
                 type: document.getElementById('fix-type').value,
                 user_email: user.email.toLowerCase()
             };
-            await supa.from('fixed_expenses').insert([payload]);
+            if(id) await supa.from('fixed_expenses').update(payload).eq('id', id);
+            else await supa.from('fixed_expenses').insert([payload]);
             toggleFixedForm(); fetchData(); renderCalendar();
         }
 
-        async function deleteItem(id) { if(confirm("Apagar?")) { await supa.from('transactions').delete().eq('id', id); fetchData(); } }
+        async function deleteFixed(id) { if(confirm("Apagar projeção?")) { await supa.from('fixed_expenses').delete().eq('id', id); fetchData(); } }
+        async function deleteItem(id) { if(confirm("Apagar lançamento real?")) { await supa.from('transactions').delete().eq('id', id); fetchData(); } }
+        function moveMonth(dir) { viewDate.setMonth(viewDate.getMonth() + dir); renderCalendar(); }
         async function handleLogout() { await supa.auth.signOut(); window.location.href = "nickel-login.html"; }
-        window.onload = fetchData;
+
+        window.onload = () => { applyTheme(); fetchData(); };
     </script>
 </body>
 </html>
