@@ -9,210 +9,249 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .sidebar-link.active { @apply bg-blue-600 text-white; }
-        .section { display: none; }
-        .section.active { display: block; }
+        .section-content { display: none; }
+        .section-content.active { display: block; }
+        .nav-link.active { @apply bg-blue-600 text-white shadow-md; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans flex h-screen overflow-hidden">
 
-    <aside class="w-64 bg-gray-900 text-white flex flex-col hidden md:flex shrink-0">
-        <div class="p-6 text-2xl font-bold border-b border-gray-800 text-blue-400">🤖 Nickel IA</div>
+    <aside class="w-64 bg-slate-900 text-white flex flex-col shrink-0">
+        <div class="p-6 text-2xl font-bold border-b border-slate-800 text-blue-400 flex items-center gap-2">
+            <span>🤖 Nickel IA</span>
+        </div>
         <nav class="flex-1 p-4 space-y-2">
-            <button onclick="showSection('dash')" id="nav-dash" class="sidebar-link active w-full text-left p-3 rounded-lg transition"><i class="fas fa-home mr-2"></i> Dashboard</button>
-            <button onclick="showSection('logs')" id="nav-logs" class="sidebar-link w-full text-left p-3 rounded-lg text-gray-400 hover:text-white transition"><i class="fas fa-list mr-2"></i> Lançamentos</button>
-            <button onclick="showSection('fixas')" id="nav-fixas" class="sidebar-link w-full text-left p-3 rounded-lg text-gray-400 hover:text-white transition"><i class="fas fa-calendar-check mr-2"></i> Despesas Fixas</button>
-            <button onclick="showSection('charts')" id="nav-charts" class="sidebar-link w-full text-left p-3 rounded-lg text-gray-400 hover:text-white transition"><i class="fas fa-chart-pie mr-2"></i> Gráficos</button>
+            <button onclick="changeTab('dash')" id="btn-dash" class="nav-link active w-full text-left p-3 rounded-xl flex items-center gap-3 transition">
+                <i class="fas fa-th-large w-5"></i> Dashboard
+            </button>
+            <button onclick="changeTab('logs')" id="btn-logs" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition">
+                <i class="fas fa-exchange-alt w-5"></i> Lançamentos
+            </button>
+            <button onclick="changeTab('fixas')" id="btn-fixas" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition">
+                <i class="fas fa-thumbtack w-5"></i> Despesas Fixas
+            </button>
+            <button onclick="changeTab('charts')" id="btn-charts" class="nav-link w-full text-left p-3 rounded-xl flex items-center gap-3 text-slate-400 hover:text-white transition">
+                <i class="fas fa-chart-line w-5"></i> Gráficos
+            </button>
         </nav>
-        <div class="p-4 border-t border-gray-800">
-            <button onclick="logout()" class="w-full text-left p-3 text-gray-400 hover:text-red-400 transition"><i class="fas fa-sign-out-alt mr-2"></i> Sair</button>
+        <div class="p-4 border-t border-slate-800">
+            <button onclick="handleLogout()" class="w-full text-left p-3 text-slate-400 hover:text-red-400 flex items-center gap-3 transition">
+                <i class="fas fa-sign-out-alt w-5"></i> Sair
+            </button>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col overflow-y-auto">
-        
-        <header class="bg-white border-b p-4 flex justify-between items-center shadow-sm sticky top-0 z-10">
-            <h2 id="section-title" class="text-xl font-semibold text-gray-800">Dashboard</h2>
+        <header class="bg-white border-b p-4 flex justify-between items-center sticky top-0 z-10">
+            <h2 id="page-title" class="text-xl font-bold text-slate-800">Dashboard</h2>
             <div class="flex items-center gap-4">
-                <div class="flex items-center bg-gray-50 border rounded-lg px-2">
-                    <i class="fas fa-calendar text-gray-400 mr-2"></i>
-                    <input type="month" id="filtroMes" onchange="atualizarDados()" class="bg-transparent p-2 text-sm outline-none">
-                </div>
-                <span id="userEmail" class="text-gray-500 text-sm font-medium border-l pl-4">Carregando...</span>
+                <input type="month" id="globalFilter" class="border rounded-lg p-2 text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="h-8 w-[1px] bg-slate-200"></div>
+                <span id="userDisplay" class="text-slate-500 text-sm font-medium">Carregando...</span>
             </div>
         </header>
 
-        <div class="p-6">
-            
-            <section id="sec-dash" class="section active space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <p class="text-gray-500 text-sm">Saldo Projetado</p>
-                        <h3 class="text-2xl font-bold text-gray-900">R$ 4.250,00</h3>
+        <div class="p-8">
+            <div id="sec-dash" class="section-content active animate-in fade-in duration-500">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Saldo Atual</p>
+                        <h3 id="resumo-saldo" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
-                        <p class="text-gray-500 text-sm">Entradas</p>
-                        <h3 class="text-2xl font-bold text-green-600">R$ 6.000,00</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-l-green-500">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 text-green-600">Entradas</p>
+                        <h3 id="resumo-entradas" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-red-500">
-                        <p class="text-gray-500 text-sm">Saídas</p>
-                        <h3 class="text-2xl font-bold text-red-600">R$ 1.750,00</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-l-red-500">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 text-red-600">Saídas</p>
+                        <h3 id="resumo-saidas" class="text-2xl font-black text-slate-900">R$ 0,00</h3>
                     </div>
-                    <div class="bg-blue-600 p-6 rounded-xl shadow-sm text-white relative overflow-hidden">
-                        <i class="fas fa-robot absolute right-[-10px] bottom-[-10px] text-6xl opacity-20"></i>
-                        <p class="text-blue-100 text-sm font-bold">Dica da IA</p>
-                        <p class="text-xs">Economize R$ 200 em 'Lazer' para bater sua meta!</p>
+                    <div class="bg-blue-600 p-6 rounded-2xl shadow-lg text-white">
+                        <p class="text-blue-100 text-xs font-bold uppercase mb-2">Insight da IA 🤖</p>
+                        <p class="text-sm font-medium leading-relaxed">Seu gasto com alimentação subiu 12%. Atenção!</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border">
-                        <h4 class="font-bold mb-4">Gasto por Categoria (Mês)</h4>
-                        <div class="h-64"><canvas id="miniChart"></canvas></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <h4 class="font-bold text-slate-800 mb-6">Gastos por Categoria</h4>
+                        <div class="h-64"><canvas id="chartPie"></canvas></div>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border">
-                        <h4 class="font-bold mb-4">Análise ABC (Maiores Gastos)</h4>
-                        <div id="abc-list" class="space-y-4 text-sm">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <h4 class="font-bold text-slate-800 mb-6">Curva ABC (Top 5 Gastos)</h4>
+                        <div id="abc-container" class="space-y-6">
                             </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <section id="sec-logs" class="section space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                    <div class="p-4 border-b flex justify-between items-center bg-gray-50">
-                        <h4 class="font-bold">Histórico de Transações</h4>
-                        <input type="text" placeholder="Buscar lançamento..." class="border rounded-lg px-3 py-1 text-sm">
+            <div id="sec-logs" class="section-content">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h4 class="font-bold text-slate-800">Logs de Transações</h4>
+                        <button onclick="fetchData()" class="text-blue-600 text-sm font-bold hover:bg-blue-50 px-3 py-1 rounded-lg">
+                            <i class="fas fa-sync-alt mr-1"></i> Atualizar
+                        </button>
                     </div>
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50 text-gray-400 text-xs uppercase">
-                            <tr>
-                                <th class="p-4">Data</th>
-                                <th class="p-4">Descrição</th>
-                                <th class="p-4">Categoria</th>
-                                <th class="p-4">Valor</th>
-                                <th class="p-4 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logs-table-body" class="text-sm divide-y">
-                            </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold">
+                                <tr>
+                                    <th class="p-4">Data</th>
+                                    <th class="p-4">Descrição</th>
+                                    <th class="p-4">Categoria</th>
+                                    <th class="p-4">Valor</th>
+                                    <th class="p-4 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="text-sm divide-y divide-slate-100">
+                                </tbody>
+                        </table>
+                    </div>
                 </div>
-            </section>
+            </div>
 
-            <section id="sec-fixas" class="section space-y-6">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-bold">Compromissos Mensais</h3>
-                    <button onclick="alert('Funcionalidade em breve!')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold">+ Nova Despesa Fixa</button>
+            <div id="sec-fixas" class="section-content">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-2xl font-bold">Despesas Fixas</h3>
+                    <button class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow-blue-200 shadow-lg">+ Novo Cadastro</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-4 rounded-xl border-t-4 border-blue-500 shadow-sm">
-                        <h5 class="font-bold">Aluguel</h5>
-                        <p class="text-gray-500 text-xs">Todo dia 05</p>
-                        <p class="text-xl font-bold mt-2 text-red-500">R$ 1.200,00</p>
+                    <div class="bg-white p-6 rounded-2xl border-t-4 border-t-blue-500 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-blue-50 rounded-lg text-blue-600"><i class="fas fa-home"></i></div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Todo dia 05</span>
+                        </div>
+                        <h5 class="font-bold text-slate-800">Aluguel</h5>
+                        <p class="text-2xl font-black text-slate-900 mt-2">R$ 1.200,00</p>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <section id="sec-charts" class="section space-y-6">
-                <div class="bg-white p-6 rounded-xl border shadow-sm h-[400px]">
-                    <h4 class="font-bold mb-6">Evolução de Gastos vs Receitas</h4>
-                    <canvas id="bigChart"></canvas>
+            <div id="sec-charts" class="section-content">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                    <h4 class="font-bold text-slate-800 mb-8">Evolução de Gastos vs Receitas</h4>
+                    <div class="h-[400px]"><canvas id="chartLine"></canvas></div>
                 </div>
-            </section>
-
+            </div>
         </div>
     </main>
 
     <script>
-        // Configurações Supabase
-        const S_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
-        const supabase = window.supabase.createClient(S_URL, S_KEY);
+        // CONFIGURAÇÕES SUPABASE
+        const SUPA_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
+        const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
+        const supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
-        // NAVEGAÇÃO SPA
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active', 'bg-blue-600', 'text-white'));
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.add('text-gray-400'));
+        let pieChart, lineChart;
 
+        // TROCA DE ABAS (CORRIGIDO)
+        function changeTab(id) {
+            console.log("Mudando para:", id);
+            // Esconde todas as seções
+            document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+            // Desativa todos os botões
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.remove('active', 'bg-blue-600', 'text-white');
+                l.classList.add('text-slate-400');
+            });
+
+            // Ativa a seção e o botão correto
             document.getElementById('sec-' + id).classList.add('active');
-            const navBtn = document.getElementById('nav-' + id);
-            navBtn.classList.add('active', 'bg-blue-600', 'text-white');
-            navBtn.classList.remove('text-gray-400');
+            const activeBtn = document.getElementById('btn-' + id);
+            activeBtn.classList.add('active', 'bg-blue-600', 'text-white');
+            activeBtn.classList.remove('text-slate-400');
 
-            const titles = { dash: 'Dashboard', logs: 'Lançamentos', fixas: 'Despesas Fixas', charts: 'Análise de Gráficos' };
-            document.getElementById('section-title').innerText = titles[id];
+            const titles = { dash: 'Dashboard', logs: 'Lançamentos', fixas: 'Despesas Fixas', charts: 'Gráficos Detalhados' };
+            document.getElementById('page-title').innerText = titles[id];
         }
 
-        // VERIFICAÇÃO DE USUÁRIO
-        async function checkUser() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) window.location.href = "nickel-login.html";
-            else document.getElementById('userEmail').innerText = user.email;
+        // BUSCA DADOS REAIS
+        async function fetchData() {
+            const { data: { user } } = await supa.auth.getUser();
+            if (!user) return window.location.href = "nickel-login.html";
+            document.getElementById('userDisplay').innerText = user.email;
+
+            const { data, error } = await supa
+                .from('transactions') // Nome da sua tabela no Supabase
+                .select('*')
+                .order('date', { ascending: false });
+
+            if (error) {
+                console.error("Erro Supabase:", error);
+                return;
+            }
+
+            renderDashboard(data);
         }
 
-        async function logout() {
-            await supabase.auth.signOut();
+        function renderDashboard(data) {
+            const tableBody = document.getElementById('table-body');
+            let totalEntradas = 0;
+            let totalSaidas = 0;
+            let categorias = {};
+
+            tableBody.innerHTML = data.map(item => {
+                const valor = parseFloat(item.amount);
+                const isExpense = item.type === 'EXPENSE';
+                
+                if (isExpense) totalSaidas += valor;
+                else totalEntradas += valor;
+
+                if (isExpense) {
+                    categorias[item.category] = (categorias[item.category] || 0) + valor;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4 font-medium text-slate-500">${new Date(item.date).toLocaleDateString()}</td>
+                        <td class="p-4 font-bold text-slate-800">${item.description}</td>
+                        <td class="p-4"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-[10px] font-bold">${item.category}</span></td>
+                        <td class="p-4 font-black ${isExpense ? 'text-red-500' : 'text-green-500'}">
+                            ${isExpense ? '-' : '+'} R$ ${valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+                        </td>
+                        <td class="p-4 text-center space-x-2">
+                            <button class="text-slate-300 hover:text-blue-500"><i class="fas fa-pen text-xs"></i></button>
+                            <button class="text-slate-300 hover:text-red-500"><i class="fas fa-trash text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('resumo-entradas').innerText = `R$ ${totalEntradas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('resumo-saidas').innerText = `R$ ${totalSaidas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('resumo-saldo').innerText = `R$ ${(totalEntradas - totalSaidas).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+            updateCharts(categorias);
+        }
+
+        function updateCharts(catData) {
+            const labels = Object.keys(catData);
+            const values = Object.values(catData);
+
+            if (pieChart) pieChart.destroy();
+            const ctx = document.getElementById('chartPie').getContext('2d');
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: values, backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 6, font: { size: 11, weight: 'bold' } } } } }
+            });
+        }
+
+        async function handleLogout() {
+            await supa.auth.signOut();
             window.location.href = "nickel-login.html";
         }
 
-        // SIMULAÇÃO DE DADOS (Pois ainda não puxamos do banco)
-        function carregarLogsFake() {
-            const body = document.getElementById('logs-table-body');
-            const dados = [
-                { data: '28/02/2026', desc: 'Gasolina Shell', cat: 'Transporte', valor: -150.00 },
-                { data: '27/02/2026', desc: 'Salário Empresa X', cat: 'Renda', valor: 6000.00 },
-                { data: '25/02/2026', desc: 'Mercado Central', cat: 'Alimentação', valor: -320.50 }
-            ];
-            body.innerHTML = dados.map(i => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-4">${i.data}</td>
-                    <td class="p-4 font-medium">${i.desc}</td>
-                    <td class="p-4"><span class="bg-gray-100 px-2 py-1 rounded text-xs">${i.cat}</span></td>
-                    <td class="p-4 font-bold ${i.valor > 0 ? 'text-green-600' : 'text-red-600'}">R$ ${Math.abs(i.valor).toFixed(2)}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="alert('Editar: ${i.desc}')" class="text-blue-500 hover:text-blue-700 mx-2"><i class="fas fa-edit"></i></button>
-                        <button onclick="confirm('Excluir este lançamento?') && alert('Excluído!')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // INICIALIZAÇÃO DOS GRÁFICOS
-        function initCharts() {
-            new Chart(document.getElementById('miniChart'), {
-                type: 'doughnut',
-                data: { labels: ['Alim.', 'Transp.', 'Lazer'], datasets: [{ data: [40, 30, 30], backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b'] }] },
-                options: { maintainAspectRatio: false }
-            });
-
-            new Chart(document.getElementById('bigChart'), {
-                type: 'line',
-                data: { 
-                    labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'], 
-                    datasets: [
-                        { label: 'Entradas', data: [0, 6000, 6000, 6000], borderColor: '#10b981', fill: false },
-                        { label: 'Saídas', data: [200, 800, 1200, 1750], borderColor: '#ef4444', fill: false }
-                    ] 
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
+        // INICIALIZAÇÃO
         window.onload = () => {
-            checkUser();
-            carregarLogsFake();
-            initCharts();
-            // Define mês atual no filtro
+            fetchData();
             const d = new Date();
-            document.getElementById('filtroMes').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('globalFilter').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         };
-
-        function atualizarDados() {
-            alert("Filtrando dados para o período: " + document.getElementById('filtroMes').value);
-            // Aqui faremos a query no Supabase no próximo passo
-        }
     </script>
 </body>
 </html>
