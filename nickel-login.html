@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Nickel IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-50 flex items-center justify-center h-screen font-sans antialiased">
@@ -31,10 +30,10 @@
             <div id="mensagem-sucesso" class="text-green-500 text-sm hidden font-medium text-center"></div>
 
             <div class="flex gap-4 pt-2">
-                <button type="button" onclick="fazerLogin()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
+                <button type="button" id="btnEntrar" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
                     Entrar
                 </button>
-                <button type="button" onclick="criarConta()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-gray-900 transition">
+                <button type="button" id="btnCriar" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-gray-900 transition">
                     Criar Conta
                 </button>
             </div>
@@ -46,55 +45,48 @@
     </div>
 
     <script>
-        // Suas chaves configuradas corretamente
-        const supabaseUrl = 'https://eadrnruhmcnzleukmlvj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
+        // Configuração única e direta
+        const S_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
+        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
         
-        // Inicialização única
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const supabase = window.supabase.createClient(S_URL, S_KEY);
 
         const emailInput = document.getElementById('email');
         const senhaInput = document.getElementById('senha');
         const msgErro = document.getElementById('mensagem-erro');
         const msgSucesso = document.getElementById('mensagem-sucesso');
 
-        function mostrarMensagem(elemento, texto) {
+        function exibirMsg(elemento, texto) {
             msgErro.classList.add('hidden');
             msgSucesso.classList.add('hidden');
             elemento.innerText = texto;
             elemento.classList.remove('hidden');
         }
 
-        async function criarConta() {
+        // Função Criar Conta
+        document.getElementById('btnCriar').addEventListener('click', async () => {
             const email = emailInput.value;
             const password = senhaInput.value;
-            
-            if(!email || !password) return mostrarMensagem(msgErro, "Preencha e-mail e senha!");
+            if(!email || !password) return exibirMsg(msgErro, "Preencha os campos!");
 
-            const { data, error } = await supabase.auth.signUp({ email, password });
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) exibirMsg(msgErro, error.message);
+            else exibirMsg(msgSucesso, "Conta criada! Verifique seu e-mail.");
+        });
 
-            if (error) {
-                mostrarMensagem(msgErro, error.message);
-            } else {
-                mostrarMensagem(msgSucesso, "Conta criada! Verifique seu e-mail.");
-            }
-        }
-
-        async function fazerLogin() {
+        // Função Login
+        document.getElementById('btnEntrar').addEventListener('click', async () => {
             const email = emailInput.value;
             const password = senhaInput.value;
+            if(!email || !password) return exibirMsg(msgErro, "Preencha os campos!");
 
-            if(!email || !password) return mostrarMensagem(msgErro, "Preencha e-mail e senha!");
-
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                mostrarMensagem(msgErro, "Login falhou! Verifique suas credenciais.");
-            } else {
-                mostrarMensagem(msgSucesso, "Login com sucesso! Redirecionando...");
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) exibirMsg(msgErro, "Erro no login. Verifique os dados.");
+            else {
+                exibirMsg(msgSucesso, "Sucesso! Redirecionando...");
                 setTimeout(() => { window.location.href = "nickel-dashboard.html"; }, 1500);
             }
-        }
+        });
     </script>
 </body>
 </html>
