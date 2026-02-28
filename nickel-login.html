@@ -46,10 +46,12 @@
     </div>
 
     <script>
-        // ⚠️ ATENÇÃO: COLOQUE SUAS CHAVES DO SUPABASE AQUI ⚠️
+        // Chaves configuradas conforme solicitado
         const supabaseUrl = 'https://eadrnruhmcnzleukmlvj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
-        const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+        
+        // Inicialização usando window.supabase para garantir funcionamento no navegador
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const emailInput = document.getElementById('email');
         const senhaInput = document.getElementById('senha');
@@ -63,7 +65,6 @@
             elemento.classList.remove('hidden');
         }
 
-        // Função para CRIAR CONTA (Sign Up)
         async function criarConta() {
             const email = emailInput.value;
             const password = senhaInput.value;
@@ -75,11 +76,10 @@
             if (error) {
                 mostrarMensagem(msgErro, error.message);
             } else {
-                mostrarMensagem(msgSucesso, "Conta criada! Verifique seu e-mail para confirmar (se ativado), ou faça login.");
+                mostrarMensagem(msgSucesso, "Conta criada! Verifique seu e-mail ou faça login.");
             }
         }
 
-        // Função para ENTRAR (Sign In)
         async function fazerLogin() {
             const email = emailInput.value;
             const password = senhaInput.value;
@@ -92,8 +92,8 @@
                 mostrarMensagem(msgErro, "Login falhou! Verifique suas credenciais.");
             } else {
                 mostrarMensagem(msgSucesso, "Login com sucesso! Redirecionando...");
-                // Aqui nós vamos redirecionar ele para o Dashboard na Fase 3!
-                setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
+                // Redirecionamento para a próxima etapa (Dashboard)
+                setTimeout(() => { window.location.href = "nickel-dashboard.html"; }, 1500);
             }
         }
     </script>
