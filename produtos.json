@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP040326175613",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "269.99",
-    "priceTo": "269.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "PRETA",
-    "tamanho": "ÚNICO"
-  },
-  {
     "id": "GRP040326152823",
     "name": "BRINCO MULTICOLOR 63514001",
     "priceFrom": "149.00",
@@ -137,6 +127,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "BRANCA",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326175613",
+    "name": "BOLSA GRANDE PETITE JOLIE",
+    "priceFrom": "269.99",
+    "priceTo": "269.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETA",
     "tamanho": "ÚNICO"
   },
   {
