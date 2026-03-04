@@ -1,5 +1,15 @@
 [
   {
+    "id": "GRP040326175555",
+    "name": "BOLSA GRANDE",
+    "priceFrom": "206.00",
+    "priceTo": "206.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "VERDE",
+    "tamanho": "ÚNICO"
+  },
+  {
     "id": "GRP040326152823",
     "name": "BRINCO MULTICOLOR 63514001",
     "priceFrom": "149.00",
@@ -108,16 +118,6 @@
     "category": "foto",
     "cor": "DOURADO",
     "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326175555",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
   },
   {
     "id": "GRP040326175453",
