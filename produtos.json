@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP040326142822",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326142838",
     "name": "",
     "priceFrom": "",
@@ -38,5 +28,15 @@
     "category": "foto",
     "cor": "DOURADO",
     "tamanho": "18"
+  },
+  {
+    "id": "GRP040326142822",
+    "name": "ANEL SEMI JOIA PEDRA ROSA TAMANHO 23 69977398",
+    "priceFrom": "139.00",
+    "priceTo": "139.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "DOURADO",
+    "tamanho": "23"
   }
 ]
