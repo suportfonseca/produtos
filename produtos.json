@@ -1,22 +1,32 @@
 [
   {
-    "id": "GRP040326125343",
-    "name": "PILHA DE ROUPA",
-    "priceFrom": "97.00",
-    "priceTo": "49.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "video",
-    "cor": "PRETA,CINZA",
-    "tamanho": "G,GG,P,PP"
-  },
-  {
-    "id": "GRP040326125250",
-    "name": "PILHA DE ROUPA FOTO",
-    "priceFrom": "197.00",
-    "priceTo": "50.00",
+    "id": "GRP180226191649",
+    "name": "BUDA DOURADO SORTE EM 10 ANOS",
+    "priceFrom": "97.29",
+    "priceTo": "49.70",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "PRETO",
-    "tamanho": "G"
+    "cor": "DOURADO",
+    "tamanho": "33,44,21,43,56"
+  },
+  {
+    "id": "GRP180226191606",
+    "name": "CORRENTE DOURADA MASCULINA",
+    "priceFrom": "1997.00",
+    "priceTo": "1897.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "OURO",
+    "tamanho": "38CM"
+  },
+  {
+    "id": "GRP180226191516",
+    "name": "TECLADO GAMER HUSKY 1",
+    "priceFrom": "197.90",
+    "priceTo": "129.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "BRANCO RGB",
+    "tamanho": "30 CM"
   }
 ]
