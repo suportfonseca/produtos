@@ -40,16 +40,6 @@
     "tamanho": ""
   },
   {
-    "id": "GRP040326152719",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326152732",
     "name": "",
     "priceFrom": "",
@@ -102,6 +92,16 @@
   {
     "id": "GRP040326152652",
     "name": "BRINCO CORAÇÃO 99192754",
+    "priceFrom": "49.00",
+    "priceTo": "49.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "DOURADO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326152719",
+    "name": "BRINCO ESTRELA 99192754",
     "priceFrom": "49.00",
     "priceTo": "49.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
