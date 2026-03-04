@@ -160,16 +160,6 @@
     "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP040326175946",
-    "name": "MALETA PORTA JOIA/MAQUIAGEM",
-    "priceFrom": "239.00",
-    "priceTo": "239.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "ROSA",
-    "tamanho": "ÚNICO"
-  },
-  {
     "id": "GRP040326175831",
     "name": "GARRAFA TÉRMICA PETITE JOLIE",
     "priceFrom": "89.99",
@@ -187,6 +177,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "PRETA",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326175946",
+    "name": "MALETA PORTA JOIA/MAQUIAGEM",
+    "priceFrom": "239.00",
+    "priceTo": "239.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "ROSA",
     "tamanho": "ÚNICO"
   }
 ]
