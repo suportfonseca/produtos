@@ -160,16 +160,6 @@
     "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP040326175831",
-    "name": "GARRAFA TÉRMICA PETITE JOLIE",
-    "priceFrom": "89.99",
-    "priceTo": "89.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "VERDE LIMA, ESTAMPA FLORAL, ONÇA, LISTRAS, PRETA",
-    "tamanho": "500ML"
-  },
-  {
     "id": "GRP040326180021",
     "name": "MALETA MAQUIAGEM",
     "priceFrom": "239.00",
@@ -188,5 +178,15 @@
     "category": "foto",
     "cor": "ROSA",
     "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326175831",
+    "name": "GARRAFA TÉRMICA PETITE JOLIE",
+    "priceFrom": "89.99",
+    "priceTo": "89.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "VERDE LIMA, ESTAMPA FLORAL, ONÇA, LISTRAS, PRETA",
+    "tamanho": "500ML"
   }
 ]
