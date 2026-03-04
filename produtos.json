@@ -30,16 +30,6 @@
     "tamanho": "16"
   },
   {
-    "id": "GRP040326152624",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326152640",
     "name": "",
     "priceFrom": "",
@@ -108,5 +98,15 @@
     "category": "foto",
     "cor": "DOURADO",
     "tamanho": "15"
+  },
+  {
+    "id": "GRP040326152624",
+    "name": "BRINCO CORAÇÃO 32327250",
+    "priceFrom": "69.00",
+    "priceTo": "69.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "DOURADO",
+    "tamanho": "ÚNICO"
   }
 ]
