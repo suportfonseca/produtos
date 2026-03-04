@@ -68,5 +68,15 @@
     "category": "foto",
     "cor": "PRETO",
     "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326194439",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
   }
 ]
