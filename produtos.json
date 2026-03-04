@@ -1,52 +1,32 @@
 [
   {
-    "id": "GRP260226122755",
-    "name": "XICARA MGWARE PATRICK",
-    "priceFrom": "19.00",
-    "priceTo": "198.00",
+    "id": "GRP180226191649",
+    "name": "BUDA DOURADO SORTE EM 10 ANOS",
+    "priceFrom": "97.29",
+    "priceTo": "49.70",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "BRANCO",
-    "tamanho": "G"
+    "cor": "DOURADO",
+    "tamanho": "33,44,21,43,56"
   },
   {
-    "id": "GRP260226123110",
-    "name": "VARIEDADES",
-    "priceFrom": "197.00",
-    "priceTo": "12.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP260226122943",
-    "name": "POLEGAR",
+    "id": "GRP180226191606",
+    "name": "CORRENTE DOURADA MASCULINA",
     "priceFrom": "1997.00",
-    "priceTo": "1.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "video",
-    "cor": "BRANCO",
-    "tamanho": "G"
-  },
-  {
-    "id": "GRP260226122842",
-    "name": "XICARA PATRICK",
-    "priceFrom": "198.00",
-    "priceTo": "10.00",
+    "priceTo": "1897.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "PRETO",
-    "tamanho": "M"
+    "cor": "OURO",
+    "tamanho": "38CM"
   },
   {
-    "id": "GRP260226123050",
-    "name": "GATINHO",
-    "priceFrom": "999999.00",
-    "priceTo": "1.00",
+    "id": "GRP180226191516",
+    "name": "TECLADO GAMER HUSKY 1",
+    "priceFrom": "197.90",
+    "priceTo": "129.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "AMARELA",
-    "tamanho": "PP"
+    "cor": "BRANCO RGB",
+    "tamanho": "30 CM"
   }
 ]
