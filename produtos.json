@@ -10,6 +10,16 @@
     "tamanho": "ÚNICO"
   },
   {
+    "id": "GRP040326152823",
+    "name": "BRINCO MULTICOLOR 63514001",
+    "priceFrom": "149.00",
+    "priceTo": "149.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "DOURADO",
+    "tamanho": "ÚNICO"
+  },
+  {
     "id": "GRP040326132734",
     "name": "ANEL SEMI JOIA ELOS TAMANHO 18 38982415",
     "priceFrom": "89.00",
@@ -41,16 +51,6 @@
   },
   {
     "id": "GRP040326152704",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP040326152823",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
