@@ -120,16 +120,6 @@
     "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP040326175453",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326175555",
     "name": "",
     "priceFrom": "",
@@ -158,6 +148,16 @@
     "category": "foto",
     "cor": "",
     "tamanho": ""
+  },
+  {
+    "id": "GRP040326175453",
+    "name": "BOLSA BRANCA PETITE JOLIE J-LASTIC",
+    "priceFrom": "199.99",
+    "priceTo": "199.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "BRANCA",
+    "tamanho": "ÚNICO"
   },
   {
     "id": "GRP040326175831",
