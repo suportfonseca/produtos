@@ -181,12 +181,12 @@
   },
   {
     "id": "GRP040326180021",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "MALETA MAQUIAGEM",
+    "priceFrom": "239.00",
+    "priceTo": "239.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "PRETA",
+    "tamanho": "ÚNICO"
   }
 ]
