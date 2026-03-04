@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP040326193738",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326193805",
     "name": "",
     "priceFrom": "",
@@ -57,6 +47,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "CHOCOLATE, DOCE DE LEITE",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326193738",
+    "name": "BOLSA GRANDE PETITE JOLIE",
+    "priceFrom": "269.99",
+    "priceTo": "269.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETO",
     "tamanho": "ÚNICO"
   },
   {
