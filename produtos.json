@@ -1,202 +1,72 @@
 [
   {
-    "id": "GRP040326175613",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "269.99",
-    "priceTo": "269.99",
+    "id": "GRP040326193615",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "PRETA",
-    "tamanho": "ÚNICO"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP040326175555",
-    "name": "BOLSA GRANDE",
-    "priceFrom": "206.00",
-    "priceTo": "206.00",
+    "id": "GRP040326193633",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "VERDE",
-    "tamanho": "ÚNICO"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP040326152823",
-    "name": "BRINCO MULTICOLOR 63514001",
-    "priceFrom": "149.00",
-    "priceTo": "149.00",
+    "id": "GRP040326193719",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "ÚNICO"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP040326132734",
-    "name": "ANEL SEMI JOIA ELOS TAMANHO 18 38982415",
-    "priceFrom": "89.00",
-    "priceTo": "89.00",
+    "id": "GRP040326193738",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "18"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP040326142822",
-    "name": "ANEL SEMI JOIA PEDRA ROSA TAMANHO 23 69977398",
-    "priceFrom": "139.00",
-    "priceTo": "139.00",
+    "id": "GRP040326193805",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "23"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP040326142838",
-    "name": "ANEL SEMI JOIA PEROLA TAMANHO 16 46841438",
-    "priceFrom": "119.00",
-    "priceTo": "119.00",
+    "id": "GRP040326193851",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "16"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP040326152732",
-    "name": "BRINCO PEDRA BRANCA 23919556",
-    "priceFrom": "79.00",
-    "priceTo": "79.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326143035",
-    "name": "ANEL SEMI JOIA PEDRA BRANCA TAMANHO 15 46841438",
-    "priceFrom": "119.00",
-    "priceTo": "119.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "15"
-  },
-  {
-    "id": "GRP040326152624",
-    "name": "BRINCO CORAÇÃO 32327250",
-    "priceFrom": "69.00",
-    "priceTo": "69.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326152640",
-    "name": "BRINCO PÉTALA 39046932",
-    "priceFrom": "99.00",
-    "priceTo": "99.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326152652",
-    "name": "BRINCO CORAÇÃO 99192754",
-    "priceFrom": "49.00",
-    "priceTo": "49.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326152719",
-    "name": "BRINCO ESTRELA 99192754",
-    "priceFrom": "49.00",
-    "priceTo": "49.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326152704",
-    "name": "BRINCO TOP  11551645",
-    "priceFrom": "59.00",
-    "priceTo": "59.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "DOURADO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326175453",
-    "name": "BOLSA BRANCA PETITE JOLIE J-LASTIC",
-    "priceFrom": "199.99",
-    "priceTo": "199.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "BRANCA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326175656",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "229.99",
-    "priceTo": "229.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "PRETA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326175751",
-    "name": "BOLSA PEQUENA PETITE JOLIE",
-    "priceFrom": "179.99",
-    "priceTo": "179.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "CHOCOLATE, DOCE DE LEITE",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326180021",
+    "id": "GRP040326193538",
     "name": "MALETA MAQUIAGEM",
     "priceFrom": "239.00",
     "priceTo": "239.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "PRETA",
+    "cor": "PRETO",
     "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326175946",
-    "name": "MALETA PORTA JOIA/MAQUIAGEM",
-    "priceFrom": "239.00",
-    "priceTo": "239.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "ROSA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326175831",
-    "name": "GARRAFA TÉRMICA PETITE JOLIE",
-    "priceFrom": "89.99",
-    "priceTo": "89.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "VERDE LIMA, ESTAMPA FLORAL, ONÇA, LISTRAS, PRETA",
-    "tamanho": "500ML"
-  },
-  {
-    "id": "GRP040326192001",
-    "name": "CHINELO CORRENTE PETITE JOLIE",
-    "priceFrom": "169.99",
-    "priceTo": "169.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "PRETO, BRANCO",
-    "tamanho": "33/34, 35/36, 37/38"
   }
 ]
