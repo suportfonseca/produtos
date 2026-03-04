@@ -30,16 +30,6 @@
     "tamanho": "16"
   },
   {
-    "id": "GRP040326152640",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326152652",
     "name": "",
     "priceFrom": "",
@@ -104,6 +94,16 @@
     "name": "BRINCO CORAÇÃO 32327250",
     "priceFrom": "69.00",
     "priceTo": "69.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "DOURADO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326152640",
+    "name": "BRINCO PÉTALA 39046932",
+    "priceFrom": "99.00",
+    "priceTo": "99.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "DOURADO",
