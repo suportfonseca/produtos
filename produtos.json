@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP040326193851",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326193538",
     "name": "MALETA MAQUIAGEM",
     "priceFrom": "239.00",
@@ -67,6 +57,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "BRANCA",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326193851",
+    "name": "BOLSA SINTÉTICO GRANDE",
+    "priceFrom": "206.00",
+    "priceTo": "206.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "VERDE",
     "tamanho": "ÚNICO"
   },
   {
