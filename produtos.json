@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP040326193615",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326193633",
     "name": "",
     "priceFrom": "",
@@ -67,6 +57,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "PRETO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326193615",
+    "name": "MALETA PORTA JOIA/MAQUIAGEM",
+    "priceFrom": "239.00",
+    "priceTo": "239.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "ROSA",
     "tamanho": "ÚNICO"
   }
 ]
