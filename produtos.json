@@ -130,16 +130,6 @@
     "tamanho": ""
   },
   {
-    "id": "GRP040326175751",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326175453",
     "name": "BOLSA BRANCA PETITE JOLIE J-LASTIC",
     "priceFrom": "199.99",
@@ -157,6 +147,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "PRETA",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326175751",
+    "name": "BOLSA PEQUENA PETITE JOLIE",
+    "priceFrom": "179.99",
+    "priceTo": "179.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "CHOCOLATE, DOCE DE LEITE",
     "tamanho": "ÚNICO"
   },
   {
