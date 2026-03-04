@@ -50,16 +50,6 @@
     "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP040326152704",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326143035",
     "name": "ANEL SEMI JOIA PEDRA BRANCA TAMANHO 15 46841438",
     "priceFrom": "119.00",
@@ -104,6 +94,16 @@
     "name": "BRINCO ESTRELA 99192754",
     "priceFrom": "49.00",
     "priceTo": "49.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "DOURADO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326152704",
+    "name": "BRINCO TOP  11551645",
+    "priceFrom": "59.00",
+    "priceTo": "59.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "DOURADO",
