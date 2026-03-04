@@ -78,5 +78,15 @@
     "category": "foto",
     "cor": "CHOCOLATE",
     "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326195242",
+    "name": "BOLSA GRANDE PETITE JOLIE",
+    "priceFrom": "229.99",
+    "priceTo": "229.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "CREME",
+    "tamanho": "ÚNICO"
   }
 ]
