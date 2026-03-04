@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP040326132734",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326142822",
     "name": "",
     "priceFrom": "",
@@ -38,5 +28,15 @@
     "category": "foto",
     "cor": "DOURADO",
     "tamanho": "15"
+  },
+  {
+    "id": "GRP040326132734",
+    "name": "ANEL SEMI JOIA ELOS TAMANHO 18 38982415",
+    "priceFrom": "89.00",
+    "priceTo": "89.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "DOURADO",
+    "tamanho": "18"
   }
 ]
