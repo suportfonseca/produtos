@@ -220,16 +220,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP050326200636",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326195529",
     "name": "BOLSA MÉDIA PETITE JOLIE",
     "priceFrom": "249.99",
@@ -247,6 +237,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"BEGE\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP050326200636",
+    "name": "MOCHILA PETITE JOLIE",
+    "priceFrom": "269.99",
+    "priceTo": "269.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"PRETO\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
