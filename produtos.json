@@ -1,36 +1,16 @@
 [
   {
-    "id": "GRP240226185629",
-    "name": "PAREDE DE TESTE",
-    "priceFrom": "1999.00",
-    "priceTo": "999.00",
+    "id": "GRP240226195600",
+    "name": "BACO",
+    "priceFrom": "197.00",
+    "priceTo": "97.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"P,M,G,1,2,3\"},{\"cor\":\"PRETA\",\"tamanhos\":\"1,2,3\"}]",
+    "cor": "[{\"cor\":\"CARAMELO\",\"tamanhos\":\"G\"},{\"cor\":\"PRETO\",\"tamanhos\":\"P\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP240226185356",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP240226185452",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "video",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP240226185537",
+    "id": "GRP240226195447",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
