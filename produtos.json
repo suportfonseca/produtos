@@ -26,7 +26,7 @@
     "priceTo": "129.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "BRANCO RGB",
-    "tamanho": "30 CM"
+    "cor": "[{\"cor\":\"BRANCO RGB\",\"tamanhos\":\"30 CM\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   }
 ]
