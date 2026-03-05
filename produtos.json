@@ -1,92 +1,42 @@
 [
   {
-    "id": "GRP040326193538",
-    "name": "MALETA MAQUIAGEM",
-    "priceFrom": "239.00",
-    "priceTo": "239.00",
+    "id": "GRP240226185629",
+    "name": "PAREDE DE TESTE",
+    "priceFrom": "1999.00",
+    "priceTo": "999.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "PRETO",
-    "tamanho": "ÚNICO"
+    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"P,M,G,1,2,3\"},{\"cor\":\"PRETA\",\"tamanhos\":\"1,2,3\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP040326193615",
-    "name": "MALETA PORTA JOIA/MAQUIAGEM",
-    "priceFrom": "239.00",
-    "priceTo": "239.00",
+    "id": "GRP240226185356",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "ROSA",
-    "tamanho": "ÚNICO"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP040326193633",
-    "name": "BOLSA PEQUENA PETITE JOLIE",
-    "priceFrom": "179.99",
-    "priceTo": "179.99",
+    "id": "GRP240226185452",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "CHOCOLATE, DOCE DE LEITE",
-    "tamanho": "ÚNICO"
+    "category": "video",
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP040326193738",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "269.99",
-    "priceTo": "269.99",
+    "id": "GRP240226185537",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "PRETO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193719",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "229.99",
-    "priceTo": "229.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "PRETO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193805",
-    "name": "BOLSA BRANCA PETITE JOLIE",
-    "priceFrom": "199.99",
-    "priceTo": "199.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "BRANCA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193851",
-    "name": "BOLSA SINTÉTICO GRANDE",
-    "priceFrom": "206.00",
-    "priceTo": "206.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "VERDE",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326194439",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "229.99",
-    "priceTo": "229.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "CHOCOLATE",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326195242",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "229.99",
-    "priceTo": "229.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "CREME",
-    "tamanho": "ÚNICO"
+    "cor": "",
+    "tamanho": ""
   }
 ]
