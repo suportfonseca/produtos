@@ -599,6 +599,17 @@
                 else if (p.url_publica) { midias = [{ url: p.url_publica, ativo: true }]; } 
                 else { midias = [{ url: 'https://placehold.co/400/171717/525252?text=Sem+Foto', ativo: true }]; }
 
+                // ==========================================
+                // MÁGICA DA LIMPEZA DE URL: Conserta as imagens quebradas no painel
+                // ==========================================
+                midias = midias.map(m => {
+                    let urlLimpa = m.url;
+                    if(urlLimpa && typeof urlLimpa === 'string' && urlLimpa.includes('download/storage/v1/b/')) {
+                        urlLimpa = urlLimpa.split('?')[0].replace('download/storage/v1/b/catalogo-online/o/', 'catalogo-online/');
+                    }
+                    return { ...m, url: urlLimpa };
+                });
+
                 const primeiraImg = midias.find(m => m.ativo)?.url || midias[0].url;
                 
                 let miniaturasHTML = '<div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2">';
