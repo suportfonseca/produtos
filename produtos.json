@@ -140,16 +140,6 @@
     "tamanho": ""
   },
   {
-    "id": "GRP050326182251",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP050326182302",
     "name": "",
     "priceFrom": "",
@@ -227,6 +217,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "CARAMELO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182251",
+    "name": "BOLSA MÉDIA",
+    "priceFrom": "106.00",
+    "priceTo": "106.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETO",
     "tamanho": "ÚNICO"
   }
 ]
