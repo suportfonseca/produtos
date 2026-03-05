@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* MÁGICA 1: Variáveis nativas de cor (Seguro e não quebra o Tailwind) */
+        /* MÁGICA 1: Variáveis nativas de cor */
         :root {
             --brand-primary: #2563eb; 
             --brand-dark: #1e3a8a;    
@@ -65,11 +65,9 @@
     <div id="mainApp" class="hidden flex-1 pb-32">
         <header class="glass sticky top-0 z-40 p-4">
             <div class="max-w-6xl mx-auto flex justify-between items-center mb-4">
-                <div id="brandLogoContainer" class="flex items-center gap-3 text-brand-600">
-                    <i class="fas fa-paperclip text-xl"></i>
-                    <span class="font-black uppercase tracking-tighter text-lg text-center">Catálogo Digital</span>
-                </div>
-                <button onclick="logout()" class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase"><i class="fas fa-sign-out-alt mr-1"></i> Sair</button>
+                <div id="brandLogoContainer" class="flex items-center text-brand-600 empty:hidden">
+                    </div>
+                <button onclick="logout()" class="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase ml-auto"><i class="fas fa-sign-out-alt mr-1"></i> Sair</button>
             </div>
             <div class="max-w-6xl mx-auto">
                 <div class="bg-gradient-to-br from-brand-600 to-brand-900 rounded-[2rem] p-8 text-white shadow-heavy relative overflow-hidden text-center uppercase">
@@ -134,9 +132,12 @@
                             <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-3">Cor</p>
                             <div id="modalColorContainer" class="flex flex-wrap gap-2"></div>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl shadow-inner border border-slate-100">
+                        <div class="bg-slate-50 p-4 rounded-2xl shadow-inner border border-slate-100 relative">
                             <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-3">Tamanho</p>
                             <div id="modalSizeContainer" class="flex flex-wrap gap-2"></div>
+                            <div id="sizeBlockMask" class="absolute inset-0 bg-slate-50/80 backdrop-blur-[1px] rounded-2xl flex items-center justify-center hidden z-10">
+                                <span class="text-[10px] font-bold text-brand-600 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-100">Escolha a cor primeiro</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -174,6 +175,8 @@
         let teamList = [];
         let selectedColor = null;
         let selectedSize = null;
+        let isSmartGrade = false; // Flag para saber qual lógica usar no modal
+        let currentSmartData = [];
 
         const vCode = urlParams.get('v');
         if (vCode) localStorage.setItem('saved_vendedor_code', vCode);
@@ -198,17 +201,21 @@
                         const first = rawList[0].json || rawList[0];
                         if (first.nome_campanha) document.getElementById('campaignTitleDisplay').innerText = first.nome_campanha.toUpperCase();
                         
-                        // Captura Telefone e Nome
                         const telDonoLoja = first.telefone_loja || first.telefone_usuario || first.whatsapp_loja;
                         if (telDonoLoja) CONFIG.whatsappNumber = String(telDonoLoja).replace(/\D/g, '');
                         if (first.nome_loja) CONFIG.storeName = first.nome_loja; 
 
-                        // 1. Aplica a Logo visualmente se ela existir
+                        // LOGO: Só aparece se for válido e existir
+                        const logoContainer = document.getElementById('brandLogoContainer');
                         if (first.logo_url && first.logo_url !== 'null' && first.logo_url.trim() !== '') {
-                            document.getElementById('brandLogoContainer').innerHTML = `<img src="${first.logo_url}" class="h-10 md:h-12 max-w-[150px] object-contain" alt="Logo da Loja">`;
+                            const img = new Image();
+                            img.onload = () => { logoContainer.innerHTML = `<img src="${first.logo_url}" class="h-10 md:h-12 max-w-[150px] object-contain" alt="Logo">`; };
+                            img.onerror = () => { logoContainer.innerHTML = ''; };
+                            img.src = first.logo_url;
+                        } else {
+                            logoContainer.innerHTML = '';
                         }
 
-                        // 2. Injeta a cor no CSS
                         if (first.cor_tema && first.cor_tema !== 'null' && first.cor_tema.trim() !== '') {
                             document.documentElement.style.setProperty('--brand-primary', first.cor_tema);
                             document.documentElement.style.setProperty('--brand-dark', first.cor_tema); 
@@ -219,7 +226,6 @@
                     products = rawList.map((item, i) => {
                         const p = item.json || item;
                         
-                        // MÁGICA DA LIMPEZA DE URL: Não toca no banco, só conserta a imagem na tela
                         let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo && m.url && m.url !== 'null').map(m => {
                             let urlLimpa = m.url;
                             if(urlLimpa.includes('download/storage/v1/b/')) {
@@ -280,8 +286,22 @@
                 const pDe = parseFloat(p.priceFrom), pPor = parseFloat(p.priceTo);
                 const descP = pDe && pDe > pPor ? Math.round(((pDe - pPor) / pDe) * 100) : 0;
                 
-                let displayCor = p.cor.includes(',') ? 'Várias Cores' : p.cor;
-                let displayTam = p.tamanho.includes(',') ? 'Vários Tamanhos' : p.tamanho;
+                // Lógica visual da miniatura para saber se é grade inteligente
+                let displayCor = "Várias Cores";
+                let displayTam = "Vários Tamanhos";
+
+                if (p.cor && p.cor.startsWith('[')) {
+                    // É JSON Inteligente
+                    try {
+                        const parsed = JSON.parse(p.cor);
+                        if(parsed.length === 1 && !parsed[0].cor.includes(',')) displayCor = parsed[0].cor;
+                        if(parsed.length === 1 && !parsed[0].tamanhos.includes(',')) displayTam = parsed[0].tamanhos;
+                    } catch(e){}
+                } else {
+                    // É o texto antigo normal
+                    if (!p.cor.includes(',')) displayCor = p.cor;
+                    if (!p.tamanho.includes(',')) displayTam = p.tamanho;
+                }
 
                 const card = document.createElement('div');
                 card.className = 'product-card bg-white rounded-[2rem] p-4 shadow-soft border border-slate-100 flex flex-col h-full cursor-pointer relative overflow-hidden group';
@@ -297,6 +317,13 @@
             const p = products.find(x => x.id == id);
             if(!p) return;
 
+            // Se for grade inteligente com várias opções, força abrir o modal
+            if (p.cor.startsWith('[')) {
+                openProductModal(p);
+                return;
+            }
+
+            // Se for antigo e tiver virgulas, abre o modal
             if (p.cor.includes(',') || p.tamanho.includes(',')) {
                 openProductModal(p);
                 return;
@@ -396,6 +423,9 @@
         if(sessionStorage.getItem('logged_phone')) initApp();
         function logout() { sessionStorage.removeItem('logged_phone'); location.reload(); }
 
+        // ==========================================
+        // LÓGICA DO MODAL (GRADE INTELIGENTE X GRADE ANTIGA)
+        // ==========================================
         function openProductModal(p) {
             currentProduct = p; currentMediaIdx = 0; tempQty = 1;
             selectedColor = null; selectedSize = null;
@@ -409,8 +439,37 @@
             
             document.getElementById('tempQtyDisplay').innerText = "1";
             
-            renderVariants('modalColorContainer', p.cor, 'color');
-            renderVariants('modalSizeContainer', p.tamanho, 'size');
+            const sizeMask = document.getElementById('sizeBlockMask');
+
+            // Verifica se é o formato novo (JSON) ou o antigo (Texto com vírgula)
+            if (p.cor && p.cor.startsWith('[')) {
+                isSmartGrade = true;
+                try {
+                    currentSmartData = JSON.parse(p.cor);
+                } catch(e) { currentSmartData = []; }
+                
+                // Extrai apenas as cores para o primeiro bloco
+                const colorOptions = currentSmartData.map(g => g.cor).join(',');
+                renderVariants('modalColorContainer', colorOptions, 'color');
+                
+                // Limpa o container de tamanho e ativa a máscara de bloqueio
+                document.getElementById('modalSizeContainer').innerHTML = '<span class="text-slate-300 font-bold text-xs italic">Aguardando cor...</span>';
+                
+                // Se só tiver UMA cor, já seleciona ela automaticamente e libera os tamanhos
+                if(currentSmartData.length === 1) {
+                    sizeMask.classList.add('hidden');
+                    selectVariant('color', currentSmartData[0].cor, document.querySelector('.variant-btn-color') || document.getElementById('modalColorContainer').firstElementChild);
+                } else {
+                    sizeMask.classList.remove('hidden');
+                }
+
+            } else {
+                // É o formato antigo. Desenha tudo de uma vez sem bloqueios.
+                isSmartGrade = false;
+                sizeMask.classList.add('hidden');
+                renderVariants('modalColorContainer', p.cor, 'color');
+                renderVariants('modalSizeContainer', p.tamanho, 'size');
+            }
             
             renderModalMedia(); 
             document.getElementById('productModal').classList.remove('hidden');
@@ -430,7 +489,8 @@
             const options = dataStr.split(',').map(s => s.trim()).filter(s => s);
             
             if (options.length === 1) {
-                container.innerHTML = `<span class="font-black text-slate-800 text-sm bg-white px-3 py-1.5 rounded-lg border border-slate-200 inline-block">${options[0]}</span>`;
+                // Se só tem 1 opção, desenha como um selo fixo e já marca como selecionado.
+                container.innerHTML = `<span class="variant-fixed-${type} font-black text-slate-800 text-sm bg-white px-3 py-1.5 rounded-lg border border-brand-500 inline-block shadow-sm">${options[0]}</span>`;
                 if(type === 'color') selectedColor = options[0];
                 if(type === 'size') selectedSize = options[0];
             } else {
@@ -445,16 +505,39 @@
         }
 
         function selectVariant(type, val, btnElement) {
+            // Remove a seleção visual dos botões
             const btns = document.querySelectorAll(`.variant-btn-${type}`);
             btns.forEach(b => {
                 b.classList.remove('border-brand-600', 'bg-brand-100', 'text-brand-700');
                 b.classList.add('border-slate-200', 'bg-white', 'text-slate-500');
             });
-            btnElement.classList.remove('border-slate-200', 'bg-white', 'text-slate-500');
-            btnElement.classList.add('border-brand-600', 'bg-brand-100', 'text-brand-700');
             
-            if(type === 'color') selectedColor = val;
-            if(type === 'size') selectedSize = val;
+            // Adiciona a seleção visual no botão clicado (se ele for um botão interativo)
+            if (btnElement && btnElement.tagName === 'BUTTON') {
+                btnElement.classList.remove('border-slate-200', 'bg-white', 'text-slate-500');
+                btnElement.classList.add('border-brand-600', 'bg-brand-100', 'text-brand-700');
+            }
+            
+            if(type === 'color') {
+                selectedColor = val;
+                
+                // ==========================================
+                // LÓGICA INTELIGENTE: Se clicou na cor, desenha os tamanhos certos
+                // ==========================================
+                if(isSmartGrade) {
+                    const gradeEscolhida = currentSmartData.find(g => g.cor === val);
+                    if(gradeEscolhida) {
+                        document.getElementById('sizeBlockMask').classList.add('hidden');
+                        selectedSize = null; // Reseta o tamanho
+                        renderVariants('modalSizeContainer', gradeEscolhida.tamanhos, 'size');
+                    }
+                }
+            }
+            
+            if(type === 'size') {
+                selectedSize = val;
+            }
+
             document.getElementById('variantError').classList.add('hidden');
         }
 
@@ -474,20 +557,20 @@
             
             let whatsappTarget = selectedPhone === 'loja' ? CONFIG.whatsappNumber : selectedPhone;
 
-            let msg = `🛒 *PEDIDO - ${CONFIG.storeName.toUpperCase()}*\n📱 *Cliente:* ${userPhone}\n`;
+            let msg = `*PEDIDO - ${CONFIG.storeName.toUpperCase()}*\n*Cliente:* ${userPhone}\n`;
             
             if(selectedPhone !== 'loja') {
                 const vendedorNome = selectTarget.options[selectTarget.selectedIndex].text;
-                msg += `👤 *Atendimento:* ${vendedorNome}\n`;
+                msg += `*Atendimento:* ${vendedorNome}\n`;
             }
             msg += `\n`;
 
             Object.entries(cart).forEach(([cartKey, qty]) => {
                 const [id, c, s] = cartKey.split('|');
                 const p = products.find(x => x.id == id);
-                if (p) msg += `▫️ *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
+                if (p) msg += `- *${qty}x ${p.name}* (${c}|${s}) - R$ ${(parseFloat(p.priceTo)*qty).toFixed(2)}\n`;
             });
-            msg += `\n💰 *TOTAL: ${document.getElementById('summaryTotal').innerText}*`;
+            msg += `\n*TOTAL: ${document.getElementById('summaryTotal').innerText}*`;
             
             window.open(`https://wa.me/${whatsappTarget}?text=${encodeURIComponent(msg)}`, '_blank');
         }
