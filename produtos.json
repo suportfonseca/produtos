@@ -370,16 +370,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP050326220321",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP050326220344",
     "name": "BOLSA PRAIA",
     "priceFrom": "69.00",
@@ -397,6 +387,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"PALHA\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP050326220321",
+    "name": "BOLSA SACO PRAIA",
+    "priceFrom": "72.00",
+    "priceTo": "72.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
