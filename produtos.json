@@ -1,12 +1,22 @@
 [
   {
-    "id": "GRP050326194042",
-    "name": "teste foto",
-    "priceFrom": "123.00",
-    "priceTo": "123.00",
+    "id": "GRP240226195600",
+    "name": "BACO",
+    "priceFrom": "197.00",
+    "priceTo": "97.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"teste\",\"tamanhos\":\"1\"},{\"cor\":\"teste2\",\"tamanhos\":\"2,3\"}]",
+    "cor": "[{\"cor\":\"CARAMELO\",\"tamanhos\":\"G\"},{\"cor\":\"PRETO\",\"tamanhos\":\"P\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP240226195447",
+    "name": "MAEZINHA",
+    "priceFrom": "9999999.00",
+    "priceTo": "1.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"187\"},{\"cor\":\"PRETA\",\"tamanhos\":\"GG\"},{\"cor\":\"AMARELA\",\"tamanhos\":\"190\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
