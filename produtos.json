@@ -230,16 +230,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP050326210411",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP050326210424",
     "name": "BOLSA PETITE JOLIE",
     "priceFrom": "249.99",
@@ -247,6 +237,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"OFF WHITE\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP050326210411",
+    "name": "BOLSA SINTÉTICO",
+    "priceFrom": "212.00",
+    "priceTo": "212.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"CARAMELO\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
