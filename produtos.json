@@ -1,32 +1,252 @@
 [
   {
-    "id": "GRP180226191649",
-    "name": "BUDA DOURADO SORTE EM 10 ANOS",
-    "priceFrom": "97.29",
-    "priceTo": "49.70",
+    "id": "GRP040326193538",
+    "name": "MALETA MAQUIAGEM",
+    "priceFrom": "239.00",
+    "priceTo": "239.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"DOURADO\",\"tamanhos\":\"33,44,21,43,56\"},{\"cor\":\"PRETO\",\"tamanhos\":\"1,2,3,4,5\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
+    "cor": "PRETO",
+    "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP180226191606",
-    "name": "CORRENTE DOURADA MASCULINA",
-    "priceFrom": "1997.00",
-    "priceTo": "1897.00",
+    "id": "GRP040326193615",
+    "name": "MALETA PORTA JOIA/MAQUIAGEM",
+    "priceFrom": "239.00",
+    "priceTo": "239.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"OURO\",\"tamanhos\":\"38CM\"},{\"cor\":\"PRATA\",\"tamanhos\":\"1CM,2CM\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
+    "cor": "ROSA",
+    "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP180226191516",
-    "name": "TECLADO GAMER HUSKY 1",
-    "priceFrom": "197.90",
-    "priceTo": "129.90",
+    "id": "GRP040326193633",
+    "name": "BOLSA PEQUENA PETITE JOLIE",
+    "priceFrom": "179.99",
+    "priceTo": "179.99",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"BRANCO RGB\",\"tamanhos\":\"30 CM\"}]",
+    "cor": "CHOCOLATE, DOCE DE LEITE",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326193738",
+    "name": "BOLSA GRANDE PETITE JOLIE",
+    "priceFrom": "269.99",
+    "priceTo": "269.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326193719",
+    "name": "BOLSA GRANDE PETITE JOLIE",
+    "priceFrom": "229.99",
+    "priceTo": "229.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326193805",
+    "name": "BOLSA BRANCA PETITE JOLIE",
+    "priceFrom": "199.99",
+    "priceTo": "199.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "BRANCA",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326193851",
+    "name": "BOLSA SINTÉTICO GRANDE",
+    "priceFrom": "206.00",
+    "priceTo": "206.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "VERDE",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326194439",
+    "name": "BOLSA GRANDE PETITE JOLIE",
+    "priceFrom": "229.99",
+    "priceTo": "229.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "CHOCOLATE",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326195242",
+    "name": "BOLSA GRANDE PETITE JOLIE",
+    "priceFrom": "229.99",
+    "priceTo": "229.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "CREME",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326195550",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP040326195615",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP040326195634",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP040326195646",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP040326195358",
+    "name": "BOLSA MÉDIA",
+    "priceFrom": "198.00",
+    "priceTo": "118.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "ROSA",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326195515",
+    "name": "BOLSA MÉDIA",
+    "priceFrom": "188.00",
+    "priceTo": "118.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "BRANCA",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182139",
+    "name": "BOLSA PEQUENA TIRA COLO",
+    "priceFrom": "176.00",
+    "priceTo": "176.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "AZUL",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182153",
+    "name": "BOLSA PEQUENA",
+    "priceFrom": "64.00",
+    "priceTo": "64.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETA",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182204",
+    "name": "BOLSA PEQUENA TIRA COLO",
+    "priceFrom": "64.00",
+    "priceTo": "64.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "CARAMELO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182225",
+    "name": "BOLSA PEQUENA TIRA COLO",
+    "priceFrom": "159.00",
+    "priceTo": "159.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "BEGE",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182240",
+    "name": "BOLSA MÉDIA",
+    "priceFrom": "106.00",
+    "priceTo": "106.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "CARAMELO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182251",
+    "name": "BOLSA MÉDIA",
+    "priceFrom": "106.00",
+    "priceTo": "106.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182302",
+    "name": "BOLSA PEQUENA TIRA COLO",
+    "priceFrom": "122.00",
+    "priceTo": "122.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "CARAMELO",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326200636",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326200656",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP040326195529",
+    "name": "BOLSA MÉDIA PETITE JOLIE",
+    "priceFrom": "249.99",
+    "priceTo": "249.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"BEGE\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
