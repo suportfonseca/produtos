@@ -203,10 +203,6 @@
                         if (telDonoLoja) CONFIG.whatsappNumber = String(telDonoLoja).replace(/\D/g, '');
                         if (first.nome_loja) CONFIG.storeName = first.nome_loja; 
 
-                        // ==========================================
-                        // AQUI ESTÁ A MÁGICA QUE EU TINHA ESQUECIDO
-                        // ==========================================
-                        
                         // 1. Aplica a Logo visualmente se ela existir
                         if (first.logo_url && first.logo_url !== 'null' && first.logo_url.trim() !== '') {
                             document.getElementById('brandLogoContainer').innerHTML = `<img src="${first.logo_url}" class="h-10 md:h-12 max-w-[150px] object-contain" alt="Logo da Loja">`;
@@ -216,14 +212,29 @@
                         if (first.cor_tema && first.cor_tema !== 'null' && first.cor_tema.trim() !== '') {
                             document.documentElement.style.setProperty('--brand-primary', first.cor_tema);
                             document.documentElement.style.setProperty('--brand-dark', first.cor_tema); 
-                            document.documentElement.style.setProperty('--brand-light', first.cor_tema + '15'); // 15 = opacidade para fundo claro
+                            document.documentElement.style.setProperty('--brand-light', first.cor_tema + '15');
                         }
                     }
 
                     products = rawList.map((item, i) => {
                         const p = item.json || item;
-                        let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo && m.url && m.url !== 'null').map(m => m.url) : (p.imagens || []);
-                        if(midias.length === 0 && p.url_publica && p.url_publica !== 'null') midias.push(p.url_publica);
+                        
+                        // MÁGICA DA LIMPEZA DE URL: Não toca no banco, só conserta a imagem na tela
+                        let midias = p.midias_detalhadas ? p.midias_detalhadas.filter(m => m.ativo && m.url && m.url !== 'null').map(m => {
+                            let urlLimpa = m.url;
+                            if(urlLimpa.includes('download/storage/v1/b/')) {
+                                urlLimpa = urlLimpa.split('?')[0].replace('download/storage/v1/b/catalogo-online/o/', 'catalogo-online/');
+                            }
+                            return urlLimpa;
+                        }) : (p.imagens || []);
+
+                        if(midias.length === 0 && p.url_publica && p.url_publica !== 'null') {
+                            let pubUrl = p.url_publica;
+                            if(pubUrl.includes('download/storage/v1/b/')) {
+                                pubUrl = pubUrl.split('?')[0].replace('download/storage/v1/b/catalogo-online/o/', 'catalogo-online/');
+                            }
+                            midias.push(pubUrl);
+                        }
                         
                         return { id: p.id_grupo || p.id || i, name: p.nome_produto, desc: p.descricao, priceFrom: p.preco_de, priceTo: p.preco_por || "0.00", cor: p.cor || "-", tamanho: p.tamanho || "-", images: midias, active: p.ativo !== false };
                     }).filter(p => p.active);
