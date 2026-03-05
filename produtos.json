@@ -250,6 +250,16 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
+    "id": "GRP050326213924",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
     "id": "GRP050326200656",
     "name": "MOCHILA PETITE JOLIE",
     "priceFrom": "269.99",
@@ -267,6 +277,96 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"PRETO\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP050326213937",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326213947",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326213959",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326214009",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326214020",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326214033",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326214044",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326214057",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP050326214109",
+    "name": "BOLSA MÉDIA",
+    "priceFrom": "188.00",
+    "priceTo": "118.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
