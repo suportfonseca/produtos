@@ -270,16 +270,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP050326214109",
-    "name": "BOLSA MÉDIA",
-    "priceFrom": "188.00",
-    "priceTo": "118.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"ÚNICO\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
     "id": "GRP050326214057",
     "name": "BOLSA GRANDE",
     "priceFrom": "206.00",
@@ -367,6 +357,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"CHOCOLATE\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP050326214109",
+    "name": "BOLSA MÉDIA",
+    "priceFrom": "188.00",
+    "priceTo": "118.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
