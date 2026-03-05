@@ -16,8 +16,8 @@
     "priceTo": "1897.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "OURO",
-    "tamanho": "38CM"
+    "cor": "[{\"cor\":\"OURO\",\"tamanhos\":\"38CM\"},{\"cor\":\"PRATA\",\"tamanhos\":\"1CM,2CM\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP180226191516",
