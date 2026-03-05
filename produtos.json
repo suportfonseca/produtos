@@ -70,16 +70,6 @@
     "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP050326182153",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP050326182204",
     "name": "",
     "priceFrom": "",
@@ -227,6 +217,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "AZUL",
+    "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP050326182153",
+    "name": "BOLSA PEQUENA",
+    "priceFrom": "64.00",
+    "priceTo": "64.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "PRETA",
     "tamanho": "ÚNICO"
   }
 ]
