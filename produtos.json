@@ -1,96 +1,6 @@
 [
   {
-    "id": "GRP040326193538",
-    "name": "MALETA MAQUIAGEM",
-    "priceFrom": "239.00",
-    "priceTo": "239.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "PRETO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193615",
-    "name": "MALETA PORTA JOIA/MAQUIAGEM",
-    "priceFrom": "239.00",
-    "priceTo": "239.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "ROSA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193633",
-    "name": "BOLSA PEQUENA PETITE JOLIE",
-    "priceFrom": "179.99",
-    "priceTo": "179.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "CHOCOLATE, DOCE DE LEITE",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193738",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "269.99",
-    "priceTo": "269.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "PRETO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193719",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "229.99",
-    "priceTo": "229.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "PRETO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193805",
-    "name": "BOLSA BRANCA PETITE JOLIE",
-    "priceFrom": "199.99",
-    "priceTo": "199.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "BRANCA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326193851",
-    "name": "BOLSA SINTÉTICO GRANDE",
-    "priceFrom": "206.00",
-    "priceTo": "206.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "VERDE",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326194439",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "229.99",
-    "priceTo": "229.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "CHOCOLATE",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326195242",
-    "name": "BOLSA GRANDE PETITE JOLIE",
-    "priceFrom": "229.99",
-    "priceTo": "229.99",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "CREME",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326195529",
+    "id": "GRP240226185356",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -100,7 +10,17 @@
     "tamanho": ""
   },
   {
-    "id": "GRP040326195550",
+    "id": "GRP240226185452",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "video",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP240226185537",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -110,123 +30,13 @@
     "tamanho": ""
   },
   {
-    "id": "GRP040326195615",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "id": "GRP240226185629",
+    "name": "PAREDE DE TESTE",
+    "priceFrom": "1999.00",
+    "priceTo": "999.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP040326195634",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP040326195646",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP050326182240",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP050326182251",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP050326182302",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP040326195358",
-    "name": "BOLSA MÉDIA",
-    "priceFrom": "198.00",
-    "priceTo": "118.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "ROSA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP040326195515",
-    "name": "BOLSA MÉDIA",
-    "priceFrom": "188.00",
-    "priceTo": "118.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "BRANCA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP050326182139",
-    "name": "BOLSA PEQUENA TIRA COLO",
-    "priceFrom": "176.00",
-    "priceTo": "176.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "AZUL",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP050326182153",
-    "name": "BOLSA PEQUENA",
-    "priceFrom": "64.00",
-    "priceTo": "64.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "PRETA",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP050326182204",
-    "name": "BOLSA PEQUENA TIRA COLO",
-    "priceFrom": "64.00",
-    "priceTo": "64.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "CARAMELO",
-    "tamanho": "ÚNICO"
-  },
-  {
-    "id": "GRP050326182225",
-    "name": "BOLSA PEQUENA TIRA COLO",
-    "priceFrom": "159.00",
-    "priceTo": "159.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "BEGE",
-    "tamanho": "ÚNICO"
+    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"P,M,G,1,2,3\"},{\"cor\":\"PRETA\",\"tamanhos\":\"1,2,3\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   }
 ]
