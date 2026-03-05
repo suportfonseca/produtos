@@ -569,9 +569,6 @@
             } catch (e) { area.innerHTML = '<div class="text-center py-20 text-red-400 font-bold">Falha ao carregar produtos.</div>'; }
         }
 
-        // ==========================================
-        // FUNÇÃO DE ADICIONAR LINHA NA GRADE DINÂMICA
-        // ==========================================
         window.addGradeRow = function(pid) {
             const container = document.getElementById(`grade-container-${pid}`);
             const div = document.createElement('div');
@@ -600,28 +597,29 @@
                 else { midias = [{ url: 'https://placehold.co/400/171717/525252?text=Sem+Foto', ativo: true }]; }
 
                 // ==========================================
-                // MÁGICA DA LIMPEZA DE URL: Conserta as imagens quebradas no painel
+                // SOLUÇÃO DAS FOTOS: urlLimpa para ver na tela, urlOriginal para enviar de volta ao banco!
                 // ==========================================
                 midias = midias.map(m => {
                     let urlLimpa = m.url;
                     if(urlLimpa && typeof urlLimpa === 'string' && urlLimpa.includes('download/storage/v1/b/')) {
                         urlLimpa = urlLimpa.split('?')[0].replace('download/storage/v1/b/catalogo-online/o/', 'catalogo-online/');
                     }
-                    return { ...m, url: urlLimpa };
+                    // Importante: Guardamos o urlLimpa E o urlOriginal!
+                    return { ...m, urlLimpa: urlLimpa, urlOriginal: m.url };
                 });
 
-                const primeiraImg = midias.find(m => m.ativo)?.url || midias[0].url;
+                const primeiraImg = midias.find(m => m.ativo)?.urlLimpa || midias[0].urlLimpa;
                 
                 let miniaturasHTML = '<div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-2">';
                 midias.forEach((m) => {
-                    const isVid = isVideo(m.url);
+                    const isVid = isVideo(m.urlLimpa);
                     const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/90 text-sm md:text-xl shadow-sm"></i></div>' : '';
                     miniaturasHTML += `
-                        <div class="thumbnail-item relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group bg-dark-950" onclick="changeMainMedia('${pid}', '${m.url}')">
-                            ${buildMediaTag(m.url, "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity")}
+                        <div class="thumbnail-item relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group bg-dark-950" onclick="changeMainMedia('${pid}', '${m.urlLimpa}')">
+                            ${buildMediaTag(m.urlLimpa, "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity")}
                             ${overlayIcon}
                             <div class="absolute top-1 right-1 bg-dark-950/90 rounded flex items-center justify-center p-0.5 md:p-1 shadow-md z-10 border border-white/10" onclick="event.stopPropagation();">
-                                <input type="checkbox" class="img-check-${pid} w-3 h-3 md:w-4 md:h-4 accent-brand-500 cursor-pointer" value="${m.url}" ${m.ativo ? 'checked' : ''} onchange="markUnsaved();">
+                                <input type="checkbox" class="img-check-${pid} w-3 h-3 md:w-4 md:h-4 accent-brand-500 cursor-pointer" value="${m.urlOriginal}" ${m.ativo ? 'checked' : ''} onchange="markUnsaved();">
                             </div>
                             <div class="absolute bottom-0 left-0 right-0 h-5 md:h-6 bg-black/80 backdrop-blur-sm flex items-center justify-between px-1 md:px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                 <button onclick="moveThumb(this, 'left', event)" class="text-white hover:text-brand-400 p-0.5 md:p-1"><i class="fas fa-chevron-left text-[8px] md:text-[10px]"></i></button>
@@ -632,20 +630,20 @@
                 });
                 miniaturasHTML += '</div>';
 
-                // ==========================================
-                // LÓGICA DE PARSE DA GRADE (Lê o JSON Oculto ou texto antigo)
-                // ==========================================
                 let gradeData = [];
-                if(p.cor && p.cor.startsWith('[')) {
-                    try { 
-                        gradeData = JSON.parse(p.cor); 
-                    } catch(e) { 
-                        gradeData = [{cor: p.cor, tamanhos: p.tamanho || ''}]; 
+                // Validação inteligente (Escudo Anti-n8n tipado como array ou string)
+                if (p.cor) {
+                    if (Array.isArray(p.cor)) {
+                        gradeData = p.cor;
+                    } else if (typeof p.cor === 'string' && p.cor.startsWith('[')) {
+                        try { gradeData = JSON.parse(p.cor); } catch(e) { gradeData = [{cor: p.cor, tamanhos: p.tamanho || ''}]; }
+                    } else if (p.cor !== '-') {
+                        gradeData = [{cor: p.cor, tamanhos: p.tamanho || ''}];
+                    } else {
+                        gradeData = [{cor: '', tamanhos: ''}];
                     }
-                } else if (p.cor && p.cor !== '-') {
-                    gradeData = [{cor: p.cor, tamanhos: p.tamanho || ''}];
                 } else {
-                    gradeData = [{cor: '', tamanhos: ''}]; // Vazio pra ele preencher
+                    gradeData = [{cor: '', tamanhos: ''}];
                 }
 
                 let gradeHTML = `<div class="md:col-span-2 bg-dark-900/50 p-3 md:p-4 rounded-xl border border-white/5">
@@ -656,8 +654,8 @@
                     <div id="grade-container-${pid}" class="space-y-2">`;
                 
                 gradeData.forEach((g) => {
-                    let escCor = g.cor ? g.cor.replace(/"/g, '&quot;') : '';
-                    let escTam = g.tamanhos ? g.tamanhos.replace(/"/g, '&quot;') : '';
+                    let escCor = g.cor ? String(g.cor).replace(/"/g, '&quot;') : '';
+                    let escTam = g.tamanhos ? String(g.tamanhos).replace(/"/g, '&quot;') : '';
                     gradeHTML += `<div class="grade-row-${pid} flex items-center gap-2">
                         <input type="text" placeholder="Cor (Ex: Preto)" value="${escCor}" class="grade-cor w-1/3 bg-dark-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-brand-500 outline-none text-xs md:text-sm" onchange="markUnsaved()">
                         <input type="text" placeholder="Tamanhos (Ex: P, M, G)" value="${escTam}" class="grade-tam flex-1 bg-dark-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-brand-500 outline-none text-xs md:text-sm" onchange="markUnsaved()">
@@ -716,13 +714,12 @@
             const name = document.getElementById(`name-${pid}`).value.trim();
             const btn = document.getElementById(`btnSave-${pid}`);
             const checkboxFotos = document.querySelectorAll(`.img-check-${pid}:checked`);
+            
+            // Aqui ele envia o m.url original que estava salvo no value do checkbox!
             const fotosSelecionadas = Array.from(checkboxFotos).map(cb => cb.value);
 
             if (!name) return showAlert("Nome do produto é obrigatório.");
             
-            // ==========================================
-            // EMPACOTAMENTO DA GRADE (Transforma em JSON String)
-            // ==========================================
             const rows = document.querySelectorAll(`.grade-row-${pid}`);
             let gradeArray = [];
             rows.forEach(row => {
