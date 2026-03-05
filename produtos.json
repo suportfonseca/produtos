@@ -90,16 +90,6 @@
     "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP040326195615",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326195634",
     "name": "",
     "priceFrom": "",
@@ -217,6 +207,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"PRETA\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP040326195615",
+    "name": "MOCHILA GRANDE",
+    "priceFrom": "309.00",
+    "priceTo": "309.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"CARAMELO\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
