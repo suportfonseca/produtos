@@ -90,16 +90,6 @@
     "tamanho": "ÚNICO"
   },
   {
-    "id": "GRP040326195550",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP040326195615",
     "name": "",
     "priceFrom": "",
@@ -218,6 +208,16 @@
     "category": "foto",
     "cor": "CARAMELO",
     "tamanho": "ÚNICO"
+  },
+  {
+    "id": "GRP040326195550",
+    "name": "MALA PRETA PETITE JOLIE",
+    "priceFrom": "329.99",
+    "priceTo": "329.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"PRETA\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP050326200636",
