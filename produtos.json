@@ -320,16 +320,6 @@
     "tamanho": ""
   },
   {
-    "id": "GRP050326214020",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP050326214109",
     "name": "BOLSA MÉDIA",
     "priceFrom": "188.00",
@@ -357,6 +347,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"PRETA\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP050326214020",
+    "name": "MALA PETITE JOLIE",
+    "priceFrom": "549.99",
+    "priceTo": "549.99",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"PINK\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
