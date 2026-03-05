@@ -356,8 +356,11 @@
             return `<img src="${url}" class="${classes}">`;
         }
 
-        window.changeMainMedia = function(pid, url) {
-            const container = document.getElementById(`main-media-container-${pid}`);
+        // ==========================================
+        // BLINDAGEM DE IDENTIFICADORES (Resolve o bug do espaço no ID que apagava a foto)
+        // ==========================================
+        window.changeMainMedia = function(safePid, url) {
+            const container = document.getElementById(`main-media-container-${safePid}`);
             if(container) {
                 container.innerHTML = buildMediaTag(url, "w-full h-full object-cover transition-opacity duration-300");
             }
@@ -569,10 +572,10 @@
             } catch (e) { area.innerHTML = '<div class="text-center py-20 text-red-400 font-bold">Falha ao carregar produtos.</div>'; }
         }
 
-        window.addGradeRow = function(pid) {
-            const container = document.getElementById(`grade-container-${pid}`);
+        window.addGradeRow = function(safePid) {
+            const container = document.getElementById(`grade-container-${safePid}`);
             const div = document.createElement('div');
-            div.className = `grade-row-${pid} flex items-center gap-2`;
+            div.className = `grade-row-${safePid} flex items-center gap-2`;
             div.innerHTML = `
                 <input type="text" placeholder="Cor (Ex: Preto)" class="grade-cor w-1/3 bg-dark-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-brand-500 outline-none text-xs md:text-sm" onchange="markUnsaved()">
                 <input type="text" placeholder="Tamanhos (Ex: P, M, G)" class="grade-tam flex-1 bg-dark-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-brand-500 outline-none text-xs md:text-sm" onchange="markUnsaved()">
@@ -589,7 +592,10 @@
                 return;
             }
             list.forEach(p => {
-                const pid = p.id_grupo || p.id;
+                const pid = String(p.id_grupo || p.id);
+                // ID SEGURO: Remove todos os espaços e pontos para não quebrar o JavaScript
+                const safePid = pid.replace(/[^a-zA-Z0-9]/g, '_'); 
+
                 let midias = [];
                 if (p.midias_detalhadas && Array.isArray(p.midias_detalhadas)) { midias = p.midias_detalhadas; } 
                 else if (p.imagens && Array.isArray(p.imagens)) { midias = p.imagens.map(url => ({ url: url, ativo: true })); } 
@@ -597,15 +603,19 @@
                 else { midias = [{ url: 'https://placehold.co/400/171717/525252?text=Sem+Foto', ativo: true }]; }
 
                 // ==========================================
-                // SOLUÇÃO DAS FOTOS: urlLimpa para ver na tela, urlOriginal para enviar de volta ao banco!
+                // SOLUÇÃO DAS FOTOS: Mapeia urlLimpa (para ver) e urlOriginal (para enviar)
                 // ==========================================
                 midias = midias.map(m => {
-                    let urlLimpa = m.url;
-                    if(urlLimpa && typeof urlLimpa === 'string' && urlLimpa.includes('download/storage/v1/b/')) {
-                        urlLimpa = urlLimpa.split('?')[0].replace('download/storage/v1/b/catalogo-online/o/', 'catalogo-online/');
+                    let original = m.url || '';
+                    let limpa = original;
+                    if(limpa && typeof limpa === 'string' && limpa.includes('download/storage/v1/b/')) {
+                        limpa = limpa.split('?')[0].replace('download/storage/v1/b/catalogo-online/o/', 'catalogo-online/');
                     }
-                    // Importante: Guardamos o urlLimpa E o urlOriginal!
-                    return { ...m, urlLimpa: urlLimpa, urlOriginal: m.url };
+                    return { 
+                        ativo: m.ativo !== false, // Garante que a foto inicie marcada
+                        urlLimpa: limpa, 
+                        urlOriginal: original 
+                    };
                 });
 
                 const primeiraImg = midias.find(m => m.ativo)?.urlLimpa || midias[0].urlLimpa;
@@ -614,12 +624,17 @@
                 midias.forEach((m) => {
                     const isVid = isVideo(m.urlLimpa);
                     const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/90 text-sm md:text-xl shadow-sm"></i></div>' : '';
+                    
+                    // Escapando as aspas simples e duplas para não quebrar o HTML
+                    const escapedLimpa = m.urlLimpa ? m.urlLimpa.replace(/'/g, "\\'") : '';
+                    const escapedOriginal = m.urlOriginal ? m.urlOriginal.replace(/"/g, '&quot;') : '';
+
                     miniaturasHTML += `
-                        <div class="thumbnail-item relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group bg-dark-950" onclick="changeMainMedia('${pid}', '${m.urlLimpa}')">
+                        <div class="thumbnail-item relative w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-500 transition-all cursor-pointer group bg-dark-950" onclick="changeMainMedia('${safePid}', '${escapedLimpa}')">
                             ${buildMediaTag(m.urlLimpa, "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity")}
                             ${overlayIcon}
                             <div class="absolute top-1 right-1 bg-dark-950/90 rounded flex items-center justify-center p-0.5 md:p-1 shadow-md z-10 border border-white/10" onclick="event.stopPropagation();">
-                                <input type="checkbox" class="img-check-${pid} w-3 h-3 md:w-4 md:h-4 accent-brand-500 cursor-pointer" value="${m.urlOriginal}" ${m.ativo ? 'checked' : ''} onchange="markUnsaved();">
+                                <input type="checkbox" class="img-check-${safePid} w-3 h-3 md:w-4 md:h-4 accent-brand-500 cursor-pointer" value="${escapedOriginal}" ${m.ativo ? 'checked' : ''} onchange="markUnsaved();">
                             </div>
                             <div class="absolute bottom-0 left-0 right-0 h-5 md:h-6 bg-black/80 backdrop-blur-sm flex items-center justify-between px-1 md:px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                 <button onclick="moveThumb(this, 'left', event)" class="text-white hover:text-brand-400 p-0.5 md:p-1"><i class="fas fa-chevron-left text-[8px] md:text-[10px]"></i></button>
@@ -631,7 +646,6 @@
                 miniaturasHTML += '</div>';
 
                 let gradeData = [];
-                // Validação inteligente (Escudo Anti-n8n tipado como array ou string)
                 if (p.cor) {
                     if (Array.isArray(p.cor)) {
                         gradeData = p.cor;
@@ -649,14 +663,14 @@
                 let gradeHTML = `<div class="md:col-span-2 bg-dark-900/50 p-3 md:p-4 rounded-xl border border-white/5">
                     <div class="flex justify-between items-center mb-3">
                         <label class="text-[9px] md:text-[10px] font-bold text-brand-400 uppercase tracking-wider">Grade Múltipla (Cores e Tamanhos)</label>
-                        <button type="button" onclick="addGradeRow('${pid}')" class="bg-brand-600/20 hover:bg-brand-600/40 text-brand-400 font-bold text-[10px] px-3 py-1.5 rounded-lg border border-brand-500/30 transition-colors">+ Adicionar Variação</button>
+                        <button type="button" onclick="addGradeRow('${safePid}')" class="bg-brand-600/20 hover:bg-brand-600/40 text-brand-400 font-bold text-[10px] px-3 py-1.5 rounded-lg border border-brand-500/30 transition-colors">+ Adicionar Variação</button>
                     </div>
-                    <div id="grade-container-${pid}" class="space-y-2">`;
+                    <div id="grade-container-${safePid}" class="space-y-2">`;
                 
                 gradeData.forEach((g) => {
                     let escCor = g.cor ? String(g.cor).replace(/"/g, '&quot;') : '';
                     let escTam = g.tamanhos ? String(g.tamanhos).replace(/"/g, '&quot;') : '';
-                    gradeHTML += `<div class="grade-row-${pid} flex items-center gap-2">
+                    gradeHTML += `<div class="grade-row-${safePid} flex items-center gap-2">
                         <input type="text" placeholder="Cor (Ex: Preto)" value="${escCor}" class="grade-cor w-1/3 bg-dark-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-brand-500 outline-none text-xs md:text-sm" onchange="markUnsaved()">
                         <input type="text" placeholder="Tamanhos (Ex: P, M, G)" value="${escTam}" class="grade-tam flex-1 bg-dark-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-brand-500 outline-none text-xs md:text-sm" onchange="markUnsaved()">
                         <button type="button" onclick="this.parentElement.remove(); markUnsaved();" class="w-8 h-8 flex items-center justify-center bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shrink-0"><i class="fas fa-trash text-xs"></i></button>
@@ -666,9 +680,9 @@
                 gradeHTML += `</div></div>`;
 
                 area.innerHTML += `
-                    <div class="glass-panel p-0 rounded-2xl md:rounded-[1.5rem] mb-4 md:mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950/80 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${pid}">
+                    <div class="glass-panel p-0 rounded-2xl md:rounded-[1.5rem] mb-4 md:mb-6 flex flex-col xl:flex-row overflow-hidden bg-dark-950/80 border border-white/5 shadow-lg group hover:border-brand-500/30 transition-colors" id="card-${safePid}">
                         <div class="w-full xl:w-80 p-4 md:p-5 bg-dark-900/50 border-b xl:border-b-0 xl:border-r border-white/5 relative shrink-0 flex flex-col justify-center">
-                            <div class="w-full aspect-square rounded-xl md:rounded-2xl overflow-hidden bg-dark-950 relative shadow-inner border border-white/5" id="main-media-container-${pid}">
+                            <div class="w-full aspect-square rounded-xl md:rounded-2xl overflow-hidden bg-dark-950 relative shadow-inner border border-white/5" id="main-media-container-${safePid}">
                                 ${buildMediaTag(primeiraImg, "w-full h-full object-cover transition-opacity duration-300")}
                             </div>
                             ${miniaturasHTML}
@@ -676,18 +690,18 @@
                         <div class="flex-1 p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative">
                             <div class="md:col-span-2">
                                 <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1.5 md:mb-2 block">Nome do Produto *</label>
-                                <input type="text" id="name-${pid}" value="${p.nome_produto || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-3 py-2.5 md:px-4 md:py-3 text-white font-medium focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
+                                <input type="text" id="name-${safePid}" value="${p.nome_produto || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl px-3 py-2.5 md:px-4 md:py-3 text-white font-medium focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
                             </div>
                             <div>
                                 <label class="text-[9px] md:text-[10px] font-bold text-accent-500 uppercase tracking-wider mb-1.5 md:mb-2 block">Preço De (Opcional)</label>
                                 <div class="relative"><span class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-accent-500 font-bold text-xs md:text-sm">R$</span>
-                                    <input type="number" step="0.01" id="priceFrom-${pid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 md:pl-10 md:pr-4 md:py-3 text-white font-medium focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
+                                    <input type="number" step="0.01" id="priceFrom-${safePid}" value="${p.preco_de || ''}" class="w-full bg-dark-950 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 md:pl-10 md:pr-4 md:py-3 text-white font-medium focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
                                 </div>
                             </div>
                             <div>
                                 <label class="text-[9px] md:text-[10px] font-bold text-brand-400 uppercase tracking-wider mb-1.5 md:mb-2 block">Preço Por *</label>
                                 <div class="relative"><span class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-brand-500 font-bold text-xs md:text-sm">R$</span>
-                                    <input type="number" step="0.01" id="priceTo-${pid}" value="${p.preco_por || ''}" class="w-full bg-brand-500/10 border border-brand-500/30 rounded-xl pl-8 pr-3 py-2.5 md:pl-10 md:pr-4 md:py-3 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
+                                    <input type="number" step="0.01" id="priceTo-${safePid}" value="${p.preco_por || ''}" class="w-full bg-brand-500/10 border border-brand-500/30 rounded-xl pl-8 pr-3 py-2.5 md:pl-10 md:pr-4 md:py-3 text-brand-100 font-bold focus:border-brand-500 outline-none transition-all text-sm md:text-base" onchange="markUnsaved()">
                                 </div>
                             </div>
                             
@@ -695,11 +709,11 @@
 
                             <div class="md:col-span-2 border-t border-white/5 pt-4 md:pt-6 mt-1 md:mt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <label class="flex items-center gap-3 cursor-pointer w-full sm:w-auto justify-center sm:justify-start">
-                                    <input type="checkbox" id="active-${pid}" ${p.ativo !== false ? 'checked' : ''} class="sr-only peer" onchange="markUnsaved()">
+                                    <input type="checkbox" id="active-${safePid}" ${p.ativo !== false ? 'checked' : ''} class="sr-only peer" onchange="markUnsaved()">
                                     <div class="w-10 h-6 md:w-12 md:h-7 bg-dark-900 border border-white/10 rounded-full peer peer-checked:bg-green-500 peer-checked:border-green-400 transition-colors relative after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:after:translate-x-4 md:peer-checked:after:translate-x-5"></div>
                                     <span class="text-xs md:text-sm font-bold text-accent-300">Visível na Loja</span>
                                 </label>
-                                <button onclick="saveProduct('${pid}')" id="btnSave-${pid}" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-6 md:px-8 py-3 md:py-3.5 rounded-xl font-bold text-xs md:text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2 border border-brand-400/20 active:scale-95">
+                                <button onclick="saveProduct('${pid}')" id="btnSave-${safePid}" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-500 text-white px-6 md:px-8 py-3 md:py-3.5 rounded-xl font-bold text-xs md:text-sm shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2 border border-brand-400/20 active:scale-95">
                                     Salvar Produto <i class="fas fa-save"></i>
                                 </button>
                             </div>
@@ -711,16 +725,19 @@
         function markUnsaved() { unsavedChanges = true; }
 
         async function saveProduct(pid) {
-            const name = document.getElementById(`name-${pid}`).value.trim();
-            const btn = document.getElementById(`btnSave-${pid}`);
-            const checkboxFotos = document.querySelectorAll(`.img-check-${pid}:checked`);
+            // Usa o ID seguro para buscar os dados na tela, mas envia o PID original pro n8n!
+            const safePid = String(pid).replace(/[^a-zA-Z0-9]/g, '_');
             
-            // Aqui ele envia o m.url original que estava salvo no value do checkbox!
+            const name = document.getElementById(`name-${safePid}`).value.trim();
+            const btn = document.getElementById(`btnSave-${safePid}`);
+            const checkboxFotos = document.querySelectorAll(`.img-check-${safePid}:checked`);
+            
+            // Aqui ele coleta as URLs perfeitamente
             const fotosSelecionadas = Array.from(checkboxFotos).map(cb => cb.value);
 
             if (!name) return showAlert("Nome do produto é obrigatório.");
             
-            const rows = document.querySelectorAll(`.grade-row-${pid}`);
+            const rows = document.querySelectorAll(`.grade-row-${safePid}`);
             let gradeArray = [];
             rows.forEach(row => {
                 const c = row.querySelector('.grade-cor').value.trim();
@@ -741,11 +758,11 @@
                         id_campanha: currentCampaignId, 
                         id_grupo: pid, 
                         nome_produto: name, 
-                        preco_de: document.getElementById(`priceFrom-${pid}`).value, 
-                        preco_por: document.getElementById(`priceTo-${pid}`).value, 
+                        preco_de: document.getElementById(`priceFrom-${safePid}`).value, 
+                        preco_por: document.getElementById(`priceTo-${safePid}`).value, 
                         cor: finalCor, 
                         tamanho: finalTam, 
-                        ativo: document.getElementById(`active-${pid}`).checked, 
+                        ativo: document.getElementById(`active-${safePid}`).checked, 
                         imagens_selecionadas: fotosSelecionadas 
                     })
                 });
