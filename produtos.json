@@ -63,11 +63,11 @@
     "id": "GRP040326193851",
     "name": "BOLSA SINTÉTICO GRANDE",
     "priceFrom": "206.00",
-    "priceTo": "206.00",
+    "priceTo": "144.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "VERDE",
-    "tamanho": "ÚNICO"
+    "cor": "[{\"cor\":\"VERDE\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP040326194439",
