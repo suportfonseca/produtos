@@ -1,42 +1,12 @@
 [
   {
-    "id": "GRP240226185537",
-    "name": "Mateus Corrêa da Fonseca",
+    "id": "GRP050326194042",
+    "name": "teste foto",
     "priceFrom": "123.00",
     "priceTo": "123.00",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"TESTE\",\"tamanhos\":\"1\"},{\"cor\":\"TESTE2\",\"tamanhos\":\"2,3\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP240226185356",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP240226185452",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "video",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP240226185629",
-    "name": "PAREDE DE TESTE",
-    "priceFrom": "1999.00",
-    "priceTo": "999.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"P,M,G,1,2,3\"},{\"cor\":\"PRETA\",\"tamanhos\":\"1,2,3\"}]",
+    "cor": "[{\"cor\":\"teste\",\"tamanhos\":\"1\"},{\"cor\":\"teste2\",\"tamanhos\":\"2,3\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
