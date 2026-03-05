@@ -330,16 +330,6 @@
     "tamanho": ""
   },
   {
-    "id": "GRP050326214033",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP050326214109",
     "name": "BOLSA MÉDIA",
     "priceFrom": "188.00",
@@ -367,6 +357,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"PRETA\",\"tamanhos\":\"ÚNICO\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP050326214033",
+    "name": "BOLSA SINTÉTICO",
+    "priceFrom": "259.00",
+    "priceTo": "259.00",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"VERMELHA\",\"tamanhos\":\"ÚNICO\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
