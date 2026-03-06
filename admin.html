@@ -70,6 +70,9 @@
                 <button onclick="switchMenu('vendedores')" id="menu-vendedores" class="w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all text-[10px] md:text-base border border-transparent">
                     <i class="fas fa-users text-lg md:text-base"></i> <span class="block md:inline truncate w-full text-center md:text-left">Equipe</span>
                 </button>
+                <button onclick="switchMenu('metricas')" id="menu-metricas" class="w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all text-[10px] md:text-base border border-transparent">
+                    <i class="fas fa-chart-pie text-lg md:text-base"></i> <span class="block md:inline truncate w-full text-center md:text-left">Métricas</span>
+                </button>
                 <button onclick="switchMenu('clientes')" id="menu-clientes" class="w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all text-[10px] md:text-base border border-transparent">
                     <i class="fas fa-user-tag text-lg md:text-base"></i> <span class="block md:inline truncate w-full text-center md:text-left">Clientes</span>
                 </button>
@@ -163,6 +166,87 @@
                             </thead>
                             <tbody id="vendedorList" class="block md:table-row-group text-sm font-medium text-accent-400"></tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-metricas" class="hidden flex-col max-w-[1400px] mx-auto w-full p-4 md:p-8 fade-in">
+                <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-4">
+                    <div class="text-left">
+                        <h1 class="text-xl md:text-2xl font-black text-white tracking-tight leading-tight">Métricas de Desempenho</h1>
+                        <p class="text-accent-400 text-[10px] md:text-xs mt-1 font-bold line-clamp-1">Acompanhe o funil de vendas</p>
+                    </div>
+                    <div class="relative w-full sm:w-auto">
+                        <i class="fas fa-layer-group absolute left-4 top-1/2 -translate-y-1/2 text-brand-500"></i>
+                        <select id="metricasCampaignSelect" onchange="fetchMetricas()" class="w-full sm:w-64 bg-dark-950 border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white outline-none focus:border-brand-500 transition-all text-sm font-bold appearance-none cursor-pointer">
+                            <option value="">Selecione uma campanha...</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-accent-500 pointer-events-none text-xs"></i>
+                    </div>
+                </header>
+
+                <div id="metricasEmptyState" class="glass-panel p-8 md:p-10 rounded-2xl md:rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center justify-center py-16 md:py-24 bg-dark-900/30">
+                    <div class="w-16 h-16 bg-dark-950 border border-white/5 rounded-2xl flex items-center justify-center mb-4 text-brand-500">
+                        <i class="fas fa-chart-bar text-3xl"></i>
+                    </div>
+                    <h2 class="text-lg font-bold text-white mb-2">Selecione uma Campanha</h2>
+                    <p class="text-accent-400 text-xs md:text-sm max-w-xs">Escolha uma campanha no menu acima para carregar os dados em tempo real.</p>
+                </div>
+
+                <div id="metricasLoadingState" class="hidden flex-col items-center justify-center py-20">
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-brand-500 mb-4"></i>
+                    <p class="text-accent-400 font-bold text-sm">Calculando dados do funil...</p>
+                </div>
+
+                <div id="metricasContent" class="hidden flex-col gap-4 md:gap-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                        <div class="glass-panel p-4 md:p-6 rounded-2xl border-t-4 border-blue-500 relative overflow-hidden bg-dark-900/50 flex flex-col justify-center">
+                            <i class="fas fa-eye absolute right-4 top-4 opacity-5 text-4xl"></i>
+                            <p class="text-[9px] md:text-[10px] text-accent-400 font-bold uppercase tracking-widest mb-1">Total de Acessos</p>
+                            <p class="text-2xl md:text-3xl font-black text-white" id="metricaAcessos">0</p>
+                        </div>
+                        <div class="glass-panel p-4 md:p-6 rounded-2xl border-t-4 border-yellow-500 relative overflow-hidden bg-dark-900/50 flex flex-col justify-center">
+                            <i class="fas fa-cart-plus absolute right-4 top-4 opacity-5 text-4xl"></i>
+                            <p class="text-[9px] md:text-[10px] text-accent-400 font-bold uppercase tracking-widest mb-1">Add ao Carrinho</p>
+                            <p class="text-2xl md:text-3xl font-black text-white" id="metricaCarrinhos">0</p>
+                        </div>
+                        <div class="glass-panel p-4 md:p-6 rounded-2xl border-t-4 border-green-500 relative overflow-hidden bg-dark-900/50 flex flex-col justify-center">
+                            <i class="fab fa-whatsapp absolute right-4 top-4 opacity-5 text-4xl"></i>
+                            <p class="text-[9px] md:text-[10px] text-accent-400 font-bold uppercase tracking-widest mb-1">Pedidos Enviados</p>
+                            <p class="text-2xl md:text-3xl font-black text-white" id="metricaCheckouts">0</p>
+                        </div>
+                        <div class="glass-panel p-4 md:p-6 rounded-2xl border-t-4 border-brand-500 relative overflow-hidden bg-dark-900/50 flex flex-col justify-center">
+                            <i class="fas fa-dollar-sign absolute right-4 top-4 opacity-5 text-4xl"></i>
+                            <p class="text-[9px] md:text-[10px] text-accent-400 font-bold uppercase tracking-widest mb-1">Faturamento Estimado</p>
+                            <p class="text-2xl md:text-3xl font-black text-brand-400" id="metricaFaturamento">R$ 0,00</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 md:p-8 rounded-2xl bg-dark-900/30 border border-white/5">
+                        <h3 class="font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-filter text-accent-500"></i> Eficiência do Funil</h3>
+                        <div class="space-y-5 relative">
+                            <div class="flex items-center text-xs md:text-sm">
+                                <div class="w-24 md:w-32 shrink-0 text-accent-400 font-bold">1. Visitantes</div>
+                                <div class="flex-1 bg-dark-950 rounded-full h-6 overflow-hidden relative shadow-inner border border-white/5">
+                                    <div class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000 w-full"></div>
+                                </div>
+                                <div class="w-16 text-right font-black text-white">100%</div>
+                            </div>
+                            <div class="flex items-center text-xs md:text-sm">
+                                <div class="w-24 md:w-32 shrink-0 text-accent-400 font-bold">2. Engajamento <span class="block text-[9px] text-accent-600 font-normal">Colocou no Carrinho</span></div>
+                                <div class="flex-1 bg-dark-950 rounded-full h-6 overflow-hidden relative shadow-inner border border-white/5">
+                                    <div id="barCarrinho" class="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full rounded-full transition-all duration-1000" style="width: 0%;"></div>
+                                </div>
+                                <div class="w-16 text-right font-black text-white" id="pctCarrinho">0%</div>
+                            </div>
+                            <div class="flex items-center text-xs md:text-sm">
+                                <div class="w-24 md:w-32 shrink-0 text-accent-400 font-bold">3. Conversão <span class="block text-[9px] text-accent-600 font-normal">Finalizou Pedido</span></div>
+                                <div class="flex-1 bg-dark-950 rounded-full h-6 overflow-hidden relative shadow-inner border border-white/5">
+                                    <div id="barCheckout" class="bg-gradient-to-r from-green-600 to-green-400 h-full rounded-full transition-all duration-1000" style="width: 0%;"></div>
+                                </div>
+                                <div class="w-16 text-right font-black text-white" id="pctCheckout">0%</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -328,7 +412,8 @@
         const ENDPOINTS = {
             MAIN: `${BASE_URL}${WEBHOOK_PATH}/start-campaign`,
             PRODUCTS: `${BASE_URL}${WEBHOOK_PATH}/d7fa7895-7f17-45bb-95a4-92e18f1c1692`,
-            UPDATE: `${BASE_URL}${WEBHOOK_PATH}/update-data`
+            UPDATE: `${BASE_URL}${WEBHOOK_PATH}/update-data`,
+            METRICS: "https://n8n.srv1327557.hstgr.cloud/webhook/ler-metricas" // Novo Webhook de Métricas
         };
 
         let currentUser = null;
@@ -336,6 +421,7 @@
         let unsavedChanges = false;
         
         let allVendedores = [];
+        let allCampaigns = []; // Variável global para guardar campanhas e usar no select de métricas
         let currentVendedorFilter = 'todos';
 
         window.onbeforeunload = function() {
@@ -438,9 +524,11 @@
                 const data = await res.json();
 
                 if (data.campanhas && data.campanhas.length > 0) {
+                    allCampaigns = data.campanhas; // Salva globalmente para usar no select de métricas
                     document.getElementById('campaignCount').innerText = data.campanhas.length;
                     renderTable(data.campanhas);
                 } else {
+                    allCampaigns = [];
                     document.getElementById('campaignCount').innerText = "0";
                     tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-accent-500">Nenhuma campanha encontrada.</td></tr>';
                 }
@@ -463,7 +551,6 @@
         function renderTable(list) {
             const tbody = document.getElementById('campaignList'); tbody.innerHTML = '';
             
-            // ORDENAÇÃO: Inverte a lista para que as campanhas mais recentes fiquem no topo da tela
             const sortedList = [...list].reverse();
             
             sortedList.forEach(c => {
@@ -593,7 +680,6 @@
             }
             list.forEach(p => {
                 const pid = String(p.id_grupo || p.id);
-                // ID SEGURO: Remove todos os espaços e pontos para não quebrar o JavaScript
                 const safePid = pid.replace(/[^a-zA-Z0-9]/g, '_'); 
 
                 let midias = [];
@@ -602,9 +688,6 @@
                 else if (p.url_publica) { midias = [{ url: p.url_publica, ativo: true }]; } 
                 else { midias = [{ url: 'https://placehold.co/400/171717/525252?text=Sem+Foto', ativo: true }]; }
 
-                // ==========================================
-                // SOLUÇÃO DAS FOTOS: Mapeia urlLimpa (para ver) e urlOriginal (para enviar)
-                // ==========================================
                 midias = midias.map(m => {
                     let original = m.url || '';
                     let limpa = original;
@@ -612,7 +695,7 @@
                         limpa = limpa.split('?')[0].replace('download/storage/v1/b/catalogo-online/o/', 'catalogo-online/');
                     }
                     return { 
-                        ativo: m.ativo !== false, // Garante que a foto inicie marcada
+                        ativo: m.ativo !== false,
                         urlLimpa: limpa, 
                         urlOriginal: original 
                     };
@@ -625,7 +708,6 @@
                     const isVid = isVideo(m.urlLimpa);
                     const overlayIcon = isVid ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none"><i class="fas fa-play text-white/90 text-sm md:text-xl shadow-sm"></i></div>' : '';
                     
-                    // Escapando as aspas simples e duplas para não quebrar o HTML
                     const escapedLimpa = m.urlLimpa ? m.urlLimpa.replace(/'/g, "\\'") : '';
                     const escapedOriginal = m.urlOriginal ? m.urlOriginal.replace(/"/g, '&quot;') : '';
 
@@ -725,14 +807,12 @@
         function markUnsaved() { unsavedChanges = true; }
 
         async function saveProduct(pid) {
-            // Usa o ID seguro para buscar os dados na tela, mas envia o PID original pro n8n!
             const safePid = String(pid).replace(/[^a-zA-Z0-9]/g, '_');
             
             const name = document.getElementById(`name-${safePid}`).value.trim();
             const btn = document.getElementById(`btnSave-${safePid}`);
             const checkboxFotos = document.querySelectorAll(`.img-check-${safePid}:checked`);
             
-            // Aqui ele coleta as URLs perfeitamente
             const fotosSelecionadas = Array.from(checkboxFotos).map(cb => cb.value);
 
             if (!name) return showAlert("Nome do produto é obrigatório.");
@@ -806,28 +886,108 @@
             document.getElementById('custom-alert').classList.remove('hidden');
         }
 
+        // ==========================================
+        // LÓGICA DE NAVEGAÇÃO DOS MENUS
+        // ==========================================
         function switchMenu(viewId) {
-            document.getElementById('view-campanhas').classList.add('hidden'); document.getElementById('view-campanhas').classList.remove('flex');
-            document.getElementById('view-vendedores').classList.add('hidden'); document.getElementById('view-vendedores').classList.remove('flex');
-            document.getElementById('view-clientes').classList.add('hidden'); document.getElementById('view-clientes').classList.remove('flex');
-
-            const menus = ['campanhas', 'vendedores', 'clientes'];
+            // Esconde todos
+            const menus = ['campanhas', 'vendedores', 'clientes', 'metricas'];
             
-            const inactiveClass = "w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all text-[10px] md:text-base border border-transparent";
-            const activeClass = "w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shadow-lg shadow-brand-600/20 border border-brand-400/20 text-[10px] md:text-base";
-
             menus.forEach(m => {
+                document.getElementById('view-' + m).classList.add('hidden'); 
+                document.getElementById('view-' + m).classList.remove('flex');
+                
                 const btn = document.getElementById('menu-' + m);
-                btn.className = inactiveClass;
+                btn.className = "w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl hover:bg-white/5 text-accent-400 hover:text-white font-bold transition-all text-[10px] md:text-base border border-transparent";
             });
 
-            document.getElementById('view-' + viewId).classList.remove('hidden'); document.getElementById('view-' + viewId).classList.add('flex');
+            // Mostra o selecionado
+            document.getElementById('view-' + viewId).classList.remove('hidden'); 
+            document.getElementById('view-' + viewId).classList.add('flex');
+            
             const activeMenu = document.getElementById('menu-' + viewId);
-            activeMenu.className = activeClass;
+            activeMenu.className = "w-full md:w-full flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-3 rounded-xl bg-brand-600 text-white font-bold transition-all shadow-lg shadow-brand-600/20 border border-brand-400/20 text-[10px] md:text-base";
 
             if (viewId === 'vendedores') fetchVendedores();
+            if (viewId === 'metricas') loadMetricasCampaigns();
         }
 
+        // ==========================================
+        // LÓGICA DO NOVO PAINEL DE MÉTRICAS
+        // ==========================================
+        function loadMetricasCampaigns() {
+            const select = document.getElementById('metricasCampaignSelect');
+            select.innerHTML = '<option value="">Selecione uma campanha...</option>';
+            allCampaigns.forEach(c => {
+                select.innerHTML += `<option value="${c.id_campanha}">${c.nome_campanha}</option>`;
+            });
+        }
+
+        async function fetchMetricas() {
+            const select = document.getElementById('metricasCampaignSelect');
+            const id_campanha = select.value;
+            const emptyState = document.getElementById('metricasEmptyState');
+            const loadingState = document.getElementById('metricasLoadingState');
+            const contentState = document.getElementById('metricasContent');
+
+            if (!id_campanha) {
+                emptyState.classList.remove('hidden'); emptyState.classList.add('flex');
+                contentState.classList.add('hidden'); contentState.classList.remove('flex');
+                loadingState.classList.add('hidden'); loadingState.classList.remove('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden'); emptyState.classList.remove('flex');
+            contentState.classList.add('hidden'); contentState.classList.remove('flex');
+            loadingState.classList.remove('hidden'); loadingState.classList.add('flex');
+
+            try {
+                const res = await fetch(ENDPOINTS.METRICS, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ id_campanha: id_campanha })
+                });
+                
+                const dataRaw = await res.json();
+                // n8n geralmente retorna um array no nó Postgres Execute Query
+                const data = Array.isArray(dataRaw) ? dataRaw[0] : dataRaw;
+
+                let acessos = parseInt(data?.acessos || 0);
+                let carrinhos = parseInt(data?.carrinhos || 0);
+                let checkouts = parseInt(data?.checkouts || 0);
+                let fat = parseFloat(data?.faturamento || 0);
+
+                document.getElementById('metricaAcessos').innerText = acessos;
+                document.getElementById('metricaCarrinhos').innerText = carrinhos;
+                document.getElementById('metricaCheckouts').innerText = checkouts;
+                document.getElementById('metricaFaturamento').innerText = "R$ " + fat.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                // Matemática do Funil
+                let pctCarrinho = acessos > 0 ? Math.round((carrinhos / acessos) * 100) : 0;
+                let pctCheckout = acessos > 0 ? Math.round((checkouts / acessos) * 100) : 0;
+
+                if (pctCarrinho > 100) pctCarrinho = 100;
+                if (pctCheckout > 100) pctCheckout = 100;
+
+                document.getElementById('barCarrinho').style.width = pctCarrinho + '%';
+                document.getElementById('pctCarrinho').innerText = pctCarrinho + '%';
+                
+                document.getElementById('barCheckout').style.width = pctCheckout + '%';
+                document.getElementById('pctCheckout').innerText = pctCheckout + '%';
+
+                loadingState.classList.add('hidden'); loadingState.classList.remove('flex');
+                contentState.classList.remove('hidden'); contentState.classList.add('flex');
+
+            } catch (e) {
+                loadingState.classList.add('hidden'); loadingState.classList.remove('flex');
+                emptyState.classList.remove('hidden'); emptyState.classList.add('flex');
+                showAlert("Erro ao conectar no sistema de métricas.");
+            }
+        }
+
+        // ==========================================
+        // VENDEDORES (Intacto)
+        // ==========================================
         function openNewVendedorModal() { 
             document.getElementById('newVendedorModal').classList.add('visible');
             document.getElementById('vendedorNome').focus(); 
