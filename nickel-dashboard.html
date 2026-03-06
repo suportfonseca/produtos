@@ -145,6 +145,12 @@
                 </div>
 
                 <div>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white mb-4 tracking-tight px-2">Total por Categoria</h3>
+                    <div id="fixed-summary-container" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        </div>
+                </div>
+
+                <div>
                     <h3 class="text-lg font-black text-slate-800 dark:text-white mb-4 tracking-tight px-2">Compromissos Fixos</h3>
                     <div id="fixed-list-logs" class="space-y-3">
                         </div>
@@ -192,32 +198,36 @@
     <div id="fixedForm" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4 transition-opacity">
         <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-800 transform transition-all animate-fade-in">
             <h4 id="fixed-modal-title" class="font-black mb-6 text-xl text-slate-800 dark:text-white tracking-tight">Novo Planejamento</h4>
-            <div class="space-y-5">
+            <div class="space-y-4">
                 <input type="hidden" id="edit-fixed-id">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Nome do Compromisso</label>
-                    <input type="text" id="fix-desc" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl text-sm dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Ex: Aluguel, Salário...">
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Nome do Compromisso</label>
+                    <input type="text" id="fix-desc" class="w-full border border-slate-200 dark:border-slate-700 p-3.5 rounded-xl text-sm dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Ex: Aluguel, Salário...">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Valor (R$)</label>
-                    <input type="number" step="0.01" id="fix-amount" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl text-lg font-black dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="0.00">
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Categoria</label>
+                    <input type="text" id="fix-cat" class="w-full border border-slate-200 dark:border-slate-700 p-3.5 rounded-xl text-sm dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Ex: Assinaturas, Moradia...">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Valor (R$)</label>
+                    <input type="number" step="0.01" id="fix-amount" class="w-full border border-slate-200 dark:border-slate-700 p-3.5 rounded-xl text-lg font-black dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="0.00">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Dia do Mês</label>
-                        <input type="number" min="1" max="31" id="fix-day" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl font-bold dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 transition-all" placeholder="Dia">
+                        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Dia do Mês</label>
+                        <input type="number" min="1" max="31" id="fix-day" class="w-full border border-slate-200 dark:border-slate-700 p-3.5 rounded-xl font-bold dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 transition-all" placeholder="Dia">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Tipo</label>
-                        <select id="fix-type" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl font-bold text-sm dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 transition-all">
+                        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Tipo</label>
+                        <select id="fix-type" class="w-full border border-slate-200 dark:border-slate-700 p-3.5 rounded-xl font-bold text-sm dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 transition-all">
                             <option value="FIXED_EXPENSE">Saída Fixa</option>
                             <option value="FIXED_INCOME">Entrada Fixa</option>
                         </select>
                     </div>
                 </div>
-                <div class="flex gap-3 pt-2">
-                    <button onclick="toggleFixedForm()" class="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 p-4 rounded-xl font-bold text-sm transition-colors">Cancelar</button>
-                    <button onclick="saveFixed()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30 transition-all">Salvar</button>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="toggleFixedForm()" class="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 p-3.5 rounded-xl font-bold text-sm transition-colors">Cancelar</button>
+                    <button onclick="saveFixed()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white p-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30 transition-all">Salvar</button>
                 </div>
             </div>
         </div>
@@ -274,7 +284,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // BUSCA DE DADOS (CORRIGIDA: criado_em na tabela de fixos)
+        // BUSCA DE DADOS
         async function fetchData(isManual = false) {
             const icon = document.getElementById('sync-icon'); 
             if(isManual) icon.classList.add('animate-spin');
@@ -294,7 +304,7 @@
             if(isManual) setTimeout(() => icon.classList.remove('animate-spin'), 600);
         }
 
-        // RENDERIZAÇÃO DE CARDS
+        // RENDERIZAÇÃO DE CARDS (AGORA MOSTRA CATEGORIA NOS FIXOS TAMBÉM)
         function createCardRow(item, isFixed = false) {
             const val = parseFloat(item.amount);
             const isOut = isFixed ? item.type === 'FIXED_EXPENSE' : item.type === 'EXPENSE';
@@ -308,10 +318,11 @@
                 dateText = `<span class="text-xs font-semibold text-slate-400">${d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short'}).toUpperCase()}</span>`;
             }
 
-            const catBadge = !isFixed ? `<span class="mt-1.5 inline-block bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">${item.category || 'GERAL'}</span>` : '';
+            // Agora a Badge aparece tanto para reais quanto para fixos
+            const catBadge = `<span class="mt-1.5 inline-block bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">${item.category || 'GERAL'}</span>`;
 
-            // Parâmetros passados para as funções de editar (agora enviamos a categoria também)
-            const editArgs = isFixed ? `'${item.id}', '${item.description}', ${val}, ${item.due_day}, '${item.type}'` : `'${item.id}', '${item.description}', ${val}, '${item.category || ''}'`;
+            // Parâmetros passados para as funções de editar
+            const editArgs = isFixed ? `'${item.id}', '${item.description}', ${val}, ${item.due_day}, '${item.type}', '${item.category || ''}'` : `'${item.id}', '${item.description}', ${val}, '${item.category || ''}'`;
             const editFunc = isFixed ? `editFixed` : `openRealEdit`;
             const delFunc = isFixed ? `deleteFixed` : `deleteItem`;
 
@@ -340,27 +351,16 @@
         // MOTOR DE INSIGHTS DA IA LOCAL
         function generateAIInsight(totalIn, totalOut, cats, saldo) {
             const insightEl = document.getElementById('ia-insight');
-            
             if (totalOut === 0 && totalIn === 0) {
                 insightEl.innerText = "Adicione seus primeiros lançamentos para eu analisar seu perfil.";
                 return;
             }
-
-            // Descobre a categoria que você mais gasta
             const topCat = Object.entries(cats).sort((a,b) => b[1] - a[1])[0];
             let message = "";
-
-            if (saldo < 0) {
-                message = "Atenção: Seu saldo está negativo. Evite gastos supérfluos nos próximos dias para reequilibrar as contas.";
-            } else if (topCat && topCat[1] > 0) {
-                const pct = ((topCat[1] / totalOut) * 100).toFixed(0);
-                message = `Notei que sua maior despesa está sendo com ${topCat[0]} (${pct}% do total). Tente otimizar essa área!`;
-            } else if (saldo > 0 && totalOut > 0) {
-                message = `Ótimo ritmo! Você tem um saldo positivo considerável. Considere investir ou guardar uma parte na reserva.`;
-            } else {
-                message = "Seus números estão sincronizados. Mantenha o hábito de registrar tudo!";
-            }
-
+            if (saldo < 0) message = "Atenção: Seu saldo está negativo. Evite gastos supérfluos nos próximos dias para reequilibrar as contas.";
+            else if (topCat && topCat[1] > 0) message = `Notei que sua maior despesa está sendo com ${topCat[0]} (${((topCat[1] / totalOut) * 100).toFixed(0)}% do total). Tente otimizar essa área!`;
+            else if (saldo > 0 && totalOut > 0) message = `Ótimo ritmo! Você tem um saldo positivo considerável. Considere investir ou guardar uma parte na reserva.`;
+            else message = "Seus números estão sincronizados. Mantenha o hábito de registrar tudo!";
             insightEl.innerText = message;
         }
 
@@ -373,7 +373,7 @@
             // Processa Lançamentos Reais
             trans.forEach((i, idx) => {
                 const val = parseFloat(i.amount);
-                const catName = i.category || 'Outros'; // Prevenção contra nulos
+                const catName = i.category || 'Outros'; 
                 if(i.type === 'EXPENSE') { totalOut += val; cats[catName] = (cats[catName] || 0) + val; } else totalIn += val;
                 
                 const cardHtml = createCardRow(i, false);
@@ -385,13 +385,33 @@
                 fL.innerHTML = emptyMsg; qL.innerHTML = emptyMsg;
             }
 
-            // Processa Fixos
+            // Processa Fixos E Cria o Resumo por Categoria
+            let fixedCats = {};
             fixos.forEach(f => {
                 const v = parseFloat(f.amount);
-                if(f.type === 'FIXED_EXPENSE') fOut += v; else fIn += v;
+                if(f.type === 'FIXED_EXPENSE') {
+                    fOut += v; 
+                    const fixedCatName = f.category || 'GERAL';
+                    fixedCats[fixedCatName] = (fixedCats[fixedCatName] || 0) + v;
+                } else {
+                    fIn += v;
+                }
                 fxL.innerHTML += createCardRow(f, true);
             });
             if(fixos.length === 0) fxL.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">Nenhum compromisso fixo cadastrado.</div>`;
+
+            // Renderiza o "Mini Dashboard" de Categorias Fixas
+            const fixedSummaryContainer = document.getElementById('fixed-summary-container');
+            if(Object.keys(fixedCats).length > 0) {
+                fixedSummaryContainer.innerHTML = Object.entries(fixedCats).sort((a,b)=>b[1]-a[1]).map(([n,v]) => `
+                    <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-center gap-1 transition-transform hover:-translate-y-1">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">${n}</span>
+                        <span class="font-black text-rose-600 dark:text-rose-400 text-sm">${formatBRL(v)}</span>
+                    </div>
+                `).join('');
+            } else {
+                fixedSummaryContainer.innerHTML = `<div class="col-span-full p-4 text-center text-slate-400 text-xs bg-slate-100/50 dark:bg-slate-800/50 rounded-xl">Nenhuma categoria de gasto fixo cadastrada.</div>`;
+            }
 
             // Atualiza Top Cards
             const saldo = totalIn - totalOut;
@@ -401,7 +421,6 @@
             document.getElementById('total-fixo-out').innerText = formatBRL(fOut);
             document.getElementById('projecao-saldo').innerText = formatBRL(saldo + fIn - fOut);
 
-            // Roda a Inteligência de Insight
             generateAIInsight(totalIn, totalOut, cats, saldo);
 
             // Atualiza Gráfico de Pizza
@@ -479,12 +498,11 @@
 
         // FUNÇÕES DE MANIPULAÇÃO (Modais e Banco)
 
-        // Modal de Lançamentos Reais (AGORA COM CATEGORIA)
         function openRealEdit(id, desc, val, cat) { 
             document.getElementById('edit-real-id').value = id; 
             document.getElementById('edit-real-desc').value = desc; 
             document.getElementById('edit-real-amount').value = val; 
-            document.getElementById('edit-real-cat').value = cat || ''; // Preenche a categoria
+            document.getElementById('edit-real-cat').value = cat || ''; 
             document.getElementById('realEditModal').classList.remove('hidden'); 
             document.getElementById('realEditModal').classList.add('flex'); 
         }
@@ -493,9 +511,8 @@
             const id = document.getElementById('edit-real-id').value;
             const d = document.getElementById('edit-real-desc').value;
             const a = document.getElementById('edit-real-amount').value;
-            const c = document.getElementById('edit-real-cat').value; // Puxa a categoria editada
+            const c = document.getElementById('edit-real-cat').value; 
             
-            // Salva no banco (convertendo categoria para maiúsculo para manter o padrão)
             await supa.from('transactions').update({ description: d, amount: a, category: c.toUpperCase() }).eq('id', id); 
             closeRealModal(); 
             fetchData(); 
@@ -505,15 +522,17 @@
             document.getElementById('edit-fixed-id').value = ""; 
             document.getElementById('fix-desc').value = "";
             document.getElementById('fix-amount').value = "";
+            document.getElementById('fix-cat').value = "";
             document.getElementById('fixedForm').classList.toggle('hidden'); 
             document.getElementById('fixedForm').classList.toggle('flex'); 
         }
-        function editFixed(id, desc, amount, day, type) { 
+        function editFixed(id, desc, amount, day, type, cat) { 
             document.getElementById('edit-fixed-id').value = id; 
             document.getElementById('fix-desc').value = desc; 
             document.getElementById('fix-amount').value = amount; 
             document.getElementById('fix-day').value = day; 
             document.getElementById('fix-type').value = type; 
+            document.getElementById('fix-cat').value = cat || ''; 
             document.getElementById('fixedForm').classList.remove('hidden'); 
             document.getElementById('fixedForm').classList.add('flex'); 
         }
@@ -524,7 +543,8 @@
                 description: document.getElementById('fix-desc').value, 
                 amount: document.getElementById('fix-amount').value, 
                 due_day: document.getElementById('fix-day').value, 
-                type: document.getElementById('fix-type').value, 
+                type: document.getElementById('fix-type').value,
+                category: document.getElementById('fix-cat').value.toUpperCase(),
                 user_email: user.email.toLowerCase() 
             }; 
             if(id) await supa.from('fixed_expenses').update(payload).eq('id', id); 
