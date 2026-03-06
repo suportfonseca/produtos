@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nickel IA | App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -27,9 +27,9 @@
             .dark tr { border-color: #334155; background: #1e293b; }
             td { text-align: left; padding: 0.25rem 0 !important; border: none !important; }
             td:before { content: attr(data-label); font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; display: block; margin-bottom: 2px; }
-            .action-td { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 0.5rem; border-top: 1px solid #f1f5f9 !important; padding-top: 0.75rem !important; }
+            .action-td { display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 0.75rem; border-top: 1px solid #f1f5f9 !important; padding-top: 0.75rem !important; }
             .dark .action-td { border-top-color: #334155 !important; }
-            main { padding-bottom: 100px; }
+            main { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
         }
 
         ::-webkit-scrollbar { height: 4px; width: 4px; }
@@ -53,7 +53,7 @@
         </div>
     </aside>
 
-    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 border-t dark:border-slate-800 flex justify-around items-center p-3 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 border-t dark:border-slate-800 flex justify-around items-center p-3 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]" style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom));">
         <button onclick="changeTab('dash')" id="m-btn-dash" class="mobile-nav-link active flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold uppercase">Início</span></button>
         <button onclick="changeTab('fixas')" id="m-btn-fixas" class="mobile-nav-link flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-calendar-alt text-lg"></i><span class="text-[9px] font-bold uppercase">Plan</span></button>
         <button onclick="changeTab('logs')" id="m-btn-logs" class="mobile-nav-link flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-exchange-alt text-lg"></i><span class="text-[9px] font-bold uppercase">Extrato</span></button>
@@ -61,7 +61,7 @@
     </nav>
 
     <main class="flex-1 flex flex-col overflow-y-auto w-full">
-        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 md:p-6 border-b dark:border-slate-800 sticky top-0 z-10 flex justify-between items-center">
+        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 md:px-6 border-b dark:border-slate-800 sticky top-0 z-10 flex justify-between items-center" style="padding-top: max(1rem, env(safe-area-inset-top));">
             <h2 id="page-title" class="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 italic">Dashboard</h2>
             <div class="flex items-center gap-3">
                 <button onclick="fetchData(true)" class="text-blue-500 p-2"><i id="sync-icon" class="fas fa-bolt"></i></button>
@@ -171,8 +171,8 @@
             const { data: { user } } = await supa.auth.getUser(); if (!user) return window.location.href = "nickel-login.html";
             const selMonth = document.getElementById('dashMonthFilter').value;
             const [tRes, fRes] = await Promise.all([
-                supa.from('transactions').select('*').eq('user_email', user.email.toLowerCase()).order('date', {ascending: false}),
-                supa.from('fixed_expenses').select('*').eq('user_email', user.email.toLowerCase()).order('due_day', {ascending: true})
+                supa.from('transactions').select('*').eq('user_email', user.email.toLowerCase()).order('date', {ascending: false}).order('created_at', {ascending: false}),
+                supa.from('fixed_expenses').select('*').eq('user_email', user.email.toLowerCase()).order('due_day', {ascending: true}).order('created_at', {ascending: false})
             ]);
             renderDashboard(tRes.data.filter(t => t.date.startsWith(selMonth)), fRes.data || []);
             if(isManual) setTimeout(() => icon.classList.remove('sync-spin'), 600);
@@ -193,8 +193,8 @@
                         <td class="p-4" data-label="Categoria"><span class="bg-slate-100 dark:bg-slate-800 text-slate-400 px-2 py-1 rounded text-[8px] font-black uppercase">${i.category}</span></td>
                         <td class="p-4 md:text-right font-black ${isOut ? 'text-rose-500' : 'text-emerald-500'} text-xs md:text-[10px]" data-label="Valor Real">R$ ${val.toFixed(2)}</td>
                         <td class="p-4 text-center action-td">
-                            <button onclick="openRealEdit('${i.id}', '${i.description}', ${val})" class="text-blue-400"><i class="fas fa-edit"></i> <span class="md:hidden text-[10px] ml-1 uppercase font-black">Editar</span></button>
-                            <button onclick="deleteItem('${i.id}')" class="text-rose-200"><i class="fas fa-trash"></i> <span class="md:hidden text-[10px] ml-1 uppercase font-black">Apagar</span></button>
+                            <button onclick="openRealEdit('${i.id}', '${i.description}', ${val})" class="text-blue-500 bg-blue-50 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none flex-1 md:flex-none flex justify-center items-center min-h-[44px] md:min-h-0"><i class="fas fa-edit"></i> <span class="md:hidden text-[10px] ml-1 uppercase font-black">Editar</span></button>
+                            <button onclick="deleteItem('${i.id}')" class="text-rose-500 bg-rose-50 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none flex-1 md:flex-none flex justify-center items-center min-h-[44px] md:min-h-0"><i class="fas fa-trash"></i> <span class="md:hidden text-[10px] ml-1 uppercase font-black">Apagar</span></button>
                         </td>
                     </tr>`;
                 fL.innerHTML += row;
@@ -204,7 +204,7 @@
             fixos.forEach(f => {
                 const v = parseFloat(f.amount); const isOut = f.type === 'FIXED_EXPENSE';
                 if(isOut) fOut += v; else fIn += v;
-                fxL.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="p-5 font-black text-blue-500 text-[9px] uppercase italic" data-label="Vencimento">DIA ${f.due_day}</td><td class="p-5 font-black uppercase text-[10px]" data-label="Compromisso">${f.description}</td><td class="p-5 md:text-right font-black ${isOut ? 'text-rose-500' : 'text-emerald-500'} text-xs md:text-[10px]" data-label="Valor Projetado">R$ ${v.toFixed(2)}</td><td class="p-5 text-center action-td"><button onclick="editFixed('${f.id}', '${f.description}', ${f.amount}, ${f.due_day}, '${f.type}')" class="text-blue-400"><i class="fas fa-edit"></i> <span class="md:hidden text-[10px] ml-1 font-black uppercase">Editar</span></button><button onclick="deleteFixed('${f.id}')" class="text-rose-200"><i class="fas fa-trash"></i> <span class="md:hidden text-[10px] ml-1 font-black uppercase">Apagar</span></button></td></tr>`;
+                fxL.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="p-5 font-black text-blue-500 text-[9px] uppercase italic" data-label="Vencimento">DIA ${f.due_day}</td><td class="p-5 font-black uppercase text-[10px]" data-label="Compromisso">${f.description}</td><td class="p-5 md:text-right font-black ${isOut ? 'text-rose-500' : 'text-emerald-500'} text-xs md:text-[10px]" data-label="Valor Projetado">R$ ${v.toFixed(2)}</td><td class="p-5 text-center action-td"><button onclick="editFixed('${f.id}', '${f.description}', ${f.amount}, ${f.due_day}, '${f.type}')" class="text-blue-500 bg-blue-50 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none flex-1 md:flex-none flex justify-center items-center min-h-[44px] md:min-h-0"><i class="fas fa-edit"></i> <span class="md:hidden text-[10px] ml-1 font-black uppercase">Editar</span></button><button onclick="deleteFixed('${f.id}')" class="text-rose-500 bg-rose-50 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none flex-1 md:flex-none flex justify-center items-center min-h-[44px] md:min-h-0"><i class="fas fa-trash"></i> <span class="md:hidden text-[10px] ml-1 font-black uppercase">Apagar</span></button></td></tr>`;
             });
 
             const saldo = totalIn - totalOut;
