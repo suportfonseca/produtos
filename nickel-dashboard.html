@@ -1,245 +1,501 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nickel IA | App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script>
+        tailwind.config = { 
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: { 'fade-in': 'fadeIn 0.3s ease-out forwards' },
+                    keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                }
+            }
+        }
+    </script>
     <style>
         .section-content { display: none; }
-        .section-content.active { display: block; }
-        .nav-link.active { @apply bg-blue-600 text-white shadow-xl md:scale-105; }
-        .mobile-nav-link.active { @apply text-blue-500; }
+        .section-content.active { display: block; animation: fadeIn 0.4s ease-out forwards; }
+        
+        /* Navigations */
+        .nav-link.active { @apply bg-blue-600/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 font-bold; border-right: 3px solid #2563eb; }
+        .mobile-nav-link { @apply transition-all duration-300 ease-in-out; }
+        .mobile-nav-link.active { @apply text-blue-600 dark:text-blue-400 scale-110; }
+        .mobile-nav-link.active i { @apply drop-shadow-md; }
+        
+        /* Tema Escuro e Suavidade */
         body { transition: background-color 0.3s, color 0.3s; }
-        .dark .bg-white { background-color: #1e293b !important; color: #f8fafc; border-color: #334155 !important; }
-        .dark .bg-slate-50 { background-color: #0f172a !important; }
-        .dark .text-slate-900, .dark .text-slate-800, .dark .text-slate-700 { color: #f1f5f9 !important; }
+        .dark body { background-color: #0f172a; }
+        .dark .bg-white { background-color: #1e293b !important; border-color: #334155 !important; }
+        
+        /* Oculta scrollbar mas permite rolagem */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* MÁGICA DAS TABELAS RESPONSIVAS */
-        @media (max-width: 767px) {
-            table, thead, tbody, th, td, tr { display: block; }
-            thead { display: none; } /* Esconde o cabeçalho chato no mobile */
-            tr { margin-bottom: 1rem; border: 1px solid #e2e8f0; border-radius: 1.5rem; padding: 1rem; background: white; position: relative; }
-            .dark tr { border-color: #334155; background: #1e293b; }
-            td { text-align: left; padding: 0.25rem 0 !important; border: none !important; }
-            td:before { content: attr(data-label); font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; display: block; margin-bottom: 2px; }
-            .action-td { display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 0.75rem; border-top: 1px solid #f1f5f9 !important; padding-top: 0.75rem !important; }
-            .dark .action-td { border-top-color: #334155 !important; }
-            main { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
-        }
-
-        ::-webkit-scrollbar { height: 4px; width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        ::-webkit-scrollbar { height: 6px; width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        
+        main { padding-bottom: max(5rem, env(safe-area-inset-bottom)); }
+        @media (min-width: 768px) { main { padding-bottom: 0; } }
     </style>
 </head>
-<body class="bg-slate-50 font-sans flex flex-col md:flex-row h-screen overflow-hidden text-slate-900">
+<body class="bg-slate-50 text-slate-800 flex flex-col md:flex-row h-screen overflow-hidden">
 
-    <aside class="hidden md:flex w-64 bg-slate-900 text-white flex flex-col shrink-0 z-20 shadow-2xl">
-        <div class="p-6 border-b border-slate-800">
-            <div class="text-xl font-black text-blue-400 flex items-center gap-2 italic uppercase"><i class="fas fa-robot"></i> <span>Nickel IA</span></div>
+    <aside class="hidden md:flex w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-colors">
+        <div class="p-8 border-b border-slate-100 dark:border-slate-800">
+            <div class="text-2xl font-black text-blue-600 dark:text-blue-500 flex items-center gap-3 tracking-tight">
+                <div class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20"><i class="fas fa-robot"></i></div>
+                Nickel IA
+            </div>
         </div>
-        <nav class="flex-1 p-4 space-y-2 mt-4">
-            <button onclick="changeTab('dash')" id="btn-dash" class="nav-link active w-full text-left p-3 rounded-2xl flex items-center gap-3 transition-all"><i class="fas fa-home"></i> <span class="font-bold text-xs uppercase">Início</span></button>
-            <button onclick="changeTab('fixas')" id="btn-fixas" class="nav-link w-full p-3 rounded-2xl flex items-center gap-3 text-slate-400 hover:text-white transition-all"><i class="fas fa-calendar-alt"></i> <span class="font-bold text-xs uppercase">Planejamento</span></button>
-            <button onclick="changeTab('logs')" id="btn-logs" class="nav-link w-full p-3 rounded-2xl flex items-center gap-3 text-slate-400 hover:text-white transition-all"><i class="fas fa-exchange-alt"></i> <span class="font-bold text-xs uppercase">Extrato Real</span></button>
+        <nav class="flex-1 p-4 space-y-1 mt-4">
+            <button onclick="changeTab('dash')" id="btn-dash" class="nav-link active w-full text-left px-5 py-4 rounded-xl flex items-center gap-4 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"><i class="fas fa-home text-lg"></i> <span class="font-semibold text-sm">Visão Geral</span></button>
+            <button onclick="changeTab('fixas')" id="btn-fixas" class="nav-link w-full text-left px-5 py-4 rounded-xl flex items-center gap-4 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"><i class="fas fa-calendar-alt text-lg"></i> <span class="font-semibold text-sm">Planejamento</span></button>
+            <button onclick="changeTab('logs')" id="btn-logs" class="nav-link w-full text-left px-5 py-4 rounded-xl flex items-center gap-4 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"><i class="fas fa-list-ul text-lg"></i> <span class="font-semibold text-sm">Extrato Completo</span></button>
         </nav>
-        <div class="p-4 border-t border-slate-800 space-y-3">
-            <button onclick="toggleTheme()" class="w-full p-3 text-slate-400 hover:text-yellow-400 flex items-center gap-3 transition-all"><i id="theme-icon" class="fas fa-moon"></i> <span class="text-[10px] font-black uppercase" id="theme-text">Modo Escuro</span></button>
-            <button onclick="handleLogout()" class="w-full p-3 text-slate-500 hover:text-red-400 flex items-center gap-3 transition-all"><i class="fas fa-power-off"></i> <span class="text-[10px] font-black uppercase">Sair</span></button>
+        <div class="p-6 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <button onclick="toggleTheme()" class="w-full px-5 py-3 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-4 transition-all rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50"><i id="theme-icon" class="fas fa-moon text-lg"></i> <span class="text-sm font-semibold" id="theme-text">Modo Escuro</span></button>
+            <button onclick="handleLogout()" class="w-full px-5 py-3 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-4 transition-all rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10"><i class="fas fa-sign-out-alt text-lg"></i> <span class="text-sm font-semibold">Sair da conta</span></button>
         </div>
     </aside>
 
-    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 border-t dark:border-slate-800 flex justify-around items-center p-3 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]" style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom));">
-        <button onclick="changeTab('dash')" id="m-btn-dash" class="mobile-nav-link active flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold uppercase">Início</span></button>
-        <button onclick="changeTab('fixas')" id="m-btn-fixas" class="mobile-nav-link flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-calendar-alt text-lg"></i><span class="text-[9px] font-bold uppercase">Plan</span></button>
-        <button onclick="changeTab('logs')" id="m-btn-logs" class="mobile-nav-link flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-exchange-alt text-lg"></i><span class="text-[9px] font-bold uppercase">Extrato</span></button>
-        <button onclick="toggleTheme()" class="flex flex-col items-center gap-1 text-slate-400"><i id="m-theme-icon" class="fas fa-moon text-lg"></i><span class="text-[9px] font-bold uppercase">Tema</span></button>
+    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-around items-center pt-3 pb-5 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]" style="padding-bottom: max(1.25rem, env(safe-area-inset-bottom));">
+        <button onclick="changeTab('dash')" id="m-btn-dash" class="mobile-nav-link active flex flex-col items-center gap-1.5 text-slate-400 w-16"><i class="fas fa-home text-xl"></i><span class="text-[10px] font-semibold">Início</span></button>
+        <button onclick="changeTab('fixas')" id="m-btn-fixas" class="mobile-nav-link flex flex-col items-center gap-1.5 text-slate-400 w-16"><i class="fas fa-calendar-alt text-xl"></i><span class="text-[10px] font-semibold">Agenda</span></button>
+        <button onclick="changeTab('logs')" id="m-btn-logs" class="mobile-nav-link flex flex-col items-center gap-1.5 text-slate-400 w-16"><i class="fas fa-list-ul text-xl"></i><span class="text-[10px] font-semibold">Extrato</span></button>
+        <button onclick="toggleTheme()" class="mobile-nav-link flex flex-col items-center gap-1.5 text-slate-400 w-16"><i id="m-theme-icon" class="fas fa-moon text-xl"></i><span class="text-[10px] font-semibold">Tema</span></button>
     </nav>
 
-    <main class="flex-1 flex flex-col overflow-y-auto w-full">
-        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 md:px-6 border-b dark:border-slate-800 sticky top-0 z-10 flex justify-between items-center" style="padding-top: max(1rem, env(safe-area-inset-top));">
-            <h2 id="page-title" class="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 italic">Dashboard</h2>
-            <div class="flex items-center gap-3">
-                <button onclick="fetchData(true)" class="text-blue-500 p-2"><i id="sync-icon" class="fas fa-bolt"></i></button>
-                <div id="userDisplay" class="hidden sm:block text-[10px] font-black text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-4 py-1.5 rounded-full border border-blue-100 dark:border-blue-800 uppercase">CARREGANDO...</div>
-                <button onclick="handleLogout()" class="md:hidden text-slate-400 p-2"><i class="fas fa-power-off"></i></button>
+    <main class="flex-1 flex flex-col overflow-y-auto w-full relative">
+        <header class="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 md:px-10 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 flex justify-between items-center transition-colors" style="padding-top: max(1.25rem, env(safe-area-inset-top));">
+            <div>
+                <h2 id="page-title" class="text-lg md:text-xl font-black text-slate-800 dark:text-white tracking-tight">Visão Geral</h2>
+                <p class="text-xs text-slate-500 hidden md:block mt-0.5">Acompanhe seus números e mantenha o controle.</p>
+            </div>
+            <div class="flex items-center gap-3 md:gap-4">
+                <button onclick="fetchData(true)" class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 flex items-center justify-center hover:shadow-md transition-all"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
+                <div id="userDisplay" class="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm"><div class="w-2 h-2 rounded-full bg-emerald-500"></div> <span id="user-email-text">Carregando...</span></div>
+                <button onclick="handleLogout()" class="md:hidden w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </header>
 
-        <div class="p-4 md:p-8 space-y-6">
-            <div id="sec-dash" class="section-content active space-y-6">
-                <div class="flex justify-between items-center px-2">
-                    <span class="text-[10px] font-black text-slate-400 uppercase italic">Filtro de Período</span>
-                    <input type="month" id="dashMonthFilter" onchange="fetchData(true)" class="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-1.5 text-[10px] font-black uppercase outline-none">
+        <div class="p-4 md:p-10 space-y-8 max-w-7xl mx-auto w-full">
+            
+            <div id="sec-dash" class="section-content active space-y-8">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white dark:bg-slate-800 p-2 pl-4 pr-2 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:block">Período de Análise</span>
+                    <input type="month" id="dashMonthFilter" onchange="fetchData(true)" class="w-full sm:w-auto bg-slate-100 dark:bg-slate-900 border border-transparent dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-blue-500 transition-colors">
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-white p-5 rounded-3xl shadow-sm border"><p class="text-[9px] font-black text-slate-400 uppercase mb-1">Saldo Atual</p><h3 id="resumo-saldo" class="text-xl font-black">R$ 0,00</h3></div>
-                    <div class="bg-white p-5 rounded-3xl shadow-sm border-l-4 border-l-blue-500"><p class="text-blue-500 text-[9px] font-black uppercase mb-1">Sobra Estimada</p><h3 id="projecao-saldo" class="text-xl font-black">R$ 0,00</h3></div>
-                    <div class="bg-white p-5 rounded-3xl shadow-sm border-l-4 border-l-rose-500"><p class="text-rose-600 text-[9px] font-black uppercase mb-1">Fixos Totais</p><h3 id="total-fixo-out" class="text-xl font-black">R$ 0,00</h3></div>
-                    <div class="bg-slate-900 p-5 rounded-3xl shadow-xl text-white"><p class="text-blue-400 text-[9px] font-black uppercase mb-1">Insight IA 🤖</p><p id="ia-insight" class="text-[10px] font-medium italic">Sincronizado.</p></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-transform hover:-translate-y-1">
+                        <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center"><i class="fas fa-wallet text-lg"></i></div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Saldo Atual</p></div>
+                        <h3 id="resumo-saldo" class="text-2xl md:text-3xl font-black tracking-tight">R$ 0,00</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-transform hover:-translate-y-1">
+                        <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center"><i class="fas fa-chart-line text-lg"></i></div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Sobra Estimada</p></div>
+                        <h3 id="projecao-saldo" class="text-2xl md:text-3xl font-black tracking-tight">R$ 0,00</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 transition-transform hover:-translate-y-1">
+                        <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center"><i class="fas fa-thumbtack text-lg"></i></div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Fixos Totais</p></div>
+                        <h3 id="total-fixo-out" class="text-2xl md:text-3xl font-black tracking-tight">R$ 0,00</h3>
+                    </div>
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-950 p-6 rounded-3xl shadow-xl border border-slate-700 text-white transition-transform hover:-translate-y-1 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-robot text-6xl"></i></div>
+                        <div class="flex items-center gap-3 mb-4 relative z-10"><div class="w-10 h-10 rounded-xl bg-white/10 text-blue-400 flex items-center justify-center backdrop-blur-sm"><i class="fas fa-sparkles text-lg"></i></div><p class="text-xs font-bold text-slate-300 uppercase tracking-wider">Insight IA</p></div>
+                        <p id="ia-insight" class="text-sm font-medium leading-relaxed relative z-10 text-slate-200">Sincronizado e pronto para análises.</p>
+                    </div>
                 </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-3xl border shadow-sm"><div class="h-64"><canvas id="chartPie"></canvas></div></div>
-                    <div class="bg-white p-6 rounded-3xl border shadow-sm"><div id="abc-container" class="space-y-5"></div></div>
+                    <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-center"><h4 class="text-sm font-bold text-slate-800 dark:text-white mb-6">Distribuição de Gastos</h4><div class="h-64"><canvas id="chartPie"></canvas></div></div>
+                    <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm"><h4 class="text-sm font-bold text-slate-800 dark:text-white mb-6">Top Categorias</h4><div id="abc-container" class="space-y-6 mt-4"></div></div>
                 </div>
-                <div class="bg-white md:rounded-3xl shadow-sm border-y md:border overflow-hidden">
-                    <div class="p-5 border-b bg-slate-50/50 dark:bg-slate-800/30 font-black text-slate-800 dark:text-slate-200 text-[10px] uppercase italic">Lançamentos Recentes</div>
-                    <div class="p-2 md:p-0">
-                        <table class="w-full text-left text-sm font-bold">
-                            <tbody id="quick-logs"></tbody>
-                        </table>
-                    </div>
+
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white mb-4 tracking-tight px-2">Lançamentos Recentes</h3>
+                    <div id="quick-logs" class="space-y-3">
+                        </div>
+                    <button onclick="changeTab('logs')" class="w-full mt-4 py-4 rounded-2xl text-blue-600 dark:text-blue-400 font-bold text-sm bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">Ver extrato completo</button>
                 </div>
             </div>
 
-            <div id="sec-fixas" class="section-content space-y-6">
-                <div class="flex flex-col gap-4">
-                    <div class="flex justify-between items-center"><h3 class="text-lg font-black italic uppercase tracking-tighter">Planejamento</h3><button onclick="toggleFixedForm()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg">+ Novo</button></div>
-                    <div class="flex justify-center items-center gap-3"><button onclick="moveMonth(-1)" class="w-8 h-8 bg-white border rounded-full"><i class="fas fa-chevron-left text-blue-500 text-xs"></i></button><span id="current-month-display" class="bg-white px-6 py-2 border rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm italic">--</span><button onclick="moveMonth(1)" class="w-8 h-8 bg-white border rounded-full"><i class="fas fa-chevron-right text-blue-500 text-xs"></i></button></div>
-                </div>
-                <div class="bg-white p-2 rounded-3xl border shadow-sm overflow-x-auto"><div class="min-w-[600px] grid grid-cols-7 gap-1" id="calendar-header-grid"></div></div>
-                <div class="bg-white md:rounded-3xl shadow-sm border-y md:border overflow-hidden">
-                    <div class="p-5 border-b bg-slate-50/50 dark:bg-slate-800/30 font-black text-slate-800 dark:text-slate-200 text-[10px] uppercase italic tracking-wider">Templates de Compromissos</div>
-                    <div class="p-2 md:p-0">
-                        <table class="w-full text-left">
-                            <tbody id="fixed-list-logs"></tbody>
-                        </table>
+            <div id="sec-fixas" class="section-content space-y-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <button onclick="moveMonth(-1)" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-chevron-left"></i></button>
+                        <span id="current-month-display" class="w-40 text-center font-black text-sm text-slate-800 dark:text-white uppercase tracking-wider">--</span>
+                        <button onclick="moveMonth(1)" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-600 hover:bg-slate-100 transition"><i class="fas fa-chevron-right"></i></button>
                     </div>
+                    <button onclick="toggleFixedForm()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Novo Lançamento</button>
+                </div>
+                
+                <div class="bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="grid grid-cols-7 gap-1 md:gap-2" id="calendar-header-grid">
+                        </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white mb-4 tracking-tight px-2">Compromissos Fixos</h3>
+                    <div id="fixed-list-logs" class="space-y-3">
+                        </div>
                 </div>
             </div>
 
-            <div id="sec-logs" class="section-content">
-                <div class="bg-white md:rounded-3xl shadow-sm border-y md:border overflow-hidden">
-                    <div class="p-2 md:p-0">
-                        <table class="w-full text-left text-sm font-bold">
-                            <thead class="hidden md:table-header-group bg-slate-50 dark:bg-slate-800 text-[9px] font-black text-slate-400 uppercase border-b">
-                                <tr><th class="p-5">Data</th><th class="p-5">Descrição</th><th class="p-5">Categoria</th><th class="p-5 text-right">Valor</th><th class="p-5 text-center">Ações</th></tr>
-                            </thead>
-                            <tbody id="full-logs"></tbody>
-                        </table>
+            <div id="sec-logs" class="section-content space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-6 px-2">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white tracking-tight">Histórico de Movimentações</h3>
+                        <p class="text-xs text-slate-500 mt-1">Todos os seus registros do período selecionado.</p>
                     </div>
                 </div>
+                <div id="full-logs" class="space-y-3 pb-10">
+                    </div>
             </div>
         </div>
     </main>
 
-    <div id="realEditModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl w-full max-w-md border dark:border-slate-800">
-            <h4 class="font-black mb-6 text-lg italic underline decoration-emerald-500 uppercase">Editar Registro</h4>
-            <div class="space-y-4"><input type="hidden" id="edit-real-id"><input type="text" id="edit-real-desc" class="w-full border p-4 rounded-2xl text-sm dark:bg-slate-800 outline-none" placeholder="Nome"><input type="number" id="edit-real-amount" class="w-full border p-4 rounded-2xl font-black dark:bg-slate-800" placeholder="Valor"><div class="flex gap-4"><button onclick="closeRealModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 p-4 rounded-2xl font-black text-[10px] uppercase">Sair</button><button onclick="saveRealEdit()" class="flex-1 bg-emerald-600 text-white p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg">Gravar</button></div></div>
+    <div id="realEditModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4 transition-opacity">
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-800 transform transition-all animate-fade-in">
+            <h4 class="font-black mb-6 text-xl text-slate-800 dark:text-white tracking-tight">Editar Registro</h4>
+            <div class="space-y-5">
+                <input type="hidden" id="edit-real-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Descrição</label>
+                    <input type="text" id="edit-real-desc" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl text-sm dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Valor (R$)</label>
+                    <input type="number" step="0.01" id="edit-real-amount" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl text-lg font-black dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeRealModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 p-4 rounded-xl font-bold text-sm transition-colors">Cancelar</button>
+                    <button onclick="saveRealEdit()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30 transition-all">Salvar</button>
+                </div>
+            </div>
         </div>
     </div>
-    <div id="fixedForm" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl w-full max-w-md border dark:border-slate-800">
-            <h4 id="fixed-modal-title" class="font-black mb-6 text-lg italic underline decoration-blue-500 uppercase">Nova Projeção</h4>
-            <div class="space-y-4"><input type="hidden" id="edit-fixed-id"><input type="text" id="fix-desc" class="w-full border p-4 rounded-2xl text-sm dark:bg-slate-800 outline-none" placeholder="Nome"><input type="number" id="fix-amount" class="w-full border p-4 rounded-2xl font-black dark:bg-slate-800" placeholder="Valor"><div class="grid grid-cols-2 gap-3"><input type="number" id="fix-day" placeholder="Dia" class="border p-4 rounded-2xl font-bold dark:bg-slate-800"><select id="fix-type" class="border p-4 rounded-2xl font-black dark:bg-slate-800 text-xs"><option value="FIXED_EXPENSE">SAÍDA FIXA</option><option value="FIXED_INCOME">ENTRADA FIXA</option></select></div><div class="flex gap-4"><button onclick="toggleFixedForm()" class="flex-1 bg-slate-100 dark:bg-slate-800 p-4 rounded-2xl font-black text-[10px] uppercase">Sair</button><button onclick="saveFixed()" class="flex-1 bg-blue-600 text-white p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg">Gravar</button></div></div>
+
+    <div id="fixedForm" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4 transition-opacity">
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-800 transform transition-all animate-fade-in">
+            <h4 id="fixed-modal-title" class="font-black mb-6 text-xl text-slate-800 dark:text-white tracking-tight">Novo Planejamento</h4>
+            <div class="space-y-5">
+                <input type="hidden" id="edit-fixed-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Nome do Compromisso</label>
+                    <input type="text" id="fix-desc" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl text-sm dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Ex: Aluguel, Salário...">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Valor (R$)</label>
+                    <input type="number" step="0.01" id="fix-amount" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl text-lg font-black dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="0.00">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Dia do Mês</label>
+                        <input type="number" min="1" max="31" id="fix-day" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl font-bold dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 transition-all" placeholder="Dia">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Tipo</label>
+                        <select id="fix-type" class="w-full border border-slate-200 dark:border-slate-700 p-4 rounded-xl font-bold text-sm dark:bg-slate-800 dark:text-white outline-none focus:border-blue-500 transition-all">
+                            <option value="FIXED_EXPENSE">Saída Fixa</option>
+                            <option value="FIXED_INCOME">Entrada Fixa</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="toggleFixedForm()" class="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 p-4 rounded-xl font-bold text-sm transition-colors">Cancelar</button>
+                    <button onclick="saveFixed()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30 transition-all">Salvar</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // CONFIGURAÇÃO SUPABASE
         const API_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
         const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
         const supa = window.supabase.createClient(API_URL, API_KEY);
+        
         let pieChart, viewDate = new Date(), isDarkMode = localStorage.getItem('theme') === 'dark';
 
         const today = new Date();
         document.getElementById('dashMonthFilter').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
+        // UTILITÁRIO DE FORMATAÇÃO DE MOEDA
+        const formatBRL = (value) => {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        };
+
+        // GERENCIAMENTO DE TEMA
         function applyTheme() {
-            if (isDarkMode) { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun text-yellow-400'; document.getElementById('m-theme-icon').className = 'fas fa-sun text-yellow-400'; document.getElementById('theme-text').innerText = 'Modo Claro'; }
-            else { document.documentElement.classList.remove('dark'); document.getElementById('theme-icon').className = 'fas fa-moon'; document.getElementById('m-theme-icon').className = 'fas fa-moon'; document.getElementById('theme-text').innerText = 'Modo Escuro'; }
+            if (isDarkMode) { 
+                document.documentElement.classList.add('dark'); 
+                document.getElementById('theme-icon').className = 'fas fa-sun text-amber-400 text-lg'; 
+                document.getElementById('m-theme-icon').className = 'fas fa-sun text-amber-400 text-xl'; 
+                document.getElementById('theme-text').innerText = 'Modo Claro'; 
+            } else { 
+                document.documentElement.classList.remove('dark'); 
+                document.getElementById('theme-icon').className = 'fas fa-moon text-lg'; 
+                document.getElementById('m-theme-icon').className = 'fas fa-moon text-xl'; 
+                document.getElementById('theme-text').innerText = 'Modo Escuro'; 
+            }
+            if(pieChart) pieChart.update(); // Atualiza cores do gráfico
         }
         function toggleTheme() { isDarkMode = !isDarkMode; localStorage.setItem('theme', isDarkMode ? 'dark' : 'light'); applyTheme(); }
 
+        // NAVEGAÇÃO DE ABAS
         function changeTab(id) {
             document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(l => l.classList.remove('active', 'bg-blue-600', 'text-white', 'text-blue-500'));
+            document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById('sec-' + id).classList.add('active');
-            const dBtn = document.getElementById('btn-' + id); const mBtn = document.getElementById('m-btn-' + id);
-            if(dBtn) dBtn.classList.add('active', 'bg-blue-600', 'text-white'); if(mBtn) mBtn.classList.add('active', 'text-blue-500');
-            document.getElementById('page-title').innerText = id === 'dash' ? 'Dashboard' : (id === 'fixas' ? 'Planejamento' : 'Extrato');
+            
+            const dBtn = document.getElementById('btn-' + id); 
+            const mBtn = document.getElementById('m-btn-' + id);
+            if(dBtn) dBtn.classList.add('active'); 
+            if(mBtn) mBtn.classList.add('active');
+            
+            const titles = { 'dash': 'Visão Geral', 'fixas': 'Planejamento', 'logs': 'Extrato Completo' };
+            document.getElementById('page-title').innerText = titles[id];
+            
             if(id === 'fixas') renderCalendar();
-            window.scrollTo(0,0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // BUSCA DE DADOS
         async function fetchData(isManual = false) {
-            const icon = document.getElementById('sync-icon'); if(isManual) icon.classList.add('sync-spin');
-            const { data: { user } } = await supa.auth.getUser(); if (!user) return window.location.href = "nickel-login.html";
+            const icon = document.getElementById('sync-icon'); 
+            if(isManual) icon.classList.add('animate-spin');
+            
+            const { data: { user } } = await supa.auth.getUser(); 
+            if (!user) return window.location.href = "nickel-login.html";
+            
+            document.getElementById('user-email-text').innerText = user.email.split('@')[0];
+
             const selMonth = document.getElementById('dashMonthFilter').value;
             const [tRes, fRes] = await Promise.all([
                 supa.from('transactions').select('*').eq('user_email', user.email.toLowerCase()).order('date', {ascending: false}).order('created_at', {ascending: false}),
                 supa.from('fixed_expenses').select('*').eq('user_email', user.email.toLowerCase()).order('due_day', {ascending: true}).order('created_at', {ascending: false})
             ]);
+            
             renderDashboard(tRes.data.filter(t => t.date.startsWith(selMonth)), fRes.data || []);
-            if(isManual) setTimeout(() => icon.classList.remove('sync-spin'), 600);
+            if(isManual) setTimeout(() => icon.classList.remove('animate-spin'), 600);
         }
 
+        // RENDERIZAÇÃO DE LISTAS COMO CARDS (NOVO DESIGN)
+        function createCardRow(item, isFixed = false) {
+            const val = parseFloat(item.amount);
+            const isOut = isFixed ? item.type === 'FIXED_EXPENSE' : item.type === 'EXPENSE';
+            const colorClass = isOut ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400';
+            const bgBadge = isOut ? 'bg-rose-50 dark:bg-rose-500/10' : 'bg-emerald-50 dark:bg-emerald-500/10';
+            
+            let dateText = '';
+            if(isFixed) {
+                dateText = `<span class="text-xs font-black text-blue-500 bg-blue-50 dark:bg-blue-500/10 px-3 py-1.5 rounded-lg w-fit">Dia ${item.due_day}</span>`;
+            } else {
+                const d = new Date(item.date);
+                dateText = `<span class="text-xs font-semibold text-slate-400">${d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short'}).toUpperCase()}</span>`;
+            }
+
+            const catBadge = !isFixed ? `<span class="mt-1.5 inline-block bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">${item.category}</span>` : '';
+
+            const editArgs = isFixed ? `'${item.id}', '${item.description}', ${val}, ${item.due_day}, '${item.type}'` : `'${item.id}', '${item.description}', ${val}`;
+            const editFunc = isFixed ? `editFixed` : `openRealEdit`;
+            const delFunc = isFixed ? `deleteFixed` : `deleteItem`;
+
+            return `
+            <div class="group flex flex-col md:flex-row md:items-center justify-between p-4 md:p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl hover:shadow-md hover:border-blue-100 dark:hover:border-slate-700 transition-all">
+                <div class="flex flex-col md:flex-row md:items-center gap-3 md:gap-6 flex-1">
+                    <div class="flex justify-between items-center md:w-24">
+                        ${dateText}
+                        <span class="md:hidden font-black text-sm ${colorClass}">${formatBRL(val)}</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-bold text-slate-800 dark:text-white text-sm md:text-base leading-tight">${item.description}</p>
+                        ${catBadge}
+                    </div>
+                    <div class="hidden md:block md:w-32 text-right">
+                        <span class="font-black ${colorClass}">${formatBRL(val)}</span>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-4 md:mt-0 pt-3 md:pt-0 border-t border-slate-50 dark:border-slate-800 md:border-0 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="${editFunc}(${editArgs})" class="w-10 h-10 md:w-8 md:h-8 flex items-center justify-center bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 rounded-xl md:rounded-lg hover:bg-blue-600 hover:text-white transition-colors"><i class="fas fa-edit"></i></button>
+                    <button onclick="${delFunc}('${item.id}')" class="w-10 h-10 md:w-8 md:h-8 flex items-center justify-center bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 rounded-xl md:rounded-lg hover:bg-rose-600 hover:text-white transition-colors"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }
+
+        // RENDERIZAÇÃO DO DASHBOARD E LISTAS
         function renderDashboard(trans, fixos) {
             let totalIn = 0, totalOut = 0, cats = {}, fIn = 0, fOut = 0;
             const qL = document.getElementById('quick-logs'), fL = document.getElementById('full-logs'), fxL = document.getElementById('fixed-list-logs');
             qL.innerHTML = ""; fL.innerHTML = ""; fxL.innerHTML = "";
 
+            // Processa Lançamentos Reais
             trans.forEach((i, idx) => {
-                const val = parseFloat(i.amount); const isOut = i.type === 'EXPENSE';
-                if(isOut) { totalOut += val; cats[i.category] = (cats[i.category] || 0) + val; } else totalIn += val;
-                const row = `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4 font-bold text-slate-400 text-[10px]" data-label="Data">${new Date(i.date).toLocaleDateString()}</td>
-                        <td class="p-4 font-bold text-slate-700 dark:text-slate-200 uppercase text-[10px]" data-label="Descrição">${i.description}</td>
-                        <td class="p-4" data-label="Categoria"><span class="bg-slate-100 dark:bg-slate-800 text-slate-400 px-2 py-1 rounded text-[8px] font-black uppercase">${i.category}</span></td>
-                        <td class="p-4 md:text-right font-black ${isOut ? 'text-rose-500' : 'text-emerald-500'} text-xs md:text-[10px]" data-label="Valor Real">R$ ${val.toFixed(2)}</td>
-                        <td class="p-4 text-center action-td">
-                            <button onclick="openRealEdit('${i.id}', '${i.description}', ${val})" class="text-blue-500 bg-blue-50 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none flex-1 md:flex-none flex justify-center items-center min-h-[44px] md:min-h-0"><i class="fas fa-edit"></i> <span class="md:hidden text-[10px] ml-1 uppercase font-black">Editar</span></button>
-                            <button onclick="deleteItem('${i.id}')" class="text-rose-500 bg-rose-50 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none flex-1 md:flex-none flex justify-center items-center min-h-[44px] md:min-h-0"><i class="fas fa-trash"></i> <span class="md:hidden text-[10px] ml-1 uppercase font-black">Apagar</span></button>
-                        </td>
-                    </tr>`;
-                fL.innerHTML += row;
-                if(idx < 5) qL.innerHTML += row.split('<td class="p-4 text-center action-td">')[0] + '</tr>';
+                const val = parseFloat(i.amount);
+                if(i.type === 'EXPENSE') { totalOut += val; cats[i.category] = (cats[i.category] || 0) + val; } else totalIn += val;
+                
+                const cardHtml = createCardRow(i, false);
+                fL.innerHTML += cardHtml;
+                if(idx < 5) qL.innerHTML += cardHtml;
             });
+            if(trans.length === 0) {
+                const emptyMsg = `<div class="p-8 text-center text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">Nenhum lançamento encontrado neste mês.</div>`;
+                fL.innerHTML = emptyMsg; qL.innerHTML = emptyMsg;
+            }
 
+            // Processa Fixos
             fixos.forEach(f => {
-                const v = parseFloat(f.amount); const isOut = f.type === 'FIXED_EXPENSE';
-                if(isOut) fOut += v; else fIn += v;
-                fxL.innerHTML += `<tr class="hover:bg-slate-50 transition"><td class="p-5 font-black text-blue-500 text-[9px] uppercase italic" data-label="Vencimento">DIA ${f.due_day}</td><td class="p-5 font-black uppercase text-[10px]" data-label="Compromisso">${f.description}</td><td class="p-5 md:text-right font-black ${isOut ? 'text-rose-500' : 'text-emerald-500'} text-xs md:text-[10px]" data-label="Valor Projetado">R$ ${v.toFixed(2)}</td><td class="p-5 text-center action-td"><button onclick="editFixed('${f.id}', '${f.description}', ${f.amount}, ${f.due_day}, '${f.type}')" class="text-blue-500 bg-blue-50 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none flex-1 md:flex-none flex justify-center items-center min-h-[44px] md:min-h-0"><i class="fas fa-edit"></i> <span class="md:hidden text-[10px] ml-1 font-black uppercase">Editar</span></button><button onclick="deleteFixed('${f.id}')" class="text-rose-500 bg-rose-50 dark:bg-slate-800 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none flex-1 md:flex-none flex justify-center items-center min-h-[44px] md:min-h-0"><i class="fas fa-trash"></i> <span class="md:hidden text-[10px] ml-1 font-black uppercase">Apagar</span></button></td></tr>`;
+                const v = parseFloat(f.amount);
+                if(f.type === 'FIXED_EXPENSE') fOut += v; else fIn += v;
+                fxL.innerHTML += createCardRow(f, true);
             });
+            if(fixos.length === 0) fxL.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">Nenhum compromisso fixo cadastrado.</div>`;
 
+            // Atualiza Top Cards
             const saldo = totalIn - totalOut;
-            document.getElementById('resumo-saldo').innerText = `R$ ${saldo.toLocaleString('pt-BR')}`;
-            document.getElementById('resumo-saldo').className = `text-xl font-black ${saldo < 0 ? 'text-rose-500' : 'text-emerald-500'}`;
-            document.getElementById('total-fixo-out').innerText = `R$ ${fOut.toFixed(2)}`;
-            document.getElementById('projecao-saldo').innerText = `R$ ${(saldo + fIn - fOut).toLocaleString('pt-BR')}`;
+            document.getElementById('resumo-saldo').innerText = formatBRL(saldo);
+            document.getElementById('resumo-saldo').className = `text-2xl md:text-3xl font-black tracking-tight ${saldo < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`;
+            
+            document.getElementById('total-fixo-out').innerText = formatBRL(fOut);
+            document.getElementById('projecao-saldo').innerText = formatBRL(saldo + fIn - fOut);
+
+            // Atualiza Gráfico de Pizza
+            const chartColors = ['#3b82f6', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6', '#06b6d4'];
             if(pieChart) pieChart.destroy();
-            pieChart = new Chart(document.getElementById('chartPie'), { type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#3b82f6', '#f43f5e', '#10b981', '#f59e0b'], borderWidth: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } } } } });
-            document.getElementById('abc-container').innerHTML = Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,v]) => `<div><div class="flex justify-between font-bold text-[9px] uppercase mb-1"><span>${n}</span><span>R$ ${v.toFixed(2)}</span></div><div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1"><div class="bg-blue-600 h-1 rounded-full" style="width: ${(v/totalOut*100).toFixed(0)}%"></div></div></div>`).join('');
+            const ctx = document.getElementById('chartPie');
+            if(Object.keys(cats).length > 0) {
+                pieChart = new Chart(ctx, { 
+                    type: 'doughnut', 
+                    data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: chartColors, borderWidth: 0, hoverOffset: 10 }] }, 
+                    options: { cutout: '75%', maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: isDarkMode ? '#94a3b8' : '#64748b', boxWidth: 12, padding: 20, font: { family: 'Inter', size: 11, weight: 'bold' } } } } } 
+                });
+            } else {
+                ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height); // Limpa se vazio
+            }
+
+            // Atualiza Barras de Categoria (Top 5)
+            const topCats = Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,5);
+            document.getElementById('abc-container').innerHTML = topCats.length > 0 ? topCats.map(([n,v], index) => {
+                const color = chartColors[index % chartColors.length];
+                const pct = ((v/totalOut)*100).toFixed(0);
+                return `
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase tracking-wider">${n}</span>
+                        <span class="font-black text-sm text-slate-800 dark:text-white">${formatBRL(v)} <span class="text-[10px] text-slate-400 font-medium ml-1">(${pct}%)</span></span>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-1000 ease-out" style="width: ${pct}%; background-color: ${color};"></div>
+                    </div>
+                </div>`;
+            }).join('') : `<div class="text-slate-400 text-sm text-center py-10">Sem dados para análise.</div>`;
+            
             window.fixedData = fixos;
         }
 
-        function openRealEdit(id, desc, val) { document.getElementById('edit-real-id').value = id; document.getElementById('edit-real-desc').value = desc; document.getElementById('edit-real-amount').value = val; document.getElementById('realEditModal').classList.remove('hidden'); document.getElementById('realEditModal').classList.add('flex'); }
-        function closeRealModal() { document.getElementById('realEditModal').classList.add('hidden'); }
-        async function saveRealEdit() { const id = document.getElementById('edit-real-id').value, d = document.getElementById('edit-real-desc').value, a = document.getElementById('edit-real-amount').value; await supa.from('transactions').update({ description: d, amount: a }).eq('id', id); closeRealModal(); fetchData(); }
+        // RENDERIZAÇÃO DO CALENDÁRIO (MOBILE-FIRST)
         function renderCalendar() {
             const grid = document.getElementById('calendar-header-grid');
-            grid.innerHTML = ["DOM","SEG","TER","QUA","QUI","SEX","SÁB"].map(d => `<div class="text-center text-[9px] font-black text-slate-300 uppercase py-3 border-b">${d}</div>`).join('') + '<div id="cal-body" class="contents"></div>';
-            const b = document.getElementById('cal-body'), m = viewDate.getMonth(), y = viewDate.getFullYear();
-            document.getElementById('current-month-display').innerText = `${viewDate.toLocaleDateString('pt-BR', {month:'long', year:'numeric'}).toUpperCase()}`;
+            // Cabeçalho dos dias da semana
+            grid.innerHTML = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(d => `<div class="text-center text-[10px] md:text-xs font-bold text-slate-400 uppercase py-2">${d}</div>`).join('') + '<div id="cal-body" class="contents"></div>';
+            
+            const b = document.getElementById('cal-body');
+            const m = viewDate.getMonth(), y = viewDate.getFullYear();
+            
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            document.getElementById('current-month-display').innerText = `${monthNames[m]} ${y}`;
+            
             const f = new Date(y, m, 1).getDay(), dInM = new Date(y, m + 1, 0).getDate();
-            for(let i=0; i<f; i++) b.innerHTML += `<div class="bg-slate-50/50 dark:bg-slate-900/50 border-r border-b dark:border-slate-800"></div>`;
+            
+            // Espaços vazios do início do mês
+            for(let i=0; i<f; i++) b.innerHTML += `<div class="bg-slate-50/50 dark:bg-slate-900/30 rounded-xl"></div>`;
+            
+            // Dias do mês
             for(let d=1; d<=dInM; d++) {
                 const c = window.fixedData.filter(x => parseInt(x.due_day) === d);
-                b.innerHTML += `<div class="p-1 min-h-[50px] border-r border-b dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col"><span class="text-[9px] font-black text-slate-300 mb-0.5">${d}</span><div class="space-y-0.5">${c.map(x => `<div class="text-[6px] font-black p-0.5 rounded ${x.type === 'FIXED_EXPENSE' ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'} uppercase">${x.description.substring(0,6)}</div>`).join('')}</div></div>`;
+                const isToday = d === today.getDate() && m === today.getMonth() && y === today.getFullYear();
+                const dayCircleClass = isToday ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center' : 'text-slate-500 dark:text-slate-400 ml-1';
+                
+                let eventsHtml = c.map(x => {
+                    const isOut = x.type === 'FIXED_EXPENSE';
+                    return `
+                    <div class="text-[9px] md:text-[10px] font-bold px-1.5 py-1 rounded-md mb-1 truncate ${isOut ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'}" title="${x.description}">
+                        <span class="md:hidden w-1.5 h-1.5 rounded-full inline-block mr-0.5 ${isOut ? 'bg-rose-500' : 'bg-emerald-500'}"></span>
+                        <span class="hidden md:inline">${x.description}</span>
+                    </div>`;
+                }).join('');
+
+                b.innerHTML += `
+                <div class="min-h-[60px] md:min-h-[100px] p-1.5 md:p-2 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col rounded-xl hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold mb-1 ${dayCircleClass}">${d}</span>
+                    <div class="overflow-y-auto hide-scrollbar flex-1 flex flex-col justify-end md:justify-start">
+                        ${eventsHtml}
+                    </div>
+                </div>`;
             }
         }
-        function toggleFixedForm() { document.getElementById('edit-fixed-id').value = ""; document.getElementById('fixedForm').classList.toggle('hidden'); document.getElementById('fixedForm').classList.toggle('flex'); }
-        function editFixed(id, desc, amount, day, type) { document.getElementById('edit-fixed-id').value = id; document.getElementById('fix-desc').value = desc; document.getElementById('fix-amount').value = amount; document.getElementById('fix-day').value = day; document.getElementById('fix-type').value = type; document.getElementById('fixedForm').classList.remove('hidden'); document.getElementById('fixedForm').classList.add('flex'); }
-        async function saveFixed() { const { data: { user } } = await supa.auth.getUser(); const id = document.getElementById('edit-fixed-id').value, payload = { description: document.getElementById('fix-desc').value, amount: document.getElementById('fix-amount').value, due_day: document.getElementById('fix-day').value, type: document.getElementById('fix-type').value, user_email: user.email.toLowerCase() }; if(id) await supa.from('fixed_expenses').update(payload).eq('id', id); else await supa.from('fixed_expenses').insert([payload]); toggleFixedForm(); fetchData(); }
-        async function deleteFixed(id) { if(confirm("Apagar projeção?")) { await supa.from('fixed_expenses').delete().eq('id', id); fetchData(); } }
-        async function deleteItem(id) { if(confirm("Apagar registro?")) { await supa.from('transactions').delete().eq('id', id); fetchData(); } }
+
+        // FUNÇÕES DE MANIPULAÇÃO (Modais e Banco)
+        function openRealEdit(id, desc, val) { 
+            document.getElementById('edit-real-id').value = id; 
+            document.getElementById('edit-real-desc').value = desc; 
+            document.getElementById('edit-real-amount').value = val; 
+            document.getElementById('realEditModal').classList.remove('hidden'); 
+            document.getElementById('realEditModal').classList.add('flex'); 
+        }
+        function closeRealModal() { document.getElementById('realEditModal').classList.add('hidden'); document.getElementById('realEditModal').classList.remove('flex'); }
+        async function saveRealEdit() { 
+            const id = document.getElementById('edit-real-id').value, d = document.getElementById('edit-real-desc').value, a = document.getElementById('edit-real-amount').value; 
+            await supa.from('transactions').update({ description: d, amount: a }).eq('id', id); 
+            closeRealModal(); fetchData(); 
+        }
+
+        function toggleFixedForm() { 
+            document.getElementById('edit-fixed-id').value = ""; 
+            document.getElementById('fix-desc').value = "";
+            document.getElementById('fix-amount').value = "";
+            document.getElementById('fixedForm').classList.toggle('hidden'); 
+            document.getElementById('fixedForm').classList.toggle('flex'); 
+        }
+        function editFixed(id, desc, amount, day, type) { 
+            document.getElementById('edit-fixed-id').value = id; 
+            document.getElementById('fix-desc').value = desc; 
+            document.getElementById('fix-amount').value = amount; 
+            document.getElementById('fix-day').value = day; 
+            document.getElementById('fix-type').value = type; 
+            document.getElementById('fixedForm').classList.remove('hidden'); 
+            document.getElementById('fixedForm').classList.add('flex'); 
+        }
+        async function saveFixed() { 
+            const { data: { user } } = await supa.auth.getUser(); 
+            const id = document.getElementById('edit-fixed-id').value;
+            const payload = { 
+                description: document.getElementById('fix-desc').value, 
+                amount: document.getElementById('fix-amount').value, 
+                due_day: document.getElementById('fix-day').value, 
+                type: document.getElementById('fix-type').value, 
+                user_email: user.email.toLowerCase() 
+            }; 
+            if(id) await supa.from('fixed_expenses').update(payload).eq('id', id); 
+            else await supa.from('fixed_expenses').insert([payload]); 
+            toggleFixedForm(); fetchData(); 
+        }
+        
+        async function deleteFixed(id) { if(confirm("Tem certeza que deseja apagar essa projeção?")) { await supa.from('fixed_expenses').delete().eq('id', id); fetchData(); } }
+        async function deleteItem(id) { if(confirm("Tem certeza que deseja apagar esse registro?")) { await supa.from('transactions').delete().eq('id', id); fetchData(); } }
         function moveMonth(dir) { viewDate.setMonth(viewDate.getMonth() + dir); renderCalendar(); }
         async function handleLogout() { await supa.auth.signOut(); window.location.href = "nickel-login.html"; }
+        
         window.onload = () => { applyTheme(); fetchData(); };
     </script>
 </body>
