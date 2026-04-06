@@ -110,6 +110,16 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
+    "id": "GRP060426210704",
+    "name": "Camiseta marrom lisa",
+    "priceFrom": "79.90",
+    "priceTo": "79.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
     "id": "GRP060426210416",
     "name": "Blusa Flor de Lis",
     "priceFrom": "179.90",
