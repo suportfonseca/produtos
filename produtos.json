@@ -1,13 +1,13 @@
 [
   {
     "id": "GRP060426202623",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Conjunto em cetim",
+    "priceFrom": "339.90",
+    "priceTo": "339.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Verde oliva\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP060426203456",
