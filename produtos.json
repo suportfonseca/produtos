@@ -50,16 +50,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP060426205747",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP060426205726",
     "name": "Bolsa Rafitthy meia lua",
     "priceFrom": "229.90",
@@ -67,6 +57,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP060426205747",
+    "name": "Saia Evasê com bolsos",
+    "priceFrom": "229.90",
+    "priceTo": "229.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
