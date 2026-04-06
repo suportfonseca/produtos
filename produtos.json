@@ -150,7 +150,17 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP060426210840",
+    "id": "GRP060426210739",
+    "name": "Calça alfaiataria wide leg com cinto",
+    "priceFrom": "289.90",
+    "priceTo": "289.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP060426210858",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -160,13 +170,23 @@
     "tamanho": ""
   },
   {
-    "id": "GRP060426210739",
-    "name": "Calça alfaiataria wide leg com cinto",
-    "priceFrom": "289.90",
-    "priceTo": "289.90",
+    "id": "GRP060426210911",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP060426210840",
+    "name": "Blusa poliamida detalhe ombro",
+    "priceFrom": "129.90",
+    "priceTo": "129.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
