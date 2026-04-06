@@ -150,16 +150,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP060426210911",
-    "name": "Camisa botões pérola com toque acetinado",
-    "priceFrom": "219.90",
-    "priceTo": "219.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Cinza\",\"tamanhos\":\"https://www.mgwaretecnologia.com.br/app/catalogo.html?id=303796\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
     "id": "GRP060426210858",
     "name": "Calça alfaiataria reta",
     "priceFrom": "219.90",
@@ -167,6 +157,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"Creme\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP060426210911",
+    "name": "Camisa botões pérola com toque acetinado",
+    "priceFrom": "219.90",
+    "priceTo": "219.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Cinza\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
