@@ -150,6 +150,16 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
+    "id": "GRP060426210840",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
     "id": "GRP060426210739",
     "name": "Calça alfaiataria wide leg com cinto",
     "priceFrom": "289.90",
