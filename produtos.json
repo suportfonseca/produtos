@@ -31,12 +31,12 @@
   },
   {
     "id": "GRP060426203916",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Bolsa Rafitthy meia lua",
+    "priceFrom": "279.90",
+    "priceTo": "279.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   }
 ]
