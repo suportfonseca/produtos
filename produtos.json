@@ -160,7 +160,7 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP060426210858",
+    "id": "GRP060426210911",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -170,14 +170,14 @@
     "tamanho": ""
   },
   {
-    "id": "GRP060426210911",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "id": "GRP060426210858",
+    "name": "Calça alfaiataria reta",
+    "priceFrom": "219.90",
+    "priceTo": "219.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Creme\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP060426210840",
