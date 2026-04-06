@@ -28,5 +28,15 @@
     "category": "foto",
     "cor": "[{\"cor\":\"Jeans\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP060426203916",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
   }
 ]
