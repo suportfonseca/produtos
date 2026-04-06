@@ -1,6 +1,6 @@
 [
   {
-    "id": "GRP250326122636",
+    "id": "GRP060426202623",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -10,23 +10,13 @@
     "tamanho": ""
   },
   {
-    "id": "GRP250326122807",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "id": "GRP060426203456",
+    "name": "Blusa com detalhe em renda",
+    "priceFrom": "149.90",
+    "priceTo": "149.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
-    "id": "GRP250326122829",
-    "name": "TENIS BRANCO E MARROM",
-    "priceFrom": "497.00",
-    "priceTo": "397.00",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "video",
-    "cor": "[{\"cor\":\"BRANCA\",\"tamanhos\":\"41,42,43,44\"},{\"cor\":\"PRETA\",\"tamanhos\":\"45,56,57\"}]",
+    "cor": "[{\"cor\":\"Marrom claro\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Marrom escuro\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
