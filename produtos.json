@@ -21,12 +21,12 @@
   },
   {
     "id": "GRP060426203754",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Calça wide leg Visual",
+    "priceFrom": "419.90",
+    "priceTo": "419.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Jeans\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   }
 ]
