@@ -110,7 +110,17 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP060426210527",
+    "id": "GRP060426210416",
+    "name": "Blusa Flor de Lis",
+    "priceFrom": "179.90",
+    "priceTo": "179.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Caramelo\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP060426210543",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -120,13 +130,13 @@
     "tamanho": ""
   },
   {
-    "id": "GRP060426210416",
-    "name": "Blusa Flor de Lis",
-    "priceFrom": "179.90",
-    "priceTo": "179.90",
+    "id": "GRP060426210527",
+    "name": "Camiseta oversized estampa",
+    "priceFrom": "79.90",
+    "priceTo": "79.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"Caramelo\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "cor": "[{\"cor\":\"Onça\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
