@@ -110,6 +110,16 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
+    "id": "GRP060426210543",
+    "name": "Jaqueta jeans com bordado Flor de Lis",
+    "priceFrom": "579.90",
+    "priceTo": "579.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Jeans\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
     "id": "GRP060426210416",
     "name": "Blusa Flor de Lis",
     "priceFrom": "179.90",
@@ -118,16 +128,6 @@
     "category": "foto",
     "cor": "[{\"cor\":\"Caramelo\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP060426210543",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
   },
   {
     "id": "GRP060426210527",
