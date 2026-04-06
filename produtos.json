@@ -150,16 +150,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP060426210739",
-    "name": "Calça alfaiataria wide leg com cinto",
-    "priceFrom": "289.90",
-    "priceTo": "289.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
     "id": "GRP060426210911",
     "name": "",
     "priceFrom": "",
@@ -187,6 +177,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP060426210739",
+    "name": "Calça alfaiataria wide leg com cinto",
+    "priceFrom": "289.90",
+    "priceTo": "289.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
