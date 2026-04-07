@@ -100,7 +100,7 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP070426220039",
+    "id": "GRP070426220753",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -110,14 +110,14 @@
     "tamanho": ""
   },
   {
-    "id": "GRP070426220753",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "id": "GRP070426220039",
+    "name": "Vestido camisa com franzido",
+    "priceFrom": "299.90",
+    "priceTo": "299.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP070426221618",
