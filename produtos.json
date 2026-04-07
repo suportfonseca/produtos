@@ -1,15 +1,5 @@
 [
   {
-    "id": "GRP070426214256",
-    "name": "Camisa de linho alongada",
-    "priceFrom": "149.90",
-    "priceTo": "149.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Bordo\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
     "id": "GRP070426214900",
     "name": "",
     "priceFrom": "",
@@ -27,6 +17,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"Caramelo\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP070426214256",
+    "name": "Camisa de linho alongada",
+    "priceFrom": "149.90",
+    "priceTo": "149.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Bordo\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
