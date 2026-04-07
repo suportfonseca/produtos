@@ -121,13 +121,13 @@
   },
   {
     "id": "GRP070426221618",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Shorts de couro PU",
+    "priceFrom": "229.90",
+    "priceTo": "229.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP070426220846",
