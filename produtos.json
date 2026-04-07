@@ -28,5 +28,35 @@
     "category": "foto",
     "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
     "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP070426215302",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP070426215411",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP070426214912",
+    "name": "Vestido",
+    "priceFrom": "259.90",
+    "priceTo": "259.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Caramelo\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   }
 ]
