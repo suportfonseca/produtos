@@ -121,13 +121,13 @@
   },
   {
     "id": "GRP070426220825",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Body tule - não acompanha top",
+    "priceFrom": "59.90",
+    "priceTo": "59.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP070426220846",
