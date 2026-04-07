@@ -78,5 +78,25 @@
     "category": "foto",
     "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP070426215847",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP070426220007",
+    "name": "Blusa boho babados",
+    "priceFrom": "189.90",
+    "priceTo": "189.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   }
 ]
