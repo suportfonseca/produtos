@@ -100,16 +100,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP070426220753",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP070426220039",
     "name": "Vestido camisa com franzido",
     "priceFrom": "299.90",
@@ -147,6 +137,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP070426220753",
+    "name": "Calça Lado Avesso Wide Leg",
+    "priceFrom": "429.90",
+    "priceTo": "429.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Jeans\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   }
 ]
