@@ -81,13 +81,13 @@
   },
   {
     "id": "GRP090426214528",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Blusa tule decote",
+    "priceFrom": "179.90",
+    "priceTo": "179.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"\"},{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP090426214544",
