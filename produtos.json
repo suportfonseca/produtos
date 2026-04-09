@@ -1,13 +1,13 @@
 [
   {
     "id": "GRP090426214832",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Saia evasê cetim",
+    "priceFrom": "199.90",
+    "priceTo": "199.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"\"},{\"cor\":\"Creme\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP090426214850",
