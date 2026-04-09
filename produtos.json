@@ -90,16 +90,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP090426214648",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP090426214700",
     "name": "",
     "priceFrom": "",
@@ -158,6 +148,16 @@
     "category": "foto",
     "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
     "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP090426214648",
+    "name": "Camiseta estampa caldo de cana",
+    "priceFrom": "79.90",
+    "priceTo": "79.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "-",
+    "tamanho": "-"
   },
   {
     "id": "GRP090426214729",
