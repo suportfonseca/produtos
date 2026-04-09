@@ -161,13 +161,13 @@
   },
   {
     "id": "GRP090426214729",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Blazer alfaiataria",
+    "priceFrom": "299.90",
+    "priceTo": "299.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Cinza\",\"tamanhos\":\"\"},{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP090426214751",
