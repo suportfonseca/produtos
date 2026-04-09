@@ -1,86 +1,6 @@
 [
   {
-    "id": "GRP070426215658",
-    "name": "Camisa alongada com strass",
-    "priceFrom": "259.90",
-    "priceTo": "259.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP070426214755",
-    "name": "Saia camurça caramelo",
-    "priceFrom": "209.90",
-    "priceTo": "209.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Caramelo\",\"tamanhos\":\"\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP070426214256",
-    "name": "Camisa de linho alongada",
-    "priceFrom": "149.90",
-    "priceTo": "149.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Bordo\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP070426214900",
-    "name": "Saia resinada",
-    "priceFrom": "219.90",
-    "priceTo": "219.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP070426214912",
-    "name": "Vestido",
-    "priceFrom": "259.90",
-    "priceTo": "259.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Caramelo\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP070426215302",
-    "name": "Calça flare de renda",
-    "priceFrom": "219.90",
-    "priceTo": "219.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP070426215411",
-    "name": "Camiseta oversized urso",
-    "priceFrom": "79.90",
-    "priceTo": "79.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Branca - urso\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP070426215456",
-    "name": "Conjunto de couro (PU) - shorts e blusa",
-    "priceFrom": "349.90",
-    "priceTo": "349.90",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
-  },
-  {
-    "id": "GRP070426215847",
+    "id": "GRP090426214832",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -90,63 +10,193 @@
     "tamanho": ""
   },
   {
-    "id": "GRP070426220007",
-    "name": "Blusa boho babados",
+    "id": "GRP090426214850",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214906",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214919",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214936",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426215000",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426213156",
+    "name": "Blusa transpassada modal",
     "priceFrom": "189.90",
     "priceTo": "189.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"\"},{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP070426220039",
-    "name": "Vestido camisa com franzido",
-    "priceFrom": "299.90",
-    "priceTo": "299.90",
+    "id": "GRP090426214512",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP070426221618",
-    "name": "Shorts de couro PU",
-    "priceFrom": "229.90",
-    "priceTo": "229.90",
+    "id": "GRP090426214528",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"},{\"cor\":\"Marrom\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP070426220846",
-    "name": "Camisa Flor de Lis detalhe renda",
-    "priceFrom": "399.90",
-    "priceTo": "399.90",
+    "id": "GRP090426214544",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"Branca\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP070426220825",
-    "name": "Body tule - não acompanha top",
-    "priceFrom": "59.90",
-    "priceTo": "59.90",
+    "id": "GRP090426214603",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
+    "cor": "",
+    "tamanho": ""
   },
   {
-    "id": "GRP070426220753",
-    "name": "Calça Lado Avesso Wide Leg",
-    "priceFrom": "429.90",
-    "priceTo": "429.90",
+    "id": "GRP090426214618",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "[{\"cor\":\"Jeans\",\"tamanhos\":\"Consulte disponibilidade em cada loja\"}]",
-    "tamanho": "GRADE_INTELIGENTE"
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214634",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214648",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214700",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214715",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214729",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214751",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214808",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
+  },
+  {
+    "id": "GRP090426214820",
+    "name": "",
+    "priceFrom": "",
+    "priceTo": "",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "",
+    "tamanho": ""
   }
 ]
