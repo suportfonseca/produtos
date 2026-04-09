@@ -171,13 +171,13 @@
   },
   {
     "id": "GRP090426214751",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "name": "Cardigan Modo canelado moletinho",
+    "priceFrom": "199.90",
+    "priceTo": "199.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"\"},{\"cor\":\"Bege\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP090426214808",
