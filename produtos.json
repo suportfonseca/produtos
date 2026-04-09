@@ -90,16 +90,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP090426214544",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP090426214603",
     "name": "",
     "priceFrom": "",
@@ -158,6 +148,16 @@
     "category": "foto",
     "cor": "",
     "tamanho": ""
+  },
+  {
+    "id": "GRP090426214544",
+    "name": "Blusa canelada Lado Avesso",
+    "priceFrom": "189.90",
+    "priceTo": "189.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Bege\",\"tamanhos\":\"\"},{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP090426214729",
