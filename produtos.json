@@ -90,16 +90,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP090426214715",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP090426214544",
     "name": "Blusa canelada Lado Avesso",
     "priceFrom": "189.90",
@@ -157,6 +147,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP090426214715",
+    "name": "Saia Flor de Lis tricot",
+    "priceFrom": "319.90",
+    "priceTo": "319.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Animal print\",\"tamanhos\":\"\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
