@@ -180,7 +180,7 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP090426214808",
+    "id": "GRP090426214820",
     "name": "",
     "priceFrom": "",
     "priceTo": "",
@@ -190,13 +190,13 @@
     "tamanho": ""
   },
   {
-    "id": "GRP090426214820",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
+    "id": "GRP090426214808",
+    "name": "Blusa modal gola alta",
+    "priceFrom": "169.90",
+    "priceTo": "169.90",
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
-    "cor": "",
-    "tamanho": ""
+    "cor": "[{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   }
 ]
