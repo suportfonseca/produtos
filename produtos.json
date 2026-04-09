@@ -10,16 +10,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP090426214919",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP090426214850",
     "name": "Camisa oversized listrada",
     "priceFrom": "199.90",
@@ -37,6 +27,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"Jeans\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP090426214919",
+    "name": "Calça linho reta",
+    "priceFrom": "219.90",
+    "priceTo": "219.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Preto\",\"tamanhos\":\"\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
