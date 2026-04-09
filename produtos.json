@@ -10,16 +10,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP090426214850",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP090426214906",
     "name": "",
     "priceFrom": "",
@@ -38,6 +28,16 @@
     "category": "foto",
     "cor": "",
     "tamanho": ""
+  },
+  {
+    "id": "GRP090426214850",
+    "name": "Camisa oversized listrada",
+    "priceFrom": "199.90",
+    "priceTo": "199.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Azul\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
   },
   {
     "id": "GRP090426214936",
