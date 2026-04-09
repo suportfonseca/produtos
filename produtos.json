@@ -90,16 +90,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP090426214603",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP090426214618",
     "name": "",
     "priceFrom": "",
@@ -157,6 +147,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"Bege\",\"tamanhos\":\"\"},{\"cor\":\"Marrom\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP090426214603",
+    "name": "Camisa acetinada Flor de Lis",
+    "priceFrom": "409.90",
+    "priceTo": "409.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Azul petróleo\",\"tamanhos\":\"\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
