@@ -10,16 +10,6 @@
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
-    "id": "GRP090426214906",
-    "name": "",
-    "priceFrom": "",
-    "priceTo": "",
-    "image": "https://api.telegram.org/file/bot8362532511/",
-    "category": "foto",
-    "cor": "",
-    "tamanho": ""
-  },
-  {
     "id": "GRP090426214919",
     "name": "",
     "priceFrom": "",
@@ -37,6 +27,16 @@
     "image": "https://api.telegram.org/file/bot8362532511/",
     "category": "foto",
     "cor": "[{\"cor\":\"Azul\",\"tamanhos\":\"\"}]",
+    "tamanho": "GRADE_INTELIGENTE"
+  },
+  {
+    "id": "GRP090426214906",
+    "name": "Calça Visual Jeans skinny",
+    "priceFrom": "489.90",
+    "priceTo": "489.90",
+    "image": "https://api.telegram.org/file/bot8362532511/",
+    "category": "foto",
+    "cor": "[{\"cor\":\"Jeans\",\"tamanhos\":\"\"}]",
     "tamanho": "GRADE_INTELIGENTE"
   },
   {
