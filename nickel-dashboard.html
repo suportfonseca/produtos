@@ -155,6 +155,7 @@
                 <p id="user-email-text" class="text-xs text-slate-500 mt-0.5">carregando…</p>
             </div>
             <div class="flex items-center gap-2 ml-auto">
+                <button onclick="openNewTx()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i><span class="hidden sm:inline">Lançar</span></button>
                 <input type="month" id="monthFilter" onchange="loadAll()" class="hidden sm:block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold num">
                 <button onclick="vincularTelegram()" title="Telegram" class="w-9 h-9 rounded-full card grid place-items-center text-sky-500"><i class="fab fa-telegram-plane"></i></button>
                 <button onclick="toggleTheme()" title="Tema" class="hidden md:grid w-9 h-9 rounded-full card place-items-center text-slate-500"><i id="theme-ic-top" class="fas fa-moon"></i></button>
@@ -277,13 +278,64 @@
         </div>
     </main>
 
+    <!-- ══════════ WIZARD DE ONBOARDING ══════════ -->
+    <div id="wizard" class="hidden fixed inset-0 z-[80] bg-slate-50 dark:bg-slate-950 overflow-y-auto" style="padding-top:env(safe-area-inset-top)">
+        <div class="max-w-lg mx-auto px-5 py-8 min-h-full flex flex-col">
+            <div class="flex items-center gap-2 font-black text-xl" style="color:var(--accent)"><div class="w-8 h-8 rounded-lg grid place-items-center text-white" style="background:var(--accent)"><i class="fas fa-robot text-sm"></i></div>Nickel IA</div>
+            <div class="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full my-6"><div id="wiz-bar" class="h-full rounded-full transition-all duration-300" style="width:25%;background:var(--accent)"></div></div>
+
+            <div class="wiz-step" data-step="1">
+                <h2 class="text-2xl font-black mb-2">Bem-vindo! 👋</h2>
+                <p class="text-slate-500 mb-6">Vamos te conhecer rapidinho. Como você quer que eu te chame?</p>
+                <div class="space-y-3">
+                    <div><label class="text-xs font-bold text-slate-500">Como quer ser chamado?</label><input id="wiz-apelido" placeholder="Ex: Jô" class="w-full card px-4 py-3 text-sm mt-1"></div>
+                    <div><label class="text-xs font-bold text-slate-500">Nome completo</label><input id="wiz-nome" placeholder="Seu nome" class="w-full card px-4 py-3 text-sm mt-1"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-xs font-bold text-slate-500">Nascimento</label><input id="wiz-birth" type="date" class="w-full card px-4 py-3 text-sm mt-1"></div>
+                        <div><label class="text-xs font-bold text-slate-500">CPF</label><input id="wiz-cpf" placeholder="000.000.000-00" class="w-full card px-4 py-3 text-sm num mt-1"></div>
+                    </div>
+                    <p class="text-[11px] text-slate-400">O CPF ajuda a confirmar cadastros já existentes. É opcional.</p>
+                </div>
+            </div>
+
+            <div class="wiz-step hidden" data-step="2">
+                <h2 class="text-2xl font-black mb-2">Qual moeda você usa? 💰</h2>
+                <p class="text-slate-500 mb-6">Escolha a moeda principal das suas finanças.</p>
+                <div class="grid grid-cols-1 gap-2" id="wiz-currencies"></div>
+            </div>
+
+            <div class="wiz-step hidden" data-step="3">
+                <h2 class="text-2xl font-black mb-2">Seus bancos e saldos 🏦</h2>
+                <p class="text-slate-500 mb-6">Adicione suas contas com o saldo atual. Pode pular e fazer depois.</p>
+                <div id="wiz-accounts" class="space-y-2 mb-3"></div>
+                <button onclick="wizAddAccount()" class="w-full border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl py-3 text-slate-400 font-bold text-sm hover:border-brand-500 hover:text-brand-500"><i class="fas fa-plus"></i> Adicionar conta</button>
+            </div>
+
+            <div class="wiz-step hidden" data-step="4">
+                <div class="text-center py-6">
+                    <div class="text-5xl mb-4">🎉</div>
+                    <h2 class="text-2xl font-black mb-2">Tudo pronto, <span id="wiz-hello">amigo</span>!</h2>
+                    <p class="text-slate-500">Sua conta está configurada. Bora organizar suas finanças?</p>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-8 pt-4">
+                <button id="wiz-back" onclick="wizBack()" class="hidden flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Voltar</button>
+                <button id="wiz-next" onclick="wizNext()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm shadow-lg" style="background:var(--accent)">Continuar</button>
+            </div>
+            <button onclick="wizSkip()" class="mt-4 text-xs text-slate-400 mx-auto hover:text-slate-600">Preencher tudo depois</button>
+        </div>
+    </div>
+
     <!-- ══════════ MODAIS ══════════ -->
     <div id="m-account" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
         <div class="card p-7 w-full max-w-md">
             <h4 class="font-black text-xl mb-5" id="account-title">Nova conta</h4>
-            <input type="hidden" id="acc-id">
+            <input type="hidden" id="acc-id"><input type="hidden" id="acc-cor" value="#2a78d6"><input type="hidden" id="acc-icone" value="fa-building-columns">
             <div class="space-y-3">
-                <input id="acc-nome" placeholder="Nome (ex: Nubank)" class="w-full card px-4 py-3 text-sm">
+                <div><label class="text-xs font-bold text-slate-500">Banco (preenche cor automática)</label>
+                <select id="acc-bank" onchange="pickBank(this.value)" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
+                <input id="acc-nome" placeholder="Nome da conta" class="w-full card px-4 py-3 text-sm">
                 <div class="grid grid-cols-2 gap-3">
                     <select id="acc-tipo" onchange="accTipoChange()" class="w-full card px-4 py-3 text-sm font-semibold"><option value="CORRENTE">Conta corrente</option><option value="POUPANCA">Poupança</option><option value="INVESTIMENTO">Investimento</option><option value="RESERVA">Reserva</option><option value="CARTEIRA">Carteira/dinheiro</option><option value="CARTAO_CREDITO">Cartão de crédito</option></select>
                     <input id="acc-saldo" type="number" step="0.01" placeholder="Saldo atual" class="w-full card px-4 py-3 text-sm num">
@@ -385,7 +437,10 @@
                         <div class="flex gap-1 mt-1"><select id="crypto-cur" class="card px-2 py-3 text-sm font-bold w-[68px]"><option value="BRL">R$</option><option value="USD">US$</option></select><input id="crypto-price" type="number" step="0.01" placeholder="240000" class="flex-1 w-full card px-3 py-3 text-sm num"></div>
                     </div>
                 </div>
-                <div><label class="text-xs font-bold text-slate-500">Data</label><input id="crypto-date" type="date" class="w-full card px-4 py-3 text-sm mt-1"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-xs font-bold text-slate-500">Data</label><input id="crypto-date" type="date" class="w-full card px-4 py-3 text-sm mt-1"></div>
+                    <div><label class="text-xs font-bold text-slate-500">Onde está? (opcional)</label><input id="crypto-wallet" placeholder="Ex: Binance" class="w-full card px-4 py-3 text-sm mt-1"></div>
+                </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-crypto')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
                     <button onclick="saveCrypto()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Salvar</button>
@@ -421,7 +476,7 @@
             <input type="hidden" id="fix-id">
             <div class="space-y-3">
                 <input id="fix-desc" placeholder="Nome (ex: Aluguel)" class="w-full card px-4 py-3 text-sm">
-                <input id="fix-cat" placeholder="Categoria (ex: Moradia)" class="w-full card px-4 py-3 text-sm">
+                <select id="fix-cat" class="w-full card px-4 py-3 text-sm font-semibold"></select>
                 <div class="grid grid-cols-3 gap-3">
                     <input id="fix-amount" type="number" step="0.01" placeholder="Valor" class="card px-4 py-3 text-sm num">
                     <input id="fix-day" type="number" min="1" max="31" placeholder="Dia" class="card px-4 py-3 text-sm num">
@@ -441,7 +496,7 @@
             <input type="hidden" id="tx-id">
             <div class="space-y-3">
                 <input id="tx-desc" placeholder="Descrição" class="w-full card px-4 py-3 text-sm">
-                <input id="tx-cat" placeholder="Categoria" class="w-full card px-4 py-3 text-sm">
+                <select id="tx-cat" class="w-full card px-4 py-3 text-sm font-semibold"></select>
                 <input id="tx-amount" type="number" step="0.01" placeholder="Valor" class="w-full card px-4 py-3 text-lg font-black num">
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-edittx')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
@@ -474,6 +529,29 @@
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-settings')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
                     <button onclick="saveSettings()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-newtx" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card p-7 w-full max-w-md">
+            <h4 class="font-black text-xl mb-5">Novo lançamento</h4>
+            <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="ntx-exp" onclick="ntxSetType('EXPENSE')" class="py-2.5 rounded-xl font-bold text-sm border-2 border-transparent bg-slate-100 dark:bg-slate-800">🔴 Saída</button>
+                    <button type="button" id="ntx-inc" onclick="ntxSetType('INCOME')" class="py-2.5 rounded-xl font-bold text-sm border-2 border-transparent bg-slate-100 dark:bg-slate-800">🟢 Entrada</button>
+                </div>
+                <input id="ntx-desc" placeholder="Descrição (ex: Mercado)" class="w-full card px-4 py-3 text-sm">
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="ntx-amount" type="number" step="0.01" placeholder="Valor" class="card px-4 py-3 text-lg font-black num">
+                    <input id="ntx-date" type="date" class="card px-4 py-3 text-sm">
+                </div>
+                <div><label class="text-xs font-bold text-slate-500">Categoria</label><select id="ntx-cat" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
+                <div><label class="text-xs font-bold text-slate-500">Conta</label><select id="ntx-acc" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeModal('m-newtx')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
+                    <button onclick="saveNewTx()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Lançar</button>
                 </div>
             </div>
         </div>
@@ -524,11 +602,11 @@
         if (res.status === 204) return null;
         try { return await res.json(); } catch(e) { return null; }
     }
-    const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);
+    const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:(S.profile&&S.profile.currency)||'BRL'}).format(Number(v)||0);
     function toast(msg,type){ const c=document.getElementById('toast'); const el=document.createElement('div'); el.className='toast'+(type==='err'?' err':''); el.textContent=(type==='err'?'⚠️ ':'✅ ')+msg; c.appendChild(el); setTimeout(()=>{el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>el.remove(),300);},2600); }
     const COLORS = ['#2a78d6','#1baf7a','#eda100','#008300','#4a3aa7','#e34948','#e87ba4','#eb6834'];
 
-    let S = { accounts:[], tx:[], goals:[], crypto:null, recurring:[], fixed:[], budgets:[], settings:{}, transfers:[], cards:[], categories:[] };
+    let S = { accounts:[], tx:[], goals:[], crypto:null, recurring:[], fixed:[], budgets:[], settings:{}, transfers:[], cards:[], categories:[], profile:{} };
     let isDark = localStorage.getItem('theme') === 'dark';
     let viewDate = new Date();
     let flowChart, donutChart;
@@ -574,13 +652,14 @@
     // ═══════════ LOAD ═══════════
     async function loadAll(){
         const ic=document.getElementById('sync-ic'); ic.classList.add('animate-spin');
-        document.getElementById('user-email-text').innerText = EMAIL;
-        const [acc,tx,goals,rec,fixed,budgets,settings,transfers,cards,categories] = await Promise.all([
+        const [acc,tx,goals,rec,fixed,budgets,settings,transfers,cards,categories,profile] = await Promise.all([
             api('/accounts'), api('/transactions'), api('/goals'), api('/recurring'), api('/fixed_expenses'),
-            api('/budgets'), api('/settings'), api('/transfers'), api('/cards/summary'), api('/categories')
+            api('/budgets'), api('/settings'), api('/transfers'), api('/cards/summary'), api('/categories'), api('/profile')
         ]);
         S.accounts=acc||[]; S.tx=tx||[]; S.goals=goals||[]; S.recurring=rec||[]; S.fixed=fixed||[];
-        S.budgets=budgets||[]; S.settings=settings||{}; S.transfers=transfers||[]; S.cards=cards||[]; S.categories=categories||[];
+        S.budgets=budgets||[]; S.settings=settings||{}; S.transfers=transfers||[]; S.cards=cards||[]; S.categories=categories||[]; S.profile=profile||{};
+        document.getElementById('user-email-text').innerText = S.profile.apelido ? ('Olá, '+S.profile.apelido+' 👋') : EMAIL;
+        if(S.profile && S.profile.onboarded===false) showWizard();
         api('/crypto/portfolio').then(p=>{ S.crypto=p; renderInvest(); });
         renderOverview(); renderGastos(); renderContas(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); fillAccountSelects();
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
@@ -642,6 +721,7 @@
         renderMiniAccounts();
         renderLogList('recent-logs', S.tx.slice(0,5));
     }
+    const categoryOptions=(sel)=>S.categories.map(c=>`<option value="${c.nome}" ${c.nome===(sel||'').toUpperCase()?'selected':''}>${c.nome}</option>`).join('');
     const catColor=(name)=>{ const c=S.categories.find(x=>x.nome===(name||'').toUpperCase()); return c?c.cor:COLORS[Math.abs((name||'').split('').reduce((a,ch)=>a+ch.charCodeAt(0),0))%COLORS.length]; };
     const catIcon=(name)=>{ const c=S.categories.find(x=>x.nome===(name||'').toUpperCase()); return c?c.icone:'fa-tag'; };
     // ═══════════ GASTOS ═══════════
@@ -914,10 +994,12 @@
     function accountOptions(){ return S.accounts.map(a=>`<option value="${a.id}">${a.nome} (${fmt(a.balance)})</option>`).join(''); }
 
     // Conta
+    const BANKS=[['Nubank','#820ad1'],['Inter','#ff7a00'],['Itaú','#ec7000'],['Bradesco','#cc092f'],['Banco do Brasil','#0038a8'],['Caixa','#0070af'],['Santander','#ec0000'],['C6 Bank','#1a1a1a'],['PicPay','#11c76f'],['Mercado Pago','#00b1ea'],['BTG','#001e50'],['Sicoob','#003641']];
     function accTipoChange(){ const card=document.getElementById('acc-tipo').value==='CARTAO_CREDITO'; document.getElementById('acc-card-fields').classList.toggle('hidden',!card); document.getElementById('acc-saldo').placeholder=card?'Fatura atual (R$)':'Saldo atual'; }
-    function openAccount(){ ['acc-id','acc-nome','acc-saldo','acc-limite','acc-fech','acc-venc'].forEach(i=>document.getElementById(i).value=''); document.getElementById('account-title').innerText='Nova conta'; document.getElementById('acc-tipo').value='CORRENTE'; accTipoChange(); openModal('m-account'); }
-    function editAccount(a){ document.getElementById('acc-id').value=a.id; document.getElementById('account-title').innerText='Editar conta'; document.getElementById('acc-nome').value=a.nome; document.getElementById('acc-tipo').value=a.tipo; document.getElementById('acc-saldo').value=a.saldo_inicial; document.getElementById('acc-limite').value=a.limite||''; document.getElementById('acc-fech').value=a.dia_fechamento||''; document.getElementById('acc-venc').value=a.dia_vencimento||''; accTipoChange(); openModal('m-account'); }
-    async function saveAccount(){ const id=document.getElementById('acc-id').value; const tipo=document.getElementById('acc-tipo').value; const b={nome:document.getElementById('acc-nome').value,tipo,saldo_inicial:parseFloat(document.getElementById('acc-saldo').value)||0}; if(tipo==='CARTAO_CREDITO'){ b.limite=parseFloat(document.getElementById('acc-limite').value)||0; b.dia_fechamento=parseInt(document.getElementById('acc-fech').value)||null; b.dia_vencimento=parseInt(document.getElementById('acc-venc').value)||null; } if(!b.nome){ toast('Dê um nome à conta.','err'); return; } if(id)await api('/accounts/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/accounts',{method:'POST',body:JSON.stringify(b)}); closeModal('m-account'); toast(id?'Conta atualizada':'Conta "'+b.nome+'" criada'); loadAll(); }
+    function pickBank(name){ const b=BANKS.find(x=>x[0]===name); if(b){ if(!document.getElementById('acc-nome').value) document.getElementById('acc-nome').value=b[0]; document.getElementById('acc-cor').value=b[1]; document.getElementById('acc-icone').value='fa-building-columns'; } }
+    function openAccount(){ ['acc-id','acc-nome','acc-saldo','acc-limite','acc-fech','acc-venc'].forEach(i=>document.getElementById(i).value=''); document.getElementById('account-title').innerText='Nova conta'; document.getElementById('acc-tipo').value='CORRENTE'; document.getElementById('acc-cor').value='#2a78d6'; document.getElementById('acc-icone').value='fa-building-columns'; document.getElementById('acc-bank').innerHTML='<option value="">Personalizado</option>'+BANKS.map(b=>`<option value="${b[0]}">${b[0]}</option>`).join(''); accTipoChange(); openModal('m-account'); }
+    function editAccount(a){ document.getElementById('acc-bank').innerHTML='<option value="">Personalizado</option>'+BANKS.map(b=>`<option value="${b[0]}">${b[0]}</option>`).join(''); document.getElementById('acc-cor').value=a.cor||'#2a78d6'; document.getElementById('acc-icone').value=a.icone||'fa-building-columns'; document.getElementById('acc-id').value=a.id; document.getElementById('account-title').innerText='Editar conta'; document.getElementById('acc-nome').value=a.nome; document.getElementById('acc-tipo').value=a.tipo; document.getElementById('acc-saldo').value=a.saldo_inicial; document.getElementById('acc-limite').value=a.limite||''; document.getElementById('acc-fech').value=a.dia_fechamento||''; document.getElementById('acc-venc').value=a.dia_vencimento||''; accTipoChange(); openModal('m-account'); }
+    async function saveAccount(){ const id=document.getElementById('acc-id').value; const tipo=document.getElementById('acc-tipo').value; const b={nome:document.getElementById('acc-nome').value,tipo,saldo_inicial:parseFloat(document.getElementById('acc-saldo').value)||0,cor:document.getElementById('acc-cor').value,icone:document.getElementById('acc-icone').value}; if(tipo==='CARTAO_CREDITO'){ b.limite=parseFloat(document.getElementById('acc-limite').value)||0; b.dia_fechamento=parseInt(document.getElementById('acc-fech').value)||null; b.dia_vencimento=parseInt(document.getElementById('acc-venc').value)||null; } if(!b.nome){ toast('Dê um nome à conta.','err'); return; } if(id)await api('/accounts/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/accounts',{method:'POST',body:JSON.stringify(b)}); closeModal('m-account'); toast(id?'Conta atualizada':'Conta "'+b.nome+'" criada'); loadAll(); }
     async function delAccount(id,nome){ if(confirm('Excluir a conta "'+nome+'"? Os lançamentos dela ficam no histórico.')){ await api('/accounts/'+id,{method:'DELETE'}); toast('Conta excluída'); loadAll(); } }
 
     // Transferência
@@ -939,13 +1021,13 @@
     async function saveAporte(){ const goal=document.getElementById('aporte-goal-id').value,from=document.getElementById('aporte-from').value,amt=parseFloat(document.getElementById('aporte-amount').value); if(!amt||amt<=0)return; await api('/transfers',{method:'POST',body:JSON.stringify({from_account_id:from,goal_id:goal,amount:amt})}); closeModal('m-aporte'); toast('Aporte de '+fmt(amt)+' feito'); loadAll(); }
 
     // Cripto
-    function openCrypto(){ document.getElementById('crypto-title').innerText='Registrar cripto'; document.getElementById('crypto-id').value=''; document.getElementById('crypto-coin-wrap').classList.remove('hidden'); document.getElementById('crypto-origem').parentElement.classList.remove('hidden'); document.getElementById('crypto-qty').value=''; document.getElementById('crypto-price').value=''; document.getElementById('crypto-cur').value='BRL'; document.getElementById('crypto-origem').value='aporte'; document.getElementById('crypto-date').value=new Date().toISOString().slice(0,10); openModal('m-crypto'); }
+    function openCrypto(){ document.getElementById('crypto-title').innerText='Registrar cripto'; document.getElementById('crypto-id').value=''; document.getElementById('crypto-coin-wrap').classList.remove('hidden'); document.getElementById('crypto-origem').parentElement.classList.remove('hidden'); document.getElementById('crypto-qty').value=''; document.getElementById('crypto-price').value=''; document.getElementById('crypto-cur').value='BRL'; document.getElementById('crypto-origem').value='aporte'; const cw=document.getElementById('crypto-wallet'); if(cw) cw.value=''; document.getElementById('crypto-date').value=new Date().toISOString().slice(0,10); openModal('m-crypto'); }
     function editPurchase(l){ document.getElementById('crypto-title').innerText='Editar compra'; document.getElementById('crypto-id').value=l.id; document.getElementById('crypto-cg').value=l.coingecko_id; document.getElementById('crypto-sym').value=l.symbol; document.getElementById('crypto-coin-wrap').classList.add('hidden'); document.getElementById('crypto-origem').parentElement.classList.add('hidden'); document.getElementById('crypto-qty').value=l.quantity; document.getElementById('crypto-cur').value='BRL'; document.getElementById('crypto-price').value=l.unit_price_brl; document.getElementById('crypto-date').value=(l.purchase_date||'').slice(0,10); openModal('m-crypto'); }
     async function saveCrypto(){ const id=document.getElementById('crypto-id').value; const qty=parseFloat(document.getElementById('crypto-qty').value); let price=parseFloat(document.getElementById('crypto-price').value); if(!qty||price==null||isNaN(price)){ toast('Informe quantidade e preço.','err'); return; }
         if(document.getElementById('crypto-cur').value==='USD'){ const fx=await api('/fx'); price=price*(fx?.usd_brl||5); }
         const date=document.getElementById('crypto-date').value||null;
         if(id){ await api('/crypto/purchases/'+id,{method:'PATCH',body:JSON.stringify({quantity:qty,unit_price_brl:price,purchase_date:date})}); toast('Compra atualizada'); }
-        else { const [cg,sym]=document.getElementById('crypto-coin').value.split('|'); await api('/crypto/purchases',{method:'POST',body:JSON.stringify({coingecko_id:cg,symbol:sym,quantity:qty,unit_price_brl:price,purchase_date:date,origem:document.getElementById('crypto-origem').value})}); toast(document.getElementById('crypto-origem').value==='recebido'?sym+' recebido registrado':'Compra de '+sym+' registrada'); }
+        else { const [cg,sym]=document.getElementById('crypto-coin').value.split('|'); await api('/crypto/purchases',{method:'POST',body:JSON.stringify({coingecko_id:cg,symbol:sym,quantity:qty,unit_price_brl:price,purchase_date:date,origem:document.getElementById('crypto-origem').value,wallet:document.getElementById('crypto-wallet').value||null})}); toast(document.getElementById('crypto-origem').value==='recebido'?sym+' recebido registrado':'Compra de '+sym+' registrada'); }
         closeModal('m-crypto'); loadAll(); }
     async function delPurchase(id){ if(confirm('Remover esta compra?')){ await api('/crypto/purchases/'+id,{method:'DELETE'}); toast('Compra removida'); loadAll(); } }
 
@@ -957,13 +1039,18 @@
     async function delRecurring(id){ if(confirm('Apagar este lançamento automático?')){ await api('/recurring/'+id,{method:'DELETE'}); toast('Removido'); loadAll(); } }
 
     // Fixo (planejamento)
-    function openFixed(){ document.getElementById('fix-id').value=''; document.getElementById('fixed-title').innerText='Novo compromisso'; ['fix-desc','fix-cat','fix-amount','fix-day'].forEach(i=>document.getElementById(i).value=''); openModal('m-fixed'); }
-    function editFixed(f){ document.getElementById('fix-id').value=f.id; document.getElementById('fixed-title').innerText='Editar compromisso'; document.getElementById('fix-desc').value=f.description; document.getElementById('fix-cat').value=f.category||''; document.getElementById('fix-amount').value=f.amount; document.getElementById('fix-day').value=f.due_day; document.getElementById('fix-type').value=f.type; openModal('m-fixed'); }
+    function openFixed(){ document.getElementById('fix-id').value=''; document.getElementById('fixed-title').innerText='Novo compromisso'; ['fix-desc','fix-amount','fix-day'].forEach(i=>document.getElementById(i).value=''); document.getElementById('fix-cat').innerHTML=categoryOptions('CONTAS'); openModal('m-fixed'); }
+    function editFixed(f){ document.getElementById('fix-id').value=f.id; document.getElementById('fixed-title').innerText='Editar compromisso'; document.getElementById('fix-desc').value=f.description; document.getElementById('fix-cat').innerHTML=categoryOptions(f.category); document.getElementById('fix-cat').value=(f.category||'').toUpperCase(); document.getElementById('fix-amount').value=f.amount; document.getElementById('fix-day').value=f.due_day; document.getElementById('fix-type').value=f.type; openModal('m-fixed'); }
     async function saveFixed(){ const id=document.getElementById('fix-id').value; const b={description:document.getElementById('fix-desc').value,category:(document.getElementById('fix-cat').value||'').toUpperCase(),amount:parseFloat(document.getElementById('fix-amount').value),due_day:parseInt(document.getElementById('fix-day').value),type:document.getElementById('fix-type').value}; if(!b.description||!b.amount||!b.due_day)return; if(id)await api('/fixed_expenses/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/fixed_expenses',{method:'POST',body:JSON.stringify(b)}); closeModal('m-fixed'); toast(id?'Compromisso atualizado':'Compromisso criado'); loadAll(); }
     async function delFixed(id){ if(confirm('Apagar compromisso?')){ await api('/fixed_expenses/'+id,{method:'DELETE'}); toast('Compromisso excluído'); loadAll(); } }
 
     // Transação (editar)
-    function editTx(t){ document.getElementById('tx-id').value=t.id; document.getElementById('tx-desc').value=t.description; document.getElementById('tx-cat').value=t.category||''; document.getElementById('tx-amount').value=t.amount; openModal('m-edittx'); }
+    function editTx(t){ document.getElementById('tx-id').value=t.id; document.getElementById('tx-desc').value=t.description; document.getElementById('tx-cat').innerHTML=categoryOptions(t.category); document.getElementById('tx-cat').value=(t.category||'').toUpperCase(); document.getElementById('tx-amount').value=t.amount; openModal('m-edittx'); }
+    // ── Novo lançamento manual ──
+    let ntxType_='EXPENSE';
+    function ntxSetType(t){ ntxType_=t; const e=document.getElementById('ntx-exp'),i=document.getElementById('ntx-inc'); e.classList.toggle('border-rose-500',t==='EXPENSE'); e.classList.toggle('border-transparent',t!=='EXPENSE'); i.classList.toggle('border-emerald-500',t==='INCOME'); i.classList.toggle('border-transparent',t!=='INCOME'); }
+    function openNewTx(){ closeMore(); document.getElementById('ntx-desc').value=''; document.getElementById('ntx-amount').value=''; document.getElementById('ntx-date').value=new Date().toISOString().slice(0,10); document.getElementById('ntx-cat').innerHTML=categoryOptions('OUTROS'); document.getElementById('ntx-cat').value='OUTROS'; document.getElementById('ntx-acc').innerHTML=accountOptions(); ntxSetType('EXPENSE'); openModal('m-newtx'); }
+    async function saveNewTx(){ const desc=document.getElementById('ntx-desc').value, amt=parseFloat(document.getElementById('ntx-amount').value); if(!desc||!amt){ toast('Preencha descrição e valor.','err'); return; } await api('/transactions',{method:'POST',body:JSON.stringify({description:desc,amount:amt,type:ntxType_,category:document.getElementById('ntx-cat').value,date:document.getElementById('ntx-date').value||null,account_id:document.getElementById('ntx-acc').value})}); closeModal('m-newtx'); toast('Lançamento registrado'); loadAll(); }
     async function saveTx(){ const id=document.getElementById('tx-id').value; await api('/transactions/'+id,{method:'PATCH',body:JSON.stringify({description:document.getElementById('tx-desc').value,category:(document.getElementById('tx-cat').value||'').toUpperCase(),amount:parseFloat(document.getElementById('tx-amount').value)})}); closeModal('m-edittx'); toast('Lançamento atualizado'); loadAll(); }
     async function delTx(id){ if(confirm('Apagar este lançamento?')){ await api('/transactions/'+id,{method:'DELETE'}); toast('Lançamento excluído'); loadAll(); } }
 
@@ -982,6 +1069,50 @@
     function editCategory(c){ document.getElementById('cat-id').value=c.id; document.getElementById('category-title').innerText='Editar categoria'; document.getElementById('cat-nome').value=c.nome; document.getElementById('cat-cor').value=c.cor; document.getElementById('cat-icone').value=c.icone; document.getElementById('cat-tipo').value=c.tipo; openModal('m-category'); }
     async function saveCategory(){ const id=document.getElementById('cat-id').value; const b={nome:document.getElementById('cat-nome').value,cor:document.getElementById('cat-cor').value,icone:document.getElementById('cat-icone').value||'fa-tag',tipo:document.getElementById('cat-tipo').value}; if(!b.nome){ toast('Dê um nome à categoria.','err'); return; } if(id)await api('/categories/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/categories',{method:'POST',body:JSON.stringify(b)}); closeModal('m-category'); toast(id?'Categoria atualizada':'Categoria "'+b.nome.toUpperCase()+'" criada'); loadAll(); }
     async function delCategory(id){ if(confirm('Excluir esta categoria? Os lançamentos antigos mantêm o nome.')){ await api('/categories/'+id,{method:'DELETE'}); toast('Categoria excluída'); loadAll(); } }
+
+    // ═══════════ WIZARD ═══════════
+    let wizStep=1, wizCurrency='BRL'; const wizAccounts=[];
+    const CURRENCIES=[['BRL','Real brasileiro','R$'],['USD','Dólar americano','US$'],['EUR','Euro','€'],['GBP','Libra esterlina','£']];
+    function showWizard(){
+        wizStep=1; wizCurrency='BRL'; wizAccounts.length=0;
+        document.getElementById('wiz-currencies').innerHTML=CURRENCIES.map((c,i)=>`<button type="button" onclick="wizPickCurrency('${c[0]}',this)" class="wiz-cur card px-4 py-3.5 text-left font-semibold flex justify-between items-center ${i===0?'ring-2 ring-blue-500':''}">${c[1]} <span class="text-slate-400 num">${c[2]}</span></button>`).join('');
+        wizRender(); document.getElementById('wizard').classList.remove('hidden');
+    }
+    function wizPickCurrency(c,el){ wizCurrency=c; document.querySelectorAll('.wiz-cur').forEach(b=>b.classList.remove('ring-2','ring-blue-500')); el.classList.add('ring-2','ring-blue-500'); }
+    function wizRender(){
+        document.querySelectorAll('.wiz-step').forEach(s=>s.classList.toggle('hidden', +s.dataset.step!==wizStep));
+        document.getElementById('wiz-bar').style.width=(wizStep*25)+'%';
+        document.getElementById('wiz-back').classList.toggle('hidden', wizStep===1);
+        document.getElementById('wiz-next').innerText = wizStep===4?'Começar a usar 🚀':'Continuar';
+        if(wizStep===3) wizRenderAccounts();
+        if(wizStep===4) document.getElementById('wiz-hello').innerText = document.getElementById('wiz-apelido').value||'amigo';
+    }
+    function wizBack(){ if(wizStep>1){ wizStep--; wizRender(); } }
+    function wizNext(){ if(wizStep<4){ wizStep++; wizRender(); } else wizFinish(); }
+    function wizAddAccount(){ wizAccounts.push({nome:'',tipo:'CORRENTE',saldo:''}); wizRenderAccounts(); }
+    function wizRenderAccounts(){
+        const el=document.getElementById('wiz-accounts');
+        el.innerHTML=wizAccounts.map((a,i)=>`<div class="card p-2.5 flex gap-2 items-center">
+            <input value="${a.nome}" oninput="wizAccounts[${i}].nome=this.value" placeholder="Banco/conta" class="flex-1 bg-transparent text-sm font-semibold outline-none">
+            <select onchange="wizAccounts[${i}].tipo=this.value" class="bg-transparent text-xs font-semibold outline-none text-slate-500"><option value="CORRENTE">Corrente</option><option value="POUPANCA">Poupança</option><option value="CARTEIRA">Carteira</option><option value="RESERVA">Reserva</option><option value="INVESTIMENTO">Investim.</option></select>
+            <input value="${a.saldo}" oninput="wizAccounts[${i}].saldo=this.value" type="number" step="0.01" placeholder="Saldo" class="w-24 bg-transparent text-sm num outline-none text-right">
+            <button type="button" onclick="wizAccounts.splice(${i},1);wizRenderAccounts()" class="text-rose-400 px-1"><i class="fas fa-times"></i></button>
+        </div>`).join('')||'<p class="text-xs text-slate-400 text-center py-3 card">Nenhuma conta ainda. Adicione ou pule esta etapa.</p>';
+    }
+    async function wizFinish(){
+        document.getElementById('wiz-next').disabled=true;
+        await api('/profile',{method:'PUT',body:JSON.stringify({
+            nome:document.getElementById('wiz-nome').value||null,
+            apelido:document.getElementById('wiz-apelido').value||null,
+            birthdate:document.getElementById('wiz-birth').value||null,
+            cpf:document.getElementById('wiz-cpf').value||null,
+            currency:wizCurrency, onboarded:true })});
+        for(const a of wizAccounts){ if(a.nome) await api('/accounts',{method:'POST',body:JSON.stringify({nome:a.nome,tipo:a.tipo,saldo_inicial:parseFloat(a.saldo)||0})}); }
+        document.getElementById('wiz-next').disabled=false;
+        document.getElementById('wizard').classList.add('hidden');
+        toast('Tudo pronto! 🎉'); loadAll();
+    }
+    async function wizSkip(){ await api('/profile',{method:'PUT',body:JSON.stringify({onboarded:true})}); document.getElementById('wizard').classList.add('hidden'); toast('Você pode configurar tudo depois nas telas.'); loadAll(); }
 
     // Telegram
     async function vincularTelegram(){ const r=await api('/link-code',{method:'POST'}); if(r&&r.code){ document.getElementById('tg-code').innerText=r.code; openModal('m-tglink'); } }
