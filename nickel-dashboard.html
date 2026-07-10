@@ -156,6 +156,7 @@
                 <button class="nav-top" id="t-extrato" onclick="go('extrato')">Extrato</button>
                 <div class="nav-item"><button class="nav-top" id="t-cad">Cadastros <i class="fas fa-chevron-down text-[9px]"></i></button>
                     <div class="nav-drop">
+                        <button onclick="go('cad')"><i class="fas fa-tags"></i> Categorias</button>
                         <button onclick="go('recorrentes')"><i class="fas fa-repeat"></i> Lançamentos automáticos</button>
                         <button onclick="go('cripto')"><i class="fab fa-bitcoin"></i> Carteira de cripto</button>
                         <button onclick="go('contas')"><i class="fas fa-landmark"></i> Bancos e contas</button>
@@ -742,11 +743,12 @@
             else inc+=v; });
         const consol=consolidated();
         const sobra=inc-exp;
-        // disponível = consolidado + fixos a receber - fixos a pagar (do dia de hoje em diante)
+        // disponível p/ gastar = só contas do dia a dia (corrente/carteira), sem reserva/poupança/investimento
         const today=new Date().getDate();
         let fIn=0,fOut=0;
         S.fixed.forEach(f=>{ const v=parseFloat(f.amount); if(parseInt(f.due_day)>=today){ if(f.type==='FIXED_INCOME')fIn+=v; else fOut+=v; }});
-        const disp=consol+fIn-fOut;
+        const gastavel=S.accounts.filter(a=>['CORRENTE','CARTEIRA'].includes(a.tipo)&&a.incluir_no_consolidado).reduce((s,a)=>s+parseFloat(a.balance||0),0);
+        const disp=gastavel+fIn-fOut;
         // taxa de aporte: aportes do mês / receita do mês
         const aportes = S.goals.length ? 0 : 0; // aportes vêm de transfers; aproximação via recurring APORTE
         const aporteMes = S.recurring.filter(r=>r.tipo==='APORTE').reduce((s,r)=>s+parseFloat(r.amount),0);
@@ -760,7 +762,7 @@
         const dispColor = disp<0?'var(--neg)':'var(--pos)';
         document.getElementById('kpi-grid').innerHTML =
             kpiTile('Saldo Consolidado', fmt(consol), 'col-span-2', `<span class="text-slate-400">${S.accounts.length} conta(s)</span>`, sparkline(last7Balance(),'var(--accent)'), 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.')
-          + kpiTile('Disponível p/ gastar', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'até o fim do mês', '', 'O que sobra até o fim do mês depois de pagar os compromissos fixos que ainda faltam.')
+          + kpiTile('Disponível p/ gastar', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'contas do dia a dia', '', 'Quanto você pode gastar até o fim do mês. Considera só as contas corrente e carteira (não a reserva, poupança nem investimentos) menos os compromissos fixos que ainda faltam.')
           + kpiTile('Sobra do mês', `<span style="color:${sobra<0?'var(--neg)':'var(--pos)'}">${fmt(sobra)}</span>`, '', `entradas ${fmt(inc)}`, '', 'Suas entradas menos suas saídas neste mês. Verde é sobra, vermelho é falta.')
           + kpiTile('Taxa de aporte', taxa.toFixed(0)+'%', '', 'da renda guardada', '', 'Quanto da sua renda deste mês você conseguiu guardar.')
           + kpiTile('Reserva', meses>0?meses.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que você já tem guardado.')
