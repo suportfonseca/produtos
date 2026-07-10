@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#2a78d6">
     <link rel="manifest" href="manifest.json">
     <title>Nickel IA | App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Sora:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -73,6 +73,10 @@
         .tgl span.tk::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
         .tgl input:checked+span.tk{background:var(--accent)}
         .tgl input:checked+span.tk::before{transform:translateX(18px)}
+        @keyframes welpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+        @keyframes welgrow{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+        @keyframes welfloat{50%{transform:translateY(-12px)}}
+        #welcome .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4}
         #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
         .toast{background:#0e1726;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 10px 34px rgba(0,0,0,.25);animation:tin .25s ease-out;display:flex;gap:8px;align-items:center;max-width:90vw}
         .dark .toast{background:#1e293b;border:1px solid #334155}
@@ -333,6 +337,20 @@
                 <button id="wiz-next" onclick="wizNext()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm shadow-lg" style="background:var(--accent)">Continuar</button>
             </div>
             <button onclick="wizSkip()" class="mt-4 text-xs text-slate-400 mx-auto hover:text-slate-600">Preencher tudo depois</button>
+        </div>
+    </div>
+
+    <!-- ══════════ BOAS-VINDAS ══════════ -->
+    <div id="welcome" class="hidden fixed inset-0 z-[90] items-center justify-center p-6" style="background:radial-gradient(120% 90% at 50% -10%,#04353f,#002127 45%,#00161a 100%);overflow:hidden">
+        <div class="orb" style="width:420px;height:420px;background:#17C964;top:-120px;left:-80px"></div>
+        <div class="orb" style="width:380px;height:380px;background:#2F7CF0;bottom:-120px;right:-80px"></div>
+        <div style="text-align:center;max-width:440px;position:relative;z-index:1">
+            <img src="mascote.png" id="wel-mascot" alt="Nickel" style="width:130px;margin:0 auto 22px;filter:drop-shadow(0 14px 34px rgba(23,201,100,.55))">
+            <div id="wel-bubble" style="background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16);border-radius:22px 22px 22px 6px;padding:22px 26px;color:#F2FBF9;text-align:left;box-shadow:0 20px 50px rgba(0,10,12,.5)">
+                <div style="font-size:12px;color:#8AA0A0;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#17C964;display:inline-block"></span> Nickel Ai</div>
+                <div id="wel-text" style="font-family:'Sora',sans-serif;font-weight:800;font-size:22px;line-height:1.3"></div>
+            </div>
+            <button onclick="closeWelcome()" id="wel-btn" style="margin-top:30px;opacity:0;transition:opacity .5s;background:linear-gradient(120deg,#2F7CF0,#17C964 52%,#A6E635);color:#03251a;font-weight:700;border:none;border-radius:14px;padding:15px 32px;font-size:15px;cursor:pointer;box-shadow:0 0 34px rgba(23,201,100,.4)">Vamos lá! 🚀</button>
         </div>
     </div>
 
@@ -1132,7 +1150,8 @@
         </div>`).join('')||'<p class="text-xs text-slate-400 text-center py-3 card">Nenhuma conta ainda. Adicione ou pule esta etapa.</p>';
     }
     async function wizFinish(){
-        const btn=document.getElementById('wiz-next'); btn.disabled=true;
+        const btn=document.getElementById('wiz-next'); btn.disabled=true; btn.innerText='Salvando...';
+        const apelido=(document.getElementById('wiz-apelido').value||S.profile.apelido||'').trim();
         try{
             await api('/profile',{method:'PUT',body:JSON.stringify({
                 nome:document.getElementById('wiz-nome').value||null,
@@ -1140,13 +1159,22 @@
                 birthdate:document.getElementById('wiz-birth').value||null,
                 cpf:document.getElementById('wiz-cpf').value||null,
                 currency:wizCurrency, onboarded:true })});
-            let n=0;
-            for(const a of wizAccounts){ if(a.nome&&a.nome.trim()){ await api('/accounts',{method:'POST',body:JSON.stringify({nome:a.nome.trim(),tipo:a.tipo,saldo_inicial:parseFloat(a.saldo)||0})}); n++; } }
-            document.getElementById('wizard').classList.add('hidden');
-            toast(n>0?('Tudo pronto! '+n+' conta(s) criada(s) 🎉'):'Tudo pronto! 🎉');
-        }catch(e){ toast('Deu um erro ao salvar, tenta de novo.','err'); }
-        btn.disabled=false; loadAll();
+            for(const a of wizAccounts){ if(a.nome&&a.nome.trim()){ try{ await api('/accounts',{method:'POST',body:JSON.stringify({nome:a.nome.trim(),tipo:a.tipo,saldo_inicial:parseFloat(a.saldo)||0})}); }catch(e){} } }
+        }catch(e){}
+        btn.disabled=false; btn.innerText='Começar a usar 🚀';
+        document.getElementById('wizard').classList.add('hidden');   // sempre fecha
+        await loadAll();
+        showWelcome(apelido);
     }
+    function showWelcome(name){
+        const w=document.getElementById('welcome'); w.style.display='flex';
+        document.getElementById('wel-text').innerHTML=`Seja muito bem-vindo, ${name||'amigo'}! 🎉<br><span style="font-weight:400;font-size:15px;color:#C7D6D4;font-family:Inter">Agora é só me falar seus gastos por áudio ou texto que eu cuido do resto. Bora organizar seu dinheiro? 💚</span>`;
+        const m=document.getElementById('wel-mascot'), b=document.getElementById('wel-bubble'), btn=document.getElementById('wel-btn');
+        m.style.animation='welpop .6s cubic-bezier(.2,.7,.2,1) both, welfloat 5s ease-in-out infinite .8s';
+        b.style.transformOrigin='bottom left'; b.style.animation='welgrow .55s cubic-bezier(.2,.7,.2,1) .35s both';
+        btn.style.opacity='0'; setTimeout(()=>{ btn.style.opacity='1'; },1150);
+    }
+    function closeWelcome(){ document.getElementById('welcome').style.display='none'; }
     async function wizSkip(){ await api('/profile',{method:'PUT',body:JSON.stringify({onboarded:true})}); document.getElementById('wizard').classList.add('hidden'); toast('Você pode configurar tudo depois nas telas.'); loadAll(); }
     const BOT_USER='nickelia_bot';
     async function wizConnectTelegram(){ const st=document.getElementById('wiz-tg-status'); st.innerText='Gerando conexão...'; const r=await api('/link-code',{method:'POST'}); if(r&&r.code){ window.open('https://t.me/'+BOT_USER+'?start='+r.code,'_blank'); st.innerHTML='✅ Abrimos o Telegram — toque em <b>Iniciar</b> lá e a conexão é automática. Depois é só clicar em "Começar a usar".'; } else { st.innerText='Não consegui gerar a conexão. Tenta de novo.'; } }
