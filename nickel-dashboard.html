@@ -20,15 +20,15 @@
             theme: { extend: {
                 fontFamily: { sans: ['Inter', 'sans-serif'] },
                 colors: {
-                    brand: { 50:'#e8f1fc', 500:'#2a78d6', 600:'#1c5fb0', 700:'#184f92' },
+                    brand: { 50:'#e6f8ee', 500:'#17C964', 600:'#0e9d54', 700:'#0b7d43' },
                     ink: { 900:'#0e1726', 700:'#33415a', 500:'#64708a' }
                 }
             }}
         }
     </script>
     <style>
-        :root { --pos:#0a8f4f; --neg:#d0402f; --warn:#b7791f; --accent:#2a78d6; }
-        .dark { --pos:#35c07d; --neg:#ea6a5a; --warn:#d99a3a; --accent:#4a90e6; }
+        :root { --pos:#0e9d54; --neg:#e05365; --warn:#b7791f; --accent:#0ea65a; --green:#17C964; }
+        .dark { --pos:#22c55e; --neg:#ff5c7a; --warn:#d99a3a; --accent:#17C964; --green:#17C964; }
         html,body { overflow-x:hidden; overscroll-behavior:none; width:100%; max-width:100vw; }
         body { background:#f5f7fa; transition:background .3s, color .3s; touch-action:pan-y; }
         .dark body { background:#0b0f16; }
@@ -125,7 +125,7 @@
     <main class="flex-1 flex flex-col overflow-y-auto w-full relative">
         <header class="bg-slate-50/85 dark:bg-slate-900/85 backdrop-blur-xl px-4 md:px-6 py-3 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20 flex items-center gap-2" style="padding-top:max(.75rem,env(safe-area-inset-top))">
             <div class="hidden md:flex items-center gap-2 font-black mr-2 shrink-0" style="color:var(--accent)">
-                <div class="text-white w-8 h-8 rounded-lg grid place-items-center shadow" style="background:var(--accent)"><i class="fas fa-robot text-sm"></i></div>Nickel
+                <img src="mascote.png" alt="Nickel" style="width:30px;height:30px;object-fit:contain">Nickel <span style="color:var(--green)">Ai</span>
             </div>
             <nav class="hidden md:flex items-center gap-0.5">
                 <div class="nav-item"><button class="nav-top" id="t-dash">Dashboard <i class="fas fa-chevron-down text-[9px]"></i></button>
@@ -281,7 +281,7 @@
     <!-- ══════════ WIZARD DE ONBOARDING ══════════ -->
     <div id="wizard" class="hidden fixed inset-0 z-[80] bg-slate-50 dark:bg-slate-950 overflow-y-auto" style="padding-top:env(safe-area-inset-top)">
         <div class="max-w-lg mx-auto px-5 py-8 min-h-full flex flex-col">
-            <div class="flex items-center gap-2 font-black text-xl" style="color:var(--accent)"><div class="w-8 h-8 rounded-lg grid place-items-center text-white" style="background:var(--accent)"><i class="fas fa-robot text-sm"></i></div>Nickel IA</div>
+            <div class="flex items-center gap-2 font-black text-xl" style="color:var(--accent)"><img src="mascote.png" alt="Nickel" style="width:32px;height:32px;object-fit:contain">Nickel <span style="color:var(--green)">Ai</span></div>
             <div class="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full my-6"><div id="wiz-bar" class="h-full rounded-full transition-all duration-300" style="width:25%;background:var(--accent)"></div></div>
 
             <div class="wiz-step" data-step="1">

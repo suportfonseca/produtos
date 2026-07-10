@@ -1,77 +1,390 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nickel IA | Seu Assistente Financeiro Inteligente</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#002127">
+<title>Nickel Ai — Seu amigo de cofrinho</title>
+<meta name="description" content="O assistente financeiro no seu Telegram: fale seus gastos, a IA registra e organiza tudo em dashboards lindos. Sem planilha, sem esforço.">
+<link rel="icon" href="mascote.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --bg-abyss:#00161A; --bg-base:#002127; --bg-raised:#04303A;
+    --surface-1:rgba(255,255,255,.05); --surface-2:rgba(255,255,255,.08);
+    --border-glass:rgba(255,255,255,.12); --border-hi:rgba(255,255,255,.22);
+    --blue:#2F7CF0; --green:#17C964; --lime:#A6E635;
+    --grad:linear-gradient(120deg,#2F7CF0 0%,#17C964 52%,#A6E635 100%);
+    --grad-soft:linear-gradient(120deg,#3b86f5 0%,#17C964 100%);
+    --pos:#17C964; --neg:#FF5C7A; --warn:#FFB84D;
+    --t-hi:#F2FBF9; --t-base:#C7D6D4; --t-muted:#8AA0A0; --t-faint:#5B7373;
+    --shadow-glass:0 8px 32px rgba(0,10,12,.45), inset 0 1px 0 rgba(255,255,255,.14);
+    --shadow-float:0 24px 60px rgba(0,10,12,.55);
+    --glow:0 0 40px rgba(23,201,100,.35);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg-base);color:var(--t-base);font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
+  ::selection{background:rgba(23,201,100,.3);color:#fff}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  h1,h2,h3,.disp{font-family:'Sora',sans-serif;color:var(--t-hi);letter-spacing:-.02em;line-height:1.08;text-wrap:balance}
+  .grad-text{background:var(--grad-soft);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .eyebrow{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.14em}
+  /* fundo com orbs + grão */
+  .bg-fx{position:fixed;inset:0;z-index:-2;background:radial-gradient(120% 90% at 50% -10%,#04353f 0%,#002127 45%,#00161a 100%);overflow:hidden}
+  .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;will-change:transform}
+  .orb.b{width:460px;height:460px;background:var(--blue);top:-120px;left:-100px;animation:drift1 24s ease-in-out infinite}
+  .orb.g{width:560px;height:560px;background:var(--green);top:30%;right:-160px;animation:drift2 30s ease-in-out infinite}
+  .orb.l{width:380px;height:380px;background:var(--lime);opacity:.32;bottom:-100px;left:20%;animation:drift1 28s ease-in-out infinite reverse}
+  .noise{position:fixed;inset:0;z-index:-1;opacity:.035;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  @keyframes drift1{50%{transform:translate(60px,40px) scale(1.1)}}
+  @keyframes drift2{50%{transform:translate(-50px,60px) scale(1.08)}}
+  @keyframes float{50%{transform:translateY(-16px)}}
+  @keyframes pulse-glow{0%,100%{box-shadow:0 0 30px rgba(23,201,100,.32)}50%{box-shadow:0 0 58px rgba(23,201,100,.55)}}
+  @keyframes wave{0%,100%{height:20%}50%{height:100%}}
+  @keyframes shimmer{to{background-position:200% center}}
+  /* vidro */
+  .glass{background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid var(--border-glass);border-radius:24px;box-shadow:var(--shadow-glass);position:relative}
+  .glass-hi::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(140deg,rgba(166,230,53,.6),rgba(47,124,240,.5),transparent 60%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .card-lift{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+  .card-lift:hover{transform:translateY(-7px) scale(1.008);box-shadow:var(--shadow-float),var(--glow)}
+  /* botões */
+  .btn-grad{background:var(--grad);background-size:200% auto;color:#03251a;font-weight:700;border-radius:14px;padding:15px 28px;display:inline-flex;align-items:center;gap:10px;transition:.4s;box-shadow:var(--glow);border:none;cursor:pointer;font-size:15px;text-decoration:none}
+  .btn-grad:hover{background-position:200% center;transform:translateY(-2px);box-shadow:0 0 50px rgba(23,201,100,.55)}
+  .btn-glass{background:var(--surface-2);border:1px solid var(--border-glass);color:var(--t-hi);font-weight:600;border-radius:14px;padding:15px 26px;display:inline-flex;align-items:center;gap:10px;transition:.3s;text-decoration:none;backdrop-filter:blur(10px)}
+  .btn-glass:hover{background:rgba(255,255,255,.13);border-color:var(--border-hi)}
+  .chip{background:var(--surface-1);border:1px solid var(--border-glass);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--t-base);display:inline-flex;align-items:center;gap:8px}
+  .icon-grad{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;font-size:22px;background:linear-gradient(150deg,rgba(47,124,240,.22),rgba(23,201,100,.22));border:1px solid var(--border-glass);color:var(--lime)}
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*80ms)}
+  .reveal.in{opacity:1;transform:none}
+  /* nav */
+  nav.top{position:fixed;top:0;left:0;right:0;z-index:50;transition:.4s}
+  nav.top.scrolled{background:rgba(0,25,30,.6);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-glass)}
+  .nav-link{color:var(--t-base);font-weight:500;font-size:14px;text-decoration:none;transition:.2s}
+  .nav-link:hover{color:var(--t-hi)}
+  section{padding:112px 0}
+  @media(max-width:768px){section{padding:72px 0}.orb{filter:blur(60px)}}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(23,201,100,.45),transparent)}
+  .bar{height:9px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:999px;background:var(--grad);width:0;transition:width 1.3s cubic-bezier(.2,.7,.2,1)}
+  .num{font-variant-numeric:tabular-nums}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+  #mmenu{display:none}
+  @media(max-width:900px){
+    header{padding-top:118px!important}
+    #herogrid{grid-template-columns:1fr!important;text-align:center;gap:36px}
+    #herogrid img{margin-left:auto;margin-right:auto}
+    #herogrid .btn-grad,#herogrid .btn-glass{justify-content:center}
+    #herogrid > div:first-child > div[style*="display:flex"]{justify-content:center}
+    #mascotwrap .glass{display:none}
+    #steps,#bento,#planos-grid{grid-template-columns:1fr!important}
+    #bento>div{grid-column:auto!important;min-height:auto!important}
+    #planos-grid>div{transform:none!important}
+    section .wrap[style*="grid-template-columns"]{grid-template-columns:1fr!important;gap:36px!important}
+    footer .wrap[style*="grid-template-columns"]{grid-template-columns:1fr 1fr!important}
+  }
+  @media(max-width:520px){ footer .wrap[style*="grid-template-columns"]{grid-template-columns:1fr!important} }
+</style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+<body>
+<div class="bg-fx"><div class="orb b"></div><div class="orb g"></div><div class="orb l"></div></div>
+<div class="noise"></div>
 
-    <header class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="text-2xl font-bold text-blue-600">🤖 Nickel IA</div>
-            <nav>
-                <a href="#planos" class="text-gray-600 hover:text-blue-600 mr-4 font-medium">Planos</a>
-                <a href="nickel-login.html" class="text-blue-600 font-medium hover:underline mr-4">Entrar</a>
-                <a href="#planos" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-blue-700 transition">Assinar</a>
-            </nav>
+<!-- NAV -->
+<nav class="top">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;height:72px">
+    <a href="#" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="mascote.png" alt="Nickel" style="width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(23,201,100,.4))">
+      <span style="font-family:'Sora';font-weight:800;font-size:20px;color:var(--t-hi)">Nickel <span style="color:var(--green)">Ai</span></span>
+    </a>
+    <div style="display:flex;align-items:center;gap:28px" class="hidden md:flex">
+      <a href="#como" class="nav-link">Como funciona</a>
+      <a href="#recursos" class="nav-link">Recursos</a>
+      <a href="#planos" class="nav-link">Planos</a>
+      <a href="nickel-login.html" class="nav-link">Entrar</a>
+      <a href="nickel-login.html" class="btn-grad" style="padding:11px 20px;font-size:14px">Começar grátis</a>
+    </div>
+    <button onclick="toggleMenu()" class="md:hidden" style="background:none;border:none;color:var(--t-hi);font-size:22px"><i class="fas fa-bars"></i></button>
+  </div>
+  <div id="mmenu" class="md:hidden glass" style="margin:8px 16px;padding:16px;border-radius:20px">
+    <a href="#como" onclick="toggleMenu()" class="nav-link" style="display:block;padding:12px">Como funciona</a>
+    <a href="#recursos" onclick="toggleMenu()" class="nav-link" style="display:block;padding:12px">Recursos</a>
+    <a href="#planos" onclick="toggleMenu()" class="nav-link" style="display:block;padding:12px">Planos</a>
+    <a href="nickel-login.html" class="btn-grad" style="width:100%;justify-content:center;margin-top:8px">Começar grátis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header style="padding:150px 0 90px" class="relative">
+  <div class="wrap" style="display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center" id="herogrid">
+    <div>
+      <span class="eyebrow grad-text reveal">✦ Seu amigo de cofrinho</span>
+      <h1 class="reveal" style="--i:1;font-size:clamp(2.6rem,6vw + .5rem,4.75rem);font-weight:800;margin:20px 0 22px;max-width:15ch">Fale seus gastos. A gente <span class="grad-text">cuida do resto.</span></h1>
+      <p class="reveal" style="--i:2;font-size:clamp(1.06rem,1vw + .7rem,1.25rem);color:var(--t-base);max-width:36ch;margin:0 0 34px">O Nickel Ai é o assistente financeiro no seu Telegram: manda um áudio ou texto, a IA registra, categoriza e organiza tudo em dashboards lindos.</p>
+      <div class="reveal" style="--i:3;display:flex;flex-wrap:wrap;gap:14px">
+        <a href="https://t.me/nickelia_bot" target="_blank" class="btn-grad" style="animation:pulse-glow 3.5s infinite"><i class="fab fa-telegram-plane"></i> Começar grátis no Telegram</a>
+        <a href="nickel-login.html" class="btn-glass"><i class="fas fa-chart-pie"></i> Acessar painel</a>
+      </div>
+      <div class="reveal" style="--i:4;display:flex;gap:30px;margin-top:38px;flex-wrap:wrap">
+        <div><div style="font-family:'Sora';font-weight:800;font-size:24px;color:var(--t-hi)" class="num" data-count="12000" data-suffix="+">0</div><div style="font-size:13px;color:var(--t-muted)">gastos registrados</div></div>
+        <div><div style="font-family:'Sora';font-weight:800;font-size:24px;color:var(--t-hi)">4,9 <i class="fas fa-star" style="color:var(--lime);font-size:16px"></i></div><div style="font-size:13px;color:var(--t-muted)">avaliação média</div></div>
+        <div><div style="font-family:'Sora';font-weight:800;font-size:24px;color:var(--green)">Grátis</div><div style="font-size:13px;color:var(--t-muted)">para começar</div></div>
+      </div>
+    </div>
+    <div style="position:relative" class="reveal" style="--i:2">
+      <div id="mascotwrap" style="position:relative;text-align:center">
+        <img src="mascote.png" alt="Mascote Nickel" style="width:min(360px,80%);animation:float 6s ease-in-out infinite;filter:drop-shadow(0 20px 50px rgba(23,201,100,.4))">
+        <div class="glass" style="position:absolute;bottom:6%;left:-6%;padding:12px 16px;max-width:220px;text-align:left;animation:float 6s ease-in-out infinite .8s">
+          <div style="font-size:11px;color:var(--t-muted);margin-bottom:2px"><i class="fab fa-telegram-plane" style="color:#2F7CF0"></i> Você</div>
+          <div style="font-size:14px;color:var(--t-hi);font-weight:500">Gastei R$ 32 no mercado 🛒</div>
         </div>
-    </header>
-
-    <section class="max-w-7xl mx-auto px-4 py-20 text-center">
-        <h1 class="text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
-            Controle seus gastos enviando um simples <span class="text-blue-600">Áudio no Telegram</span>
-        </h1>
-        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Diga adeus às planilhas chatas. O Nickel IA entende o que você fala, categoriza seus gastos e organiza sua vida financeira automaticamente.
-        </p>
-        <a href="#planos" class="bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-blue-700 shadow-lg transition transform hover:-translate-y-1">
-            Começar meu teste agora
-        </a>
-    </section>
-
-    <section class="bg-white py-16 border-t border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8 text-center">
-            <div class="p-6">
-                <div class="text-4xl mb-4">🎙️</div>
-                <h3 class="text-xl font-bold mb-2">Reconhecimento de Voz</h3>
-                <p class="text-gray-600">Mande um áudio de 5 segundos e a IA transcreve, calcula e anota tudo para você.</p>
-            </div>
-            <div class="p-6">
-                <div class="text-4xl mb-4">🧠</div>
-                <h3 class="text-xl font-bold mb-2">Categorização Automática</h3>
-                <p class="text-gray-600">Ele sabe se o posto de gasolina é "Transporte" ou se o mercado é "Alimentação".</p>
-            </div>
-            <div class="p-6">
-                <div class="text-4xl mb-4">📊</div>
-                <h3 class="text-xl font-bold mb-2">Dashboard Profissional</h3>
-                <p class="text-gray-600">Acesse seu painel online para ver gráficos, relatórios e o saldo do mês em tempo real.</p>
-            </div>
+        <div class="glass glass-hi" style="position:absolute;top:8%;right:-4%;padding:12px 16px;max-width:200px;text-align:left;animation:float 6s ease-in-out infinite .4s">
+          <div style="font-size:11px;color:var(--green);margin-bottom:4px">✅ Registrado</div>
+          <div style="font-size:13px;color:var(--t-hi)"><b>R$ 32,00</b> · Mercado</div>
+          <div style="font-size:11px;color:var(--t-muted)">Alimentação</div>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
+</header>
 
-    <section id="planos" class="py-20 bg-gray-50">
-        <div class="max-w-3xl mx-auto text-center px-4">
-            <h2 class="text-3xl font-bold mb-10">Invista na sua organização</h2>
-            <div class="bg-white p-8 rounded-2xl shadow-xl border border-blue-100">
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Plano Pro</h3>
-                <p class="text-gray-500 mb-6">Tudo que você precisa para dominar seu dinheiro.</p>
-                <div class="text-5xl font-extrabold text-blue-600 mb-6">R$ 19<span class="text-lg text-gray-500 font-normal">/mês</span></div>
-                <ul class="text-left text-gray-600 mb-8 space-y-3 max-w-xs mx-auto">
-                    <li>✅ Lançamentos ilimitados via áudio/texto</li>
-                    <li>✅ Dashboard de Gráficos (em breve)</li>
-                    <li>✅ Inteligência Artificial GPT-4o</li>
-                    <li>✅ Suporte Prioritário</li>
-                </ul>
-                <a href="#" class="block w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">Assinar Plano Pro</a>
-            </div>
+<!-- TRUST -->
+<div class="wrap reveal" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;padding:8px 24px 40px">
+  <span style="color:var(--t-muted);font-size:14px;margin-right:8px">Feito para brasileiros, do jeito brasileiro</span>
+  <span class="chip"><i class="fab fa-telegram-plane" style="color:#2F7CF0"></i> Telegram</span>
+  <span class="chip"><i class="fas fa-bolt" style="color:var(--lime)"></i> Pix</span>
+  <span class="chip"><i class="fas fa-shield-halved" style="color:var(--green)"></i> Criptografado</span>
+  <span class="chip"><i class="fas fa-lock" style="color:var(--t-base)"></i> LGPD</span>
+</div>
+
+<!-- COMO FUNCIONA -->
+<section id="como">
+  <div class="wrap">
+    <div style="text-align:center;max-width:640px;margin:0 auto 60px">
+      <span class="eyebrow grad-text reveal">Como funciona</span>
+      <h2 class="reveal" style="--i:1;font-size:clamp(1.9rem,3vw + .4rem,2.375rem);font-weight:700;margin-top:14px">Simples como mandar uma mensagem.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" id="steps">
+      <div class="glass card-lift reveal" style="--i:0;padding:32px">
+        <div class="icon-grad" style="margin-bottom:20px"><i class="fas fa-microphone-lines"></i></div>
+        <div class="eyebrow" style="color:var(--t-faint)">Passo 1</div>
+        <h3 style="font-size:1.4rem;margin:8px 0 10px">Fala ou escreve</h3>
+        <p style="font-size:15px;color:var(--t-muted);margin:0">Manda um áudio ou texto no Telegram: <span style="color:var(--t-base)">"almoço 28 reais"</span>. Do jeito que for mais fácil pra você.</p>
+      </div>
+      <div class="glass card-lift reveal" style="--i:1;padding:32px">
+        <div class="icon-grad" style="margin-bottom:20px"><i class="fas fa-wand-magic-sparkles"></i></div>
+        <div class="eyebrow" style="color:var(--t-faint)">Passo 2</div>
+        <h3 style="font-size:1.4rem;margin:8px 0 10px">A IA entende</h3>
+        <p style="font-size:15px;color:var(--t-muted);margin:0">O Nickel transcreve, categoriza e guarda — em segundos, sem você mexer em planilha nenhuma.</p>
+      </div>
+      <div class="glass card-lift reveal" style="--i:2;padding:32px">
+        <div class="icon-grad" style="margin-bottom:20px"><i class="fas fa-chart-line"></i></div>
+        <div class="eyebrow" style="color:var(--t-faint)">Passo 3</div>
+        <h3 style="font-size:1.4rem;margin:8px 0 10px">Você visualiza</h3>
+        <p style="font-size:15px;color:var(--t-muted);margin:0">Abre o painel e vê pra onde seu dinheiro está indo — com gráficos, saldos e metas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECURSOS (bento) -->
+<section id="recursos">
+  <div class="wrap">
+    <div style="text-align:center;max-width:640px;margin:0 auto 60px">
+      <span class="eyebrow grad-text reveal">Recursos</span>
+      <h2 class="reveal" style="--i:1;font-size:clamp(1.9rem,3vw + .4rem,2.375rem);font-weight:700;margin-top:14px">Tudo o que importa, num lugar só.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:18px" id="bento">
+      <div class="glass glass-hi card-lift reveal" style="grid-column:span 4;padding:32px;display:flex;flex-direction:column;justify-content:space-between;min-height:230px">
+        <div><div class="icon-grad" style="margin-bottom:18px"><i class="fas fa-wallet"></i></div>
+        <h3 style="font-size:1.5rem">Painel de Finanças</h3>
+        <p style="font-size:15px;color:var(--t-muted);max-width:44ch">Entradas, saídas, saldo consolidado e o quanto você pode gastar até o fim do mês — tudo em tempo real.</p></div>
+        <div style="display:flex;gap:24px;margin-top:20px">
+          <div><div class="num" style="font-family:'Sora';font-weight:800;font-size:22px;color:var(--pos)" data-count="8420" data-prefix="R$ ">0</div><div style="font-size:12px;color:var(--t-muted)">saldo</div></div>
+          <div><div class="num" style="font-family:'Sora';font-weight:800;font-size:22px;color:var(--t-hi)" data-count="3110" data-prefix="R$ ">0</div><div style="font-size:12px;color:var(--t-muted)">disponível</div></div>
         </div>
-    </section>
+      </div>
+      <div class="glass card-lift reveal" style="--i:1;grid-column:span 2;padding:28px">
+        <div class="icon-grad" style="margin-bottom:16px"><i class="fab fa-bitcoin"></i></div>
+        <h3 style="font-size:1.25rem">Cripto ao vivo</h3>
+        <p style="font-size:14px;color:var(--t-muted)">Sua carteira com cotação atualizada e lucro real.</p>
+      </div>
+      <div class="glass card-lift reveal" style="--i:0;grid-column:span 2;padding:28px">
+        <div class="icon-grad" style="margin-bottom:16px"><i class="fas fa-piggy-bank"></i></div>
+        <h3 style="font-size:1.25rem">Caixinhas</h3>
+        <p style="font-size:14px;color:var(--t-muted)">Separe dinheiro pra cada sonho e veja a barra encher.</p>
+      </div>
+      <div class="glass card-lift reveal" style="--i:1;grid-column:span 2;padding:28px">
+        <div class="icon-grad" style="margin-bottom:16px"><i class="fas fa-credit-card"></i></div>
+        <h3 style="font-size:1.25rem">Cartões</h3>
+        <p style="font-size:14px;color:var(--t-muted)">Faturas, limites e vencimentos sem sustos.</p>
+      </div>
+      <div class="glass card-lift reveal" style="--i:2;grid-column:span 2;padding:28px">
+        <div class="icon-grad" style="margin-bottom:16px"><i class="fas fa-bullseye"></i></div>
+        <h3 style="font-size:1.25rem">Metas &amp; alertas</h3>
+        <p style="font-size:14px;color:var(--t-muted)">Limites por categoria e avisos antes de estourar.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <footer class="bg-gray-900 text-gray-400 py-8 text-center">
-        <p>&copy; 2026 Nickel IA. Todos os direitos reservados.</p>
-    </footer>
+<!-- ÁUDIO -->
+<section style="background:var(--bg-raised);position:relative;overflow:hidden;border-radius:40px;margin:0 16px" class="relative">
+  <div class="wrap" style="display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center">
+    <div class="reveal" style="display:flex;justify-content:center">
+      <div class="glass" style="padding:20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border-glass)">
+          <img src="mascote.png" style="width:30px;height:30px;object-fit:contain"><b style="color:var(--t-hi);font-size:14px">Nickel Ai</b>
+        </div>
+        <div style="align-self:flex-end;background:var(--grad-soft);color:#03251a;padding:10px 14px;border-radius:16px 16px 4px 16px;display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px">
+          <i class="fas fa-play"></i>
+          <span style="display:flex;gap:2px;align-items:center;height:22px">
+            <span style="width:3px;background:#03251a;border-radius:2px;animation:wave 1s infinite .0s"></span>
+            <span style="width:3px;background:#03251a;border-radius:2px;animation:wave 1s infinite .1s"></span>
+            <span style="width:3px;background:#03251a;border-radius:2px;animation:wave 1s infinite .2s"></span>
+            <span style="width:3px;background:#03251a;border-radius:2px;animation:wave 1s infinite .3s"></span>
+            <span style="width:3px;background:#03251a;border-radius:2px;animation:wave 1s infinite .15s"></span>
+            <span style="width:3px;background:#03251a;border-radius:2px;animation:wave 1s infinite .25s"></span>
+          </span> 0:04
+        </div>
+        <div class="glass" style="align-self:flex-start;padding:10px 14px;border-radius:16px 16px 16px 4px;font-size:13px;color:var(--t-hi);max-width:85%">✅ Anotei! <b>R$ 80</b> em gasolina 🚗 e <b>R$ 32</b> no almoço 🍽️. Tá no seu ritmo do mês, tranquilo.</div>
+      </div>
+    </div>
+    <div class="reveal" style="--i:1">
+      <span class="eyebrow grad-text">Registro por voz</span>
+      <h2 style="font-size:clamp(1.9rem,3vw + .4rem,2.375rem);font-weight:700;margin:14px 0 16px">Só falar. O Nickel escuta.</h2>
+      <p style="font-size:17px;color:var(--t-base);max-width:46ch">Sem app novo pra aprender. Você usa o Telegram que já tem. Manda o áudio no fim do dia e pronto — seus gastos aparecem organizados, categorizados e prontos no painel.</p>
+      <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap">
+        <span class="chip"><i class="fas fa-check" style="color:var(--green)"></i> Entende gírias e valores por extenso</span>
+        <span class="chip"><i class="fas fa-check" style="color:var(--green)"></i> Vários gastos numa frase</span>
+      </div>
+    </div>
+  </div>
+</section>
 
+<!-- METAS -->
+<section id="metas">
+  <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center">
+    <div class="reveal">
+      <span class="eyebrow grad-text">Sonhos &amp; caixinhas</span>
+      <h2 style="font-size:clamp(1.9rem,3vw + .4rem,2.375rem);font-weight:700;margin:14px 0 16px">Do cafezinho ao sonho grande.</h2>
+      <p style="font-size:17px;color:var(--t-base);max-width:44ch;margin:0 0 8px">Crie uma caixinha pra cada objetivo, guarde no seu ritmo e comemore cada real. O Nickel celebra junto — sem julgar.</p>
+    </div>
+    <div class="glass reveal" style="--i:1;padding:30px;display:flex;flex-direction:column;gap:22px">
+      <div><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px"><span style="color:var(--t-hi);font-weight:600">✈️ Viagem Europa</span><span class="num" style="color:var(--green);font-weight:700">68%</span></div><div class="bar"><i data-w="68"></i></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px"><span style="color:var(--t-hi);font-weight:600">🛟 Reserva de emergência</span><span class="num" style="color:var(--green);font-weight:700">40%</span></div><div class="bar"><i data-w="40"></i></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px"><span style="color:var(--t-hi);font-weight:600">💻 Notebook novo</span><span class="num" style="color:var(--green);font-weight:700">85%</span></div><div class="bar"><i data-w="85"></i></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section id="planos">
+  <div class="wrap">
+    <div style="text-align:center;max-width:640px;margin:0 auto 56px">
+      <span class="eyebrow grad-text reveal">Planos</span>
+      <h2 class="reveal" style="--i:1;font-size:clamp(1.9rem,3vw + .4rem,2.375rem);font-weight:700;margin-top:14px">Comece de graça. Cresça quando quiser.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch" id="planos-grid">
+      <div class="glass card-lift reveal" style="padding:32px">
+        <h3 style="font-size:1.3rem">Grátis</h3>
+        <div style="font-family:'Sora';font-weight:800;font-size:2.4rem;color:var(--t-hi);margin:8px 0">R$ 0</div>
+        <p style="font-size:14px;color:var(--t-muted);margin-bottom:20px">Pra começar a se organizar hoje.</p>
+        <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:11px;font-size:14px;color:var(--t-base)">
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> Registro por texto no Telegram</li>
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> Painel de finanças</li>
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> 1 caixinha de sonho</li>
+        </ul>
+        <a href="nickel-login.html" class="btn-glass" style="width:100%;justify-content:center">Começar grátis</a>
+      </div>
+      <div class="glass glass-hi reveal" style="--i:1;padding:34px;position:relative;transform:scale(1.03);animation:pulse-glow 4s infinite">
+        <span style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--grad);color:#03251a;font-size:11px;font-weight:700;padding:5px 14px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em">Mais popular</span>
+        <h3 style="font-size:1.3rem">Plus</h3>
+        <div style="font-family:'Sora';font-weight:800;font-size:2.4rem;margin:8px 0"><span class="grad-text">R$ 19</span><span style="font-size:1rem;color:var(--t-muted);font-weight:400">/mês</span></div>
+        <p style="font-size:14px;color:var(--t-muted);margin-bottom:20px">Tudo que você precisa pra dominar seu dinheiro.</p>
+        <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:11px;font-size:14px;color:var(--t-base)">
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> <b>Áudio</b> ilimitado com IA</li>
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> Cripto, cartões e investimentos</li>
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> Caixinhas ilimitadas + metas</li>
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> Relatórios e alertas no Telegram</li>
+        </ul>
+        <a href="nickel-login.html" class="btn-grad" style="width:100%;justify-content:center">Assinar o Plus</a>
+      </div>
+      <div class="glass card-lift reveal" style="--i:2;padding:32px">
+        <h3 style="font-size:1.3rem">Família</h3>
+        <div style="font-family:'Sora';font-weight:800;font-size:2.4rem;color:var(--t-hi);margin:8px 0">R$ 29<span style="font-size:1rem;color:var(--t-muted);font-weight:400">/mês</span></div>
+        <p style="font-size:14px;color:var(--t-muted);margin-bottom:20px">Pra organizar as contas de casa juntos.</p>
+        <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:11px;font-size:14px;color:var(--t-base)">
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> Tudo do Plus</li>
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> Até 4 pessoas</li>
+          <li><i class="fas fa-check" style="color:var(--green);margin-right:8px"></i> Contas compartilhadas</li>
+        </ul>
+        <a href="nickel-login.html" class="btn-glass" style="width:100%;justify-content:center">Escolher Família</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="text-align:center">
+  <div class="wrap reveal" style="max-width:720px">
+    <img src="mascote.png" style="width:120px;margin-bottom:8px;animation:float 6s ease-in-out infinite;filter:drop-shadow(0 12px 30px rgba(23,201,100,.45))">
+    <h2 style="font-size:clamp(2rem,4vw + .4rem,3rem);font-weight:800;margin:0 0 16px">Pronto pra fazer as pazes<br>com o seu dinheiro?</h2>
+    <p style="font-size:18px;color:var(--t-base);max-width:40ch;margin:0 auto 32px">Comece agora no seu Telegram. Leva menos de um minuto e é de graça.</p>
+    <a href="https://t.me/nickelia_bot" target="_blank" class="btn-grad" style="font-size:16px;padding:17px 34px;animation:pulse-glow 3.5s infinite"><i class="fab fa-telegram-plane"></i> Começar agora, é grátis</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:var(--bg-abyss);padding:64px 0 40px;position:relative">
+  <div class="divider" style="position:absolute;top:0;left:0;right:0"></div>
+  <div class="wrap" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <img src="mascote.png" style="width:34px;height:34px;object-fit:contain">
+        <span style="font-family:'Sora';font-weight:800;font-size:20px;color:var(--t-hi)">Nickel <span style="color:var(--green)">Ai</span></span>
+      </div>
+      <p style="font-size:14px;color:var(--t-muted);max-width:30ch">Seu amigo de cofrinho. O assistente financeiro que cabe no seu Telegram.</p>
+    </div>
+    <div><h4 style="font-family:'Sora';color:var(--t-hi);font-size:14px;margin:0 0 14px">Produto</h4>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:14px"><a href="#recursos" class="nav-link">Recursos</a><a href="#planos" class="nav-link">Planos</a><a href="nickel-login.html" class="nav-link">Entrar</a></div></div>
+    <div><h4 style="font-family:'Sora';color:var(--t-hi);font-size:14px;margin:0 0 14px">Empresa</h4>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:14px"><a href="#" class="nav-link">Sobre</a><a href="#como" class="nav-link">Como funciona</a><a href="https://t.me/nickelia_bot" class="nav-link">Contato</a></div></div>
+    <div><h4 style="font-family:'Sora';color:var(--t-hi);font-size:14px;margin:0 0 14px">Legal</h4>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:14px"><a href="#" class="nav-link">Privacidade</a><a href="#" class="nav-link">Termos</a><a href="#" class="nav-link">LGPD</a></div></div>
+  </div>
+  <div class="wrap" style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border-glass);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--t-faint)">
+    <span>© 2026 Nickel Ai. Todos os direitos reservados.</span>
+    <span>Feito com 💚 no Brasil</span>
+  </div>
+</footer>
+
+<script>
+  // nav scroll state
+  const nav=document.querySelector('nav.top');
+  addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40),{passive:true});
+  function toggleMenu(){const m=document.getElementById('mmenu');m.style.display=m.style.display==='block'?'none':'block';}
+  // reveal
+  const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.14});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  // counters
+  const cio=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){count(e.target);cio.unobserve(e.target);}}),{threshold:.5});
+  document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+  function count(el){const t=+el.dataset.count,pre=el.dataset.prefix||'',suf=el.dataset.suffix||'';let s=null;const dur=1200;
+    function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/dur,1);const v=Math.floor((1-Math.pow(1-p,3))*t);el.textContent=pre+v.toLocaleString('pt-BR')+suf;if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+  // barras
+  const bio=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.style.width=e.target.dataset.w+'%';bio.unobserve(e.target);}}),{threshold:.5});
+  document.querySelectorAll('.bar>i').forEach(el=>bio.observe(el));
+  // parallax mascote (desktop)
+  if(matchMedia('(min-width:769px)').matches && !matchMedia('(prefers-reduced-motion:reduce)').matches){
+    const mw=document.getElementById('mascotwrap');
+    addEventListener('mousemove',(e)=>{const x=(e.clientX/innerWidth-.5),y=(e.clientY/innerHeight-.5);if(mw)mw.style.transform=`translate(${x*18}px,${y*18}px)`;});
+  }
+</script>
 </body>
 </html>
