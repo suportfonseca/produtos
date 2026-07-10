@@ -145,8 +145,9 @@
                 </div>
 
                 <div>
-                    <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fab fa-bitcoin" style="color:#f7931a"></i> Cripto <span id="crypto-updated" class="text-[10px] font-medium text-slate-400"></span></h3><button onclick="openCrypto()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Adicionar</button></div>
-                    <div class="card overflow-x-auto"><table class="w-full text-sm min-w-[560px]"><thead><tr class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-100 dark:border-slate-800"><th class="text-left p-4">Moeda</th><th class="text-right p-4">Qtd</th><th class="text-right p-4">Preço</th><th class="text-right p-4">Investido</th><th class="text-right p-4">Agora</th><th class="text-right p-4">Resultado</th><th class="p-4"></th></tr></thead><tbody id="crypto-body"></tbody><tfoot id="crypto-foot"></tfoot></table></div>
+                    <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fab fa-bitcoin" style="color:#f7931a"></i> Cripto <span id="crypto-updated" class="text-[10px] font-medium text-slate-400"></span></h3><button onclick="openCrypto()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Registrar compra</button></div>
+                    <div class="card overflow-x-auto"><table class="w-full text-sm min-w-[640px]"><thead><tr class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-100 dark:border-slate-800"><th class="text-left p-4">Moeda</th><th class="text-right p-4">Qtd</th><th class="text-right p-4">Preço médio</th><th class="text-right p-4">Atual</th><th class="text-right p-4">Investido</th><th class="text-right p-4">Agora</th><th class="text-right p-4">Resultado</th></tr></thead><tbody id="crypto-body"></tbody><tfoot id="crypto-foot"></tfoot></table></div>
+                    <div id="crypto-lots" class="space-y-2 mt-3"></div>
                 </div>
 
                 <div>
@@ -262,8 +263,8 @@
 
     <div id="m-crypto" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
         <div class="card p-7 w-full max-w-md">
-            <h4 class="font-black text-xl mb-5" id="crypto-title">Adicionar cripto</h4>
-            <input type="hidden" id="crypto-id">
+            <h4 class="font-black text-xl mb-1">Registrar compra de cripto</h4>
+            <p class="text-xs text-slate-500 mb-4">Cada compra com seu preço e data — o preço médio é calculado automaticamente.</p>
             <div class="space-y-3">
                 <div><label class="text-xs font-bold text-slate-500">Moeda</label>
                 <select id="crypto-coin" class="w-full card px-4 py-3 text-sm font-semibold mt-1">
@@ -277,12 +278,14 @@
                     <option value="dogecoin|DOGE">Dogecoin (DOGE)</option>
                 </select></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <input id="crypto-qty" type="number" step="0.00000001" placeholder="Quantidade" class="card px-4 py-3 text-sm num">
-                    <input id="crypto-invested" type="number" step="0.01" placeholder="Investido (R$)" class="card px-4 py-3 text-sm num">
+                    <div><label class="text-xs font-bold text-slate-500">Quantidade</label><input id="crypto-qty" type="number" step="0.00000001" placeholder="0,05" class="w-full card px-4 py-3 text-sm num mt-1"></div>
+                    <div><label class="text-xs font-bold text-slate-500">Preço de compra (R$/un.)</label><input id="crypto-price" type="number" step="0.01" placeholder="240000" class="w-full card px-4 py-3 text-sm num mt-1"></div>
                 </div>
+                <div><label class="text-xs font-bold text-slate-500">Data da compra</label><input id="crypto-date" type="date" class="w-full card px-4 py-3 text-sm mt-1"></div>
+                <div id="crypto-total-hint" class="text-xs text-slate-400 num"></div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-crypto')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
-                    <button onclick="saveCrypto()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Salvar</button>
+                    <button onclick="saveCrypto()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Salvar compra</button>
                 </div>
             </div>
         </div>
@@ -624,22 +627,25 @@
         }).join('') || '<p class="text-sm text-slate-400 col-span-full card p-6 text-center">Crie sua primeira caixinha para um sonho 🎯</p>';
 
         // cripto
-        const body=document.getElementById('crypto-body'), foot=document.getElementById('crypto-foot');
+        const body=document.getElementById('crypto-body'), foot=document.getElementById('crypto-foot'), lotsEl=document.getElementById('crypto-lots');
         if(S.crypto && S.crypto.items.length){
             body.innerHTML=S.crypto.items.map(i=>{ const up=i.pnl>=0;
                 return `<tr class="border-b border-slate-50 dark:border-slate-800/50">
                     <td class="p-4 font-bold">${i.symbol}</td>
-                    <td class="p-4 text-right num text-slate-500">${i.quantity}</td>
+                    <td class="p-4 text-right num text-slate-500">${(+i.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})}</td>
+                    <td class="p-4 text-right num">${fmt(i.avg_price)}</td>
                     <td class="p-4 text-right num">${fmt(i.price_brl)}</td>
                     <td class="p-4 text-right num text-slate-500">${fmt(i.invested_brl)}</td>
                     <td class="p-4 text-right num font-bold">${fmt(i.value_now)}</td>
-                    <td class="p-4 text-right num font-bold" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${i.pnl_pct.toFixed(1)}%</td>
-                    <td class="p-4 text-right"><button onclick="delCrypto('${i.id}')" class="text-slate-300 hover:text-rose-500"><i class="fas fa-trash text-xs"></i></button></td></tr>`;
+                    <td class="p-4 text-right num font-bold" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${i.pnl_pct.toFixed(1)}% <span class="block text-[10px] font-medium">${up?'+':''}${fmt(i.pnl)}</span></td></tr>`;
             }).join('');
             const up=S.crypto.total_pnl>=0;
-            foot.innerHTML=`<tr class="border-t-2 border-slate-200 dark:border-slate-700 font-black"><td class="p-4">Total</td><td></td><td></td><td class="p-4 text-right num">${fmt(S.crypto.total_invested)}</td><td class="p-4 text-right num">${fmt(S.crypto.total_now)}</td><td class="p-4 text-right num" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${S.crypto.total_pnl_pct.toFixed(1)}%</td><td></td></tr>`;
-            document.getElementById('crypto-updated').innerText='· atualizado agora';
-        } else { body.innerHTML='<tr><td colspan="7" class="p-6 text-center text-sm text-slate-400">Nenhuma cripto cadastrada.</td></tr>'; foot.innerHTML=''; }
+            foot.innerHTML=`<tr class="border-t-2 border-slate-200 dark:border-slate-700 font-black"><td class="p-4">Total</td><td></td><td></td><td></td><td class="p-4 text-right num">${fmt(S.crypto.total_invested)}</td><td class="p-4 text-right num">${fmt(S.crypto.total_now)}</td><td class="p-4 text-right num" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${S.crypto.total_pnl_pct.toFixed(1)}%</td></tr>`;
+            document.getElementById('crypto-updated').innerText='· ao vivo';
+            // lista de compras (lotes)
+            const lots=S.crypto.items.flatMap(i=>i.lots.map(l=>({...l,symbol:i.symbol}))).sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date));
+            lotsEl.innerHTML=lots.length?('<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1 mb-1">Compras registradas</p>'+lots.map(l=>`<div class="card p-3 flex justify-between items-center"><div class="flex items-center gap-3"><span class="text-xs font-black px-2 py-1 rounded" style="background:rgba(247,147,26,.12);color:#f7931a">${l.symbol}</span><div><div class="text-sm font-bold num">${(+l.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})} @ ${fmt(l.unit_price_brl)}</div><div class="text-[11px] text-slate-400 num">${new Date(l.purchase_date+'T12:00:00').toLocaleDateString('pt-BR')} · total ${fmt(l.total)}</div></div></div><button onclick="delPurchase('${l.id}')" class="text-slate-300 hover:text-rose-500"><i class="fas fa-trash text-xs"></i></button></div>`).join('')):'';
+        } else { body.innerHTML='<tr><td colspan="7" class="p-6 text-center text-sm text-slate-400">Nenhuma cripto cadastrada.</td></tr>'; foot.innerHTML=''; lotsEl.innerHTML=''; }
 
         // recorrências
         const accName=id=>S.accounts.find(a=>a.id===id)?.nome||'—';
@@ -744,9 +750,9 @@
     async function saveAporte(){ const goal=document.getElementById('aporte-goal-id').value,from=document.getElementById('aporte-from').value,amt=parseFloat(document.getElementById('aporte-amount').value); if(!amt||amt<=0)return; await api('/transfers',{method:'POST',body:JSON.stringify({from_account_id:from,goal_id:goal,amount:amt})}); closeModal('m-aporte'); loadAll(); }
 
     // Cripto
-    function openCrypto(){ document.getElementById('crypto-id').value=''; document.getElementById('crypto-title').innerText='Adicionar cripto'; document.getElementById('crypto-qty').value=''; document.getElementById('crypto-invested').value=''; openModal('m-crypto'); }
-    async function saveCrypto(){ const [cg,sym]=document.getElementById('crypto-coin').value.split('|'); const b={coingecko_id:cg,symbol:sym,quantity:parseFloat(document.getElementById('crypto-qty').value),invested_brl:parseFloat(document.getElementById('crypto-invested').value)||0}; if(!b.quantity)return; const id=document.getElementById('crypto-id').value; if(id)await api('/crypto/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/crypto',{method:'POST',body:JSON.stringify(b)}); closeModal('m-crypto'); loadAll(); }
-    async function delCrypto(id){ if(confirm('Remover esta moeda?')){ await api('/crypto/'+id,{method:'DELETE'}); loadAll(); } }
+    function openCrypto(){ document.getElementById('crypto-qty').value=''; document.getElementById('crypto-price').value=''; document.getElementById('crypto-date').value=new Date().toISOString().slice(0,10); document.getElementById('crypto-total-hint').innerText=''; openModal('m-crypto'); }
+    async function saveCrypto(){ const [cg,sym]=document.getElementById('crypto-coin').value.split('|'); const qty=parseFloat(document.getElementById('crypto-qty').value); const price=parseFloat(document.getElementById('crypto-price').value); if(!qty||price==null||isNaN(price))return; const b={coingecko_id:cg,symbol:sym,quantity:qty,unit_price_brl:price,purchase_date:document.getElementById('crypto-date').value||null}; await api('/crypto/purchases',{method:'POST',body:JSON.stringify(b)}); closeModal('m-crypto'); loadAll(); }
+    async function delPurchase(id){ if(confirm('Remover esta compra?')){ await api('/crypto/purchases/'+id,{method:'DELETE'}); loadAll(); } }
 
     // Recorrência
     function recTipoChange(){ const t=document.getElementById('rec-tipo').value; document.getElementById('rec-goal').classList.toggle('hidden',t!=='APORTE'); if(t==='APORTE') document.getElementById('rec-goal').innerHTML=S.goals.map(g=>`<option value="${g.id}">${g.emoji} ${g.nome}</option>`).join(''); }
