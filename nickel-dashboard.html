@@ -66,6 +66,13 @@
         .hint::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);width:max-content;max-width:210px;padding:8px 10px;border-radius:9px;background:#0e1726;color:#fff;font-size:11px;font-weight:500;line-height:1.4;text-align:left;white-space:normal;box-shadow:0 8px 24px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:.15s;z-index:70;text-transform:none;letter-spacing:normal}
         .dark .hint::after{background:#1e293b;border:1px solid #334155}
         .hint:hover::after,.hint:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}
+        .tgl{position:relative;width:42px;height:24px;flex-shrink:0;cursor:pointer;display:inline-block}
+        .tgl input{opacity:0;width:0;height:0;position:absolute}
+        .tgl span.tk{position:absolute;inset:0;background:#cbd5e1;border-radius:999px;transition:.25s}
+        .dark .tgl span.tk{background:#334155}
+        .tgl span.tk::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+        .tgl input:checked+span.tk{background:var(--accent)}
+        .tgl input:checked+span.tk::before{transform:translateX(18px)}
         #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
         .toast{background:#0e1726;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 10px 34px rgba(0,0,0,.25);animation:tin .25s ease-out;display:flex;gap:8px;align-items:center;max-width:90vw}
         .dark .toast{background:#1e293b;border:1px solid #334155}
@@ -527,11 +534,32 @@
             <div class="space-y-4">
                 <div><label class="text-xs font-bold text-slate-500">Meta de aporte mensal (R$)</label><input id="set-aporte" type="number" step="0.01" class="w-full card px-4 py-3 text-sm num mt-1" placeholder="0"></div>
                 <div><label class="text-xs font-bold text-slate-500">Alertar quando saldo abaixo de (R$)</label><input id="set-low" type="number" step="0.01" class="w-full card px-4 py-3 text-sm num mt-1" placeholder="0 = desligado"></div>
-                <label class="flex items-center gap-3 text-sm font-semibold cursor-pointer"><input id="set-daily" type="checkbox" class="w-4 h-4"> Receber avisos diários no Telegram</label>
+                <label class="flex items-center gap-3 text-sm font-semibold cursor-pointer"><input id="set-daily" type="checkbox" class="w-4 h-4"> Receber avisos no Telegram (chave geral)</label>
+                <button onclick="openNotif()" class="w-full card p-3.5 flex items-center justify-between text-sm font-bold hover:border-brand-500"><span class="flex items-center gap-2"><i class="fas fa-bell text-brand-500"></i> Notificações e alertas</span><i class="fas fa-chevron-right text-slate-400"></i></button>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-settings')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
                     <button onclick="saveSettings()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Salvar</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-notif" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card w-full max-w-lg flex flex-col" style="max-height:88vh">
+            <div class="p-6 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <h4 class="font-black text-xl">🔔 Notificações e alertas</h4>
+                <p class="text-xs text-slate-500 mt-1">Escolha o que o Nickel te avisa no Telegram. Vincule o Telegram para receber.</p>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="flex items-center justify-between card p-3.5 mb-5">
+                    <div class="text-sm font-bold flex items-center gap-2"><i class="fas fa-clock text-brand-500"></i> Horário do resumo diário</div>
+                    <select id="notif-hour" class="card px-3 py-2 text-sm font-bold num"></select>
+                </div>
+                <div id="notif-groups" class="space-y-6"></div>
+            </div>
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex gap-3">
+                <button onclick="closeModal('m-notif')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
+                <button onclick="saveNotif()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Salvar preferências</button>
             </div>
         </div>
     </div>
@@ -1119,6 +1147,57 @@
     async function wizSkip(){ await api('/profile',{method:'PUT',body:JSON.stringify({onboarded:true})}); document.getElementById('wizard').classList.add('hidden'); toast('Você pode configurar tudo depois nas telas.'); loadAll(); }
     const BOT_USER='nickelia_bot';
     async function wizConnectTelegram(){ const st=document.getElementById('wiz-tg-status'); st.innerText='Gerando conexão...'; const r=await api('/link-code',{method:'POST'}); if(r&&r.code){ window.open('https://t.me/'+BOT_USER+'?start='+r.code,'_blank'); st.innerHTML='✅ Abrimos o Telegram — toque em <b>Iniciar</b> lá e a conexão é automática. Depois é só clicar em "Começar a usar".'; } else { st.innerText='Não consegui gerar a conexão. Tenta de novo.'; } }
+
+    // Notificações
+    const NOTIFS=[
+      {g:'☀️ Diárias',items:[
+        {k:'resumo_dia',n:'Resumo do dia',d:'Fechamento dos seus gastos do dia',def:true},
+        {k:'lembrete_registro',n:'Lembrete de registrar',d:'Avisa se você não lançou nada hoje',def:true},
+        {k:'bom_dia',n:'Bom dia financeiro',d:'Saldo e compromissos pela manhã',def:false},
+      ]},
+      {g:'📅 Semanais',items:[
+        {k:'resumo_semana',n:'Resumo da semana',d:'Total e tendência da semana (domingo)',def:true},
+        {k:'previa_semana',n:'Prévia da semana',d:'Faturas e aportes que vêm aí',def:false},
+      ]},
+      {g:'🗓️ Mensais',items:[
+        {k:'fechamento_mes',n:'Fechamento do mês',d:'Balanço de entradas e saídas',def:true},
+        {k:'economia_mes',n:'Você economizou',d:'Quando gasta menos que o mês anterior',def:true},
+        {k:'retrato_categoria',n:'Retrato por categoria',d:'% de gasto por categoria',def:false},
+      ]},
+      {g:'🚨 Alertas (por evento)',items:[
+        {k:'saldo_baixo',n:'Saldo baixo',d:'Conta abaixo do limite definido',def:true},
+        {k:'ritmo_gasto',n:'Ritmo de gasto',d:'Projeção de fechar o mês no vermelho',def:true},
+        {k:'orcamento',n:'Orçamento estourando',d:'Categoria chegando no limite',def:true},
+        {k:'gasto_atipico',n:'Gasto atípico',d:'Lançamento bem acima do normal',def:true},
+        {k:'fatura_fechando',n:'Fatura fechando',d:'Cartão fecha em poucos dias',def:true},
+        {k:'fatura_vencendo',n:'Fatura vencendo',d:'Cartão vence em breve',def:true},
+        {k:'limite_apertando',n:'Limite do cartão',d:'Uso do limite acima de 80%',def:false},
+        {k:'meta_aporte',n:'Meta de aporte',d:'Aporte do mês ainda não feito',def:true},
+        {k:'progresso_caixinha',n:'Progresso de caixinha',d:'Marcos e conclusão de sonhos',def:true},
+        {k:'salario_previsto',n:'Salário previsto',d:'Recebimento chegando',def:true},
+        {k:'conta_vencendo',n:'Conta fixa vencendo',d:'Aluguel, assinaturas, etc',def:true},
+        {k:'variacao_cripto',n:'Variação de cripto',d:'Movimento forte no seu ativo',def:false},
+      ]},
+    ];
+    function notifVal(k,def){ const n=S.settings.notifications||{}; return n[k]!==undefined?n[k]:def; }
+    function openNotif(){
+      const hr=document.getElementById('notif-hour'); hr.innerHTML=Array.from({length:24},(_,i)=>`<option value="${i}">${String(i).padStart(2,'0')}:00</option>`).join(''); hr.value=S.settings.notify_hour!=null?S.settings.notify_hour:21;
+      document.getElementById('notif-groups').innerHTML=NOTIFS.map(gr=>`
+        <div><h5 class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 px-1">${gr.g}</h5>
+        <div class="space-y-2">${gr.items.map(it=>`
+          <label class="card p-3 flex items-center justify-between gap-3 cursor-pointer">
+            <div><div class="text-sm font-bold">${it.n}</div><div class="text-[11px] text-slate-400">${it.d}</div></div>
+            <span class="tgl"><input type="checkbox" data-nk="${it.k}" ${notifVal(it.k,it.def)?'checked':''}><span class="tk"></span></span>
+          </label>`).join('')}</div></div>`).join('');
+      openModal('m-notif');
+    }
+    async function saveNotif(){
+      const obj={}; document.querySelectorAll('#notif-groups input[data-nk]').forEach(c=>obj[c.dataset.nk]=c.checked);
+      const hour=parseInt(document.getElementById('notif-hour').value);
+      await api('/settings',{method:'PUT',body:JSON.stringify({notifications:obj,notify_hour:hour})});
+      S.settings.notifications=obj; S.settings.notify_hour=hour;
+      closeModal('m-notif'); toast('Notificações salvas 🔔');
+    }
 
     // Telegram
     let lastLinkCode='';
