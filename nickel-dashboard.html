@@ -84,6 +84,7 @@
             <div class="flex items-center gap-2">
                 <input type="month" id="monthFilter" onchange="loadAll()" class="hidden sm:block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold num">
                 <button onclick="vincularTelegram()" title="Telegram" class="md:hidden w-9 h-9 rounded-full card grid place-items-center text-sky-500"><i class="fab fa-telegram-plane"></i></button>
+                <button onclick="openSettings()" title="Configurações" class="w-9 h-9 rounded-full card grid place-items-center text-slate-500"><i class="fas fa-gear"></i></button>
                 <button onclick="loadAll()" class="w-9 h-9 rounded-full card grid place-items-center" style="color:var(--accent)"><i id="sync-ic" class="fas fa-sync-alt"></i></button>
             </div>
         </header>
@@ -93,6 +94,7 @@
             <!-- ══════════ VISÃO GERAL ══════════ -->
             <div id="sec-dash" class="section-content active space-y-6">
                 <input type="month" id="monthFilterM" onchange="syncMonth(this.value)" class="sm:hidden w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold num">
+                <div id="alerts-box" class="space-y-2"></div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4" id="kpi-grid"></div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <div class="card p-5 lg:col-span-2">
@@ -104,6 +106,10 @@
                         <div class="h-52"><canvas id="chartDonut"></canvas></div>
                         <div id="donut-legend" class="mt-4 space-y-2"></div>
                     </div>
+                </div>
+                <div class="card p-5">
+                    <div class="flex justify-between items-center mb-4"><h4 class="text-sm font-bold">Orçamentos do mês</h4><button onclick="openBudget()" class="text-xs font-bold" style="color:var(--accent)"><i class="fas fa-sliders"></i> Gerenciar</button></div>
+                    <div id="budgets-block" class="space-y-4"></div>
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black">Suas contas</h3><button onclick="go('contas')" class="text-xs font-bold" style="color:var(--accent)">Ver todas →</button></div>
@@ -131,6 +137,7 @@
             <!-- ══════════ PATRIMÔNIO ══════════ -->
             <div id="sec-patri" class="section-content space-y-8">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="patri-kpis"></div>
+                <div id="aporte-meta"></div>
 
                 <div>
                     <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fas fa-piggy-bank text-brand-500"></i> Caixinhas — sonhos</h3><button onclick="openGoal()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Nova caixinha</button></div>
@@ -331,6 +338,34 @@
         </div>
     </div>
 
+    <div id="m-budget" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card p-7 w-full max-w-md">
+            <h4 class="font-black text-xl mb-5">Orçamentos por categoria</h4>
+            <div class="flex gap-2 mb-4">
+                <input id="bud-cat" placeholder="Categoria (ex: LAZER)" class="flex-1 card px-4 py-3 text-sm">
+                <input id="bud-limit" type="number" step="0.01" placeholder="Limite" class="w-28 card px-4 py-3 text-sm num">
+                <button onclick="saveBudget()" class="text-white px-4 rounded-xl font-bold text-sm" style="background:var(--accent)"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="budget-manage" class="space-y-2 max-h-64 overflow-y-auto"></div>
+            <button onclick="closeModal('m-budget')" class="w-full mt-5 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Fechar</button>
+        </div>
+    </div>
+
+    <div id="m-settings" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card p-7 w-full max-w-md">
+            <h4 class="font-black text-xl mb-5">Configurações &amp; metas</h4>
+            <div class="space-y-4">
+                <div><label class="text-xs font-bold text-slate-500">Meta de aporte mensal (R$)</label><input id="set-aporte" type="number" step="0.01" class="w-full card px-4 py-3 text-sm num mt-1" placeholder="0"></div>
+                <div><label class="text-xs font-bold text-slate-500">Alertar quando saldo abaixo de (R$)</label><input id="set-low" type="number" step="0.01" class="w-full card px-4 py-3 text-sm num mt-1" placeholder="0 = desligado"></div>
+                <label class="flex items-center gap-3 text-sm font-semibold cursor-pointer"><input id="set-daily" type="checkbox" class="w-4 h-4"> Receber avisos diários no Telegram</label>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeModal('m-settings')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
+                    <button onclick="saveSettings()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="m-tglink" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
         <div class="card p-7 w-full max-w-md text-center">
             <div class="w-14 h-14 mx-auto rounded-2xl grid place-items-center text-2xl mb-4" style="background:rgba(14,165,233,.12);color:#0ea5e9"><i class="fab fa-telegram-plane"></i></div>
@@ -357,7 +392,7 @@
     const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);
     const COLORS = ['#2a78d6','#1baf7a','#eda100','#008300','#4a3aa7','#e34948','#e87ba4','#eb6834'];
 
-    let S = { accounts:[], tx:[], goals:[], crypto:null, recurring:[], fixed:[] };
+    let S = { accounts:[], tx:[], goals:[], crypto:null, recurring:[], fixed:[], budgets:[], settings:{}, transfers:[] };
     let isDark = localStorage.getItem('theme') === 'dark';
     let viewDate = new Date();
     let flowChart, donutChart;
@@ -388,10 +423,12 @@
     async function loadAll(){
         const ic=document.getElementById('sync-ic'); ic.classList.add('animate-spin');
         document.getElementById('user-email-text').innerText = EMAIL;
-        const [acc,tx,goals,rec,fixed] = await Promise.all([
-            api('/accounts'), api('/transactions'), api('/goals'), api('/recurring'), api('/fixed_expenses')
+        const [acc,tx,goals,rec,fixed,budgets,settings,transfers] = await Promise.all([
+            api('/accounts'), api('/transactions'), api('/goals'), api('/recurring'), api('/fixed_expenses'),
+            api('/budgets'), api('/settings'), api('/transfers')
         ]);
         S.accounts=acc||[]; S.tx=tx||[]; S.goals=goals||[]; S.recurring=rec||[]; S.fixed=fixed||[];
+        S.budgets=budgets||[]; S.settings=settings||{}; S.transfers=transfers||[];
         api('/crypto/portfolio').then(p=>{ S.crypto=p; renderPatri(); });
         renderOverview(); renderContas(); renderPatri(); renderExtrato(); fillAccountSelects();
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
@@ -449,8 +486,32 @@
           + kpiTile('Burn rate', fmt(burn)+'/dia', '', 'ritmo de gasto', '');
 
         renderFlow(tx,days); renderDonut(cats,exp);
+        renderBudgets(cats);
+        renderAlerts({consol,disp,exp,inc,burn,days,cats});
         renderMiniAccounts();
         renderLogList('recent-logs', S.tx.slice(0,5));
+    }
+    function renderBudgets(cats){
+        const el=document.getElementById('budgets-block');
+        if(!S.budgets.length){ el.innerHTML='<p class="text-xs text-slate-400 text-center py-2">Defina limites por categoria para não estourar. <button onclick="openBudget()" class="font-bold" style="color:var(--accent)">Criar orçamento</button></p>'; return; }
+        el.innerHTML=S.budgets.map(b=>{ const spent=cats[b.category]||0; const lim=parseFloat(b.limit_amount); const pct=Math.min(100,spent/lim*100); const over=spent>lim;
+            const col=over?'var(--neg)':pct>80?'var(--warn)':'var(--pos)';
+            return `<div><div class="flex justify-between text-xs mb-1.5"><span class="font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">${b.category}</span><span class="num font-bold" style="color:${col}">${fmt(spent)} <span class="text-slate-400 font-medium">/ ${fmt(lim)}</span></span></div><div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div class="h-full rounded-full" style="width:${pct}%;background:${col}"></div></div></div>`;
+        }).join('');
+    }
+    function renderAlerts(d){
+        const box=document.getElementById('alerts-box'); const al=[];
+        const low=parseFloat(S.settings.low_balance_threshold||0);
+        if(low>0 && d.consol<low) al.push(['fa-triangle-exclamation','var(--neg)',`Saldo consolidado baixo: ${fmt(d.consol)} (abaixo de ${fmt(low)}).`]);
+        // projeção do mês pelo ritmo de gasto
+        const proj = d.inc - (d.burn*d.days);
+        if(d.exp>0 && proj<0) al.push(['fa-chart-line','var(--warn)',`Nesse ritmo você fecha o mês em ${fmt(proj)}. Segure os gastos.`]);
+        // orçamentos estourados
+        S.budgets.forEach(b=>{ const s=d.cats[b.category]||0; if(s>parseFloat(b.limit_amount)) al.push(['fa-ban','var(--neg)',`Orçamento de ${b.category} estourado: ${fmt(s)} de ${fmt(b.limit_amount)}.`]); });
+        // vencimento próximo
+        const today=new Date().getDate();
+        S.fixed.filter(f=>f.type==='FIXED_EXPENSE'&&parseInt(f.due_day)>=today&&parseInt(f.due_day)<=today+3).forEach(f=>al.push(['fa-calendar-day','var(--accent)',`${f.description} (${fmt(f.amount)}) vence dia ${f.due_day}.`]));
+        box.innerHTML=al.slice(0,4).map(([ic,col,msg])=>`<div class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium" style="background:${col}14;color:${col}"><i class="fas ${ic}"></i><span class="text-slate-700 dark:text-slate-200">${msg}</span></div>`).join('');
     }
     function last7Balance(){ // aproximação: variação acumulada dos últimos lançamentos
         const consol=consolidated(); const recent=S.tx.slice(0,7).reverse();
@@ -504,13 +565,11 @@
                 </div>
                 <div class="text-2xl font-black num ${parseFloat(a.balance)<0?'text-rose-600':''}">${fmt(a.balance)}</div>
             </div>`).join('') + `<button onclick="openAccount()" class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-5 text-slate-400 hover:border-brand-500 hover:text-brand-500 flex flex-col items-center justify-center gap-2 min-h-[130px]"><i class="fas fa-plus text-xl"></i><span class="text-sm font-bold">Nova conta</span></button>`;
-        api('/transfers').then(list=>{
-            const nameOf=id=>S.accounts.find(a=>a.id===id)?.nome||'—';
-            document.getElementById('transfers-list').innerHTML=(list||[]).slice(0,10).map(t=>{
-                const dest = t.goal_id ? (S.goals.find(g=>g.id===t.goal_id)?.nome||'Caixinha') : nameOf(t.to_account_id);
-                return `<div class="card p-4 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg grid place-items-center" style="background:rgba(42,120,214,.1);color:var(--accent)"><i class="fas fa-right-left text-xs"></i></span><div><div class="text-sm font-bold">${nameOf(t.from_account_id)} → ${dest}</div><div class="text-[11px] text-slate-400 num">${t.date}</div></div></div><div class="font-black num text-sm">${fmt(t.amount)}</div></div>`;
-            }).join('')||'<p class="text-xs text-slate-400 px-1">Nenhuma transferência ainda.</p>';
-        });
+        const nameOf=id=>S.accounts.find(a=>a.id===id)?.nome||'—';
+        document.getElementById('transfers-list').innerHTML=S.transfers.slice(0,10).map(t=>{
+            const dest = t.goal_id ? (S.goals.find(g=>g.id===t.goal_id)?.nome||'Caixinha') : nameOf(t.to_account_id);
+            return `<div class="card p-4 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg grid place-items-center" style="background:rgba(42,120,214,.1);color:var(--accent)"><i class="fas fa-right-left text-xs"></i></span><div><div class="text-sm font-bold">${nameOf(t.from_account_id)} → ${dest}</div><div class="text-[11px] text-slate-400 num">${t.date}</div></div></div><div class="font-black num text-sm">${fmt(t.amount)}</div></div>`;
+        }).join('')||'<p class="text-xs text-slate-400 px-1">Nenhuma transferência ainda.</p>';
     }
 
     // ═══════════ PATRIMÔNIO ═══════════
@@ -523,6 +582,14 @@
             kpiTile('Patrimônio líquido', fmt(patrimonio), 'col-span-2', 'contas + caixinhas + cripto','')
           + kpiTile('Guardado em sonhos', fmt(goalsSum), '', S.goals.length+' caixinha(s)','')
           + kpiTile('Cripto agora', fmt(cryptoVal), '', S.crypto?(S.crypto.total_pnl>=0?'▲ ':'▼ ')+S.crypto.total_pnl_pct.toFixed(1)+'%':'—','');
+
+        // meta de aporte mensal
+        const goalAp=parseFloat(S.settings.aporte_goal||0);
+        const apMes=S.transfers.filter(t=>t.goal_id&&t.date&&t.date.startsWith(selMonth())).reduce((s,t)=>s+parseFloat(t.amount),0);
+        const am=document.getElementById('aporte-meta');
+        if(goalAp>0){ const pct=Math.min(100,apMes/goalAp*100); const done=apMes>=goalAp;
+            am.innerHTML=`<div class="card p-5"><div class="flex justify-between items-center mb-3"><h4 class="text-sm font-bold flex items-center gap-2"><i class="fas fa-bullseye text-brand-500"></i> Meta de aporte do mês</h4><span class="text-xs font-black num" style="color:${done?'var(--pos)':'var(--accent)'}">${pct.toFixed(0)}%${done?' ✓':''}</span></div><div class="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div class="h-full rounded-full" style="width:${pct}%;background:${done?'var(--pos)':'var(--accent)'}"></div></div><div class="flex justify-between mt-2 text-xs"><span class="font-bold num">${fmt(apMes)} aportados</span><span class="text-slate-400 num">meta ${fmt(goalAp)}</span></div></div>`;
+        } else { am.innerHTML=`<div class="card p-4 text-center text-xs text-slate-400">Defina uma <button onclick="openSettings()" class="font-bold" style="color:var(--accent)">meta de aporte mensal</button> para acompanhar seu progresso de poupança.</div>`; }
 
         // caixinhas
         document.getElementById('goals-grid').innerHTML = S.goals.map(g=>{
@@ -683,6 +750,16 @@
     function editTx(t){ document.getElementById('tx-id').value=t.id; document.getElementById('tx-desc').value=t.description; document.getElementById('tx-cat').value=t.category||''; document.getElementById('tx-amount').value=t.amount; openModal('m-edittx'); }
     async function saveTx(){ const id=document.getElementById('tx-id').value; await api('/transactions/'+id,{method:'PATCH',body:JSON.stringify({description:document.getElementById('tx-desc').value,category:(document.getElementById('tx-cat').value||'').toUpperCase(),amount:parseFloat(document.getElementById('tx-amount').value)})}); closeModal('m-edittx'); loadAll(); }
     async function delTx(id){ if(confirm('Apagar este lançamento?')){ await api('/transactions/'+id,{method:'DELETE'}); loadAll(); } }
+
+    // Orçamentos
+    function openBudget(){ renderBudgetManage(); document.getElementById('bud-cat').value=''; document.getElementById('bud-limit').value=''; openModal('m-budget'); }
+    function renderBudgetManage(){ document.getElementById('budget-manage').innerHTML=S.budgets.map(b=>`<div class="flex justify-between items-center card p-3"><span class="text-sm font-bold">${b.category}</span><div class="flex items-center gap-3"><span class="num text-sm font-bold">${fmt(b.limit_amount)}</span><button onclick="delBudget('${b.id}')" class="text-rose-500"><i class="fas fa-trash text-xs"></i></button></div></div>`).join('')||'<p class="text-xs text-slate-400 text-center py-2">Nenhum orçamento ainda.</p>'; }
+    async function saveBudget(){ const cat=document.getElementById('bud-cat').value.trim(),lim=parseFloat(document.getElementById('bud-limit').value); if(!cat||!lim)return; await api('/budgets',{method:'POST',body:JSON.stringify({category:cat,limit_amount:lim})}); document.getElementById('bud-cat').value=''; document.getElementById('bud-limit').value=''; const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderOverview(); }
+    async function delBudget(id){ await api('/budgets/'+id,{method:'DELETE'}); const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderOverview(); }
+
+    // Configurações
+    function openSettings(){ document.getElementById('set-aporte').value=S.settings.aporte_goal>0?S.settings.aporte_goal:''; document.getElementById('set-low').value=S.settings.low_balance_threshold>0?S.settings.low_balance_threshold:''; document.getElementById('set-daily').checked=S.settings.daily_alerts!==false; openModal('m-settings'); }
+    async function saveSettings(){ const b={aporte_goal:parseFloat(document.getElementById('set-aporte').value)||0,low_balance_threshold:parseFloat(document.getElementById('set-low').value)||0,daily_alerts:document.getElementById('set-daily').checked}; await api('/settings',{method:'PUT',body:JSON.stringify(b)}); closeModal('m-settings'); loadAll(); }
 
     // Telegram
     async function vincularTelegram(){ const r=await api('/link-code',{method:'POST'}); if(r&&r.code){ document.getElementById('tg-code').innerText=r.code; openModal('m-tglink'); } }
