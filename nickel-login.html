@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Nickel IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-50 flex items-center justify-center h-screen font-sans antialiased">
 
@@ -45,10 +44,18 @@
     </div>
 
     <script>
-        const PROJETO_URL = 'https://eadrnruhmcnzleukmlvj.supabase.co';
-        const PROJETO_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZHJucnVobWNuemxldWttbHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMzE3NTksImV4cCI6MjA4NzgwNzc1OX0.5YJpeCd8hO_F0yJ4Ry5MVsLkgKSZ4_i6zDkarAX7CLU';
-        
-        const supabase_final = window.supabase.createClient(PROJETO_URL, PROJETO_KEY);
+        const API = 'https://168-231-93-191.sslip.io';
+
+        async function apiPost(path, body) {
+            const res = await fetch(API + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            let data = {};
+            try { data = await res.json(); } catch (e) {}
+            return { ok: res.ok, status: res.status, data };
+        }
 
         const emailIn = document.getElementById('email');
         const senhaIn = document.getElementById('senha');
@@ -77,18 +84,19 @@
             btnLogin.disabled = true;
             btnLogin.innerText = "Verificando...";
 
-            const { data, error } = await supabase_final.auth.signInWithPassword({ email, password });
+            const { ok, data } = await apiPost('/auth/login', { email, password });
 
-            if (error) {
-                // Aqui ele vai te dizer o motivo real do erro de POST
-                erroBox.innerText = "Erro: " + error.message;
+            if (!ok) {
+                erroBox.innerText = (data && data.message) || "Não foi possível entrar.";
                 erroBox.classList.remove('hidden');
                 btnLogin.disabled = false;
                 btnLogin.innerText = "Entrar";
             } else {
+                localStorage.setItem('nickel_token', data.token);
+                localStorage.setItem('nickel_email', data.email);
                 sucessoBox.innerText = "Login autorizado! Abrindo Dashboard...";
                 sucessoBox.classList.remove('hidden');
-                setTimeout(() => { window.location.href = "nickel-dashboard.html"; }, 1500);
+                setTimeout(() => { window.location.href = "nickel-dashboard.html"; }, 1000);
             }
         });
 
@@ -107,18 +115,19 @@
             btnSignUp.disabled = true;
             btnSignUp.innerText = "Cadastrando...";
 
-            const { data, error } = await supabase_final.auth.signUp({ email, password });
+            const { ok, data } = await apiPost('/auth/register', { email, password });
 
-            if (error) {
-                erroBox.innerText = error.message;
+            if (!ok) {
+                erroBox.innerText = (data && data.message) || "Não foi possível criar a conta.";
                 erroBox.classList.remove('hidden');
                 btnSignUp.disabled = false;
                 btnSignUp.innerText = "Criar Conta";
             } else {
-                sucessoBox.innerText = "Conta criada! Já pode clicar em Entrar.";
+                localStorage.setItem('nickel_token', data.token);
+                localStorage.setItem('nickel_email', data.email);
+                sucessoBox.innerText = "Conta criada! Abrindo Dashboard...";
                 sucessoBox.classList.remove('hidden');
-                btnSignUp.disabled = false;
-                btnSignUp.innerText = "Criar Conta";
+                setTimeout(() => { window.location.href = "nickel-dashboard.html"; }, 1000);
             }
         });
     </script>
