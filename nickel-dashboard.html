@@ -100,11 +100,27 @@
     <!-- Bottom nav mobile -->
     <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-around items-center pt-2 z-50" style="padding-bottom:max(.6rem,env(safe-area-inset-bottom))">
         <button onclick="go('dash')" id="m-dash" class="mnav active flex flex-col items-center gap-1 text-slate-400 w-14 py-1"><i class="fas fa-chart-pie text-lg"></i><span class="text-[9px] font-bold">Início</span></button>
+        <button onclick="go('gastos')" id="m-gastos" class="mnav flex flex-col items-center gap-1 text-slate-400 w-14 py-1"><i class="fas fa-cart-shopping text-lg"></i><span class="text-[9px] font-bold">Gastos</span></button>
+        <button onclick="go('sonhos')" id="m-sonhos" class="mnav flex flex-col items-center gap-1 text-slate-400 w-14 py-1"><i class="fas fa-piggy-bank text-lg"></i><span class="text-[9px] font-bold">Sonhos</span></button>
         <button onclick="go('contas')" id="m-contas" class="mnav flex flex-col items-center gap-1 text-slate-400 w-14 py-1"><i class="fas fa-building-columns text-lg"></i><span class="text-[9px] font-bold">Contas</span></button>
-        <button onclick="go('patri')" id="m-patri" class="mnav flex flex-col items-center gap-1 text-slate-400 w-14 py-1"><i class="fas fa-gem text-lg"></i><span class="text-[9px] font-bold">Patrim.</span></button>
-        <button onclick="go('plan')" id="m-plan" class="mnav flex flex-col items-center gap-1 text-slate-400 w-14 py-1"><i class="fas fa-calendar-check text-lg"></i><span class="text-[9px] font-bold">Agenda</span></button>
-        <button onclick="go('extrato')" id="m-extrato" class="mnav flex flex-col items-center gap-1 text-slate-400 w-14 py-1"><i class="fas fa-receipt text-lg"></i><span class="text-[9px] font-bold">Extrato</span></button>
+        <button onclick="openMore()" class="mnav flex flex-col items-center gap-1 text-slate-400 w-14 py-1"><i class="fas fa-ellipsis text-lg"></i><span class="text-[9px] font-bold">Mais</span></button>
     </nav>
+
+    <!-- Menu "Mais" (mobile) -->
+    <div id="m-more" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-end justify-center md:hidden" onclick="if(event.target===this)closeMore()">
+        <div class="bg-white dark:bg-slate-900 w-full rounded-t-3xl p-5 pb-8 space-y-1" style="padding-bottom:max(2rem,env(safe-area-inset-bottom))">
+            <div class="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-4"></div>
+            <button onclick="go('invest')" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fab fa-bitcoin w-5 text-brand-500"></i><span class="font-semibold text-sm">Investimentos</span></button>
+            <button onclick="go('plan')" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fas fa-calendar-check w-5 text-brand-500"></i><span class="font-semibold text-sm">Planejamento</span></button>
+            <button onclick="go('extrato')" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fas fa-receipt w-5 text-brand-500"></i><span class="font-semibold text-sm">Extrato</span></button>
+            <button onclick="go('cad')" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fas fa-tags w-5 text-brand-500"></i><span class="font-semibold text-sm">Cadastros</span></button>
+            <div class="border-t border-slate-100 dark:border-slate-800 my-2"></div>
+            <button onclick="vincularTelegram();closeMore()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fab fa-telegram-plane w-5 text-sky-500"></i><span class="font-semibold text-sm">Vincular Telegram</span></button>
+            <button onclick="openSettings();closeMore()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fas fa-gear w-5 text-slate-400"></i><span class="font-semibold text-sm">Configurações</span></button>
+            <button onclick="toggleTheme()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fas fa-moon w-5 text-slate-400"></i><span class="font-semibold text-sm">Alternar tema</span></button>
+            <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-rose-50 dark:hover:bg-rose-500/10 text-rose-600"><i class="fas fa-sign-out-alt w-5"></i><span class="font-semibold text-sm">Sair</span></button>
+        </div>
+    </div>
 
     <main class="flex-1 flex flex-col overflow-y-auto w-full relative">
         <header class="bg-slate-50/85 dark:bg-slate-900/85 backdrop-blur-xl px-4 md:px-6 py-3 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20 flex items-center gap-2" style="padding-top:max(.75rem,env(safe-area-inset-top))">
@@ -156,20 +172,9 @@
                 <input type="month" id="monthFilterM" onchange="syncMonth(this.value)" class="sm:hidden w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold num">
                 <div id="alerts-box" class="space-y-2"></div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4" id="kpi-grid"></div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div class="card p-5 lg:col-span-2">
-                        <h4 class="text-sm font-bold mb-4">Fluxo de caixa — entradas vs saídas</h4>
-                        <div class="h-60"><canvas id="chartFlow"></canvas></div>
-                    </div>
-                    <div class="card p-5">
-                        <h4 class="text-sm font-bold mb-4">Onde vai o dinheiro</h4>
-                        <div class="h-52"><canvas id="chartDonut"></canvas></div>
-                        <div id="donut-legend" class="mt-4 space-y-2"></div>
-                    </div>
-                </div>
                 <div class="card p-5">
-                    <div class="flex justify-between items-center mb-4"><h4 class="text-sm font-bold">Orçamentos do mês</h4><button onclick="openBudget()" class="text-xs font-bold" style="color:var(--accent)"><i class="fas fa-sliders"></i> Gerenciar</button></div>
-                    <div id="budgets-block" class="space-y-4"></div>
+                    <h4 class="text-sm font-bold mb-4">Fluxo de caixa — entradas vs saídas</h4>
+                    <div class="h-60"><canvas id="chartFlow"></canvas></div>
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black">Suas contas</h3><button onclick="go('contas')" class="text-xs font-bold" style="color:var(--accent)">Ver todas →</button></div>
@@ -194,25 +199,56 @@
                 <div><h3 class="text-base font-black mb-3 px-1">Transferências recentes</h3><div id="transfers-list" class="space-y-2.5"></div></div>
             </div>
 
-            <!-- ══════════ PATRIMÔNIO ══════════ -->
-            <div id="sec-patri" class="section-content space-y-8">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="patri-kpis"></div>
-                <div id="aporte-meta"></div>
+            <!-- ══════════ GASTOS ══════════ -->
+            <div id="sec-gastos" class="section-content space-y-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="gastos-kpis"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="card p-5">
+                        <h4 class="text-sm font-bold mb-4">Onde vai o dinheiro</h4>
+                        <div class="h-56"><canvas id="chartDonut"></canvas></div>
+                        <div id="donut-legend" class="mt-4 space-y-2"></div>
+                    </div>
+                    <div class="card p-5">
+                        <div class="flex justify-between items-center mb-4"><h4 class="text-sm font-bold">Orçamentos do mês</h4><button onclick="openBudget()" class="text-xs font-bold" style="color:var(--accent)"><i class="fas fa-sliders"></i> Gerenciar</button></div>
+                        <div id="budgets-block" class="space-y-4"></div>
+                    </div>
+                </div>
+                <div><h3 class="text-base font-black mb-3 px-1">Gastos por categoria</h3><div id="cat-breakdown" class="space-y-2.5"></div></div>
+            </div>
 
+            <!-- ══════════ INVESTIMENTOS ══════════ -->
+            <div id="sec-invest" class="section-content space-y-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="invest-kpis"></div>
+                <div>
+                    <div id="crypto-anchor" class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fab fa-bitcoin" style="color:#f7931a"></i> Cripto <span id="crypto-updated" class="text-[10px] font-medium text-slate-400"></span></h3><button onclick="openCrypto()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Registrar</button></div>
+                    <div class="card overflow-x-auto"><table class="w-full text-sm min-w-[640px]"><thead><tr class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-100 dark:border-slate-800"><th class="text-left p-4">Moeda</th><th class="text-right p-4">Qtd</th><th class="text-right p-4">Preço médio</th><th class="text-right p-4">Atual</th><th class="text-right p-4">Investido</th><th class="text-right p-4">Agora</th><th class="text-right p-4">Resultado</th></tr></thead><tbody id="crypto-body"></tbody><tfoot id="crypto-foot"></tfoot></table></div>
+                    <div id="crypto-lots" class="space-y-2 mt-3"></div>
+                </div>
+            </div>
+
+            <!-- ══════════ SONHOS ══════════ -->
+            <div id="sec-sonhos" class="section-content space-y-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="sonhos-kpis"></div>
+                <div id="aporte-meta"></div>
                 <div>
                     <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fas fa-piggy-bank text-brand-500"></i> Caixinhas — sonhos</h3><button onclick="openGoal()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Nova caixinha</button></div>
                     <div id="goals-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
+            </div>
 
+            <!-- ══════════ CADASTROS ══════════ -->
+            <div id="sec-cad" class="section-content space-y-8">
                 <div>
-                    <div id="crypto-anchor" style="scroll-margin-top:80px" class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fab fa-bitcoin" style="color:#f7931a"></i> Cripto <span id="crypto-updated" class="text-[10px] font-medium text-slate-400"></span></h3><button onclick="openCrypto()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Registrar compra</button></div>
-                    <div class="card overflow-x-auto"><table class="w-full text-sm min-w-[640px]"><thead><tr class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-100 dark:border-slate-800"><th class="text-left p-4">Moeda</th><th class="text-right p-4">Qtd</th><th class="text-right p-4">Preço médio</th><th class="text-right p-4">Atual</th><th class="text-right p-4">Investido</th><th class="text-right p-4">Agora</th><th class="text-right p-4">Resultado</th></tr></thead><tbody id="crypto-body"></tbody><tfoot id="crypto-foot"></tfoot></table></div>
-                    <div id="crypto-lots" class="space-y-2 mt-3"></div>
+                    <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fas fa-tags text-brand-500"></i> Categorias</h3><button onclick="openCategory()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Nova</button></div>
+                    <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
                 </div>
-
                 <div>
-                    <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fas fa-repeat text-brand-500"></i> Entradas &amp; aportes automáticos</h3><button onclick="openRecurring()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Novo</button></div>
+                    <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fas fa-repeat text-brand-500"></i> Lançamentos automáticos</h3><button onclick="openRecurring()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Novo</button></div>
                     <div id="recurring-list" class="space-y-2.5"></div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fas fa-building-columns text-brand-500"></i> Bancos e contas</h3><button onclick="openAccount()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Nova conta</button></div>
+                    <div id="cad-accounts" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
                 </div>
             </div>
 
@@ -443,6 +479,26 @@
         </div>
     </div>
 
+    <div id="m-category" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card p-7 w-full max-w-md">
+            <h4 id="category-title" class="font-black text-xl mb-5">Nova categoria</h4>
+            <input type="hidden" id="cat-id">
+            <div class="space-y-3">
+                <input id="cat-nome" placeholder="Nome (ex: PETS)" class="w-full card px-4 py-3 text-sm">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-xs font-bold text-slate-500">Cor</label><input id="cat-cor" type="color" value="#2a78d6" class="w-full h-11 card mt-1 cursor-pointer"></div>
+                    <div><label class="text-xs font-bold text-slate-500">Tipo</label><select id="cat-tipo" class="w-full card px-3 py-3 text-sm font-semibold mt-1"><option value="EXPENSE">Saída</option><option value="INCOME">Entrada</option><option value="AMBOS">Ambos</option></select></div>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500">Ícone (Font Awesome)</label><input id="cat-icone" placeholder="fa-tag" value="fa-tag" class="w-full card px-4 py-3 text-sm mt-1"></div>
+                <p class="text-[11px] text-slate-400">Ex: fa-paw, fa-plane, fa-dumbbell, fa-gift. Veja em fontawesome.com/icons</p>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeModal('m-category')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
+                    <button onclick="saveCategory()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast"></div>
 
     <div id="m-tglink" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
@@ -472,7 +528,7 @@
     function toast(msg,type){ const c=document.getElementById('toast'); const el=document.createElement('div'); el.className='toast'+(type==='err'?' err':''); el.textContent=(type==='err'?'⚠️ ':'✅ ')+msg; c.appendChild(el); setTimeout(()=>{el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>el.remove(),300);},2600); }
     const COLORS = ['#2a78d6','#1baf7a','#eda100','#008300','#4a3aa7','#e34948','#e87ba4','#eb6834'];
 
-    let S = { accounts:[], tx:[], goals:[], crypto:null, recurring:[], fixed:[], budgets:[], settings:{}, transfers:[], cards:[] };
+    let S = { accounts:[], tx:[], goals:[], crypto:null, recurring:[], fixed:[], budgets:[], settings:{}, transfers:[], cards:[], categories:[] };
     let isDark = localStorage.getItem('theme') === 'dark';
     let viewDate = new Date();
     let flowChart, donutChart;
@@ -485,48 +541,48 @@
         const ict=document.getElementById('theme-ic-top'); if(ict) ict.className=isDark?'fas fa-sun':'fas fa-moon';
     }
     const hint=t=>`<span class="hint" tabindex="0" role="img" aria-label="${String(t).replace(/"/g,'&quot;')}" data-tip="${String(t).replace(/"/g,'&quot;')}"><i class="fas fa-circle-question"></i></span>`;
-    function toggleTheme(){ isDark=!isDark; localStorage.setItem('theme', isDark?'dark':'light'); applyTheme(); if(flowChart||donutChart) renderOverview(); }
+    function toggleTheme(){ isDark=!isDark; localStorage.setItem('theme', isDark?'dark':'light'); applyTheme(); if(flowChart||donutChart){ renderOverview(); renderGastos(); } }
     function logout(){ localStorage.removeItem('nickel_token'); localStorage.removeItem('nickel_email'); location.href='nickel-login.html'; }
 
     const NAV_ALIAS={
-        invest:{sec:'patri',anchor:'crypto-anchor',parent:'t-dash',title:'Investimentos'},
-        cripto:{sec:'patri',anchor:'crypto-anchor',parent:'t-cad',title:'Carteira de cripto'},
-        sonhos:{sec:'patri',anchor:'goals-grid',parent:'t-dash',title:'Sonhos'},
-        gastos:{sec:'dash',anchor:'budgets-block',parent:'t-dash',title:'Gastos'},
+        cripto:{sec:'invest',anchor:'crypto-anchor',parent:'t-cad',title:'Carteira de cripto'},
+        recorrentes:{sec:'cad',anchor:'recurring-list',parent:'t-cad',title:'Cadastros'},
         cartoes:{sec:'contas',anchor:'accounts-grid',parent:'t-contas',title:'Cartões'},
         transfers:{sec:'contas',anchor:'transfers-list',parent:'t-contas',title:'Transferências'},
-        recorrentes:{sec:'patri',anchor:'recurring-list',parent:'t-cad',title:'Lançamentos automáticos'},
     };
-    const NAV_PARENT={dash:'t-dash',patri:'t-dash',contas:'t-contas',plan:'t-plan',extrato:'t-extrato'};
+    const NAV_PARENT={dash:'t-dash',gastos:'t-dash',invest:'t-dash',sonhos:'t-dash',contas:'t-contas',cad:'t-cad',plan:'t-plan',extrato:'t-extrato'};
+    const SEC_TITLE={dash:'Finanças',gastos:'Gastos',invest:'Investimentos',sonhos:'Sonhos',cad:'Cadastros',contas:'Contas',plan:'Planejamento',extrato:'Extrato'};
     function go(id){
         const a=NAV_ALIAS[id]; const sec=a?a.sec:id;
+        closeMore();
         document.querySelectorAll('.section-content').forEach(s=>s.classList.remove('active'));
         document.querySelectorAll('.nav-link,.mnav').forEach(l=>l.classList.remove('active'));
-        document.getElementById('sec-'+sec).classList.add('active');
+        const secEl=document.getElementById('sec-'+sec); if(!secEl) return; secEl.classList.add('active');
         document.getElementById('b-'+sec)?.classList.add('active');
         document.getElementById('m-'+sec)?.classList.add('active');
         document.querySelectorAll('.nav-top').forEach(b=>b.classList.remove('active'));
         document.getElementById(a?a.parent:(NAV_PARENT[sec]||''))?.classList.add('active');
-        const t={dash:'Visão Geral',contas:'Contas',patri:'Patrimônio',plan:'Planejamento',extrato:'Extrato'};
-        document.getElementById('page-title').innerText=a?a.title:t[sec];
+        document.getElementById('page-title').innerText=a?a.title:SEC_TITLE[sec];
         if(sec==='plan') renderCalendar();
         if(a&&a.anchor){ setTimeout(()=>document.getElementById(a.anchor)?.scrollIntoView({behavior:'smooth',block:'start'}),90); }
         else window.scrollTo({top:0,behavior:'smooth'});
     }
+    function closeMore(){ const m=document.getElementById('m-more'); if(m) m.classList.remove('open'); }
+    function openMore(){ document.getElementById('m-more').classList.add('open'); }
     function syncMonth(v){ document.getElementById('monthFilter').value=v; loadAll(); }
 
     // ═══════════ LOAD ═══════════
     async function loadAll(){
         const ic=document.getElementById('sync-ic'); ic.classList.add('animate-spin');
         document.getElementById('user-email-text').innerText = EMAIL;
-        const [acc,tx,goals,rec,fixed,budgets,settings,transfers,cards] = await Promise.all([
+        const [acc,tx,goals,rec,fixed,budgets,settings,transfers,cards,categories] = await Promise.all([
             api('/accounts'), api('/transactions'), api('/goals'), api('/recurring'), api('/fixed_expenses'),
-            api('/budgets'), api('/settings'), api('/transfers'), api('/cards/summary')
+            api('/budgets'), api('/settings'), api('/transfers'), api('/cards/summary'), api('/categories')
         ]);
         S.accounts=acc||[]; S.tx=tx||[]; S.goals=goals||[]; S.recurring=rec||[]; S.fixed=fixed||[];
-        S.budgets=budgets||[]; S.settings=settings||{}; S.transfers=transfers||[]; S.cards=cards||[];
-        api('/crypto/portfolio').then(p=>{ S.crypto=p; renderPatri(); });
-        renderOverview(); renderContas(); renderPatri(); renderExtrato(); fillAccountSelects();
+        S.budgets=budgets||[]; S.settings=settings||{}; S.transfers=transfers||[]; S.cards=cards||[]; S.categories=categories||[];
+        api('/crypto/portfolio').then(p=>{ S.crypto=p; renderInvest(); });
+        renderOverview(); renderGastos(); renderContas(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); fillAccountSelects();
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
     }
 
@@ -581,11 +637,31 @@
           + kpiTile('Reserva', meses>0?meses.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que você já tem guardado.')
           + kpiTile('Burn rate', fmt(burn)+'/dia', '', 'ritmo de gasto', '', 'Seu ritmo médio de gasto por dia neste mês.');
 
-        renderFlow(tx,days); renderDonut(cats,exp);
-        renderBudgets(cats);
+        renderFlow(tx,days);
         renderAlerts({consol,disp,exp,inc,burn,days,cats});
         renderMiniAccounts();
         renderLogList('recent-logs', S.tx.slice(0,5));
+    }
+    const catColor=(name)=>{ const c=S.categories.find(x=>x.nome===(name||'').toUpperCase()); return c?c.cor:COLORS[Math.abs((name||'').split('').reduce((a,ch)=>a+ch.charCodeAt(0),0))%COLORS.length]; };
+    const catIcon=(name)=>{ const c=S.categories.find(x=>x.nome===(name||'').toUpperCase()); return c?c.icone:'fa-tag'; };
+    // ═══════════ GASTOS ═══════════
+    function renderGastos(){
+        const tx=monthTx(); let exp=0; const cats={};
+        tx.forEach(t=>{ if(t.type==='EXPENSE'){ const v=parseFloat(t.amount); exp+=v; const c=t.category||'OUTROS'; cats[c]=(cats[c]||0)+v; }});
+        const today=new Date().getDate();
+        const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+        const maior=sorted[0];
+        document.getElementById('gastos-kpis').innerHTML =
+            kpiTile('Total gasto no mês', fmt(exp), 'col-span-2', `${tx.filter(t=>t.type==='EXPENSE').length} lançamentos`, '', 'Soma de todas as suas saídas neste mês.')
+          + kpiTile('Média por dia', fmt(today>0?exp/today:0), '', 'até hoje', '', 'Total gasto dividido pelos dias já corridos do mês.')
+          + kpiTile('Maior categoria', maior?maior[0]:'—', '', maior?fmt(maior[1]):'', '', 'A categoria em que você mais gastou neste mês.');
+        renderDonut(cats,exp);
+        renderBudgets(cats);
+        document.getElementById('cat-breakdown').innerHTML = sorted.length?sorted.map(([n,v])=>`
+            <div class="card p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg grid place-items-center" style="background:${catColor(n)}22;color:${catColor(n)}"><i class="fas ${catIcon(n)} text-xs"></i></span><div><div class="text-sm font-bold">${n}</div><div class="text-[11px] text-slate-400 num">${exp>0?((v/exp)*100).toFixed(0):0}% dos gastos</div></div></div>
+                <span class="font-black num text-sm">${fmt(v)}</span>
+            </div>`).join(''):'<div class="card p-6 text-center text-sm text-slate-400 border-dashed">Nenhum gasto neste mês.</div>';
     }
     function renderBudgets(cats){
         const el=document.getElementById('budgets-block');
@@ -637,8 +713,9 @@
         if(donutChart) donutChart.destroy();
         const el=document.getElementById('chartDonut');
         if(!data.length){ el.getContext('2d').clearRect(0,0,el.width,el.height); document.getElementById('donut-legend').innerHTML='<p class="text-xs text-slate-400 text-center">Sem gastos neste mês.</p>'; return; }
-        donutChart=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:COLORS,borderWidth:0,hoverOffset:8}]},options:{cutout:'72%',maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-        document.getElementById('donut-legend').innerHTML=labels.map((l,i)=>`<div class="flex justify-between items-center text-xs"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm" style="background:${COLORS[i%COLORS.length]}"></span>${l}</span><span class="font-bold num">${((data[i]/total)*100).toFixed(0)}%</span></div>`).join('');
+        const cols=labels.map(l=>l==='Outros'?'#94a3b8':catColor(l));
+        donutChart=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:cols,borderWidth:0,hoverOffset:8}]},options:{cutout:'72%',maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+        document.getElementById('donut-legend').innerHTML=labels.map((l,i)=>`<div class="flex justify-between items-center text-xs"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm" style="background:${cols[i]}"></span>${l}</span><span class="font-bold num">${((data[i]/total)*100).toFixed(0)}%</span></div>`).join('');
     }
     function renderMiniAccounts(){
         document.getElementById('mini-accounts').innerHTML = S.accounts.map(a=>`
@@ -673,27 +750,55 @@
         }).join('')||'<p class="text-xs text-slate-400 px-1">Nenhuma transferência ainda.</p>';
     }
 
-    // ═══════════ PATRIMÔNIO ═══════════
-    function renderPatri(){
+    // ═══════════ INVESTIMENTOS ═══════════
+    function renderInvest(){
         const consol=consolidated();
         const goalsSum=S.goals.reduce((s,g)=>s+parseFloat(g.current_amount),0);
         const cryptoVal=S.crypto?S.crypto.total_now:0;
+        const cryptoInv=S.crypto?S.crypto.total_invested:0;
+        const pnl=S.crypto?S.crypto.total_pnl:0;
         const cardDebt=S.cards.reduce((s,c)=>s+parseFloat(c.devido||0),0);
         const patrimonio=consol+goalsSum+cryptoVal-cardDebt;
-        document.getElementById('patri-kpis').innerHTML =
+        document.getElementById('invest-kpis').innerHTML =
             kpiTile('Patrimônio líquido', fmt(patrimonio), 'col-span-2', 'contas + caixinhas + cripto − cartões','', 'Tudo que você tem somado: contas, caixinhas e cripto, menos as dívidas de cartão.')
-          + kpiTile('Guardado em sonhos', fmt(goalsSum), '', S.goals.length+' caixinha(s)','', 'Tudo que você já separou nas suas caixinhas somado.')
-          + kpiTile('Cripto agora', fmt(cryptoVal), '', S.crypto?(S.crypto.total_pnl>=0?'▲ ':'▼ ')+S.crypto.total_pnl_pct.toFixed(1)+'%':'—','', 'Quanto suas criptos valem hoje, pela cotação atual, e o lucro/prejuízo total.');
-
-        // meta de aporte mensal
+          + kpiTile('Cripto agora', fmt(cryptoVal), '', S.crypto?(pnl>=0?'▲ ':'▼ ')+S.crypto.total_pnl_pct.toFixed(1)+'%':'—','', 'Quanto suas criptos valem hoje, pela cotação atual.')
+          + kpiTile('Resultado cripto', `<span style="color:${pnl>=0?'var(--pos)':'var(--neg)'}">${pnl>=0?'+':''}${fmt(pnl)}</span>`, '', 'investido '+fmt(cryptoInv), '', 'Lucro ou prejuízo: valor de agora menos o total investido.');
+        renderCrypto();
+    }
+    function renderCrypto(){
+        const body=document.getElementById('crypto-body'), foot=document.getElementById('crypto-foot'), lotsEl=document.getElementById('crypto-lots');
+        if(!body) return;
+        if(S.crypto && S.crypto.items.length){
+            body.innerHTML=S.crypto.items.map(i=>{ const up=i.pnl>=0;
+                return `<tr class="border-b border-slate-50 dark:border-slate-800/50">
+                    <td class="p-4 font-bold">${i.symbol}</td>
+                    <td class="p-4 text-right num text-slate-500">${(+i.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})}</td>
+                    <td class="p-4 text-right num">${fmt(i.avg_price)}</td>
+                    <td class="p-4 text-right num">${fmt(i.price_brl)}</td>
+                    <td class="p-4 text-right num text-slate-500">${fmt(i.invested_brl)}</td>
+                    <td class="p-4 text-right num font-bold">${fmt(i.value_now)}</td>
+                    <td class="p-4 text-right num font-bold" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${i.pnl_pct.toFixed(1)}% <span class="block text-[10px] font-medium">${up?'+':''}${fmt(i.pnl)}</span></td></tr>`;
+            }).join('');
+            const up=S.crypto.total_pnl>=0;
+            foot.innerHTML=`<tr class="border-t-2 border-slate-200 dark:border-slate-700 font-black"><td class="p-4">Total</td><td></td><td></td><td></td><td class="p-4 text-right num">${fmt(S.crypto.total_invested)}</td><td class="p-4 text-right num">${fmt(S.crypto.total_now)}</td><td class="p-4 text-right num" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${S.crypto.total_pnl_pct.toFixed(1)}%</td></tr>`;
+            document.getElementById('crypto-updated').innerText='· ao vivo';
+            const lots=S.crypto.items.flatMap(i=>i.lots.map(l=>({...l,symbol:i.symbol,coingecko_id:i.coingecko_id}))).sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date));
+            lotsEl.innerHTML=lots.length?('<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1 mb-1">Compras registradas</p>'+lots.map(l=>`<div class="card p-3 flex justify-between items-center group"><div class="flex items-center gap-3"><span class="text-xs font-black px-2 py-1 rounded" style="background:rgba(247,147,26,.12);color:#f7931a">${l.symbol}</span><div><div class="text-sm font-bold num">${(+l.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})} @ ${fmt(l.unit_price_brl)}</div><div class="text-[11px] text-slate-400 num">${new Date(l.purchase_date+'T12:00:00').toLocaleDateString('pt-BR')} · total ${fmt(l.total)}</div></div></div><div class="flex gap-1 opacity-0 group-hover:opacity-100"><button onclick='editPurchase(${JSON.stringify(l)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delPurchase('${l.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div>`).join('')):'';
+        } else { body.innerHTML='<tr><td colspan="7" class="p-6 text-center text-sm text-slate-400">Nenhuma cripto cadastrada.</td></tr>'; foot.innerHTML=''; lotsEl.innerHTML=''; }
+    }
+    // ═══════════ SONHOS ═══════════
+    function renderSonhos(){
+        const goalsSum=S.goals.reduce((s,g)=>s+parseFloat(g.current_amount),0);
         const goalAp=parseFloat(S.settings.aporte_goal||0);
         const apMes=S.transfers.filter(t=>t.goal_id&&t.date&&t.date.startsWith(selMonth())).reduce((s,t)=>s+parseFloat(t.amount),0);
+        document.getElementById('sonhos-kpis').innerHTML =
+            kpiTile('Guardado em sonhos', fmt(goalsSum), 'col-span-2', S.goals.length+' caixinha(s)','', 'Tudo que você já separou nas suas caixinhas somado.')
+          + kpiTile('Aportado no mês', fmt(apMes), '', goalAp>0?'meta '+fmt(goalAp):'sem meta', '', 'Quanto você guardou nas caixinhas neste mês.')
+          + kpiTile('Nº de sonhos', String(S.goals.length), '', 'metas ativas', '', 'Quantas caixinhas de sonho você tem abertas.');
         const am=document.getElementById('aporte-meta');
         if(goalAp>0){ const pct=Math.min(100,apMes/goalAp*100); const done=apMes>=goalAp;
             am.innerHTML=`<div class="card p-5"><div class="flex justify-between items-center mb-3"><h4 class="text-sm font-bold flex items-center gap-2"><i class="fas fa-bullseye text-brand-500"></i> Meta de aporte do mês</h4><span class="text-xs font-black num" style="color:${done?'var(--pos)':'var(--accent)'}">${pct.toFixed(0)}%${done?' ✓':''}</span></div><div class="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div class="h-full rounded-full" style="width:${pct}%;background:${done?'var(--pos)':'var(--accent)'}"></div></div><div class="flex justify-between mt-2 text-xs"><span class="font-bold num">${fmt(apMes)} aportados</span><span class="text-slate-400 num">meta ${fmt(goalAp)}</span></div></div>`;
         } else { am.innerHTML=`<div class="card p-4 text-center text-xs text-slate-400">Defina uma <button onclick="openSettings()" class="font-bold" style="color:var(--accent)">meta de aporte mensal</button> para acompanhar seu progresso de poupança.</div>`; }
-
-        // caixinhas
         document.getElementById('goals-grid').innerHTML = S.goals.map(g=>{
             const cur=parseFloat(g.current_amount),tgt=parseFloat(g.target_amount);
             const pct=Math.min(100,(cur/tgt*100));
@@ -712,27 +817,16 @@
             </div>`;
         }).join('') || '<p class="text-sm text-slate-400 col-span-full card p-6 text-center">Crie sua primeira caixinha para um sonho 🎯</p>';
 
-        // cripto
-        const body=document.getElementById('crypto-body'), foot=document.getElementById('crypto-foot'), lotsEl=document.getElementById('crypto-lots');
-        if(S.crypto && S.crypto.items.length){
-            body.innerHTML=S.crypto.items.map(i=>{ const up=i.pnl>=0;
-                return `<tr class="border-b border-slate-50 dark:border-slate-800/50">
-                    <td class="p-4 font-bold">${i.symbol}</td>
-                    <td class="p-4 text-right num text-slate-500">${(+i.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})}</td>
-                    <td class="p-4 text-right num">${fmt(i.avg_price)}</td>
-                    <td class="p-4 text-right num">${fmt(i.price_brl)}</td>
-                    <td class="p-4 text-right num text-slate-500">${fmt(i.invested_brl)}</td>
-                    <td class="p-4 text-right num font-bold">${fmt(i.value_now)}</td>
-                    <td class="p-4 text-right num font-bold" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${i.pnl_pct.toFixed(1)}% <span class="block text-[10px] font-medium">${up?'+':''}${fmt(i.pnl)}</span></td></tr>`;
-            }).join('');
-            const up=S.crypto.total_pnl>=0;
-            foot.innerHTML=`<tr class="border-t-2 border-slate-200 dark:border-slate-700 font-black"><td class="p-4">Total</td><td></td><td></td><td></td><td class="p-4 text-right num">${fmt(S.crypto.total_invested)}</td><td class="p-4 text-right num">${fmt(S.crypto.total_now)}</td><td class="p-4 text-right num" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${S.crypto.total_pnl_pct.toFixed(1)}%</td></tr>`;
-            document.getElementById('crypto-updated').innerText='· ao vivo';
-            // lista de compras (lotes)
-            const lots=S.crypto.items.flatMap(i=>i.lots.map(l=>({...l,symbol:i.symbol,coingecko_id:i.coingecko_id}))).sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date));
-            lotsEl.innerHTML=lots.length?('<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1 mb-1">Compras registradas</p>'+lots.map(l=>`<div class="card p-3 flex justify-between items-center group"><div class="flex items-center gap-3"><span class="text-xs font-black px-2 py-1 rounded" style="background:rgba(247,147,26,.12);color:#f7931a">${l.symbol}</span><div><div class="text-sm font-bold num">${(+l.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})} @ ${fmt(l.unit_price_brl)}</div><div class="text-[11px] text-slate-400 num">${new Date(l.purchase_date+'T12:00:00').toLocaleDateString('pt-BR')} · total ${fmt(l.total)}</div></div></div><div class="flex gap-1 opacity-0 group-hover:opacity-100"><button onclick='editPurchase(${JSON.stringify(l)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delPurchase('${l.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div>`).join('')):'';
-        } else { body.innerHTML='<tr><td colspan="7" class="p-6 text-center text-sm text-slate-400">Nenhuma cripto cadastrada.</td></tr>'; foot.innerHTML=''; lotsEl.innerHTML=''; }
-
+    }
+    // ═══════════ CADASTROS ═══════════
+    function renderCad(){
+        // categorias
+        const tipoBadge={EXPENSE:'saída',INCOME:'entrada',AMBOS:'ambos'};
+        document.getElementById('categories-grid').innerHTML = S.categories.map(c=>`
+            <div class="card p-3.5 flex items-center justify-between group">
+                <div class="flex items-center gap-3 min-w-0"><span class="w-9 h-9 rounded-lg grid place-items-center shrink-0" style="background:${c.cor}22;color:${c.cor}"><i class="fas ${c.icone} text-xs"></i></span><div class="min-w-0"><div class="text-sm font-bold truncate">${c.nome}</div><div class="text-[10px] text-slate-400 uppercase">${tipoBadge[c.tipo]||c.tipo}</div></div></div>
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 shrink-0"><button onclick='editCategory(${JSON.stringify(c)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delCategory('${c.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div>
+            </div>`).join('') || '<p class="text-sm text-slate-400 col-span-full card p-5 text-center">Nenhuma categoria. <button onclick="openCategory()" class="font-bold" style="color:var(--accent)">Criar</button></p>';
         // recorrências
         const accName=id=>S.accounts.find(a=>a.id===id)?.nome||'—';
         const tipoLbl={INCOME:['Entrada','var(--pos)','fa-arrow-down'],EXPENSE:['Saída fixa','var(--neg)','fa-arrow-up'],APORTE:['Aporte','var(--accent)','fa-piggy-bank']};
@@ -743,6 +837,13 @@
                 <div class="flex items-center gap-2"><span class="font-black num text-sm">${fmt(r.amount)}</span><button onclick='editRecurring(${JSON.stringify(r)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delRecurring('${r.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div>
             </div>`;
         }).join('') || '<p class="text-sm text-slate-400 card p-5 text-center">Cadastre seu salário e aportes automáticos ⚡</p>';
+        // bancos e contas
+        const tipos={CORRENTE:'Corrente',POUPANCA:'Poupança',INVESTIMENTO:'Investimento',RESERVA:'Reserva',CARTEIRA:'Carteira',CARTAO_CREDITO:'Cartão'};
+        document.getElementById('cad-accounts').innerHTML = S.accounts.map(a=>`
+            <div class="card p-3.5 flex items-center justify-between group">
+                <div class="flex items-center gap-3 min-w-0"><span class="w-9 h-9 rounded-lg grid place-items-center shrink-0" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone} text-xs"></i></span><div class="min-w-0"><div class="text-sm font-bold truncate">${a.nome}</div><div class="text-[10px] text-slate-400">${tipos[a.tipo]||a.tipo}</div></div></div>
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 shrink-0"><button onclick='editAccount(${JSON.stringify(a)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delAccount('${a.id}','${a.nome.replace(/'/g,'')}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div>
+            </div>`).join('');
     }
 
     // ═══════════ EXTRATO ═══════════
@@ -869,12 +970,18 @@
     // Orçamentos
     function openBudget(){ renderBudgetManage(); document.getElementById('bud-cat').value=''; document.getElementById('bud-limit').value=''; openModal('m-budget'); }
     function renderBudgetManage(){ document.getElementById('budget-manage').innerHTML=S.budgets.map(b=>`<div class="flex justify-between items-center card p-3"><span class="text-sm font-bold">${b.category}</span><div class="flex items-center gap-3"><span class="num text-sm font-bold">${fmt(b.limit_amount)}</span><button onclick="delBudget('${b.id}')" class="text-rose-500"><i class="fas fa-trash text-xs"></i></button></div></div>`).join('')||'<p class="text-xs text-slate-400 text-center py-2">Nenhum orçamento ainda.</p>'; }
-    async function saveBudget(){ const cat=document.getElementById('bud-cat').value.trim(),lim=parseFloat(document.getElementById('bud-limit').value); if(!cat||!lim)return; await api('/budgets',{method:'POST',body:JSON.stringify({category:cat,limit_amount:lim})}); document.getElementById('bud-cat').value=''; document.getElementById('bud-limit').value=''; const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderOverview(); toast('Orçamento de '+cat.toUpperCase()+' salvo'); }
-    async function delBudget(id){ await api('/budgets/'+id,{method:'DELETE'}); const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderOverview(); }
+    async function saveBudget(){ const cat=document.getElementById('bud-cat').value.trim(),lim=parseFloat(document.getElementById('bud-limit').value); if(!cat||!lim)return; await api('/budgets',{method:'POST',body:JSON.stringify({category:cat,limit_amount:lim})}); document.getElementById('bud-cat').value=''; document.getElementById('bud-limit').value=''; const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderGastos(); toast('Orçamento de '+cat.toUpperCase()+' salvo'); }
+    async function delBudget(id){ await api('/budgets/'+id,{method:'DELETE'}); const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderGastos(); }
 
     // Configurações
     function openSettings(){ document.getElementById('set-aporte').value=S.settings.aporte_goal>0?S.settings.aporte_goal:''; document.getElementById('set-low').value=S.settings.low_balance_threshold>0?S.settings.low_balance_threshold:''; document.getElementById('set-daily').checked=S.settings.daily_alerts!==false; openModal('m-settings'); }
     async function saveSettings(){ const b={aporte_goal:parseFloat(document.getElementById('set-aporte').value)||0,low_balance_threshold:parseFloat(document.getElementById('set-low').value)||0,daily_alerts:document.getElementById('set-daily').checked}; await api('/settings',{method:'PUT',body:JSON.stringify(b)}); closeModal('m-settings'); toast('Configurações salvas'); loadAll(); }
+
+    // Categorias
+    function openCategory(){ document.getElementById('cat-id').value=''; document.getElementById('category-title').innerText='Nova categoria'; document.getElementById('cat-nome').value=''; document.getElementById('cat-cor').value='#2a78d6'; document.getElementById('cat-icone').value='fa-tag'; document.getElementById('cat-tipo').value='EXPENSE'; openModal('m-category'); }
+    function editCategory(c){ document.getElementById('cat-id').value=c.id; document.getElementById('category-title').innerText='Editar categoria'; document.getElementById('cat-nome').value=c.nome; document.getElementById('cat-cor').value=c.cor; document.getElementById('cat-icone').value=c.icone; document.getElementById('cat-tipo').value=c.tipo; openModal('m-category'); }
+    async function saveCategory(){ const id=document.getElementById('cat-id').value; const b={nome:document.getElementById('cat-nome').value,cor:document.getElementById('cat-cor').value,icone:document.getElementById('cat-icone').value||'fa-tag',tipo:document.getElementById('cat-tipo').value}; if(!b.nome){ toast('Dê um nome à categoria.','err'); return; } if(id)await api('/categories/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/categories',{method:'POST',body:JSON.stringify(b)}); closeModal('m-category'); toast(id?'Categoria atualizada':'Categoria "'+b.nome.toUpperCase()+'" criada'); loadAll(); }
+    async function delCategory(id){ if(confirm('Excluir esta categoria? Os lançamentos antigos mantêm o nome.')){ await api('/categories/'+id,{method:'DELETE'}); toast('Categoria excluída'); loadAll(); } }
 
     // Telegram
     async function vincularTelegram(){ const r=await api('/link-code',{method:'POST'}); if(r&&r.code){ document.getElementById('tg-code').innerText=r.code; openModal('m-tglink'); } }
