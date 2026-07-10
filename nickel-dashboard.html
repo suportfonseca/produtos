@@ -231,7 +231,19 @@
 
             <!-- ══════════ INVESTIMENTOS ══════════ -->
             <div id="sec-invest" class="section-content space-y-6">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="invest-kpis"></div>
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-3" id="invest-kpis"></div>
+                <div id="invest-charts" class="space-y-4 hidden">
+                    <div id="invest-alert"></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="card p-5"><h4 class="text-sm font-bold mb-4">Investido vs Valor hoje</h4><div class="h-52"><canvas id="chartInvHoje"></canvas></div></div>
+                        <div class="card p-5"><h4 class="text-sm font-bold mb-4">Alocação por moeda</h4><div class="h-44"><canvas id="chartAloc"></canvas></div><div id="aloc-legend" class="mt-3 space-y-1.5"></div></div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="card p-5"><h4 class="text-sm font-bold mb-4">Resultado por moeda</h4><div class="h-52"><canvas id="chartRank"></canvas></div></div>
+                        <div class="card p-5"><h4 class="text-sm font-bold mb-1">Aportes acumulados</h4><p class="text-[11px] text-slate-400 mb-3">Quanto você já investiu ao longo do tempo</p><div class="h-48"><canvas id="chartAportes"></canvas></div></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3" id="invest-bestworst"></div>
+                </div>
                 <div>
                     <div id="crypto-anchor" class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fab fa-bitcoin" style="color:#f7931a"></i> Cripto <span id="crypto-updated" class="text-[10px] font-medium text-slate-400"></span></h3><button onclick="openCrypto()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--accent)"><i class="fas fa-plus"></i> Registrar</button></div>
                     <div class="card overflow-x-auto"><table class="w-full text-sm min-w-[640px]"><thead><tr class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-100 dark:border-slate-800"><th class="text-left p-4">Moeda</th><th class="text-right p-4">Qtd</th><th class="text-right p-4">Preço médio</th><th class="text-right p-4">Atual</th><th class="text-right p-4">Investido</th><th class="text-right p-4">Agora</th><th class="text-right p-4">Resultado</th></tr></thead><tbody id="crypto-body"></tbody><tfoot id="crypto-foot"></tfoot></table></div>
@@ -285,6 +297,7 @@
                     <select id="filter-type" onchange="renderExtrato()" class="card px-3 py-2 text-sm font-semibold"><option value="">Todos os tipos</option><option value="EXPENSE">Saídas</option><option value="INCOME">Entradas</option></select>
                     <select id="filter-acc" onchange="renderExtrato()" class="card px-3 py-2 text-sm font-semibold"><option value="">Todas as contas</option></select>
                 </div>
+                <div id="extrato-summary" class="grid grid-cols-3 gap-3"></div>
                 <div id="full-logs" class="space-y-2.5 pb-6"></div>
             </div>
         </div>
@@ -660,7 +673,7 @@
     let S = { accounts:[], tx:[], goals:[], crypto:null, recurring:[], fixed:[], budgets:[], settings:{}, transfers:[], cards:[], categories:[], profile:{} };
     let isDark = localStorage.getItem('theme') === 'dark';
     let viewDate = new Date();
-    let flowChart, donutChart;
+    let flowChart, donutChart, invChart, alocChart, rankChart, aportesChart;
 
     // ═══════════ TEMA / NAV ═══════════
     function applyTheme() {
@@ -670,7 +683,7 @@
         const ict=document.getElementById('theme-ic-top'); if(ict) ict.className=isDark?'fas fa-sun':'fas fa-moon';
     }
     const hint=t=>`<span class="hint" tabindex="0" role="img" aria-label="${String(t).replace(/"/g,'&quot;')}" data-tip="${String(t).replace(/"/g,'&quot;')}"><i class="fas fa-circle-question"></i></span>`;
-    function toggleTheme(){ isDark=!isDark; localStorage.setItem('theme', isDark?'dark':'light'); applyTheme(); if(flowChart||donutChart){ renderOverview(); renderGastos(); } }
+    function toggleTheme(){ isDark=!isDark; localStorage.setItem('theme', isDark?'dark':'light'); applyTheme(); if(flowChart||donutChart){ renderOverview(); renderGastos(); renderInvest(); } }
     function logout(){ localStorage.removeItem('nickel_token'); localStorage.removeItem('nickel_email'); location.href='nickel-login.html'; }
 
     const NAV_ALIAS={
@@ -889,13 +902,58 @@
         const cryptoVal=S.crypto?S.crypto.total_now:0;
         const cryptoInv=S.crypto?S.crypto.total_invested:0;
         const pnl=S.crypto?S.crypto.total_pnl:0;
+        const pnlPct=S.crypto?S.crypto.total_pnl_pct:0;
         const cardDebt=S.cards.reduce((s,c)=>s+parseFloat(c.devido||0),0);
         const patrimonio=consol+goalsSum+cryptoVal-cardDebt;
+        const mult=cryptoInv>0?(cryptoVal/cryptoInv):0;
+        const expo=patrimonio>0?(cryptoVal/patrimonio*100):0;
+        const pc=pnl>=0?'var(--pos)':'var(--neg)';
+        // resultado de hoje (usa change24h)
+        let hoje=0; if(S.crypto) S.crypto.items.forEach(i=>{ const c=i.change24h||0; hoje += i.value_now - (i.value_now/(1+c/100)); });
         document.getElementById('invest-kpis').innerHTML =
-            kpiTile('Patrimônio líquido', fmt(patrimonio), 'col-span-2', 'contas + caixinhas + cripto − cartões','', 'Tudo que você tem somado: contas, caixinhas e cripto, menos as dívidas de cartão.')
-          + kpiTile('Cripto agora', fmt(cryptoVal), '', S.crypto?(pnl>=0?'▲ ':'▼ ')+S.crypto.total_pnl_pct.toFixed(1)+'%':'—','', 'Quanto suas criptos valem hoje, pela cotação atual.')
-          + kpiTile('Resultado cripto', `<span style="color:${pnl>=0?'var(--pos)':'var(--neg)'}">${pnl>=0?'+':''}${fmt(pnl)}</span>`, '', 'investido '+fmt(cryptoInv), '', 'Lucro ou prejuízo: valor de agora menos o total investido.');
+            kpiTile('Patrimônio líquido', fmt(patrimonio), 'col-span-3', 'contas + caixinhas + cripto − cartões', sparkline([cryptoInv,cryptoVal],'var(--accent)'), 'Tudo que você tem somado: contas, caixinhas e cripto, menos as dívidas de cartão.')
+          + kpiTile('Valor investido', fmt(cryptoInv), '', 'em cripto', '', 'Total de dinheiro que você colocou nas suas criptos.')
+          + kpiTile('Valor hoje', fmt(cryptoVal), '', '💹 ao vivo', '', 'Quanto suas criptos valem agora, pela cotação atual.')
+          + kpiTile('Lucro / Prejuízo', `<span style="color:${pc}">${pnl>=0?'+':''}${fmt(pnl)}</span>`, '', 'no papel (não realizado)', '', 'Valor de hoje menos o investido. É lucro no papel — só vira dinheiro quando você vende.')
+          + kpiTile('Rentabilidade', `<span style="color:${pc}">${pnl>=0?'▲ ':'▼ '}${pnlPct.toFixed(1)}%</span>`, '', 'desde o início', '', 'Quanto seu dinheiro rendeu em percentual desde que você começou.')
+          + kpiTile('Multiplicador', mult>0?mult.toFixed(2)+'x':'—', '', 'cada R$1 virou', '', 'Cada R$ 1 investido virou R$ X hoje.')
+          + kpiTile('Exposição em cripto', expo.toFixed(0)+'%', '', 'do patrimônio', '', 'Quanto do seu patrimônio está em cripto. Acima de ~15-20% é uma aposta agressiva — cripto é volátil.')
+          + kpiTile('Resultado de hoje', `<span style="color:${hoje>=0?'var(--pos)':'var(--neg)'}">${hoje>=0?'+':''}${fmt(hoje)}</span>`, '', 'últimas 24h', '', 'Quanto sua carteira subiu ou caiu só nas últimas 24 horas.');
         renderCrypto();
+        renderInvestCharts(cryptoInv,cryptoVal,expo);
+    }
+    function renderInvestCharts(inv,now,expo){
+        const box=document.getElementById('invest-charts');
+        if(!S.crypto || !S.crypto.items.length){ box.classList.add('hidden'); return; }
+        box.classList.remove('hidden');
+        const grid=isDark?'#222b38':'#eef1f6', tick=isDark?'#8592a6':'#64708a';
+        // alerta de exposição
+        document.getElementById('invest-alert').innerHTML = expo>20
+            ? `<div class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm" style="background:var(--warn)1a;color:var(--warn)"><i class="fas fa-triangle-exclamation"></i><span class="text-slate-700 dark:text-slate-200">Sua carteira está bem concentrada em cripto (${expo.toFixed(0)}% do patrimônio). Uma queda forte afeta boa parte do que você tem.</span></div>`
+            : '';
+        // 1) Investido vs hoje
+        if(invChart) invChart.destroy();
+        invChart=new Chart(document.getElementById('chartInvHoje'),{type:'bar',data:{labels:['Investido','Valor hoje'],datasets:[{data:[inv,now],backgroundColor:['#8592a6','#17C964'],borderRadius:8,borderWidth:0}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:grid}},x:{ticks:{color:tick,font:{weight:'bold'}},grid:{display:false}}}}});
+        // 2) Alocação por moeda
+        const items=[...S.crypto.items];
+        if(alocChart) alocChart.destroy();
+        const cCol=['#f7931a','#627eea','#14f195','#f3ba2f','#e6007a','#2775ca','#0033ad','#c2a633'];
+        alocChart=new Chart(document.getElementById('chartAloc'),{type:'doughnut',data:{labels:items.map(i=>i.symbol),datasets:[{data:items.map(i=>i.value_now),backgroundColor:cCol,borderWidth:0,hoverOffset:8}]},options:{cutout:'70%',maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+        document.getElementById('aloc-legend').innerHTML=items.map((i,x)=>`<div class="flex justify-between items-center text-xs"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm" style="background:${cCol[x%cCol.length]}"></span>${i.symbol}</span><span class="font-bold num">${now>0?((i.value_now/now)*100).toFixed(0):0}%</span></div>`).join('');
+        // 3) Ranking de resultado por moeda
+        const rk=[...items].sort((a,b)=>a.pnl_pct-b.pnl_pct);
+        if(rankChart) rankChart.destroy();
+        rankChart=new Chart(document.getElementById('chartRank'),{type:'bar',data:{labels:rk.map(i=>i.symbol),datasets:[{data:rk.map(i=>i.pnl_pct),backgroundColor:rk.map(i=>i.pnl>=0?'#17C964':'#e05365'),borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.parsed.x>=0?'+':'')+c.parsed.x.toFixed(1)+'%'}}},scales:{x:{ticks:{color:tick,font:{size:10},callback:v=>v+'%'},grid:{color:grid}},y:{ticks:{color:tick,font:{weight:'bold'}},grid:{display:false}}}}});
+        // 4) Aportes acumulados no tempo
+        const lots=items.flatMap(i=>i.lots.map(l=>({d:l.purchase_date,v:l.total}))).sort((a,b)=>a.d.localeCompare(b.d));
+        let acc=0; const pts=lots.map(l=>({x:l.d,y:(acc+=l.v)}));
+        if(aportesChart) aportesChart.destroy();
+        aportesChart=new Chart(document.getElementById('chartAportes'),{type:'line',data:{labels:pts.map(p=>new Date(p.x+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),datasets:[{data:pts.map(p=>p.y),borderColor:'#17C964',backgroundColor:'rgba(23,201,100,.1)',fill:true,stepped:true,pointRadius:3,pointBackgroundColor:'#17C964',borderWidth:2}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Acumulado: '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(1)+'k'},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10}},grid:{display:false}}}}});
+        // best/worst
+        const best=[...items].sort((a,b)=>b.pnl_pct-a.pnl_pct)[0], worst=[...items].sort((a,b)=>a.pnl_pct-b.pnl_pct)[0];
+        document.getElementById('invest-bestworst').innerHTML=
+            `<div class="card p-4"><div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">🏆 Melhor ativo</div><div class="text-lg font-black mt-1">${best.symbol} <span style="color:var(--pos);font-size:14px">${best.pnl_pct>=0?'+':''}${best.pnl_pct.toFixed(1)}%</span></div></div>`
+          + `<div class="card p-4"><div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">📉 Pior ativo</div><div class="text-lg font-black mt-1">${worst.symbol} <span style="color:${worst.pnl>=0?'var(--pos)':'var(--neg)'};font-size:14px">${worst.pnl_pct>=0?'+':''}${worst.pnl_pct.toFixed(1)}%</span></div></div>`;
     }
     function renderCrypto(){
         const body=document.getElementById('crypto-body'), foot=document.getElementById('crypto-foot'), lotsEl=document.getElementById('crypto-lots');
@@ -988,6 +1046,12 @@
         let list=S.tx.filter(t=>t.date&&t.date.startsWith(selMonth()));
         if(ft) list=list.filter(t=>t.type===ft);
         if(fa) list=list.filter(t=>t.account_id===fa);
+        const ent=list.filter(t=>t.type==='INCOME').reduce((s,t)=>s+parseFloat(t.amount),0);
+        const sai=list.filter(t=>t.type==='EXPENSE').reduce((s,t)=>s+parseFloat(t.amount),0);
+        document.getElementById('extrato-summary').innerHTML=
+            `<div class="card p-3.5 text-center"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Entradas</div><div class="font-black num text-sm mt-1" style="color:var(--pos)">${fmt(ent)}</div></div>`
+          + `<div class="card p-3.5 text-center"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Saídas</div><div class="font-black num text-sm mt-1" style="color:var(--neg)">${fmt(sai)}</div></div>`
+          + `<div class="card p-3.5 text-center"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Saldo</div><div class="font-black num text-sm mt-1" style="color:${ent-sai>=0?'var(--pos)':'var(--neg)'}">${fmt(ent-sai)}</div></div>`;
         renderLogList('full-logs',list);
     }
     function renderLogList(elId,list){
