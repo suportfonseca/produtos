@@ -312,10 +312,12 @@
             </div>
 
             <div class="wiz-step hidden" data-step="4">
-                <div class="text-center py-6">
+                <div class="text-center py-4">
                     <div class="text-5xl mb-4">🎉</div>
                     <h2 class="text-2xl font-black mb-2">Tudo pronto, <span id="wiz-hello">amigo</span>!</h2>
-                    <p class="text-slate-500">Sua conta está configurada. Bora organizar suas finanças?</p>
+                    <p class="text-slate-500 mb-6">Falta só conectar o Telegram pra você lançar gastos por áudio e texto de qualquer lugar.</p>
+                    <button type="button" onclick="wizConnectTelegram()" class="w-full text-white py-3.5 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2" style="background:#0088cc"><i class="fab fa-telegram-plane text-lg"></i> Conectar meu Telegram</button>
+                    <p id="wiz-tg-status" class="text-xs text-slate-400 mt-3"></p>
                 </div>
             </div>
 
@@ -584,8 +586,10 @@
             <div class="w-14 h-14 mx-auto rounded-2xl grid place-items-center text-2xl mb-4" style="background:rgba(14,165,233,.12);color:#0ea5e9"><i class="fab fa-telegram-plane"></i></div>
             <h4 class="font-black text-xl mb-2">Vincular Telegram</h4>
             <p class="text-sm text-slate-500 mb-5">Abra o <b>@nickelia_bot</b> e envie a mensagem abaixo (vale 15 min):</p>
+            <button onclick="tgConnect()" class="w-full text-white py-3.5 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 mb-3" style="background:#0088cc"><i class="fab fa-telegram-plane text-lg"></i> Conectar automaticamente</button>
+            <p class="text-xs text-slate-400 mb-4">Ou, se preferir, abra o <b>@nickelia_bot</b> e envie:</p>
             <div class="bg-slate-100 dark:bg-slate-800 rounded-2xl p-4 mb-5"><code class="text-lg font-black">/vincular <span id="tg-code" style="color:var(--accent)">------</span></code></div>
-            <button onclick="closeModal('m-tglink')" class="w-full text-white py-3 rounded-xl font-bold text-sm" style="background:var(--accent)">Entendi</button>
+            <button onclick="closeModal('m-tglink')" class="w-full bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Fechar</button>
         </div>
     </div>
 
@@ -1113,9 +1117,13 @@
         toast('Tudo pronto! 🎉'); loadAll();
     }
     async function wizSkip(){ await api('/profile',{method:'PUT',body:JSON.stringify({onboarded:true})}); document.getElementById('wizard').classList.add('hidden'); toast('Você pode configurar tudo depois nas telas.'); loadAll(); }
+    const BOT_USER='nickelia_bot';
+    async function wizConnectTelegram(){ const st=document.getElementById('wiz-tg-status'); st.innerText='Gerando conexão...'; const r=await api('/link-code',{method:'POST'}); if(r&&r.code){ window.open('https://t.me/'+BOT_USER+'?start='+r.code,'_blank'); st.innerHTML='✅ Abrimos o Telegram — toque em <b>Iniciar</b> lá e a conexão é automática. Depois é só clicar em "Começar a usar".'; } else { st.innerText='Não consegui gerar a conexão. Tenta de novo.'; } }
 
     // Telegram
-    async function vincularTelegram(){ const r=await api('/link-code',{method:'POST'}); if(r&&r.code){ document.getElementById('tg-code').innerText=r.code; openModal('m-tglink'); } }
+    let lastLinkCode='';
+    async function vincularTelegram(){ closeMore(); const r=await api('/link-code',{method:'POST'}); if(r&&r.code){ lastLinkCode=r.code; document.getElementById('tg-code').innerText=r.code; openModal('m-tglink'); } }
+    function tgConnect(){ if(lastLinkCode) window.open('https://t.me/'+BOT_USER+'?start='+lastLinkCode,'_blank'); }
 
     // ═══════════ INIT ═══════════
     const now=new Date(); const mv=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
