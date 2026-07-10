@@ -1116,7 +1116,7 @@
         document.getElementById('wiz-bar').style.width=(wizStep*25)+'%';
         document.getElementById('wiz-back').classList.toggle('hidden', wizStep===1);
         document.getElementById('wiz-next').innerText = wizStep===4?'Começar a usar 🚀':'Continuar';
-        if(wizStep===3) wizRenderAccounts();
+        if(wizStep===3){ if(!wizAccounts.length) wizAccounts.push({nome:'',tipo:'CORRENTE',saldo:''}); wizRenderAccounts(); }
         if(wizStep===4) document.getElementById('wiz-hello').innerText = document.getElementById('wiz-apelido').value||'amigo';
     }
     function wizBack(){ if(wizStep>1){ wizStep--; wizRender(); } }
@@ -1132,17 +1132,20 @@
         </div>`).join('')||'<p class="text-xs text-slate-400 text-center py-3 card">Nenhuma conta ainda. Adicione ou pule esta etapa.</p>';
     }
     async function wizFinish(){
-        document.getElementById('wiz-next').disabled=true;
-        await api('/profile',{method:'PUT',body:JSON.stringify({
-            nome:document.getElementById('wiz-nome').value||null,
-            apelido:document.getElementById('wiz-apelido').value||null,
-            birthdate:document.getElementById('wiz-birth').value||null,
-            cpf:document.getElementById('wiz-cpf').value||null,
-            currency:wizCurrency, onboarded:true })});
-        for(const a of wizAccounts){ if(a.nome) await api('/accounts',{method:'POST',body:JSON.stringify({nome:a.nome,tipo:a.tipo,saldo_inicial:parseFloat(a.saldo)||0})}); }
-        document.getElementById('wiz-next').disabled=false;
-        document.getElementById('wizard').classList.add('hidden');
-        toast('Tudo pronto! 🎉'); loadAll();
+        const btn=document.getElementById('wiz-next'); btn.disabled=true;
+        try{
+            await api('/profile',{method:'PUT',body:JSON.stringify({
+                nome:document.getElementById('wiz-nome').value||null,
+                apelido:document.getElementById('wiz-apelido').value||null,
+                birthdate:document.getElementById('wiz-birth').value||null,
+                cpf:document.getElementById('wiz-cpf').value||null,
+                currency:wizCurrency, onboarded:true })});
+            let n=0;
+            for(const a of wizAccounts){ if(a.nome&&a.nome.trim()){ await api('/accounts',{method:'POST',body:JSON.stringify({nome:a.nome.trim(),tipo:a.tipo,saldo_inicial:parseFloat(a.saldo)||0})}); n++; } }
+            document.getElementById('wizard').classList.add('hidden');
+            toast(n>0?('Tudo pronto! '+n+' conta(s) criada(s) 🎉'):'Tudo pronto! 🎉');
+        }catch(e){ toast('Deu um erro ao salvar, tenta de novo.','err'); }
+        btn.disabled=false; loadAll();
     }
     async function wizSkip(){ await api('/profile',{method:'PUT',body:JSON.stringify({onboarded:true})}); document.getElementById('wizard').classList.add('hidden'); toast('Você pode configurar tudo depois nas telas.'); loadAll(); }
     const BOT_USER='nickelia_bot';
