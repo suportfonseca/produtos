@@ -294,6 +294,11 @@
         .nf-ms-caret{font-size:10px;color:var(--t-faint)}
         .nf-ms-pop{position:absolute;z-index:45;top:calc(100% + 6px);left:0;min-width:230px;max-height:280px;overflow:auto;padding:6px;background:var(--panel-bg);backdrop-filter:blur(18px);border:1px solid var(--border-glass);border-radius:14px;box-shadow:var(--shadow-float);display:none}
         .nf-ms.open .nf-ms-pop{display:block}
+        /* Dropdowns sempre acima do conteúdo seguinte: os cards de vidro (backdrop-filter)
+           criam contexto de empilhamento e "prendem" o popover atrás dos cards de baixo.
+           Ao abrir um dropdown, eleva o card que o contém acima dos demais. */
+        .card:has(.nf-ms.open){z-index:60}
+        .nf-ms.open{z-index:60}
         .ef-ms-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--t-base)}
         .ef-ms-opt:hover{background:var(--surface-1);color:var(--t-hi)}
         .ef-ms-opt[aria-selected="true"]{background:rgba(23,201,100,.10);color:var(--t-hi)}
@@ -1283,9 +1288,11 @@
         const d=pts.map((p,i)=>`${(i/(pts.length-1||1))*w},${h-((p-mn)/rg)*(h-4)-2}`).join(' ');
         return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%;height:26px"><polyline fill="none" stroke="${color}" stroke-width="2" points="${d}"/></svg>`;
     }
-    function kpiTile(label,value,cls,delta,spark,tip){
-        return `<div class="card p-4 ${cls||''}">
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center">${label}${tip?hint(tip):''}</p>
+    function kpiTile(label,value,cls,delta,spark,tip,click){
+        // click = expressão JS opcional (ex: `drillCat("ALIMENTAÇÃO")`); torna o KPI clicável → drill.
+        const clk = click?` role="button" tabindex="0" title="Ver lançamentos" onclick='${click}' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();${click}}'`:'';
+        return `<div class="card p-4 ${cls||''} ${click?'nf-drill':''}"${clk}>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center">${label}${tip?hint(tip):''}${click?'<i class="fas fa-arrow-right nf-drill-arrow ml-auto"></i>':''}</p>
             <h3 class="text-xl md:text-2xl font-black num mt-1 tracking-tight">${value}</h3>
             ${delta?`<div class="text-xs font-bold mt-0.5">${delta}</div>`:''}
             ${spark||''}</div>`;
@@ -1387,7 +1394,7 @@
         document.getElementById('gastos-kpis').innerHTML =
             kpiTile('Total gasto no período', fmt(exp), 'card-hero kpi-hero col-span-2', `${tx.filter(t=>t.type==='EXPENSE').length} lançamentos`, '', 'Soma de todas as suas saídas no período selecionado.')
           + kpiTile('Média por dia', fmt(elap>0?exp/elap:0), '', 'no período', '', 'Total gasto dividido pelos dias já corridos do período.')
-          + kpiTile('Maior categoria', maior?maior[0]:'—', '', maior?fmt(maior[1]):'', '', 'A categoria em que você mais gastou neste mês.');
+          + kpiTile('Maior categoria', maior?maior[0]:'—', '', maior?fmt(maior[1]):'', '', 'A categoria em que você mais gastou neste mês.', maior?`drillCat(${JSON.stringify(maior[0])})`:'');
         renderDonut(cats,exp);
         renderBudgets(cats);
         const catPct=pctShares(sorted.map(([,v])=>v));
@@ -1456,7 +1463,7 @@
         const el=document.getElementById('chartDonut');
         if(!data.length){ el.getContext('2d').clearRect(0,0,el.width,el.height); document.getElementById('donut-legend').innerHTML='<p class="text-xs text-slate-400 text-center">Sem gastos neste mês.</p>'; return; }
         const cols=labels.map(l=>l==='Outros'?'#94a3b8':catColor(l));
-        donutChart=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:cols,borderWidth:2,borderColor:SEAL,hoverOffset:8}]},options:{cutout:'72%',maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+        donutChart=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:cols,borderWidth:2,borderColor:SEAL,hoverOffset:8}]},options:{cutout:'72%',maintainAspectRatio:false,onClick:(e,els)=>{if(els.length){const lab=labels[els[0].index];if(lab&&lab!=='Outros')drillCat(lab);}},onHover:(e,els)=>{const t=e.native&&e.native.target;if(t)t.style.cursor=els.length&&labels[els[0].index]!=='Outros'?'pointer':'default';},plugins:{legend:{display:false}}}});
         const dPct=pctShares(data);
         document.getElementById('donut-legend').innerHTML=labels.map((l,i)=>`<div class="flex justify-between items-center text-xs ${l!=='Outros'?'nf-drill-row':''}"${l!=='Outros'?` role="button" tabindex="0" title="Ver lançamentos de ${l}" onclick='drillCat(${JSON.stringify(l)})' onkeydown='if(event.key==="Enter"){drillCat(${JSON.stringify(l)})}'`:''}><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm" style="background:${cols[i]}"></span>${l}</span><span class="font-bold num">${dPct[i]}%</span></div>`).join('');
     }
