@@ -52,7 +52,7 @@
   .card-lift{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
   .card-lift:hover{transform:translateY(-7px) scale(1.008);box-shadow:var(--shadow-float),var(--glow)}
   /* botões */
-  .btn-grad{background:var(--grad);background-size:200% auto;color:#03251a;font-weight:700;border-radius:14px;padding:15px 28px;display:inline-flex;align-items:center;gap:10px;transition:.4s;box-shadow:var(--glow);border:none;cursor:pointer;font-size:15px;text-decoration:none}
+  .btn-grad{background:var(--grad);background-size:200% auto;color:#00140b;font-weight:700;border-radius:14px;padding:15px 28px;display:inline-flex;align-items:center;gap:10px;transition:.4s;box-shadow:var(--glow);border:none;cursor:pointer;font-size:15px;text-decoration:none}
   .btn-grad:hover{background-position:200% center;transform:translateY(-2px);box-shadow:0 0 50px rgba(23,201,100,.55)}
   .btn-glass{background:var(--surface-2);border:1px solid var(--border-glass);color:var(--t-hi);font-weight:600;border-radius:14px;padding:15px 26px;display:inline-flex;align-items:center;gap:10px;transition:.3s;text-decoration:none;backdrop-filter:blur(10px)}
   .btn-glass:hover{background:rgba(255,255,255,.13);border-color:var(--border-hi)}
@@ -62,7 +62,7 @@
   .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*80ms)}
   .reveal.in{opacity:1;transform:none}
   /* nav */
-  nav.top{position:fixed;top:0;left:0;right:0;z-index:50;transition:.4s}
+  nav.top{position:fixed;top:0;left:0;right:0;z-index:50;transition:.4s;background:linear-gradient(180deg,rgba(0,22,26,.55),transparent)}
   nav.top.scrolled{background:rgba(0,25,30,.6);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-glass)}
   .nav-link{color:var(--t-base);font-weight:500;font-size:14px;text-decoration:none;transition:.2s}
   .nav-link:hover{color:var(--t-hi)}
@@ -109,7 +109,7 @@
       <a href="nickel-login.html" class="nav-link">Entrar</a>
       <a href="nickel-login.html" class="btn-grad" style="padding:11px 20px;font-size:14px">Começar grátis</a>
     </div>
-    <button onclick="toggleMenu()" class="md:hidden" style="background:none;border:none;color:var(--t-hi);font-size:22px"><i class="fas fa-bars"></i></button>
+    <button onclick="toggleMenu()" aria-label="Abrir menu" class="md:hidden" style="background:none;border:none;color:var(--t-hi);font-size:22px;width:44px;height:44px;display:grid;place-items:center;cursor:pointer"><i class="fas fa-bars"></i></button>
   </div>
   <div id="mmenu" class="md:hidden glass" style="margin:8px 16px;padding:16px;border-radius:20px">
     <a href="#como" onclick="toggleMenu()" class="nav-link" style="display:block;padding:12px">Como funciona</a>
@@ -172,19 +172,19 @@
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" id="steps">
       <div class="glass card-lift reveal" style="--i:0;padding:32px">
         <div class="icon-grad" style="margin-bottom:20px"><i class="fas fa-microphone-lines"></i></div>
-        <div class="eyebrow" style="color:var(--t-faint)">Passo 1</div>
+        <div class="eyebrow" style="color:var(--t-muted)">Passo 1</div>
         <h3 style="font-size:1.4rem;margin:8px 0 10px">Fala ou escreve</h3>
         <p style="font-size:15px;color:var(--t-muted);margin:0">Manda um áudio ou texto no Telegram: <span style="color:var(--t-base)">"almoço 28 reais"</span>. Do jeito que for mais fácil pra você.</p>
       </div>
       <div class="glass card-lift reveal" style="--i:1;padding:32px">
         <div class="icon-grad" style="margin-bottom:20px"><i class="fas fa-wand-magic-sparkles"></i></div>
-        <div class="eyebrow" style="color:var(--t-faint)">Passo 2</div>
+        <div class="eyebrow" style="color:var(--t-muted)">Passo 2</div>
         <h3 style="font-size:1.4rem;margin:8px 0 10px">A IA entende</h3>
         <p style="font-size:15px;color:var(--t-muted);margin:0">O Nickel transcreve, categoriza e guarda — em segundos, sem você mexer em planilha nenhuma.</p>
       </div>
       <div class="glass card-lift reveal" style="--i:2;padding:32px">
         <div class="icon-grad" style="margin-bottom:20px"><i class="fas fa-chart-line"></i></div>
-        <div class="eyebrow" style="color:var(--t-faint)">Passo 3</div>
+        <div class="eyebrow" style="color:var(--t-muted)">Passo 3</div>
         <h3 style="font-size:1.4rem;margin:8px 0 10px">Você visualiza</h3>
         <p style="font-size:15px;color:var(--t-muted);margin:0">Abre o painel e vê pra onde seu dinheiro está indo — com gráficos, saldos e metas.</p>
       </div>
@@ -239,7 +239,7 @@
     <div class="reveal" style="display:flex;justify-content:center">
       <div class="glass" style="padding:20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border-glass)">
-          <img src="mascote.png" style="width:30px;height:30px;object-fit:contain"><b style="color:var(--t-hi);font-size:14px">Nickel Ai</b>
+          <img src="mascote.png" alt="" style="width:30px;height:30px;object-fit:contain"><b style="color:var(--t-hi);font-size:14px">Nickel Ai</b>
         </div>
         <div style="align-self:flex-end;background:var(--grad-soft);color:#03251a;padding:10px 14px;border-radius:16px 16px 4px 16px;display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px">
           <i class="fas fa-play"></i>
@@ -303,7 +303,7 @@
         <a href="nickel-login.html" class="btn-glass" style="width:100%;justify-content:center">Começar grátis</a>
       </div>
       <div class="glass glass-hi reveal" style="--i:1;padding:34px;position:relative;transform:scale(1.03);animation:pulse-glow 4s infinite">
-        <span style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--grad);color:#03251a;font-size:11px;font-weight:700;padding:5px 14px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em">Mais popular</span>
+        <span style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--grad);color:#00140b;font-size:11px;font-weight:700;padding:5px 14px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em">Mais popular</span>
         <h3 style="font-size:1.3rem">Plus</h3>
         <div style="font-family:'Sora';font-weight:800;font-size:2.4rem;margin:8px 0"><span class="grad-text">R$ 19</span><span style="font-size:1rem;color:var(--t-muted);font-weight:400">/mês</span></div>
         <p style="font-size:14px;color:var(--t-muted);margin-bottom:20px">Tudo que você precisa pra dominar seu dinheiro.</p>
@@ -333,7 +333,7 @@
 <!-- CTA -->
 <section style="text-align:center">
   <div class="wrap reveal" style="max-width:720px">
-    <img src="mascote.png" style="width:120px;margin-bottom:8px;animation:float 6s ease-in-out infinite;filter:drop-shadow(0 12px 30px rgba(23,201,100,.45))">
+    <img src="mascote.png" alt="" style="width:120px;margin-bottom:8px;animation:float 6s ease-in-out infinite;filter:drop-shadow(0 12px 30px rgba(23,201,100,.45))">
     <h2 style="font-size:clamp(2rem,4vw + .4rem,3rem);font-weight:800;margin:0 0 16px">Pronto pra fazer as pazes<br>com o seu dinheiro?</h2>
     <p style="font-size:18px;color:var(--t-base);max-width:40ch;margin:0 auto 32px">Comece agora no seu Telegram. Leva menos de um minuto e é de graça.</p>
     <a href="https://t.me/nickelia_bot" target="_blank" class="btn-grad" style="font-size:16px;padding:17px 34px;animation:pulse-glow 3.5s infinite"><i class="fab fa-telegram-plane"></i> Começar agora, é grátis</a>
@@ -346,7 +346,7 @@
   <div class="wrap" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px">
     <div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <img src="mascote.png" style="width:34px;height:34px;object-fit:contain">
+        <img src="mascote.png" alt="" style="width:34px;height:34px;object-fit:contain">
         <span style="font-family:'Sora';font-weight:800;font-size:20px;color:var(--t-hi)">Nickel <span style="color:var(--green)">Ai</span></span>
       </div>
       <p style="font-size:14px;color:var(--t-muted);max-width:30ch">Seu amigo de cofrinho. O assistente financeiro que cabe no seu Telegram.</p>
@@ -358,7 +358,7 @@
     <div><h4 style="font-family:'Sora';color:var(--t-hi);font-size:14px;margin:0 0 14px">Legal</h4>
       <div style="display:flex;flex-direction:column;gap:10px;font-size:14px"><a href="#" class="nav-link">Privacidade</a><a href="#" class="nav-link">Termos</a><a href="#" class="nav-link">LGPD</a></div></div>
   </div>
-  <div class="wrap" style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border-glass);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--t-faint)">
+  <div class="wrap" style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border-glass);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--t-muted)">
     <span>© 2026 Nickel Ai. Todos os direitos reservados.</span>
     <span>Feito com 💚 no Brasil</span>
   </div>
