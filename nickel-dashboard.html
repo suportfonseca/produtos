@@ -299,6 +299,13 @@
            Ao abrir um dropdown, eleva o card que o contém acima dos demais. */
         .card:has(.nf-ms.open){z-index:60}
         .nf-ms.open{z-index:60}
+        /* ── Popup "o Nickel explica" (mascote digitando) ── */
+        .mascot-write{transition:transform .3s}
+        .mascot-write.writing{animation:mascotBob 1s ease-in-out infinite;transform-origin:60% 90%}
+        @keyframes mascotBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
+        .tw-typing::after{content:'▍';margin-left:1px;color:var(--accent);animation:twBlink .8s steps(1) infinite}
+        @keyframes twBlink{50%{opacity:0}}
+        @media(prefers-reduced-motion:reduce){.mascot-write.writing{animation:none}.tw-typing::after{animation:none;opacity:0}}
         .ef-ms-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--t-base)}
         .ef-ms-opt:hover{background:var(--surface-1);color:var(--t-hi)}
         .ef-ms-opt[aria-selected="true"]{background:rgba(23,201,100,.10);color:var(--t-hi)}
@@ -575,6 +582,10 @@
                     <div id="recurring-list" class="space-y-2.5"></div>
                 </div>
                 <div>
+                    <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fas fa-layer-group text-brand-500"></i> Compras parceladas</h3><button onclick="openParcelado()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i> Nova</button></div>
+                    <div id="installments-list" class="space-y-2.5"></div>
+                </div>
+                <div>
                     <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black flex items-center gap-2"><i class="fas fa-building-columns text-brand-500"></i> Bancos e contas</h3><button onclick="openAccount()" class="text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i> Nova conta</button></div>
                     <div id="cad-accounts" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
                 </div>
@@ -617,6 +628,20 @@
             </div>
         </div>
     </main>
+
+    <!-- ══════════ POPUP: O NICKEL EXPLICA (mascote digitando) ══════════ -->
+    <div id="m-explain" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[75] items-center justify-center p-4" onclick="if(event.target===this)closeExplain()">
+        <div class="card w-full max-w-md p-5 relative" style="border-radius:var(--radius-lg)">
+            <button onclick="closeExplain()" aria-label="Fechar" class="absolute top-3 right-3 w-8 h-8 grid place-items-center rounded-full text-lg leading-none text-slate-400 hover:text-slate-100" style="background:var(--surface-1)">&times;</button>
+            <div class="flex items-start gap-3.5">
+                <img src="mascote.png" id="explain-mascot" alt="Nickel" class="mascot-write shrink-0" style="width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 6px 16px rgba(23,201,100,.4))">
+                <div class="flex-1 min-w-0 pt-0.5">
+                    <div id="explain-title" class="font-black text-base mb-1.5" style="color:var(--t-hi)"></div>
+                    <div id="explain-text" class="text-sm leading-relaxed whitespace-pre-line" style="min-height:4.5em;color:var(--t-base)"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ══════════ CALENDÁRIO DE PERÍODO (Personalizado) ══════════ -->
     <div id="m-period" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[70] items-center justify-center p-4">
@@ -840,12 +865,35 @@
             <div class="space-y-3">
                 <select id="rec-tipo" onchange="recTipoChange()" class="w-full card px-4 py-3 text-sm font-semibold"><option value="INCOME">Entrada (ex: salário)</option><option value="EXPENSE">Saída fixa</option><option value="APORTE">Aporte em caixinha</option></select>
                 <input id="rec-desc" placeholder="Descrição (ex: Salário)" class="w-full card px-4 py-3 text-sm">
-                <div class="grid grid-cols-2 gap-3">
-                    <input id="rec-amount" type="number" step="0.01" placeholder="Valor (R$)" class="card px-4 py-3 text-sm num">
-                    <input id="rec-day" type="number" min="1" max="31" placeholder="Dia do mês" class="card px-4 py-3 text-sm num">
+                <input id="rec-amount" type="number" step="0.01" placeholder="Valor (R$)" class="w-full card px-4 py-3 text-lg font-black num" oninput="recPreview()">
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Com que frequência?</label>
+                    <div class="nf-seg mt-1" style="width:100%" role="group" aria-label="Frequência" id="rec-freq-seg">
+                        <button type="button" class="nf-seg-btn is-active" data-f="MONTH" onclick="recFreq('MONTH')">Mensal</button>
+                        <button type="button" class="nf-seg-btn" data-f="WEEK" onclick="recFreq('WEEK')">Semanal</button>
+                        <button type="button" class="nf-seg-btn" data-f="BIWEEK" onclick="recFreq('BIWEEK')">Quinzenal</button>
+                        <button type="button" class="nf-seg-btn" data-f="EVERYN" onclick="recFreq('EVERYN')">A cada X dias</button>
+                    </div>
+                </div>
+                <div id="rec-panel-month"><input id="rec-day" type="number" min="1" max="31" placeholder="Todo dia (1–31)" class="w-full card px-4 py-3 text-sm num" oninput="recPreview()"></div>
+                <div id="rec-panel-everyn" class="hidden"><div class="flex items-center gap-2"><span class="text-sm text-slate-500">Repetir a cada</span><input id="rec-every" type="number" min="1" max="365" value="15" class="card px-4 py-3 text-sm num w-24" oninput="recPreview()"><span class="text-sm text-slate-500">dias</span></div></div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Começando em</label>
+                    <input id="rec-start" type="date" class="w-full card px-4 py-3 text-sm num mt-1" oninput="recPreview()">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Até quando?</label>
+                    <div class="nf-seg mt-1" style="width:100%" role="group" aria-label="Término" id="rec-end-seg">
+                        <button type="button" class="nf-seg-btn is-active" data-e="NONE" onclick="recEnd('NONE')">Sem fim</button>
+                        <button type="button" class="nf-seg-btn" data-e="UNTIL" onclick="recEnd('UNTIL')">Até data</button>
+                        <button type="button" class="nf-seg-btn" data-e="COUNT" onclick="recEnd('COUNT')">Nº de vezes</button>
+                    </div>
+                    <input id="rec-until" type="date" class="w-full card px-4 py-3 text-sm num mt-2 hidden" oninput="recPreview()">
+                    <div id="rec-count-wrap" class="flex items-center gap-2 mt-2 hidden"><input id="rec-count" type="number" min="1" value="12" class="card px-4 py-3 text-sm num w-24" oninput="recPreview()"><span class="text-sm text-slate-500">vezes</span></div>
                 </div>
                 <select id="rec-account" class="w-full card px-4 py-3 text-sm font-semibold"></select>
                 <select id="rec-goal" class="w-full card px-4 py-3 text-sm font-semibold hidden"></select>
+                <div id="rec-preview" class="rounded-xl px-3 py-2.5 text-[12px] leading-snug" style="background:var(--surface-1);border:1px solid var(--border-glass);color:var(--t-base)" aria-live="polite"></div>
                 <label id="rec-confirm-wrap" class="flex items-start gap-2.5 px-1 py-1 cursor-pointer">
                     <input id="rec-confirm" type="checkbox" checked class="mt-0.5 w-4 h-4 accent-current" style="accent-color:var(--accent)">
                     <span class="text-xs text-slate-500 leading-snug">Pedir confirmação antes de somar ao saldo. A entrada fica como <b>“a receber”</b> e o Nickel pergunta no Telegram se você já recebeu — só então soma na conta.</span>
@@ -855,6 +903,45 @@
                     <button onclick="saveRecurring()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Salvar</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Compra parcelada -->
+    <div id="m-parcelado" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card p-7 w-full max-w-md">
+            <h4 class="font-black text-xl mb-5">Compra parcelada</h4>
+            <div class="space-y-3">
+                <input id="par-desc" placeholder="O que foi? (ex: Seguro do carro)" class="w-full card px-4 py-3 text-sm">
+                <div class="nf-seg" style="width:100%" role="group" aria-label="Como informar" id="par-mode-seg">
+                    <button type="button" class="nf-seg-btn is-active" data-m="PARCELA" onclick="parMode('PARCELA')">Valor da parcela</button>
+                    <button type="button" class="nf-seg-btn" data-m="TOTAL" onclick="parMode('TOTAL')">Valor total</button>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="par-valor" type="number" step="0.01" placeholder="R$ por parcela" class="card px-4 py-3 text-sm num" oninput="parCalc()">
+                    <div class="flex items-center gap-2"><input id="par-n" type="number" min="2" max="60" value="9" class="card px-4 py-3 text-sm num w-full" oninput="parCalc()"><span class="text-sm text-slate-500">x</span></div>
+                </div>
+                <div class="rounded-xl px-3 py-2.5 text-center" style="background:var(--surface-1);border:1px solid var(--border-glass)" aria-live="polite">
+                    <span class="text-sm font-black num" style="color:var(--t-hi)" id="par-calc">—</span>
+                </div>
+                <div><label class="text-xs font-bold text-slate-500">1ª parcela em</label>
+                    <input id="par-date" type="date" class="w-full card px-4 py-3 text-sm num mt-1"></div>
+                <div><label class="text-xs font-bold text-slate-500">Pagar com</label>
+                    <select id="par-acc" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
+                <select id="par-cat" class="w-full card px-4 py-3 text-sm font-semibold"></select>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeModal('m-parcelado')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
+                    <button onclick="saveParcelado()" id="par-save" class="flex-1 py-3 rounded-xl font-bold text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Lançar parcelas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fatura do cartão -->
+    <div id="m-fatura" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card w-full max-w-lg" style="padding:0;max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
+            <div id="fatura-head" class="p-6 pb-5" style="border-bottom:1px solid var(--border-glass)"></div>
+            <div id="fatura-body" class="p-6 overflow-y-auto flex-1 space-y-5"></div>
+            <div id="fatura-foot" class="p-5" style="border-top:1px solid var(--border-glass);background:var(--surface-1)"></div>
         </div>
     </div>
 
@@ -1288,15 +1375,55 @@
         const d=pts.map((p,i)=>`${(i/(pts.length-1||1))*w},${h-((p-mn)/rg)*(h-4)-2}`).join(' ');
         return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%;height:26px"><polyline fill="none" stroke="${color}" stroke-width="2" points="${d}"/></svg>`;
     }
-    function kpiTile(label,value,cls,delta,spark,tip,click){
-        // click = expressão JS opcional (ex: `drillCat("ALIMENTAÇÃO")`); torna o KPI clicável → drill.
-        const clk = click?` role="button" tabindex="0" title="Ver lançamentos" onclick='${click}' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();${click}}'`:'';
+    function kpiTile(label,value,cls,delta,spark,tip,click,kind){
+        // click = expressão JS opcional. kind='explain' → abre o popup do Nickel explicando o número;
+        // caso contrário → drill (leva ao extrato filtrado). Ícone e título mudam conforme o tipo.
+        const isExplain = kind==='explain';
+        const icon = isExplain?'fa-wand-magic-sparkles':'fa-arrow-right';
+        const ttl = isExplain?'O Nickel explica esse número':'Ver lançamentos';
+        const clk = click?` role="button" tabindex="0" title="${ttl}" onclick='${click}' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();${click}}'`:'';
         return `<div class="card p-4 ${cls||''} ${click?'nf-drill':''}"${clk}>
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center">${label}${tip?hint(tip):''}${click?'<i class="fas fa-arrow-right nf-drill-arrow ml-auto"></i>':''}</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center">${label}${tip?hint(tip):''}${click?`<i class="fas ${icon} nf-drill-arrow ml-auto"></i>`:''}</p>
             <h3 class="text-xl md:text-2xl font-black num mt-1 tracking-tight">${value}</h3>
             ${delta?`<div class="text-xs font-bold mt-0.5">${delta}</div>`:''}
             ${spark||''}</div>`;
     }
+    // ── "O Nickel explica": popup do mascote digitando (mensagens prontas + dados reais do cliente) ──
+    let KPIVAL = {};
+    let _twTimer=null;
+    function typeWriter(el, text){
+        clearInterval(_twTimer);
+        const mascot=document.getElementById('explain-mascot');
+        if(_reduceMotion){ el.classList.remove('tw-typing'); el.textContent=text; if(mascot)mascot.classList.remove('writing'); return; }
+        el.textContent=''; el.classList.add('tw-typing'); let i=0;
+        _twTimer=setInterval(()=>{
+            i+=1; el.textContent=text.slice(0,i);
+            if(i>=text.length){ clearInterval(_twTimer); el.classList.remove('tw-typing'); if(mascot)mascot.classList.remove('writing'); }
+        }, 16);
+    }
+    function explainKpi(key){
+        const info=EXPLAIN[key]; if(!info) return;
+        openModal('m-explain');
+        document.getElementById('explain-title').textContent=info.title(KPIVAL);
+        const mascot=document.getElementById('explain-mascot'); if(mascot)mascot.classList.add('writing');
+        typeWriter(document.getElementById('explain-text'), info.body(KPIVAL).trim());
+    }
+    function closeExplain(){ clearInterval(_twTimer); const m=document.getElementById('explain-mascot'); if(m)m.classList.remove('writing'); closeModal('m-explain'); }
+    // Cada explicação usa os números reais do cliente (KPIVAL), no tom do Nickel.
+    const EXPLAIN = {
+        burn:{ title:v=>'Seu ritmo de gasto', body:v=>`Seu burn rate é ${fmt(v.burn)} por dia. Cheguei nisso pegando tudo que você gastou no período (${fmt(v.exp)}) e dividindo pelos ${v.elap} dia(s) já corridos.\n\nOu seja: no ritmo de agora, cada dia "custa" mais ou menos ${fmt(v.burn)}. Se um dia puxou muito a média, dá uma olhada na sua maior categoria — às vezes um gasto pontual distorce tudo.` },
+        reserva:{ title:v=>'Sua reserva de emergência', body:v=>`Sua reserva cobre ${v.meses.toFixed(1)} ${v.meses.toFixed(1)==='1.0'?'mês':'meses'}. Você tem ${fmt(v.reservaVal)} guardado (reserva, poupança e caixinhas), e seus custos giram em torno de ${fmt(v.custoMes)} por mês.\n\nDividindo um pelo outro, dá pra viver ~${v.meses.toFixed(1)} ${v.meses.toFixed(1)==='1.0'?'mês':'meses'} só com o que já está guardado, mesmo se a renda parasse. Cada real a mais aqui empurra esse número pra cima. 🛟` },
+        disponivel:{ title:v=>'Quanto dá pra gastar', body:v=>`Você tem ${fmt(v.disp)} disponível pra gastar. Peguei o que está nas contas do dia a dia (corrente e carteira): ${fmt(v.gastavel)}${v.fOut>0?`, tirei ${fmt(v.fOut)} de compromissos fixos que ainda faltam vencer este mês`:''}${v.fIn>0?`, e somei ${fmt(v.fIn)} de entradas fixas ainda por vir`:''}.\n\nReserva, poupança e investimentos ficam de fora de propósito — esse número é só o que dá pra usar sem mexer no que é pra guardar.` },
+        sobra:{ title:v=>'Sua sobra do período', body:v=> v.sobra>=0 ? `Sua sobra é ${fmt(v.sobra)}. Simples: entrou ${fmt(v.inc)} e saiu ${fmt(v.exp)}. Sobraram ${fmt(v.sobra)} — esse é o combustível pra guardar ou investir. 🎉` : `Você fechou o período em ${fmt(v.sobra)}. Entrou ${fmt(v.inc)} e saíram ${fmt(v.exp)}, ou seja, ${fmt(-v.sobra)} a mais do que entrou.\n\nSem pânico — dá pra olhar na sua maior categoria onde apertar um pouco.` },
+        taxa_aporte:{ title:v=>'Sua taxa de aporte', body:v=>`Sua taxa de aporte é ${v.taxa.toFixed(0)}%. Isso quer dizer que ${v.taxa.toFixed(0)}% da sua renda do mês (${fmt(v.inc)}) está indo pra guardar — hoje ${fmt(v.aporteMes)} em aportes programados.\n\nQuanto maior essa fatia, mais rápido suas metas chegam. Subir só 1% já faz diferença lá na frente.` },
+        consolidado:{ title:v=>'Seu saldo consolidado', body:v=>`Seu saldo consolidado é ${fmt(v.consol)}. É a soma do dinheiro das suas ${v.nContas} conta(s) marcadas pra entrar no consolidado.\n\nCartão de crédito não entra aqui (a fatura aparece separada), e a cripto conta no patrimônio, não no saldo do banco.` },
+        media_dia:{ title:v=>'Sua média por dia', body:v=>`Sua média é ${fmt(v.gMedia)} por dia. Peguei o total gasto no período (${fmt(v.gExp)}) e dividi pelos ${v.gElap} dia(s) já corridos.\n\nServe pra você sentir o ritmo sem precisar olhar lançamento por lançamento.` },
+        patrimonio:{ title:v=>'Seu patrimônio líquido', body:v=>`Seu patrimônio líquido é ${fmt(v.netWorth)}. Somei tudo: contas (${fmt(v.gConsol)}) + caixinhas (${fmt(v.caixinhas)})${v.cryptoNow>0?` + cripto (${fmt(v.cryptoNow)})`:''}${v.cardsDevido>0?`, e tirei a fatura de cartão em aberto (${fmt(v.cardsDevido)})`:''}.\n\nA cripto entra uma única vez pra não contar dobrado. É a foto mais completa do quanto você tem hoje.` },
+        variacao:{ title:v=>'Variação do mês', body:v=> v.varPct>=0 ? `Seu patrimônio cresceu ${v.varPct.toFixed(1)}% no mês (${fmt(v.varDelta)} a mais que no mês anterior). 🎉 É uma estimativa pelos seus lançamentos e aportes do período. Bora manter o ritmo!` : `Seu patrimônio recuou ${Math.abs(v.varPct).toFixed(1)}% no mês (${fmt(v.varDelta)} ante o mês anterior). É uma estimativa pelos lançamentos — pode ser um mês de gasto maior ou a cripto oscilando. Vale olhar a maior categoria do período.` },
+        poupanca:{ title:v=>'Sua taxa de poupança', body:v=>`Sua taxa de poupança é ${v.savingsRate.toFixed(0)}%. Do que entrou este mês (${fmt(v.gInc)}), sobraram ${fmt(v.gInc-v.gExp2)} depois dos gastos (${fmt(v.gExp2)}).\n\nÉ o motor do seu crescimento: quanto maior essa fatia, mais rápido o patrimônio sobe.` },
+        exposicao:{ title:v=>'Uso do seu cartão', body:v=>`Você já comprometeu ${v.expoCartao.toFixed(0)}% do seu limite total de cartão: ${fmt(v.cardsDevido)} devidos de um limite de ${fmt(v.limiteTot)}.\n\nAté uns 30% é tranquilo; acima de 50% vale ficar de olho — cartão cheio deixa menos fôlego pra imprevistos.` },
+        ativos:{ title:v=>'Ativos de risco/rendimento', body:v=>`Você tem ${fmt(v.ativosRisco)} trabalhando por você em investimentos e cripto. É a parte do patrimônio que pode render mais (e também oscilar mais).\n\nO ideal é que cresça junto com a sua reserva, não no lugar dela.` },
+    };
     function renderPending(){
         const box=document.getElementById('pending-box'); if(!box) return;
         const list=S.pendingIncomes||[];
@@ -1358,13 +1485,15 @@
         const elap = elapsedDays(R); const burn = elap>0 ? exp/elap : 0;
 
         const dispColor = disp<0?'var(--neg)':'var(--pos)';
+        KPIVAL = Object.assign(KPIVAL, { consol, disp, gastavel, fIn, fOut, sobra, inc, exp, taxa, aporteMes, reservaVal, custoMes, meses, burn, elap, nContas:S.accounts.length });
         document.getElementById('kpi-grid').innerHTML =
-            kpiTile('Saldo Consolidado', fmt(consol), 'card-hero kpi-hero col-span-2', `<span class="text-slate-400">${S.accounts.length} conta(s)</span>`, sparkline(last7Balance(),'var(--accent)'), 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.')
-          + kpiTile('Disponível p/ gastar', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'contas do dia a dia', '', 'Quanto você pode gastar até o fim do mês. Considera só as contas corrente e carteira (não a reserva, poupança nem investimentos) menos os compromissos fixos que ainda faltam.')
-          + kpiTile('Sobra do período', `<span style="color:${sobra<0?'var(--neg)':'var(--pos)'}">${fmt(sobra)}</span>`, '', `entradas ${fmt(inc)}`, '', 'Suas entradas menos suas saídas no período selecionado. Verde é sobra, vermelho é falta.')
-          + kpiTile('Taxa de aporte', taxa.toFixed(0)+'%', '', 'da renda guardada', '', 'Quanto da sua renda deste mês você conseguiu guardar.')
-          + kpiTile('Reserva', meses>0?meses.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que você já tem guardado.')
-          + kpiTile('Burn rate', fmt(burn)+'/dia', '', 'ritmo de gasto', '', 'Seu ritmo médio de gasto por dia neste mês.');
+            kpiTile('Saldo Consolidado', fmt(consol), 'card-hero kpi-hero col-span-2', `<span class="text-slate-400">${S.accounts.length} conta(s)</span>`, sparkline(last7Balance(),'var(--accent)'), 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.', 'explainKpi("consolidado")', 'explain')
+          + kpiTile('Disponível em conta', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'contas do dia a dia', '', 'Quanto você pode gastar até o fim do mês. Considera só as contas corrente e carteira (não a reserva, poupança nem investimentos) menos os compromissos fixos que ainda faltam. A fatura do cartão fica separada.', 'explainKpi("disponivel")', 'explain')
+          + ((S.cards&&S.cards.length)?kpiTile('Fatura do mês no cartão', fmt(S.cards.reduce((s,c)=>s+parseFloat(c.fatura_aberta||0),0)), '', 'no crédito, separado', '', 'Total das faturas abertas dos seus cartões neste ciclo. Fica separado do disponível em conta — só sai do banco quando você paga a fatura.'):'')
+          + kpiTile('Sobra do período', `<span style="color:${sobra<0?'var(--neg)':'var(--pos)'}">${fmt(sobra)}</span>`, '', `entradas ${fmt(inc)}`, '', 'Suas entradas menos suas saídas no período selecionado. Verde é sobra, vermelho é falta.', 'explainKpi("sobra")', 'explain')
+          + kpiTile('Taxa de aporte', taxa.toFixed(0)+'%', '', 'da renda guardada', '', 'Quanto da sua renda deste mês você conseguiu guardar.', 'explainKpi("taxa_aporte")', 'explain')
+          + kpiTile('Reserva', meses>0?meses.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que você já tem guardado.', 'explainKpi("reserva")', 'explain')
+          + kpiTile('Burn rate', fmt(burn)+'/dia', '', 'ritmo de gasto', '', 'Seu ritmo médio de gasto por dia neste mês.', 'explainKpi("burn")', 'explain');
 
         renderFlow(tx,R);
         renderAlerts({consol,disp,exp,inc,burn,days,cats});
@@ -1391,9 +1520,10 @@
         const elap=elapsedDays();
         const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
         const maior=sorted[0];
+        KPIVAL = Object.assign(KPIVAL, { gExp:exp, gElap:elap, gMedia:elap>0?exp/elap:0 });
         document.getElementById('gastos-kpis').innerHTML =
-            kpiTile('Total gasto no período', fmt(exp), 'card-hero kpi-hero col-span-2', `${tx.filter(t=>t.type==='EXPENSE').length} lançamentos`, '', 'Soma de todas as suas saídas no período selecionado.')
-          + kpiTile('Média por dia', fmt(elap>0?exp/elap:0), '', 'no período', '', 'Total gasto dividido pelos dias já corridos do período.')
+            kpiTile('Total gasto no período', fmt(exp), 'card-hero kpi-hero col-span-2', `${tx.filter(t=>t.type==='EXPENSE').length} lançamentos`, '', 'Soma de todas as suas saídas no período selecionado.', 'goFilter("extrato",{type:"EXPENSE"})')
+          + kpiTile('Média por dia', fmt(elap>0?exp/elap:0), '', 'no período', '', 'Total gasto dividido pelos dias já corridos do período.', 'explainKpi("media_dia")', 'explain')
           + kpiTile('Maior categoria', maior?maior[0]:'—', '', maior?fmt(maior[1]):'', '', 'A categoria em que você mais gastou neste mês.', maior?`drillCat(${JSON.stringify(maior[0])})`:'');
         renderDonut(cats,exp);
         renderBudgets(cats);
@@ -1509,13 +1639,14 @@
         const cur=evoData[evoData.length-1];
         const varPct=prev!==0?((cur-prev)/Math.abs(prev)*100):0; const varCol=varPct>=0?'var(--pos)':'var(--neg)';
         // ---- KPIs ----
+        KPIVAL = Object.assign(KPIVAL, { netWorth, gConsol:consol, caixinhas, cryptoNow, cardsDevido, varPct, varDelta:cur-prev, savingsRate, gInc:inc, gExp2:exp, meses:mesesRes, reservaVal, custoMes, limiteTot, expoCartao, ativosRisco });
         document.getElementById('kpi-grid-g').innerHTML =
-            kpiTile('Patrimônio líquido total', fmt(netWorth), 'card-hero kpi-hero col-span-2', `<span style="color:${varCol}">${varPct>=0?'▲':'▼'} ${Math.abs(varPct).toFixed(1)}% no mês</span>`, sparkline(evoData,'var(--accent)'), 'Tudo somado entre todos os bancos e ativos: contas + caixinhas + cripto, menos a dívida de cartão. A cripto entra uma única vez.')
-          + kpiTile('Variação no mês', `<span style="color:${varCol}">${varPct>=0?'+':''}${varPct.toFixed(1)}%</span>`, '', fmt(cur-prev)+' vs mês anterior', '', 'Quanto seu patrimônio cresceu ou caiu ante o mês anterior (estimativa pelos lançamentos).')
-          + kpiTile('Taxa de poupança', savingsRate.toFixed(0)+'%', '', 'da renda do mês', '', 'Quanto da sua renda deste mês sobrou. É o motor do crescimento.')
-          + kpiTile('Reserva', mesesRes>0?mesesRes.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que já está guardado.')
-          + kpiTile('Exposição a cartão', limiteTot>0?expoCartao.toFixed(0)+'%':'—', '', fmt(cardsDevido)+' devido', '', 'Quanto do seu limite total de cartão já está comprometido. Acima de 50% liga o alerta.')
-          + kpiTile('Ativos de risco/rendimento', fmt(ativosRisco), '', 'investimentos + cripto', '', 'Parte do patrimônio que trabalha por você em investimentos e cripto.');
+            kpiTile('Patrimônio líquido total', fmt(netWorth), 'card-hero kpi-hero col-span-2', `<span style="color:${varCol}">${varPct>=0?'▲':'▼'} ${Math.abs(varPct).toFixed(1)}% no mês</span>`, sparkline(evoData,'var(--accent)'), 'Tudo somado entre todos os bancos e ativos: contas + caixinhas + cripto, menos a dívida de cartão. A cripto entra uma única vez.', 'explainKpi("patrimonio")', 'explain')
+          + kpiTile('Variação no mês', `<span style="color:${varCol}">${varPct>=0?'+':''}${varPct.toFixed(1)}%</span>`, '', fmt(cur-prev)+' vs mês anterior', '', 'Quanto seu patrimônio cresceu ou caiu ante o mês anterior (estimativa pelos lançamentos).', 'explainKpi("variacao")', 'explain')
+          + kpiTile('Taxa de poupança', savingsRate.toFixed(0)+'%', '', 'da renda do mês', '', 'Quanto da sua renda deste mês sobrou. É o motor do crescimento.', 'explainKpi("poupanca")', 'explain')
+          + kpiTile('Reserva', mesesRes>0?mesesRes.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que já está guardado.', 'explainKpi("reserva")', 'explain')
+          + kpiTile('Exposição a cartão', limiteTot>0?expoCartao.toFixed(0)+'%':'—', '', fmt(cardsDevido)+' devido', '', 'Quanto do seu limite total de cartão já está comprometido. Acima de 50% liga o alerta.', 'explainKpi("exposicao")', 'explain')
+          + kpiTile('Ativos de risco/rendimento', fmt(ativosRisco), '', 'investimentos + cripto', '', 'Parte do patrimônio que trabalha por você em investimentos e cripto.', 'explainKpi("ativos")', 'explain');
         const grid=GRID, tick=TICK;
         // 1) Avanço patrimonial (linha)
         if(window.geralChartEvo) window.geralChartEvo.destroy();
@@ -1543,7 +1674,7 @@
         if(window.geralChartBancos) window.geralChartBancos.destroy();
         const bEl=document.getElementById('geralBancos');
         if(!contas.length){ bEl.getContext('2d').clearRect(0,0,bEl.width,bEl.height); }
-        else { window.geralChartBancos=new Chart(bEl,{type:'bar',data:{labels:contas.map(a=>a.nome),datasets:[{data:contas.map(a=>num(a.balance)),backgroundColor:contas.map(a=>a.cor||'#2F7CF0'),borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)}}},scales:{x:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:grid}},y:{ticks:{color:tick,font:{weight:'bold',size:10}},grid:{display:false}}}}}); }
+        else { window.geralChartBancos=new Chart(bEl,{type:'bar',data:{labels:contas.map(a=>a.nome),datasets:[{data:contas.map(a=>num(a.balance)),backgroundColor:contas.map(a=>a.cor||'#2F7CF0'),borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,onClick:(e,els)=>{if(els.length&&contas[els[0].index])drillAcc(contas[els[0].index].id);},onHover:(e,els)=>{const t=e.native&&e.native.target;if(t)t.style.cursor=els.length?'pointer':'default';},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)}}},scales:{x:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:grid}},y:{ticks:{color:tick,font:{weight:'bold',size:10}},grid:{display:false}}}}}); }
     }
 
     // ═══════════ CONTAS ═══════════
@@ -1553,13 +1684,16 @@
         document.getElementById('accounts-grid').innerHTML = S.accounts.map(a=>{
             const head=`<div class="flex justify-between items-start mb-4"><div class="flex items-center gap-3"><span class="w-11 h-11 rounded-xl grid place-items-center text-lg" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone}"></i></span><div><b class="text-sm">${a.nome}</b><div class="text-[11px] text-slate-500">${tipos[a.tipo]||a.tipo}${a.is_primary?' · principal':''}</div></div></div><div class="flex gap-1"><button onclick='editAccount(${JSON.stringify(a)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delAccount('${a.id}','${a.nome.replace(/'/g,'')}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div>`;
             if(a.tipo==='CARTAO_CREDITO'){
-                const c=S.cards.find(x=>x.id===a.id)||{limite:0,devido:0,disponivel:0,fatura_aberta:0,dia_vencimento:null};
+                const c=S.cards.find(x=>x.id===a.id)||{limite:0,devido:0,disponivel:0,disponivel_real:0,fatura_aberta:0,dia_vencimento:null};
                 const pct=c.limite>0?Math.min(100,c.devido/c.limite*100):0;
+                const disp=c.disponivel_real!=null?c.disponivel_real:c.disponivel;
                 return `<div class="card p-5">${head}
-                    <div class="flex justify-between text-xs mb-1"><span class="text-slate-500">Fatura aberta</span><span class="num font-black text-rose-600">${fmt(c.fatura_aberta)}</span></div>
-                    <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-2"><div class="h-full rounded-full" style="width:${pct}%;background:${pct>85?'var(--neg)':'var(--accent)'}"></div></div>
-                    <div class="flex justify-between text-[11px]"><span class="text-slate-500">Disponível <b class="num" style="color:var(--pos)">${fmt(c.disponivel)}</b></span><span class="text-slate-500">Limite <b class="num">${fmt(c.limite)}</b></span></div>
-                    ${c.dia_vencimento?`<div class="text-[11px] text-slate-400 mt-2"><i class="fas fa-calendar-day"></i> fecha dia ${c.dia_fechamento} · vence dia ${c.dia_vencimento}</div>`:''}
+                    <div class="nf-drill group" role="button" tabindex="0" title="Abrir fatura de ${a.nome}" onclick="openFatura('${a.id}')" onkeydown="if(event.key==='Enter')openFatura('${a.id}')" style="cursor:pointer;margin:-4px;padding:4px;border-radius:12px">
+                        <div class="flex justify-between text-xs mb-1"><span class="text-slate-500">Fatura aberta</span><span class="num font-black text-rose-600">${fmt(c.fatura_aberta)}</span></div>
+                        <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-2"><div class="h-full rounded-full" style="width:${pct}%;background:${pct>85?'var(--neg)':'var(--accent)'}"></div></div>
+                        <div class="flex justify-between text-[11px]"><span class="text-slate-500">Disponível <b class="num" style="color:var(--pos)">${fmt(disp)}</b></span><span class="text-slate-500">Limite <b class="num">${fmt(c.limite)}</b></span></div>
+                        <div class="flex items-center justify-between mt-2">${c.dia_vencimento?`<span class="text-[11px] text-slate-400"><i class="fas fa-calendar-day"></i> fecha ${c.dia_fechamento} · vence ${c.dia_vencimento}</span>`:'<span></span>'}<span class="text-[11px] font-bold" style="color:var(--accent)">ver fatura <i class="fas fa-chevron-right text-[9px]"></i></span></div>
+                    </div>
                 </div>`;
             }
             const cryptoLinked=cryptoValueForAccount(a.id);
@@ -1699,10 +1833,12 @@
         // recorrências
         const accName=id=>S.accounts.find(a=>a.id===id)?.nome||'—';
         const tipoLbl={INCOME:['Entrada','var(--pos)','fa-arrow-down'],EXPENSE:['Saída fixa','var(--neg)','fa-arrow-up'],APORTE:['Aporte','var(--accent)','fa-piggy-bank']};
+        const freqLabel=r=>{ const u=r.freq_unit||'MONTH', n=r.every_n||1; if(u==='MONTH')return 'todo dia '+(r.day_of_month||'?'); if(u==='WEEK')return n===1?'toda semana':('a cada '+n+' semanas'); return n===15?'a cada 15 dias':('a cada '+n+' dias'); };
         document.getElementById('recurring-list').innerHTML = S.recurring.map(r=>{ const[lbl,col,ic]=tipoLbl[r.tipo];
+            const prox=r.next_run_date?new Date(r.next_run_date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
             return `<div class="card p-4 flex justify-between items-center">
                 <div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg grid place-items-center" style="background:${col}1a;color:${col}"><i class="fas ${ic} text-xs"></i></span>
-                <div><div class="text-sm font-bold">${r.description} <span class="text-[10px] font-bold px-2 py-0.5 rounded" style="background:${col}1a;color:${col}">${lbl}</span></div><div class="text-[11px] text-slate-400">todo dia ${r.day_of_month} · ${accName(r.account_id)}</div></div></div>
+                <div><div class="text-sm font-bold">${r.description} <span class="text-[10px] font-bold px-2 py-0.5 rounded" style="background:${col}1a;color:${col}">${lbl}</span></div><div class="text-[11px] text-slate-400">${freqLabel(r)}${prox?` · próx. <b>${prox}</b>`:''} · ${accName(r.account_id)}</div></div></div>
                 <div class="flex items-center gap-2"><span class="font-black num text-sm">${fmt(r.amount)}</span><button onclick='editRecurring(${JSON.stringify(r)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delRecurring('${r.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div>
             </div>`;
         }).join('') || '<p class="text-sm text-slate-400 card p-5 text-center">Cadastre seu salário e aportes automáticos ⚡</p>';
@@ -1860,10 +1996,63 @@
 
     // Recorrência
     function recTipoChange(){ const t=document.getElementById('rec-tipo').value; document.getElementById('rec-goal').classList.toggle('hidden',t!=='APORTE'); if(t==='APORTE') document.getElementById('rec-goal').innerHTML=S.goals.map(g=>`<option value="${g.id}">${g.emoji} ${g.nome}</option>`).join(''); document.getElementById('rec-confirm-wrap').classList.toggle('hidden',t!=='INCOME'); }
-    function openRecurring(){ document.getElementById('rec-id').value=''; document.getElementById('rec-title').innerText='Lançamento automático'; ['rec-desc','rec-amount','rec-day'].forEach(i=>document.getElementById(i).value=''); document.getElementById('rec-account').innerHTML=accountOptions(); document.getElementById('rec-tipo').value='INCOME'; document.getElementById('rec-confirm').checked=true; recTipoChange(); openModal('m-recurring'); }
-    function editRecurring(r){ document.getElementById('rec-id').value=r.id; document.getElementById('rec-title').innerText='Editar automático'; document.getElementById('rec-account').innerHTML=accountOptions(); document.getElementById('rec-tipo').value=r.tipo; document.getElementById('rec-desc').value=r.description; document.getElementById('rec-amount').value=r.amount; document.getElementById('rec-day').value=r.day_of_month; document.getElementById('rec-account').value=r.account_id||''; document.getElementById('rec-confirm').checked=r.confirmar!==false; recTipoChange(); if(r.dest_goal_id)document.getElementById('rec-goal').value=r.dest_goal_id; openModal('m-recurring'); }
-    async function saveRecurring(){ const id=document.getElementById('rec-id').value; const b={tipo:document.getElementById('rec-tipo').value,description:document.getElementById('rec-desc').value,amount:parseFloat(document.getElementById('rec-amount').value),day_of_month:parseInt(document.getElementById('rec-day').value),account_id:document.getElementById('rec-account').value}; if(b.tipo==='APORTE')b.dest_goal_id=document.getElementById('rec-goal').value; if(b.tipo==='INCOME')b.confirmar=document.getElementById('rec-confirm').checked; if(!b.description||!b.amount||!b.day_of_month){ toast('Preencha descrição, valor e dia.','err'); return; } if(id)await api('/recurring/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/recurring',{method:'POST',body:JSON.stringify(b)}); closeModal('m-recurring'); toast(id?'Automático atualizado':'Lançamento automático criado'); loadAll(); }
+    let recFreqMode='MONTH', recEndMode='NONE';
+    function recFreq(m){ recFreqMode=m; document.querySelectorAll('#rec-freq-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.f===m)); document.getElementById('rec-panel-month').classList.toggle('hidden',m!=='MONTH'); document.getElementById('rec-panel-everyn').classList.toggle('hidden',m!=='EVERYN'); recPreview(); }
+    function recEnd(m){ recEndMode=m; document.querySelectorAll('#rec-end-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.e===m)); document.getElementById('rec-until').classList.toggle('hidden',m!=='UNTIL'); document.getElementById('rec-count-wrap').classList.toggle('hidden',m!=='COUNT'); recPreview(); }
+    function recCfg(){ if(recFreqMode==='MONTH')return{unit:'MONTH',n:1}; if(recFreqMode==='WEEK')return{unit:'WEEK',n:1}; if(recFreqMode==='BIWEEK')return{unit:'DAY',n:15}; return{unit:'DAY',n:Math.max(1,parseInt(document.getElementById('rec-every').value)||15)}; }
+    function addIntervalJS(dateStr,unit,n,anchorDay){ const [y,m,d]=dateStr.split('-').map(Number); if(unit==='DAY'||unit==='WEEK'){ const dt=new Date(Date.UTC(y,m-1,d)); dt.setUTCDate(dt.getUTCDate()+n*(unit==='WEEK'?7:1)); return dt.toISOString().slice(0,10);} const idx=(m-1)+n,ny=y+Math.floor(idx/12),nm=((idx%12)+12)%12; const dim=new Date(Date.UTC(ny,nm+1,0)).getUTCDate(); const day=Math.min(anchorDay||d,dim); return `${ny}-${pad2(nm+1)}-${pad2(day)}`; }
+    function recPreview(){ const el=document.getElementById('rec-preview'); if(!el)return; const cfg=recCfg(); const amt=parseFloat(document.getElementById('rec-amount').value)||0; let start=document.getElementById('rec-start').value; if(cfg.unit==='MONTH'&&!start){ const dd=parseInt(document.getElementById('rec-day').value); if(dd){ const t=new Date(); start=`${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(Math.min(dd,28))}`; } } if(!start){ el.innerHTML='<i class="fas fa-circle-info" style="color:var(--accent)"></i> Escolha a frequência e a data de início.'; return; } const anchor=cfg.unit==='MONTH'?(parseInt(document.getElementById('rec-day').value)||parseInt(start.split('-')[2])):null; const ds=[start]; for(let i=0;i<2;i++)ds.push(addIntervalJS(ds[ds.length-1],cfg.unit,cfg.n,anchor)); const f=s=>new Date(s+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}); const ft={MONTH:'todo mês',WEEK:'toda semana',BIWEEK:'a cada 15 dias',EVERYN:'a cada '+cfg.n+' dias'}[recFreqMode]; el.innerHTML=`<i class="fas fa-calendar-check" style="color:var(--accent)"></i> ${ft}: <b>${f(ds[0])}</b>, depois <b>${f(ds[1])}</b> e <b>${f(ds[2])}</b>${amt?` — <b class="num">${fmt(amt)}</b> cada`:''}.`; }
+    function openRecurring(){ document.getElementById('rec-id').value=''; document.getElementById('rec-title').innerText='Lançamento automático'; ['rec-desc','rec-amount','rec-day'].forEach(i=>document.getElementById(i).value=''); document.getElementById('rec-every').value='15'; document.getElementById('rec-until').value=''; document.getElementById('rec-count').value='12'; document.getElementById('rec-start').value=new Date().toISOString().slice(0,10); document.getElementById('rec-account').innerHTML=accountOptions(); document.getElementById('rec-tipo').value='INCOME'; document.getElementById('rec-confirm').checked=true; recFreq('MONTH'); recEnd('NONE'); recTipoChange(); recPreview(); openModal('m-recurring'); }
+    function editRecurring(r){ document.getElementById('rec-id').value=r.id; document.getElementById('rec-title').innerText='Editar automático'; document.getElementById('rec-account').innerHTML=accountOptions(); document.getElementById('rec-tipo').value=r.tipo; document.getElementById('rec-desc').value=r.description; document.getElementById('rec-amount').value=r.amount; document.getElementById('rec-day').value=r.day_of_month||''; document.getElementById('rec-every').value=(r.freq_unit==='DAY'&&r.every_n!==15)?r.every_n:'15'; document.getElementById('rec-start').value=(r.start_date||r.next_run_date||'').slice(0,10); document.getElementById('rec-until').value=(r.end_date||'').slice(0,10); document.getElementById('rec-count').value=r.max_occurrences||'12'; document.getElementById('rec-account').value=r.account_id||''; document.getElementById('rec-confirm').checked=r.confirmar!==false;
+        const m=r.freq_unit==='WEEK'?'WEEK':(r.freq_unit==='DAY'?(r.every_n===15?'BIWEEK':'EVERYN'):'MONTH'); recFreq(m); recEnd(r.end_date?'UNTIL':(r.max_occurrences?'COUNT':'NONE')); recTipoChange(); if(r.dest_goal_id)document.getElementById('rec-goal').value=r.dest_goal_id; recPreview(); openModal('m-recurring'); }
+    async function saveRecurring(){ const id=document.getElementById('rec-id').value; const cfg=recCfg(); const b={tipo:document.getElementById('rec-tipo').value,description:document.getElementById('rec-desc').value,amount:parseFloat(document.getElementById('rec-amount').value),account_id:document.getElementById('rec-account').value,freq_unit:cfg.unit,every_n:cfg.n,start_date:document.getElementById('rec-start').value||null}; if(cfg.unit==='MONTH')b.day_of_month=parseInt(document.getElementById('rec-day').value)||(b.start_date?parseInt(b.start_date.split('-')[2]):null); if(recEndMode==='UNTIL')b.end_date=document.getElementById('rec-until').value||null; if(recEndMode==='COUNT')b.max_occurrences=parseInt(document.getElementById('rec-count').value)||null; if(b.tipo==='APORTE')b.dest_goal_id=document.getElementById('rec-goal').value; if(b.tipo==='INCOME')b.confirmar=document.getElementById('rec-confirm').checked; if(!b.description||!b.amount){ toast('Preencha descrição e valor.','err'); return; } if(cfg.unit==='MONTH'&&!b.day_of_month&&!b.start_date){ toast('Diga o dia do mês ou a data de início.','err'); return; } if(cfg.unit!=='MONTH'&&!b.start_date){ toast('Escolha a data de início.','err'); return; } if(id)await api('/recurring/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/recurring',{method:'POST',body:JSON.stringify(b)}); closeModal('m-recurring'); toast(id?'Automático atualizado':'Lançamento automático criado'); loadAll(); }
     async function delRecurring(id){ if(confirm('Apagar este lançamento automático?')){ await api('/recurring/'+id,{method:'DELETE'}); toast('Removido'); loadAll(); } }
+
+    // ── Compra parcelada ──
+    let parMode_='PARCELA';
+    function parMode(m){ parMode_=m; document.querySelectorAll('#par-mode-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.m===m)); document.getElementById('par-valor').placeholder=m==='PARCELA'?'R$ por parcela':'R$ total'; parCalc(); }
+    function parCalc(){ const v=parseFloat(document.getElementById('par-valor').value)||0; const n=Math.max(1,parseInt(document.getElementById('par-n').value)||1); const total=parMode_==='PARCELA'?v*n:v; const parc=parMode_==='PARCELA'?v:(total/n); const el=document.getElementById('par-calc'), sv=document.getElementById('par-save'); if(!v){ el.textContent='—'; } else { el.innerHTML=`${n}x de <span style="color:var(--accent)">${fmt(parc)}</span> = <span style="color:var(--accent)">${fmt(total)}</span>`; } if(sv) sv.textContent='Lançar '+n+' parcelas'; }
+    function accOrCardOptions(){ const cards=S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO'), others=S.accounts.filter(a=>a.tipo!=='CARTAO_CREDITO'); let h=''; if(cards.length) h+='<optgroup label="Cartões">'+cards.map(a=>`<option value="${a.id}">${a.nome}</option>`).join('')+'</optgroup>'; h+='<optgroup label="Contas">'+others.map(a=>`<option value="${a.id}">${a.nome}</option>`).join('')+'</optgroup>'; return h; }
+    function openParcelado(){ closeMore(); ['par-desc','par-valor'].forEach(i=>document.getElementById(i).value=''); document.getElementById('par-n').value='9'; document.getElementById('par-date').value=new Date().toISOString().slice(0,10); document.getElementById('par-acc').innerHTML=accOrCardOptions(); document.getElementById('par-cat').innerHTML=categoryOptions('OUTROS'); parMode('PARCELA'); parCalc(); openModal('m-parcelado'); }
+    async function saveParcelado(){ const desc=document.getElementById('par-desc').value.trim(), v=parseFloat(document.getElementById('par-valor').value), n=parseInt(document.getElementById('par-n').value); if(!desc||!v||!n||n<1){ toast('Preencha descrição, valor e nº de parcelas.','err'); return; } const b={description:desc,n_parcelas:n,first_date:document.getElementById('par-date').value,account_id:document.getElementById('par-acc').value,category:document.getElementById('par-cat').value}; if(parMode_==='PARCELA')b.valor_parcela=v; else b.total_amount=v; await api('/installments',{method:'POST',body:JSON.stringify(b)}); closeModal('m-parcelado'); toast(n+' parcelas de "'+desc+'" registradas'); loadAll(); }
+    async function delInstallment(id){ if(confirm('Excluir esta compra parcelada? As parcelas ainda não lançadas somem; as já lançadas ficam no histórico.')){ await api('/installments/'+id,{method:'DELETE'}); toast('Parcelamento removido'); loadAll(); } }
+
+    // ── Fatura do cartão ──
+    const _mesAbr=s=>['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+s.split('-')[1]-1];
+    const _dBR=s=>s?new Date(s+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+    async function openFatura(id){ openModal('m-fatura'); document.getElementById('fatura-head').innerHTML=''; document.getElementById('fatura-foot').innerHTML=''; document.getElementById('fatura-body').innerHTML='<div class="text-center text-sm text-slate-400 py-8">Carregando fatura…</div>'; const data=await api('/cards/'+id+'/faturas'); if(data) renderFatura(data); }
+    function renderFatura(data){
+        const c=data.card;
+        const aberta=data.faturas.find(f=>f.status==='aberta')||data.faturas.find(f=>f.status==='fechada')||data.faturas.find(f=>f.status!=='futura')||data.faturas[0];
+        const devido=data.faturas.filter(f=>f.status==='aberta'||f.status==='fechada').reduce((s,f)=>s+Math.max(0,f.total-f.pago),0);
+        const pctLim=c.limite>0?Math.min(100,devido/c.limite*100):0;
+        const sc={aberta:['var(--warn)','fa-lock-open','aberta'],fechada:['var(--neg)','fa-file-invoice','fechada'],paga:['var(--pos)','fa-check','paga'],futura:['var(--accent)','fa-clock','futura']};
+        const st=aberta?sc[aberta.status]:sc.futura;
+        document.getElementById('fatura-head').innerHTML=`
+            <div class="flex justify-between items-start">
+                <div class="flex items-center gap-3"><span class="w-11 h-11 rounded-xl grid place-items-center text-lg" style="background:var(--accent)22;color:var(--accent)"><i class="fas fa-credit-card"></i></span><div><b class="text-base">${c.nome}</b><div class="text-[11px] text-slate-500">Cartão de crédito</div></div></div>
+                <button onclick="closeModal('m-fatura')" class="w-8 h-8 rounded-lg" style="background:var(--surface-1)"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="mt-4"><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Fatura de ${aberta?_mesAbr(aberta.competencia):'—'}</p>
+                <h3 class="text-3xl font-black num mt-1" style="color:var(--t-hi)">${fmt(aberta?aberta.total:0)}</h3>
+                <div class="flex gap-2 mt-2 flex-wrap">${aberta?`<span class="nf-chip" style="--c:${st[0]}"><i class="fas ${st[1]}"></i> ${st[2]} · fecha ${_dBR(aberta.fechamento)}</span><span class="nf-chip"><i class="fas fa-calendar-check"></i> vence ${_dBR(aberta.vencimento)}</span>`:''}</div>
+            </div>
+            <div class="mt-4"><div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Limite usado</span><span class="text-slate-500 num"><b style="color:var(--t-hi)">${fmt(devido)}</b> de ${fmt(c.limite)}</span></div>
+                <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div class="h-full rounded-full" style="width:${pctLim}%;background:${pctLim>85?'var(--neg)':'var(--accent)'}"></div></div></div>`;
+        const prox=data.faturas.filter(x=>x.status==='futura'&&x.total>0).slice(0,3);
+        const itens=(aberta&&aberta.itens)||[];
+        document.getElementById('fatura-body').innerHTML=`
+            ${prox.length?`<div><h4 class="text-sm font-black mb-2">Próximas faturas</h4><div class="grid grid-cols-3 gap-2">${prox.map(p=>`<div class="card p-3 text-center"><div class="text-[10px] text-slate-400 uppercase">${_mesAbr(p.competencia)}</div><div class="num font-black text-sm mt-0.5">${fmt(p.total)}</div></div>`).join('')}</div><p class="text-[11px] text-slate-400 mt-1.5">Já tem parcelas/recorrências entrando nesses meses.</p></div>`:''}
+            <div><h4 class="text-sm font-black mb-2">O que entrou nesta fatura</h4>${itens.length?`<div class="space-y-2">${itens.map(it=>{const par=it.source==='installment';const col=par?'var(--accent)':catColor(it.category);return `<div class="flex items-center justify-between"><div class="flex items-center gap-3"><span class="w-8 h-8 rounded-lg grid place-items-center" style="background:${col}22;color:${col}"><i class="fas ${par?'fa-layer-group':catIcon(it.category)} text-[11px]"></i></span><div><div class="text-sm font-bold">${it.description}</div><div class="text-[11px] text-slate-400 num">${_dBR(it.date)}</div></div></div><span class="num font-bold text-sm">${fmt(it.amount)}</span></div>`;}).join('')}</div>`:'<p class="text-sm text-slate-400">Nenhuma compra nesta fatura ainda.</p>'}</div>`;
+        const falta=aberta?(aberta.total-aberta.pago):0;
+        const pagavel=aberta&&aberta.status!=='futura'&&falta>0.005;
+        document.getElementById('fatura-foot').innerHTML=pagavel?`
+            <select id="fatura-from" class="w-full card px-3 py-2.5 text-sm font-semibold mb-2">${S.accounts.filter(a=>a.tipo!=='CARTAO_CREDITO').map(a=>`<option value="${a.id}">${a.nome} (${fmt(a.balance)})</option>`).join('')}</select>
+            <button onclick="pagarFatura('${c.id}','${aberta.competencia}',${falta})" class="w-full py-3.5 rounded-xl font-black text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Pagar fatura · ${fmt(falta)}</button>
+            <p class="text-[11px] text-slate-400 text-center mt-2">Sai da conta escolhida acima.</p>`
+            :`<div class="text-center text-sm font-bold py-1" style="color:var(--pos)"><i class="fas fa-check"></i> Nada a pagar por enquanto</div>`;
+    }
+    async function pagarFatura(cardId,competencia,valor){ const from=document.getElementById('fatura-from').value; if(!from){ toast('Escolha a conta de origem.','err'); return; } await api('/cards/'+cardId+'/pagar',{method:'POST',body:JSON.stringify({from_account_id:from,competencia,amount:valor})}); closeModal('m-fatura'); toast('Fatura paga! 💚'); loadAll(); }
 
     // Fixo (planejamento)
     function openFixed(){ document.getElementById('fix-id').value=''; document.getElementById('fixed-title').innerText='Novo compromisso'; ['fix-desc','fix-amount','fix-day'].forEach(i=>document.getElementById(i).value=''); document.getElementById('fix-cat').innerHTML=categoryOptions('CONTAS'); openModal('m-fixed'); }
