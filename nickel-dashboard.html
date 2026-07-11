@@ -264,6 +264,84 @@
             .card-hero::after{display:none}
             .card-hero:hover,.card:hover{transform:none!important}
         }
+
+        /* ═══════════════ FILTROS / BUSCA / PERÍODO (nf-*) ═══════════════ */
+        .nf-pbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+        .nf-plabel{font-size:12px;font-weight:700;color:var(--t-muted)}
+        .nf-seg{display:inline-flex;gap:3px;padding:3px;background:var(--surface-1);border:1px solid var(--border-glass);border-radius:13px}
+        .nf-seg-btn{appearance:none;border:0;cursor:pointer;padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;color:var(--t-muted);background:transparent;display:inline-flex;align-items:center;gap:4px;transition:color .2s,background .2s,box-shadow .2s;font-family:inherit}
+        .nf-seg-btn:hover{color:var(--t-hi);background:var(--surface-2)}
+        .nf-seg-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(23,201,100,.25)}
+        .nf-seg-btn.is-active{color:var(--t-hi);background:linear-gradient(100deg,rgba(23,201,100,.20),rgba(47,124,240,.12));box-shadow:inset 0 0 0 1px rgba(23,201,100,.35),0 2px 10px rgba(23,201,100,.12)}
+        .nf-seg-btn.is-active .fa-calendar-days{color:var(--accent)}
+        /* barra de filtros */
+        .nf-bar{display:flex;flex-direction:column;gap:10px}
+        .nf-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+        .nf-search{position:relative;display:flex;align-items:center;flex:1 1 220px;min-width:180px}
+        .nf-search input{width:100%;background:var(--surface-1);border:1px solid var(--border-glass);border-radius:12px;color:var(--t-hi);font-size:14px;padding:10px 44px 10px 36px;transition:.2s;font-family:inherit}
+        .nf-search input::placeholder{color:var(--t-faint)}
+        .nf-search input:focus{outline:none;border-color:var(--accent);background:var(--surface-2);box-shadow:0 0 0 3px rgba(23,201,100,.15)}
+        .nf-search-ic{position:absolute;left:12px;color:var(--t-faint);font-size:13px;pointer-events:none}
+        .nf-search-go{position:absolute;right:5px;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#03251a;background:var(--grad);background-size:200% auto;border:0;cursor:pointer;transition:.2s}
+        .nf-search-go:hover{filter:brightness(1.06)}
+        .nf-search input:placeholder-shown~.nf-search-go{opacity:.5}
+        .nf-select{padding:9px 12px;font-size:13px;font-weight:600;border-radius:12px}
+        .nf-ms{position:relative}
+        .nf-ms-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:13px;font-weight:600;background:var(--surface-1);border:1px solid var(--border-glass);border-radius:12px;color:var(--t-hi);cursor:pointer;transition:.2s;font-family:inherit;max-width:200px}
+        .nf-ms-btn:hover{background:var(--surface-2);border-color:var(--border-hi)}
+        .nf-ms-btn>i:first-child{color:var(--accent)}
+        .nf-ms-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .nf-ms-caret{font-size:10px;color:var(--t-faint)}
+        .nf-ms-pop{position:absolute;z-index:45;top:calc(100% + 6px);left:0;min-width:230px;max-height:280px;overflow:auto;padding:6px;background:var(--panel-bg);backdrop-filter:blur(18px);border:1px solid var(--border-glass);border-radius:14px;box-shadow:var(--shadow-float);display:none}
+        .nf-ms.open .nf-ms-pop{display:block}
+        .ef-ms-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--t-base)}
+        .ef-ms-opt:hover{background:var(--surface-1);color:var(--t-hi)}
+        .ef-ms-opt[aria-selected="true"]{background:rgba(23,201,100,.10);color:var(--t-hi)}
+        .ef-ms-opt .tick{margin-left:auto;color:var(--accent);opacity:0}
+        .ef-ms-opt[aria-selected="true"] .tick{opacity:1}
+        /* chips de filtro ativo */
+        .nf-chips{display:flex;flex-wrap:wrap;gap:6px}
+        .nf-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 8px 5px 11px;border-radius:20px;font-size:12px;font-weight:700;color:var(--t-hi);background:color-mix(in srgb,var(--c,var(--accent)) 15%,transparent);border:1px solid color-mix(in srgb,var(--c,var(--accent)) 32%,transparent)}
+        .nf-chip>i:first-child{color:var(--c,var(--accent));font-size:11px}
+        .nf-chip button{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;color:var(--t-muted);font-size:10px;border:0;background:transparent;cursor:pointer;transition:.15s}
+        .nf-chip button:hover{background:rgba(0,0,0,.12);color:var(--t-hi)}
+        .dark .nf-chip button:hover{background:rgba(255,255,255,.16)}
+        .nf-chip-clear{font-size:12px;font-weight:700;color:var(--t-muted);padding:5px 10px;border-radius:20px;border:0;background:transparent;cursor:pointer}
+        .nf-chip-clear:hover{color:var(--neg);background:var(--surface-1)}
+        /* drill-down affordance */
+        .nf-drill{cursor:pointer;transition:transform .18s,border-color .2s,box-shadow .2s}
+        .nf-drill:hover{transform:translateX(2px);border-color:var(--border-hi)}
+        .nf-drill:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(23,201,100,.22)}
+        .nf-drill-arrow{color:var(--t-faint);font-size:11px;opacity:0;transform:translateX(-4px);transition:opacity .18s,transform .18s}
+        .nf-drill:hover .nf-drill-arrow,.nf-drill:focus-visible .nf-drill-arrow{opacity:1;transform:none;color:var(--accent)}
+        .nf-drill-row{cursor:pointer;border-radius:8px;padding:2px 4px;margin:-2px -4px;transition:background .15s}
+        .nf-drill-row:hover{background:var(--surface-1)}
+        /* estado vazio */
+        .nf-empty{border-style:dashed!important}
+        .nf-empty-ic{width:56px;height:56px;margin:0 auto;border-radius:16px;display:grid;place-items:center;font-size:22px;color:var(--accent);background:linear-gradient(150deg,rgba(47,124,240,.16),rgba(23,201,100,.16));border:1px solid var(--border-glass)}
+        .nf-btn-primary{background:var(--grad);background-size:200% auto;color:#03251a;font-weight:800;padding:11px;border-radius:12px;border:0;cursor:pointer;font-family:inherit}
+        .nf-btn-primary:disabled{opacity:.5;cursor:default}
+        .nf-btn-ghost{background:var(--surface-1);border:1px solid var(--border-glass);color:var(--t-base);font-weight:700;padding:11px;border-radius:12px;cursor:pointer;font-family:inherit}
+        .nf-btn-ghost:hover{background:var(--surface-2);color:var(--t-hi)}
+        /* calendário de intervalo */
+        .nf-rp-quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+        .nf-rp-quick button{font-size:12px;font-weight:700;padding:6px 11px;border-radius:20px;background:var(--surface-1);border:1px solid var(--border-glass);color:var(--t-base);cursor:pointer;font-family:inherit}
+        .nf-rp-quick button:hover{background:var(--surface-2);color:var(--t-hi)}
+        .nf-rp-summary{font-size:13px;font-weight:700;color:var(--t-hi);background:rgba(23,201,100,.08);border:1px solid var(--border-glass);border-radius:12px;padding:10px 12px;text-align:center}
+        .nf-rp-nav{width:34px;height:34px;border-radius:10px;background:var(--surface-1);border:1px solid var(--border-glass);color:var(--t-base);cursor:pointer}
+        .nf-rp-nav:hover{background:var(--surface-2)}
+        .nf-rp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+        .nf-rp-dow{text-align:center;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--t-faint);padding:4px 0}
+        .nf-rp-day{position:relative;aspect-ratio:1;display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--t-base);cursor:pointer;border-radius:10px;transition:background .12s,color .12s}
+        .nf-rp-day.empty{pointer-events:none}
+        .nf-rp-day:hover{background:var(--surface-2);color:var(--t-hi)}
+        .nf-rp-day.today{box-shadow:inset 0 0 0 1px var(--accent)}
+        .nf-rp-day.in-range{background:rgba(23,201,100,.16);border-radius:0;color:var(--t-hi)}
+        .nf-rp-day.edge{background:var(--accent);color:#fff;font-weight:800;border-radius:10px;box-shadow:0 4px 14px rgba(23,201,100,.4)}
+        .nf-rp-day.edge.start{border-radius:10px 0 0 10px}
+        .nf-rp-day.edge.end{border-radius:0 10px 10px 0}
+        .nf-rp-day.edge.single{border-radius:10px}
+        @media(prefers-reduced-motion:reduce){.nf-drill,.nf-drill-arrow,.nf-rp-day{transition:none}}
     </style>
 </head>
 <body class="text-ink-900 dark:text-slate-100 flex flex-col md:flex-row h-screen overflow-hidden font-sans">
@@ -366,6 +444,17 @@
         </header>
 
         <div class="p-4 md:p-8 max-w-7xl mx-auto w-full">
+
+            <!-- ══════════ PERÍODO GLOBAL (Dia/Semana/Mês/Personalizado) ══════════ -->
+            <div class="nf-pbar mb-4">
+                <div class="nf-seg" role="group" aria-label="Período" id="nf-pseg">
+                    <button class="nf-seg-btn" data-p="day" onclick="setPeriod('day')">Dia</button>
+                    <button class="nf-seg-btn" data-p="week" onclick="setPeriod('week')">Semana</button>
+                    <button class="nf-seg-btn is-active" data-p="month" onclick="setPeriod('month')">Mês</button>
+                    <button class="nf-seg-btn" data-p="custom" onclick="setPeriod('custom')"><i class="fas fa-calendar-days"></i><span class="hidden sm:inline">&nbsp;Personalizado</span></button>
+                </div>
+                <span id="nf-period-label" class="nf-plabel"></span>
+            </div>
 
             <!-- ══════════ VISÃO GERAL ══════════ -->
             <div id="sec-dash" class="section-content active space-y-6">
@@ -502,15 +591,54 @@
 
             <!-- ══════════ EXTRATO ══════════ -->
             <div id="sec-extrato" class="section-content space-y-4">
-                <div class="flex flex-wrap gap-2">
-                    <select id="filter-type" onchange="renderExtrato()" class="card px-3 py-2 text-sm font-semibold"><option value="">Todos os tipos</option><option value="EXPENSE">Saídas</option><option value="INCOME">Entradas</option></select>
-                    <select id="filter-acc" onchange="renderExtrato()" class="card px-3 py-2 text-sm font-semibold"><option value="">Todas as contas</option></select>
+                <div class="nf-bar card p-3">
+                    <div class="nf-row">
+                        <div class="nf-search">
+                            <i class="fas fa-magnifying-glass nf-search-ic"></i>
+                            <input id="ef-search" type="search" enterkeyhint="search" placeholder="Buscar por nome…" oninput="EF.q=this.value; debounceExtrato()" onkeydown="if(event.key==='Enter'){EF.q=this.value;renderFilterChips();renderExtrato();}">
+                            <button class="nf-search-go" onclick="EF.q=document.getElementById('ef-search').value;renderFilterChips();renderExtrato()" aria-label="Pesquisar"><i class="fas fa-arrow-right"></i></button>
+                        </div>
+                        <div class="nf-ms" id="ef-ms">
+                            <button class="nf-ms-btn" onclick="efMsToggle()" aria-haspopup="listbox"><i class="fas fa-building-columns"></i><span class="nf-ms-label" id="ef-ms-label">Todos os bancos</span><i class="fas fa-chevron-down nf-ms-caret"></i></button>
+                            <div class="nf-ms-pop" id="ef-ms-pop" role="listbox" aria-multiselectable="true"></div>
+                        </div>
+                        <select id="ef-cat" class="card nf-select" onchange="efSet('category', this.value)"><option value="">Todas as categorias</option></select>
+                        <select id="ef-type" class="card nf-select" onchange="efSet('type', this.value)"><option value="">Tudo</option><option value="EXPENSE">Saídas</option><option value="INCOME">Entradas</option></select>
+                    </div>
+                    <div class="nf-chips" id="ef-chips" hidden></div>
                 </div>
                 <div id="extrato-summary" class="grid grid-cols-3 gap-3"></div>
                 <div id="full-logs" class="space-y-2.5 pb-6"></div>
             </div>
         </div>
     </main>
+
+    <!-- ══════════ CALENDÁRIO DE PERÍODO (Personalizado) ══════════ -->
+    <div id="m-period" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[70] items-center justify-center p-4">
+        <div class="card p-5 w-full max-w-sm">
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="font-black text-base">Escolher período</h4>
+                <button onclick="closeModal('m-period')" class="w-8 h-8 rounded-lg" style="background:var(--surface-1)"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="nf-rp-quick">
+                <button onclick="pcQuick(7)">7 dias</button>
+                <button onclick="pcQuick(30)">30 dias</button>
+                <button onclick="pcQuick('mtd')">Este mês</button>
+                <button onclick="pcQuick('prev')">Mês passado</button>
+            </div>
+            <div class="nf-rp-summary" id="pc-summary">Selecione a data inicial</div>
+            <div class="flex items-center justify-between my-3">
+                <button class="nf-rp-nav" onclick="pcMove(-1)" aria-label="Mês anterior"><i class="fas fa-chevron-left"></i></button>
+                <span id="pc-month" class="font-black text-sm"></span>
+                <button class="nf-rp-nav" onclick="pcMove(1)" aria-label="Próximo mês"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="nf-rp-grid" id="pc-grid"></div>
+            <div class="flex gap-2 mt-4">
+                <button class="nf-btn-ghost flex-1" onclick="pcClear()">Limpar</button>
+                <button class="nf-btn-primary flex-1" id="pc-apply" onclick="applyPeriodCalendar()" disabled>Aplicar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ══════════ WIZARD DE ONBOARDING ══════════ -->
     <div id="wizard" class="hidden fixed inset-0 z-[80] bg-slate-50 dark:bg-slate-950 overflow-y-auto" style="padding-top:env(safe-area-inset-top)">
@@ -750,9 +878,14 @@
             <h4 class="font-black text-xl mb-5">Editar lançamento</h4>
             <input type="hidden" id="tx-id">
             <div class="space-y-3">
+                <select id="tx-type" class="w-full card px-4 py-3 text-sm font-semibold"><option value="EXPENSE">🔴 Saída</option><option value="INCOME">🟢 Entrada</option></select>
                 <input id="tx-desc" placeholder="Descrição" class="w-full card px-4 py-3 text-sm">
+                <div class="grid grid-cols-2 gap-3">
+                    <input id="tx-amount" type="number" step="0.01" placeholder="Valor" class="card px-4 py-3 text-lg font-black num">
+                    <input id="tx-date" type="date" class="card px-4 py-3 text-sm">
+                </div>
                 <select id="tx-cat" class="w-full card px-4 py-3 text-sm font-semibold"></select>
-                <input id="tx-amount" type="number" step="0.01" placeholder="Valor" class="w-full card px-4 py-3 text-lg font-black num">
+                <div><label class="text-xs font-bold text-slate-500">Conta</label><select id="tx-acc" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-edittx')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
                     <button onclick="saveTx()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Salvar</button>
@@ -960,6 +1093,90 @@
     function openMore(){ document.getElementById('m-more').classList.add('open'); }
     function syncMonth(v){ document.getElementById('monthFilter').value=v; loadAll(); }
 
+    // ═══════════ RENDER GLOBAL + PERÍODO + FILTROS ═══════════
+    function renderAll(){
+        renderOverview(); renderGastos(); renderContas(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); fillAccountSelects();
+        requestAnimationFrame(animateActiveSection);
+    }
+    function setPeriod(mode){
+        if(mode==='custom'){ openPeriodCalendar(); return; }
+        EF.period={ mode, from:null, to:null };
+        syncPeriodUI(); renderAll();
+    }
+    function periodLabelText(){
+        const m=EF.period.mode; if(m==='month') return '';
+        const r=curRange(), f=s=>s?new Date(s+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'—';
+        if(m==='day') return 'Hoje · '+f(r.from);
+        return (r.from===r.to)?f(r.from):(f(r.from)+' — '+f(r.to));
+    }
+    function syncPeriodUI(){
+        const m=EF.period.mode;
+        document.querySelectorAll('#nf-pseg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active', b.dataset.p===m));
+        const lbl=document.getElementById('nf-period-label'); if(lbl) lbl.textContent=periodLabelText();
+        ['monthFilter','monthFilterM','monthFilterG'].forEach(id=>{ const el=document.getElementById(id); if(el){ el.style.opacity=(m==='month')?'':'.4'; el.style.pointerEvents=(m==='month')?'':'none'; }});
+    }
+    // ── Calendário de intervalo (Personalizado), no estilo do site ──
+    let pcView=new Date(), pcFrom=null, pcTo=null;
+    function openPeriodCalendar(){ const r=curRange(); pcFrom=EF.period.mode==='custom'?EF.period.from:(r.from||null); pcTo=EF.period.mode==='custom'?EF.period.to:(r.to||null); pcView=new Date((pcFrom||ymd(new Date()))+'T12:00:00'); renderPC(); openModal('m-period'); }
+    function pcMove(d){ pcView.setMonth(pcView.getMonth()+d); renderPC(); }
+    function pcPick(iso){ if(!pcFrom||(pcFrom&&pcTo)){ pcFrom=iso; pcTo=null; } else { if(iso<pcFrom){ pcTo=pcFrom; pcFrom=iso; } else pcTo=iso; } renderPC(); }
+    function pcQuick(kind){ const t=new Date(); if(kind==='mtd'){ pcFrom=ymd(new Date(t.getFullYear(),t.getMonth(),1)); pcTo=ymd(t); } else if(kind==='prev'){ pcFrom=ymd(new Date(t.getFullYear(),t.getMonth()-1,1)); pcTo=ymd(new Date(t.getFullYear(),t.getMonth(),0)); } else { const s=new Date(t); s.setDate(t.getDate()-(kind-1)); pcFrom=ymd(s); pcTo=ymd(t); } pcView=new Date(pcFrom+'T12:00:00'); renderPC(); }
+    function renderPC(){
+        const y=pcView.getFullYear(), m=pcView.getMonth();
+        const names=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        document.getElementById('pc-month').textContent=names[m]+' '+y;
+        const first=(new Date(y,m,1).getDay()+6)%7, dim=new Date(y,m+1,0).getDate(), tIso=ymd(new Date());
+        let h=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(d=>`<div class="nf-rp-dow">${d}</div>`).join('');
+        for(let i=0;i<first;i++) h+='<div class="nf-rp-day empty"></div>';
+        for(let d=1;d<=dim;d++){ const iso=`${y}-${pad2(m+1)}-${pad2(d)}`; let cls='nf-rp-day';
+            if(pcFrom&&pcTo){ if(iso>pcFrom&&iso<pcTo) cls+=' in-range'; if(iso===pcFrom) cls+=' edge start'; if(iso===pcTo) cls+=' edge end'; if(pcFrom===pcTo&&iso===pcFrom) cls='nf-rp-day edge single'; }
+            else if(pcFrom&&iso===pcFrom) cls+=' edge single';
+            if(iso===tIso) cls+=' today';
+            h+=`<div class="${cls}" onclick="pcPick('${iso}')">${d}</div>`;
+        }
+        document.getElementById('pc-grid').innerHTML=h;
+        const f=s=>s?new Date(s+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'—';
+        document.getElementById('pc-summary').textContent = !pcFrom?'Selecione a data inicial':!pcTo?(f(pcFrom)+' → selecione o fim'):(f(pcFrom)+' — '+f(pcTo));
+        document.getElementById('pc-apply').disabled = !pcFrom;
+    }
+    function pcClear(){ pcFrom=pcTo=null; renderPC(); }
+    function applyPeriodCalendar(){ if(!pcFrom) return; if(!pcTo) pcTo=pcFrom; EF.period={mode:'custom',from:pcFrom,to:pcTo}; closeModal('m-period'); syncPeriodUI(); renderAll(); }
+
+    // ── Filtros avançados do Extrato + drill-down ──
+    let _efT=null;
+    function debounceExtrato(){ clearTimeout(_efT); _efT=setTimeout(()=>{ const s=document.getElementById('sec-extrato'); if(s&&s.classList.contains('active')) renderExtrato(); },220); }
+    function efSet(k,v){ EF[k]=v; renderFilterChips(); renderExtrato(); }
+    function efClearAll(){ EF.q=''; EF.accounts=[]; EF.category=''; EF.type=''; syncFilterUI(); renderExtrato(); }
+    function efRemove(kind,val){ if(kind==='q')EF.q=''; else if(kind==='type')EF.type=''; else if(kind==='category')EF.category=''; else if(kind==='acc')EF.accounts=EF.accounts.filter(a=>String(a)!==String(val)); syncFilterUI(); renderExtrato(); }
+    function efToggleAcc(id){ id=String(id); const i=EF.accounts.map(String).indexOf(id); if(i>=0)EF.accounts.splice(i,1); else EF.accounts.push(id); syncFilterUI(); renderExtrato(); }
+    function efMsToggle(){ document.getElementById('ef-ms').classList.toggle('open'); }
+    function goFilter(sec, patch){
+        EF.q=''; EF.accounts=[]; EF.category=''; EF.type='';   // zera avançados (período preservado)
+        Object.assign(EF, patch||{});
+        go(sec); syncFilterUI();
+        if(sec==='extrato') renderExtrato();
+    }
+    const drillCat = n => goFilter('extrato',{category:(n||'').toUpperCase()});
+    const drillAcc = id => goFilter('extrato',{accounts:[String(id)]});
+    function syncFilterUI(){
+        const q=document.getElementById('ef-search'); if(q&&q.value!==EF.q) q.value=EF.q;
+        const ty=document.getElementById('ef-type'); if(ty) ty.value=EF.type;
+        const ca=document.getElementById('ef-cat'); if(ca) ca.value=EF.category;
+        const lbl=document.getElementById('ef-ms-label');
+        if(lbl){ const n=EF.accounts.length; const first=n?((S.accounts.find(a=>String(a.id)===String(EF.accounts[0]))||{}).nome||''):''; lbl.textContent=!n?'Todos os bancos':n===1?first:(first+' +'+(n-1)); }
+        document.querySelectorAll('#ef-ms-pop .ef-ms-opt').forEach(o=>o.setAttribute('aria-selected', EF.accounts.map(String).includes(o.dataset.id)?'true':'false'));
+        renderFilterChips();
+    }
+    function renderFilterChips(){
+        const box=document.getElementById('ef-chips'); if(!box) return; const chips=[];
+        if(EF.q) chips.push(`<span class="nf-chip"><i class="fas fa-magnifying-glass"></i> "${EF.q}"<button onclick="efRemove('q')" aria-label="Remover busca"><i class="fas fa-xmark"></i></button></span>`);
+        if(EF.type) chips.push(`<span class="nf-chip"><i class="fas fa-${EF.type==='EXPENSE'?'arrow-down':'arrow-up'}"></i> ${EF.type==='EXPENSE'?'Saídas':'Entradas'}<button onclick="efRemove('type')" aria-label="Remover tipo"><i class="fas fa-xmark"></i></button></span>`);
+        if(EF.category){ const c=catColor(EF.category); chips.push(`<span class="nf-chip" style="--c:${c}"><i class="fas ${catIcon(EF.category)}"></i> ${EF.category}<button onclick="efRemove('category')" aria-label="Remover categoria"><i class="fas fa-xmark"></i></button></span>`); }
+        EF.accounts.forEach(id=>{ const a=S.accounts.find(x=>String(x.id)===String(id)); if(a) chips.push(`<span class="nf-chip" style="--c:${a.cor}"><i class="fas ${a.icone}"></i> ${a.nome}<button onclick="efRemove('acc','${id}')" aria-label="Remover banco"><i class="fas fa-xmark"></i></button></span>`); });
+        if(chips.length>=2) chips.push(`<button class="nf-chip-clear" onclick="efClearAll()">Limpar tudo</button>`);
+        box.innerHTML=chips.join(''); box.hidden=!chips.length;
+    }
+
     // ═══════════ MOVIMENTO (reveal on-tab + contadores dos KPIs herói) ═══════════
     const _reduceMotion = matchMedia('(prefers-reduced-motion:reduce)').matches;
     const _counted = new Set();
@@ -1007,13 +1224,56 @@
         document.getElementById('user-email-text').innerText = S.profile.apelido ? ('Olá, '+S.profile.apelido+' 👋') : EMAIL;
         if(S.profile && S.profile.onboarded===false) showWizard();
         api('/crypto/portfolio').then(p=>{ S.crypto=p; renderInvest(); renderContas(); renderGeral(); });
-        renderOverview(); renderGastos(); renderContas(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); fillAccountSelects();
-        requestAnimationFrame(animateActiveSection);
+        renderAll(); syncPeriodUI();
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
     }
 
     const selMonth = () => document.getElementById('monthFilter').value;
-    const monthTx = () => S.tx.filter(t=>t.date && t.date.startsWith(selMonth()));
+    // ═══════════ PERÍODO GLOBAL + FILTROS (client-side sobre S.tx) ═══════════
+    let EF = { q:'', accounts:[], category:'', type:'', period:{ mode:'month', from:null, to:null } };
+    const pad2 = n => String(n).padStart(2,'0');
+    const ymd = d => d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+    function periodRange(mode, ref){
+        if(mode==='custom'){ let f=ref&&ref.from, t=ref&&ref.to; if(f&&t&&f>t){const x=f;f=t;t=x;} return {from:f||null,to:t||null}; }
+        if(mode==='day'){ const r=ref||ymd(new Date()); return {from:r,to:r}; }
+        if(mode==='week'){
+            const base=new Date((ref||ymd(new Date()))+'T12:00:00');
+            const diff=(base.getDay()+6)%7;                 // semana começa SEGUNDA
+            const s=new Date(base); s.setDate(base.getDate()-diff);
+            const e=new Date(s); e.setDate(s.getDate()+6);
+            return {from:ymd(s),to:ymd(e)};
+        }
+        const r=(ref&&ref.length>=7)?ref.slice(0,7):ymd(new Date()).slice(0,7);   // 'month'
+        const [y,m]=r.split('-').map(Number);
+        return {from:r+'-01', to:r+'-'+pad2(new Date(y,m,0).getDate())};
+    }
+    function curRange(){
+        const p=EF.period||{mode:'month'};
+        if(p.mode==='custom') return {from:p.from,to:p.to};
+        if(p.mode==='month')  return periodRange('month', selMonth());
+        return periodRange(p.mode, ymd(new Date()));
+    }
+    function rangeDays(r){ if(!r||!r.from||!r.to) return 30; return Math.round((new Date(r.to+'T12:00:00')-new Date(r.from+'T12:00:00'))/86400000)+1; }
+    function elapsedDays(r){ r=r||curRange(); if(!r.from||!r.to) return 30; const t=ymd(new Date()); if(t<r.from) return 0; if(t>r.to) return rangeDays(r); return rangeDays({from:r.from,to:t}); }
+    // transações do período ativo (usado por dashboard/geral/gastos — só período)
+    const monthTx = () => { const r=curRange(); return S.tx.filter(t=>t.date && (!r.from||t.date>=r.from) && (!r.to||t.date<=r.to)); };
+    // filtro completo (período + busca + banco(s) + categoria + tipo) — usado pelo Extrato
+    function filterTx(list, ef){
+        ef=ef||EF; const r=curRange();
+        const q=(ef.q||'').trim().toLowerCase();
+        const accs=(ef.accounts&&ef.accounts.length)?new Set(ef.accounts.map(String)):null;
+        const cat=(ef.category||'').toUpperCase(), typ=ef.type||'';
+        return (list||[]).filter(t=>{
+            if(!t.date) return false;
+            if(r.from && t.date<r.from) return false;      // datas 'YYYY-MM-DD' → comparação de string = cronológica
+            if(r.to && t.date>r.to) return false;
+            if(typ && t.type!==typ) return false;
+            if(accs && !accs.has(String(t.account_id))) return false;
+            if(cat && (t.category||'').toUpperCase()!==cat) return false;
+            if(q && !(t.description||'').toLowerCase().includes(q)) return false;
+            return true;
+        });
+    }
     const consolidated = () => S.accounts.filter(a=>a.incluir_no_consolidado).reduce((s,a)=>s+parseFloat(a.balance||0),0);
 
     // ═══════════ VISÃO GERAL ═══════════
@@ -1068,7 +1328,7 @@
         renderPending();
         const tx=monthTx();
         let inc=0,exp=0,cats={},daily={};
-        const [y,m]=selMonth().split('-'); const days=new Date(y,m,0).getDate();
+        const R=curRange(); const days=rangeDays(R);
         tx.forEach(t=>{ const v=parseFloat(t.amount);
             if(t.type==='EXPENSE'){ exp+=v; const c=t.category||'OUTROS'; cats[c]=(cats[c]||0)+v; const d=parseInt(t.date.split('-')[2]); daily[d]=(daily[d]||0)+v; }
             else inc+=v; });
@@ -1088,18 +1348,18 @@
         const reservaVal = S.accounts.filter(a=>['RESERVA','POUPANCA'].includes(a.tipo)).reduce((s,a)=>s+parseFloat(a.balance||0),0) + S.goals.reduce((s,g)=>s+parseFloat(g.current_amount),0);
         const custoMes = S.fixed.filter(f=>f.type==='FIXED_EXPENSE').reduce((s,f)=>s+parseFloat(f.amount),0) + exp;
         const meses = custoMes>0 ? (reservaVal/custoMes) : 0;
-        const burn = today>0 ? exp/today : 0;
+        const elap = elapsedDays(R); const burn = elap>0 ? exp/elap : 0;
 
         const dispColor = disp<0?'var(--neg)':'var(--pos)';
         document.getElementById('kpi-grid').innerHTML =
             kpiTile('Saldo Consolidado', fmt(consol), 'card-hero kpi-hero col-span-2', `<span class="text-slate-400">${S.accounts.length} conta(s)</span>`, sparkline(last7Balance(),'var(--accent)'), 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.')
           + kpiTile('Disponível p/ gastar', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'contas do dia a dia', '', 'Quanto você pode gastar até o fim do mês. Considera só as contas corrente e carteira (não a reserva, poupança nem investimentos) menos os compromissos fixos que ainda faltam.')
-          + kpiTile('Sobra do mês', `<span style="color:${sobra<0?'var(--neg)':'var(--pos)'}">${fmt(sobra)}</span>`, '', `entradas ${fmt(inc)}`, '', 'Suas entradas menos suas saídas neste mês. Verde é sobra, vermelho é falta.')
+          + kpiTile('Sobra do período', `<span style="color:${sobra<0?'var(--neg)':'var(--pos)'}">${fmt(sobra)}</span>`, '', `entradas ${fmt(inc)}`, '', 'Suas entradas menos suas saídas no período selecionado. Verde é sobra, vermelho é falta.')
           + kpiTile('Taxa de aporte', taxa.toFixed(0)+'%', '', 'da renda guardada', '', 'Quanto da sua renda deste mês você conseguiu guardar.')
           + kpiTile('Reserva', meses>0?meses.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que você já tem guardado.')
           + kpiTile('Burn rate', fmt(burn)+'/dia', '', 'ritmo de gasto', '', 'Seu ritmo médio de gasto por dia neste mês.');
 
-        renderFlow(tx,days);
+        renderFlow(tx,R);
         renderAlerts({consol,disp,exp,inc,burn,days,cats});
         renderMiniAccounts();
         renderLogList('recent-logs', S.tx.slice(0,5));
@@ -1121,21 +1381,21 @@
     function renderGastos(){
         const tx=monthTx(); let exp=0; const cats={};
         tx.forEach(t=>{ if(t.type==='EXPENSE'){ const v=parseFloat(t.amount); exp+=v; const c=t.category||'OUTROS'; cats[c]=(cats[c]||0)+v; }});
-        const today=new Date().getDate();
+        const elap=elapsedDays();
         const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
         const maior=sorted[0];
         document.getElementById('gastos-kpis').innerHTML =
-            kpiTile('Total gasto no mês', fmt(exp), 'card-hero kpi-hero col-span-2', `${tx.filter(t=>t.type==='EXPENSE').length} lançamentos`, '', 'Soma de todas as suas saídas neste mês.')
-          + kpiTile('Média por dia', fmt(today>0?exp/today:0), '', 'até hoje', '', 'Total gasto dividido pelos dias já corridos do mês.')
+            kpiTile('Total gasto no período', fmt(exp), 'card-hero kpi-hero col-span-2', `${tx.filter(t=>t.type==='EXPENSE').length} lançamentos`, '', 'Soma de todas as suas saídas no período selecionado.')
+          + kpiTile('Média por dia', fmt(elap>0?exp/elap:0), '', 'no período', '', 'Total gasto dividido pelos dias já corridos do período.')
           + kpiTile('Maior categoria', maior?maior[0]:'—', '', maior?fmt(maior[1]):'', '', 'A categoria em que você mais gastou neste mês.');
         renderDonut(cats,exp);
         renderBudgets(cats);
         const catPct=pctShares(sorted.map(([,v])=>v));
         document.getElementById('cat-breakdown').innerHTML = sorted.length?sorted.map(([n,v],i)=>`
-            <div class="card p-3.5 flex items-center justify-between">
+            <div class="card p-3.5 flex items-center justify-between nf-drill group" role="button" tabindex="0" title="Ver lançamentos de ${n}" onclick='drillCat(${JSON.stringify(n)})' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();drillCat(${JSON.stringify(n)})}'>
                 <div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg grid place-items-center" style="background:${catColor(n)}22;color:${catColor(n)}"><i class="fas ${catIcon(n)} text-xs"></i></span><div><div class="text-sm font-bold">${n}</div><div class="text-[11px] text-slate-400 num">${catPct[i]}% dos gastos</div></div></div>
-                <span class="font-black num text-sm">${fmt(v)}</span>
-            </div>`).join(''):'<div class="card p-6 text-center text-sm text-slate-400 border-dashed">Nenhum gasto neste mês.</div>';
+                <div class="flex items-center gap-2.5"><span class="font-black num text-sm">${fmt(v)}</span><i class="fas fa-arrow-right nf-drill-arrow"></i></div>
+            </div>`).join(''):'<div class="card p-6 text-center text-sm text-slate-400 border-dashed">Nenhum gasto no período.</div>';
     }
     function renderBudgets(cats){
         const el=document.getElementById('budgets-block');
@@ -1165,15 +1425,23 @@
         recent.forEach(t=>{ acc += (t.type==='EXPENSE'?parseFloat(t.amount):-parseFloat(t.amount)); arr.unshift(acc); });
         return arr.slice(-8);
     }
-    function renderFlow(tx,days){
-        const inD=new Array(days).fill(0), outD=new Array(days).fill(0);
-        tx.forEach(t=>{ const d=parseInt(t.date.split('-')[2])-1; if(d>=0&&d<days){ if(t.type==='EXPENSE')outD[d]+=parseFloat(t.amount); else inD[d]+=parseFloat(t.amount); }});
+    function renderFlow(tx,R){
+        R = R || curRange();
+        const days=rangeDays(R); let labels=[],inArr=[],outArr=[];
+        if(R.from && R.to && days<=45){                       // bucket por dia
+            const from=new Date(R.from+'T12:00:00');
+            for(let i=0;i<days;i++){ const d=new Date(from); d.setDate(from.getDate()+i); labels.push(d.getDate()+'/'+pad2(d.getMonth()+1)); inArr.push(0); outArr.push(0); }
+            tx.forEach(t=>{ const idx=Math.round((new Date(t.date+'T12:00:00')-from)/86400000); if(idx>=0&&idx<days){ if(t.type==='EXPENSE')outArr[idx]+=parseFloat(t.amount); else inArr[idx]+=parseFloat(t.amount); }});
+        } else {                                              // bucket por mês
+            const map={}; tx.forEach(t=>{ const k=(t.date||'').slice(0,7); if(!k)return; (map[k]=map[k]||{i:0,o:0}); if(t.type==='EXPENSE')map[k].o+=parseFloat(t.amount); else map[k].i+=parseFloat(t.amount); });
+            Object.keys(map).sort().forEach(k=>{ const [yy,mm]=k.split('-'); labels.push(mm+'/'+yy.slice(2)); inArr.push(map[k].i); outArr.push(map[k].o); });
+        }
         if(flowChart) flowChart.destroy();
         const grid=GRID, tick=TICK;
         flowChart=new Chart(document.getElementById('chartFlow'),{ type:'line',
-            data:{ labels:Array.from({length:days},(_,i)=>i+1), datasets:[
-                {label:'Entradas',data:inD,borderColor:'#17C964',backgroundColor:'rgba(23,201,100,.12)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
-                {label:'Saídas',data:outD,borderColor:'#FF5C7A',backgroundColor:'rgba(255,92,122,.10)',fill:true,tension:.35,pointRadius:0,borderWidth:2}
+            data:{ labels, datasets:[
+                {label:'Entradas',data:inArr,borderColor:'#17C964',backgroundColor:'rgba(23,201,100,.12)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
+                {label:'Saídas',data:outArr,borderColor:'#FF5C7A',backgroundColor:'rgba(255,92,122,.10)',fill:true,tension:.35,pointRadius:0,borderWidth:2}
             ]},
             options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:tick,font:{family:'Inter',weight:'bold',size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},
             scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+v},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10}},grid:{display:false}}}}
@@ -1190,12 +1458,12 @@
         const cols=labels.map(l=>l==='Outros'?'#94a3b8':catColor(l));
         donutChart=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:cols,borderWidth:2,borderColor:SEAL,hoverOffset:8}]},options:{cutout:'72%',maintainAspectRatio:false,plugins:{legend:{display:false}}}});
         const dPct=pctShares(data);
-        document.getElementById('donut-legend').innerHTML=labels.map((l,i)=>`<div class="flex justify-between items-center text-xs"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm" style="background:${cols[i]}"></span>${l}</span><span class="font-bold num">${dPct[i]}%</span></div>`).join('');
+        document.getElementById('donut-legend').innerHTML=labels.map((l,i)=>`<div class="flex justify-between items-center text-xs ${l!=='Outros'?'nf-drill-row':''}"${l!=='Outros'?` role="button" tabindex="0" title="Ver lançamentos de ${l}" onclick='drillCat(${JSON.stringify(l)})' onkeydown='if(event.key==="Enter"){drillCat(${JSON.stringify(l)})}'`:''}><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm" style="background:${cols[i]}"></span>${l}</span><span class="font-bold num">${dPct[i]}%</span></div>`).join('');
     }
     function renderMiniAccounts(){
         document.getElementById('mini-accounts').innerHTML = S.accounts.map(a=>`
-            <div class="card p-4 min-w-[150px] shrink-0">
-                <div class="flex items-center gap-2 mb-2"><span class="w-7 h-7 rounded-lg grid place-items-center text-xs" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone}"></i></span><span class="text-[11px] font-bold text-slate-500 truncate">${a.nome}</span></div>
+            <div class="card p-4 min-w-[150px] shrink-0 nf-drill group" role="button" tabindex="0" title="Ver lançamentos de ${a.nome}" onclick="drillAcc('${a.id}')" onkeydown="if(event.key==='Enter')drillAcc('${a.id}')">
+                <div class="flex items-center gap-2 mb-2"><span class="w-7 h-7 rounded-lg grid place-items-center text-xs" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone}"></i></span><span class="text-[11px] font-bold text-slate-500 truncate">${a.nome}</span><i class="fas fa-arrow-right nf-drill-arrow ml-auto"></i></div>
                 <div class="font-black num text-sm ${parseFloat(a.balance)<0?'text-rose-600':''}">${fmt(a.balance)}</div>
             </div>`).join('') || '<p class="text-xs text-slate-400">Nenhuma conta.</p>';
     }
@@ -1442,20 +1710,25 @@
 
     // ═══════════ EXTRATO ═══════════
     function fillAccountSelects(){
-        const opts='<option value="">Todas as contas</option>'+S.accounts.map(a=>`<option value="${a.id}">${a.nome}</option>`).join('');
-        document.getElementById('filter-acc').innerHTML=opts;
+        const cat=document.getElementById('ef-cat');
+        if(cat){ cat.innerHTML='<option value="">Todas as categorias</option>'+S.categories.map(c=>`<option value="${c.nome}">${c.nome}</option>`).join(''); }
+        const pop=document.getElementById('ef-ms-pop');
+        if(pop){ pop.innerHTML=S.accounts.map(a=>`<div class="ef-ms-opt" data-id="${a.id}" role="option" onclick="efToggleAcc('${a.id}')"><span class="w-6 h-6 rounded-md grid place-items-center text-[10px]" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone}"></i></span><span class="flex-1 truncate">${a.nome}</span><i class="fas fa-check tick"></i></div>`).join('')||'<div class="text-xs text-slate-400 p-2">Nenhuma conta cadastrada.</div>'; }
+        syncFilterUI();
     }
     function renderExtrato(){
-        const ft=document.getElementById('filter-type').value, fa=document.getElementById('filter-acc').value;
-        let list=S.tx.filter(t=>t.date&&t.date.startsWith(selMonth()));
-        if(ft) list=list.filter(t=>t.type===ft);
-        if(fa) list=list.filter(t=>t.account_id===fa);
+        const list=filterTx(S.tx, EF);
         const ent=list.filter(t=>t.type==='INCOME').reduce((s,t)=>s+parseFloat(t.amount),0);
         const sai=list.filter(t=>t.type==='EXPENSE').reduce((s,t)=>s+parseFloat(t.amount),0);
         document.getElementById('extrato-summary').innerHTML=
-            `<div class="card p-3.5 text-center"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Entradas</div><div class="font-black num text-sm mt-1" style="color:var(--pos)">${fmt(ent)}</div></div>`
-          + `<div class="card p-3.5 text-center"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Saídas</div><div class="font-black num text-sm mt-1" style="color:var(--neg)">${fmt(sai)}</div></div>`
+            `<div class="card p-3.5 text-center nf-drill-row" role="button" tabindex="0" title="Filtrar só entradas" onclick="efSet('type', EF.type==='INCOME'?'':'INCOME')"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Entradas</div><div class="font-black num text-sm mt-1" style="color:var(--pos)">${fmt(ent)}</div></div>`
+          + `<div class="card p-3.5 text-center nf-drill-row" role="button" tabindex="0" title="Filtrar só saídas" onclick="efSet('type', EF.type==='EXPENSE'?'':'EXPENSE')"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Saídas</div><div class="font-black num text-sm mt-1" style="color:var(--neg)">${fmt(sai)}</div></div>`
           + `<div class="card p-3.5 text-center"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Saldo</div><div class="font-black num text-sm mt-1" style="color:${ent-sai>=0?'var(--pos)':'var(--neg)'}">${fmt(ent-sai)}</div></div>`;
+        renderFilterChips();
+        const el=document.getElementById('full-logs');
+        if(!list.length){ const f=EF.q||EF.accounts.length||EF.category||EF.type;
+            el.innerHTML=`<div class="nf-empty card p-8 text-center"><div class="nf-empty-ic"><i class="fas fa-magnifying-glass"></i></div><div class="font-black text-base mt-3">Nada por aqui</div><p class="text-sm text-slate-400 mt-1">${f?'Nenhum lançamento bate com esse filtro.':'Nenhum lançamento no período.'}</p>${f?`<button class="nf-btn-ghost mt-4" onclick="efClearAll()"><i class="fas fa-rotate-left mr-1.5"></i>Limpar filtros</button>`:''}</div>`;
+            return; }
         renderLogList('full-logs',list);
     }
     function renderLogList(elId,list){
@@ -1511,6 +1784,10 @@
     // ═══════════ MODAIS: helpers ═══════════
     function closeModal(id){ document.getElementById(id).classList.remove('open'); }
     function openModal(id){ document.getElementById(id).classList.add('open'); }
+    // fecha por clique no backdrop (só quando o alvo é o próprio .modal, não o card interno)
+    document.addEventListener('click', (e)=>{ if(e.target.classList && e.target.classList.contains('modal')) e.target.classList.remove('open'); });
+    // fecha por Esc (todos os modais abertos)
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); });
     function accountOptions(){ return S.accounts.map(a=>`<option value="${a.id}">${a.nome} (${fmt(a.balance)})</option>`).join(''); }
     // contas para vincular cripto (exclui cartão); permite "externa" (sem conta)
     function cryptoWalletOptions(){ return '<option value="">— externa / nenhuma —</option>'+S.accounts.filter(a=>a.tipo!=='CARTAO_CREDITO').map(a=>`<option value="${a.id}">${a.nome}</option>`).join(''); }
@@ -1588,20 +1865,20 @@
     async function delFixed(id){ if(confirm('Apagar compromisso?')){ await api('/fixed_expenses/'+id,{method:'DELETE'}); toast('Compromisso excluído'); loadAll(); } }
 
     // Transação (editar)
-    function editTx(t){ document.getElementById('tx-id').value=t.id; document.getElementById('tx-desc').value=t.description; document.getElementById('tx-cat').innerHTML=categoryOptions(t.category); document.getElementById('tx-cat').value=(t.category||'').toUpperCase(); document.getElementById('tx-amount').value=t.amount; openModal('m-edittx'); }
+    function editTx(t){ document.getElementById('tx-id').value=t.id; document.getElementById('tx-type').value=t.type||'EXPENSE'; document.getElementById('tx-desc').value=t.description; document.getElementById('tx-cat').innerHTML=categoryOptions(t.category); document.getElementById('tx-cat').value=(t.category||'').toUpperCase(); document.getElementById('tx-amount').value=t.amount; document.getElementById('tx-date').value=(t.date||'').slice(0,10); document.getElementById('tx-acc').innerHTML=accountOptions(); document.getElementById('tx-acc').value=t.account_id||''; openModal('m-edittx'); }
     // ── Novo lançamento manual ──
     let ntxType_='EXPENSE';
     function ntxSetType(t){ ntxType_=t; const e=document.getElementById('ntx-exp'),i=document.getElementById('ntx-inc'); e.classList.toggle('border-rose-500',t==='EXPENSE'); e.classList.toggle('border-transparent',t!=='EXPENSE'); i.classList.toggle('border-emerald-500',t==='INCOME'); i.classList.toggle('border-transparent',t!=='INCOME'); }
     function openNewTx(){ closeMore(); document.getElementById('ntx-desc').value=''; document.getElementById('ntx-amount').value=''; document.getElementById('ntx-date').value=new Date().toISOString().slice(0,10); document.getElementById('ntx-cat').innerHTML=categoryOptions('OUTROS'); document.getElementById('ntx-cat').value='OUTROS'; document.getElementById('ntx-acc').innerHTML=accountOptions(); ntxSetType('EXPENSE'); openModal('m-newtx'); }
     async function saveNewTx(){ const desc=document.getElementById('ntx-desc').value, amt=parseFloat(document.getElementById('ntx-amount').value); if(!desc||!amt){ toast('Preencha descrição e valor.','err'); return; } await api('/transactions',{method:'POST',body:JSON.stringify({description:desc,amount:amt,type:ntxType_,category:document.getElementById('ntx-cat').value,date:document.getElementById('ntx-date').value||null,account_id:document.getElementById('ntx-acc').value})}); closeModal('m-newtx'); toast('Lançamento registrado'); loadAll(); }
-    async function saveTx(){ const id=document.getElementById('tx-id').value; await api('/transactions/'+id,{method:'PATCH',body:JSON.stringify({description:document.getElementById('tx-desc').value,category:(document.getElementById('tx-cat').value||'').toUpperCase(),amount:parseFloat(document.getElementById('tx-amount').value)})}); closeModal('m-edittx'); toast('Lançamento atualizado'); loadAll(); }
+    async function saveTx(){ const id=document.getElementById('tx-id').value; await api('/transactions/'+id,{method:'PATCH',body:JSON.stringify({description:document.getElementById('tx-desc').value,category:(document.getElementById('tx-cat').value||'').toUpperCase(),amount:parseFloat(document.getElementById('tx-amount').value),type:document.getElementById('tx-type').value,date:document.getElementById('tx-date').value||null,account_id:document.getElementById('tx-acc').value||null})}); closeModal('m-edittx'); toast('Lançamento atualizado'); loadAll(); }
     async function delTx(id){ if(confirm('Apagar este lançamento?')){ await api('/transactions/'+id,{method:'DELETE'}); toast('Lançamento excluído'); loadAll(); } }
 
     // Orçamentos
     function openBudget(){ renderBudgetManage(); document.getElementById('bud-cat').value=''; document.getElementById('bud-limit').value=''; openModal('m-budget'); }
     function renderBudgetManage(){ document.getElementById('budget-manage').innerHTML=S.budgets.map(b=>`<div class="flex justify-between items-center card p-3"><span class="text-sm font-bold">${b.category}</span><div class="flex items-center gap-3"><span class="num text-sm font-bold">${fmt(b.limit_amount)}</span><button onclick="delBudget('${b.id}')" class="text-rose-500"><i class="fas fa-trash text-xs"></i></button></div></div>`).join('')||'<p class="text-xs text-slate-400 text-center py-2">Nenhum orçamento ainda.</p>'; }
     async function saveBudget(){ const cat=document.getElementById('bud-cat').value.trim(),lim=parseFloat(document.getElementById('bud-limit').value); if(!cat||!lim)return; await api('/budgets',{method:'POST',body:JSON.stringify({category:cat,limit_amount:lim})}); document.getElementById('bud-cat').value=''; document.getElementById('bud-limit').value=''; const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderGastos(); toast('Orçamento de '+cat.toUpperCase()+' salvo'); }
-    async function delBudget(id){ await api('/budgets/'+id,{method:'DELETE'}); const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderGastos(); }
+    async function delBudget(id){ if(!confirm('Excluir este orçamento? O limite da categoria será removido.')) return; await api('/budgets/'+id,{method:'DELETE'}); const b=await api('/budgets'); S.budgets=b||[]; renderBudgetManage(); renderGastos(); }
 
     // Configurações
     function openSettings(){ document.getElementById('set-aporte').value=S.settings.aporte_goal>0?S.settings.aporte_goal:''; document.getElementById('set-low').value=S.settings.low_balance_threshold>0?S.settings.low_balance_threshold:''; document.getElementById('set-daily').checked=S.settings.daily_alerts!==false; openModal('m-settings'); }
@@ -1732,7 +2009,10 @@
     const now=new Date(); const mv=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
     document.getElementById('monthFilter').value=mv; document.getElementById('monthFilterM').value=mv;
     document.querySelectorAll('.nav-item > .nav-top').forEach(btn=>btn.addEventListener('click',e=>{ const it=btn.parentElement; const wasOpen=it.classList.contains('open'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('open')); if(!wasOpen)it.classList.add('open'); e.stopPropagation(); }));
-    document.addEventListener('click',()=>document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('open')));
+    document.addEventListener('click',(e)=>{
+        document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('open'));
+        const ms=document.getElementById('ef-ms'); if(ms&&ms.classList.contains('open')&&!ms.contains(e.target)) ms.classList.remove('open');
+    });
     // header ganha estado "scrolled" quando o <main> rola
     const _mainEl=document.querySelector('main'), _hdrEl=document.querySelector('main > header');
     if(_mainEl&&_hdrEl) _mainEl.addEventListener('scroll',()=>_hdrEl.classList.toggle('scrolled',_mainEl.scrollTop>20),{passive:true});
