@@ -79,6 +79,10 @@
     const erroBox=document.getElementById('mensagem-erro'), sucessoBox=document.getElementById('mensagem-sucesso');
     const btnLogin=document.getElementById('btnEntrar'), btnSignUp=document.getElementById('btnCriar');
     function limpar(){ erroBox.classList.add('hidden'); sucessoBox.classList.add('hidden'); }
+    // Enter no e-mail ou senha faz login (sem precisar do mouse)
+    [emailIn, senhaIn].forEach(el => el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !btnLogin.disabled) { e.preventDefault(); btnLogin.click(); }
+    }));
 
     btnLogin.addEventListener('click', async () => {
         limpar(); const email=emailIn.value, password=senhaIn.value;
