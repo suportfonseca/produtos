@@ -9,13 +9,20 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--green:#17C964;--blue:#2F7CF0;--lime:#A6E635;--grad:linear-gradient(120deg,#2F7CF0,#17C964 52%,#A6E635);--t-hi:#F2FBF9;--t-muted:#8AA0A0;}
+  :root{--green:#17C964;--blue:#2F7CF0;--lime:#A6E635;--grad:linear-gradient(120deg,#2F7CF0,#17C964 52%,#A6E635);--t-hi:#F2FBF9;--t-base:#C7D6D4;--t-muted:#8AA0A0;--t-faint:#5B7373;}
   *{box-sizing:border-box}
   body{margin:0;font-family:'Inter',sans-serif;background:radial-gradient(120% 90% at 50% -10%,#04353f,#002127 45%,#00161a 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;color:var(--t-hi);overflow:hidden;position:relative}
-  .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;z-index:0}
-  .orb.b{width:400px;height:400px;background:var(--blue);top:-120px;left:-80px}
-  .orb.g{width:460px;height:460px;background:var(--green);bottom:-140px;right:-100px}
+  .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;z-index:0;will-change:transform}
+  .orb.b{width:400px;height:400px;background:var(--blue);top:-120px;left:-80px;animation:drift1 24s ease-in-out infinite}
+  .orb.g{width:460px;height:460px;background:var(--green);bottom:-140px;right:-100px;animation:drift2 30s ease-in-out infinite}
+  .orb.l{width:340px;height:340px;background:var(--lime);opacity:.2;top:38%;left:-100px;animation:drift1 28s ease-in-out infinite reverse}
+  @keyframes drift1{50%{transform:translate(60px,40px) scale(1.1)}}
+  @keyframes drift2{50%{transform:translate(-50px,60px) scale(1.08)}}
+  @keyframes pulse-glow{0%,100%{box-shadow:0 0 30px rgba(23,201,100,.32)}50%{box-shadow:0 0 58px rgba(23,201,100,.55)}}
+  .noise{position:fixed;inset:0;z-index:0;opacity:.035;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
   .glass{position:relative;z-index:1;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);border-radius:26px;box-shadow:0 8px 32px rgba(0,10,12,.45),inset 0 1px 0 rgba(255,255,255,.14)}
+  .glass-hi::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(140deg,rgba(166,230,53,.6),rgba(47,124,240,.5),transparent 60%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
   .fld{width:100%;padding:14px 16px;border-radius:13px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--t-hi);font-size:15px;outline:none;transition:.2s}
   .fld::placeholder{color:#5B7373}
   .fld:focus{border-color:var(--green);background:rgba(255,255,255,.08)}
@@ -25,11 +32,13 @@
   .btn-glass:hover{background:rgba(255,255,255,.12)}.btn-glass:disabled{opacity:.6}
   a{color:var(--green)}
   @keyframes float{50%{transform:translateY(-10px)}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="orb b"></div><div class="orb g"></div>
-<div class="glass w-full max-w-md p-8">
+<div class="orb b"></div><div class="orb g"></div><div class="orb l"></div>
+<div class="noise"></div>
+<div class="glass glass-hi w-full max-w-md p-8">
   <div class="text-center mb-7">
     <img src="mascote.png" alt="Nickel" style="width:72px;margin:0 auto 12px;animation:float 6s ease-in-out infinite;filter:drop-shadow(0 8px 20px rgba(23,201,100,.4))">
     <h1 style="font-family:'Sora';font-weight:800;font-size:26px;margin:0">Nickel <span style="color:var(--green)">Ai</span></h1>
@@ -48,7 +57,7 @@
     <div id="mensagem-erro" class="hidden" style="font-size:13px;text-align:center;color:#FF5C7A;background:rgba(255,92,122,.12);padding:9px;border-radius:10px;border:1px solid rgba(255,92,122,.25)"></div>
     <div id="mensagem-sucesso" class="hidden" style="font-size:13px;text-align:center;color:var(--green);background:rgba(23,201,100,.12);padding:9px;border-radius:10px;border:1px solid rgba(23,201,100,.25)"></div>
     <div class="grid grid-cols-2 gap-3 pt-1">
-      <button type="button" id="btnEntrar" class="btn-grad">Entrar</button>
+      <button type="button" id="btnEntrar" class="btn-grad" style="animation:pulse-glow 3.5s infinite">Entrar</button>
       <button type="button" id="btnCriar" class="btn-glass">Criar conta</button>
     </div>
     <p style="font-size:12px;color:#5B7373;text-align:center;margin-top:2px">Novo por aqui? Crie sua conta e configure em minutos.</p>
