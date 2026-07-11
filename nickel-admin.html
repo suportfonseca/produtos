@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="antialiased dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#002127">
+    <link rel="icon" href="mascote.png">
+    <title>Nickel Ai | Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: {
+                fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Sora','sans-serif'] },
+                colors: { brand: { 500:'#17C964' } }
+            }}
+        }
+    </script>
+    <style>
+    /* ═══════ Bloco de fundação — Nickel Design System (dark-only liquid glass) ═══════ */
+    :root{
+      --bg-abyss:#00161A; --bg-base:#002127; --bg-raised:#04303A;
+      --surface-1:rgba(255,255,255,.05); --surface-2:rgba(255,255,255,.08); --surface-3:rgba(255,255,255,.11);
+      --border-glass:rgba(255,255,255,.12); --border-hi:rgba(255,255,255,.22);
+      --blue:#2F7CF0; --green:#17C964; --lime:#A6E635; --accent:#17C964;
+      --grad:linear-gradient(120deg,#2F7CF0 0%,#17C964 52%,#A6E635 100%);
+      --grad-soft:linear-gradient(120deg,#3b86f5 0%,#17C964 100%);
+      --pos:#17C964; --neg:#FF5C7A; --warn:#FFB84D;
+      --t-hi:#F2FBF9; --t-base:#C7D6D4; --t-muted:#8AA0A0; --t-faint:#5B7373;
+      --shadow-glass:0 8px 32px rgba(0,10,12,.45), inset 0 1px 0 rgba(255,255,255,.14);
+      --shadow-float:0 24px 60px rgba(0,10,12,.55); --glow:0 0 40px rgba(23,201,100,.35);
+      --radius-lg:24px; --radius-card:20px;
+      --ease-out:cubic-bezier(.2,.7,.2,1);
+      --dur-fast:.2s; --dur-base:.35s; --dur-ui:.4s; --dur-slow:.7s; --dur-bar:1.3s; --stagger:80ms;
+      /* superfícies derivadas (mesma filosofia dos tokens de vidro) */
+      --header-bg:rgba(0,25,30,.55); --panel-bg:rgba(4,48,58,.95); --modal-overlay:rgba(0,12,15,.62);
+      --toast-bg:rgba(4,48,58,.92); --opt-bg:#04303A;
+      --row-alt:rgba(255,255,255,.02); --row-hover:rgba(255,255,255,.05); --tr-border:rgba(255,255,255,.05);
+    }
+    html{color-scheme:dark}
+    html,body{overflow-x:hidden;width:100%;max-width:100vw}
+    body{background:var(--bg-base);color:var(--t-base);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6}
+    h1,h2,h3,h4{font-family:'Sora',sans-serif;color:var(--t-hi);letter-spacing:-.02em;line-height:1.12;text-wrap:balance}
+    .num{font-variant-numeric:tabular-nums}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .eyebrow{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.14em}
+    .grad-text{background:var(--grad-soft);-webkit-background-clip:text;background-clip:text;color:transparent}
+    ::selection{background:rgba(23,201,100,.3);color:#fff}
+    /* ── ambiente de fundo ── */
+    .bg-fx{position:fixed;inset:0;z-index:-2;overflow:hidden;background:radial-gradient(120% 90% at 50% -10%,#04353f 0%,#002127 45%,#00161a 100%)}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;will-change:transform}
+    .orb.b{width:460px;height:460px;background:var(--blue);top:-120px;left:-100px;animation:drift1 24s ease-in-out infinite}
+    .orb.g{width:560px;height:560px;background:var(--green);top:30%;right:-160px;animation:drift2 30s ease-in-out infinite}
+    .orb.l{width:380px;height:380px;background:var(--lime);opacity:.32;bottom:-100px;left:20%;animation:drift1 28s ease-in-out infinite reverse}
+    .noise{position:fixed;inset:0;z-index:-1;opacity:.035;mix-blend-mode:overlay;pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+    @keyframes drift1{50%{transform:translate(60px,40px) scale(1.1)}}
+    @keyframes drift2{50%{transform:translate(-50px,60px) scale(1.08)}}
+    @media(max-width:768px){.orb{filter:blur(60px)} .orb.l{display:none}}
+    /* ── vidro (card = .glass, escala de app) ── */
+    .card{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
+      backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);
+      border:1px solid var(--border-glass);border-radius:var(--radius-card);box-shadow:var(--shadow-glass);
+      transition:transform var(--dur-base) var(--ease-out),box-shadow var(--dur-base),border-color var(--dur-base)}
+    .card-hero::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+      background:linear-gradient(140deg,rgba(166,230,53,.6),rgba(47,124,240,.5),transparent 60%);
+      -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+    /* ── nav / layout ── */
+    .section-content{display:none} .section-content.active{display:block;animation:fade var(--dur-base) var(--ease-out)}
+    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    aside{background:linear-gradient(180deg,var(--surface-1),transparent);backdrop-filter:blur(18px);border-right:1px solid var(--border-glass)}
+    .nav-link{color:var(--t-muted);border-radius:12px;transition:var(--dur-fast) var(--ease-out)}
+    .nav-link:hover{background:var(--surface-1);color:var(--t-hi)}
+    .nav-link.active{background:linear-gradient(100deg,rgba(23,201,100,.16),rgba(47,124,240,.10));color:var(--t-hi);font-weight:700;border-right:3px solid var(--green)}
+    main > header{background:var(--header-bg);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);border-bottom:1px solid var(--border-glass)}
+    /* ── toast ── */
+    #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+    .toast{background:var(--toast-bg);backdrop-filter:blur(16px);color:var(--t-hi);padding:12px 20px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:var(--shadow-float);border:1px solid var(--border-glass);border-left:3px solid var(--green);animation:tin .25s var(--ease-out);display:flex;gap:8px;align-items:center;max-width:90vw}
+    .toast.err{border-left-color:var(--neg)}
+    @keyframes tin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    /* ── modal ── */
+    .modal{display:none;position:fixed;inset:0;z-index:150;background:var(--modal-overlay);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px}
+    .modal.open{display:flex}
+    .modal-panel{background:var(--panel-bg);backdrop-filter:blur(20px);border:1px solid var(--border-glass);box-shadow:var(--shadow-float);border-radius:var(--radius-lg);width:100%;max-width:640px;max-height:90vh;overflow-y:auto}
+    /* ── inputs ── */
+    input,select,textarea{outline:none;color:var(--t-hi);font-family:inherit}
+    input::placeholder,textarea::placeholder{color:var(--t-muted)}
+    input[type=date],input[type=time]{color-scheme:dark}
+    .fld{background:var(--surface-1);border:1px solid var(--border-glass);color:var(--t-hi);border-radius:12px;padding:.55rem .8rem;width:100%;font-size:.9rem;transition:var(--dur-fast) var(--ease-out)}
+    .fld:focus{border-color:var(--green);background:var(--surface-2);box-shadow:0 0 0 3px rgba(23,201,100,.15)}
+    .fld:disabled{opacity:.55;cursor:not-allowed}
+    textarea.fld{resize:vertical}
+    select.fld option{background:var(--opt-bg);color:var(--t-hi)}
+    input[type=range]{accent-color:var(--green)}
+    /* ── botões ── */
+    .btn{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.85rem;padding:.55rem .95rem;border-radius:14px;cursor:pointer;border:0;font-family:inherit;transition:var(--dur-ui) var(--ease-out);white-space:nowrap}
+    .btn-p{background:var(--grad);background-size:200% auto;color:#03251a;box-shadow:var(--glow)}
+    .btn-p:hover{background-position:200% center;transform:translateY(-2px);box-shadow:0 0 50px rgba(23,201,100,.55)}
+    .btn-s{background:var(--surface-2);color:var(--t-hi);border:1px solid var(--border-glass);box-shadow:none}
+    .btn-s:hover{background:rgba(255,255,255,.13);border-color:var(--border-hi)}
+    .btn-d{background:rgba(255,92,122,.16);color:var(--neg);border:1px solid rgba(255,92,122,.35);box-shadow:none}
+    .btn-d:hover{background:var(--neg);color:#fff}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+    /* ── tabelas ── */
+    .tbl{width:100%;border-collapse:collapse;font-size:.83rem}
+    .tbl th{text-align:left;color:var(--t-muted);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;padding:.55rem .6rem;border-bottom:1px solid var(--border-glass);white-space:nowrap}
+    .tbl td{padding:.55rem .6rem;border-bottom:1px solid var(--tr-border);color:var(--t-base);vertical-align:top}
+    .tbl tbody tr:nth-child(even){background:var(--row-alt)}
+    .tbl tbody tr.click{cursor:pointer}
+    .tbl tbody tr.click:hover{background:var(--row-hover)}
+    .tblwrap{overflow-x:auto}
+    /* ── badges / chips ── */
+    .badge{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:800;padding:.15rem .55rem;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
+    .b-green{background:rgba(23,201,100,.16);color:var(--pos)}
+    .b-blue{background:rgba(47,124,240,.18);color:#6aa8ff}
+    .b-amber{background:rgba(255,184,77,.16);color:var(--warn)}
+    .b-gray{background:var(--surface-2);color:var(--t-muted)}
+    .b-red{background:rgba(255,92,122,.16);color:var(--neg)}
+    .chip{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600;padding:.14rem .55rem;border-radius:999px;background:var(--surface-1);border:1px solid var(--border-glass);color:var(--t-base);margin:2px}
+    /* ── misc ── */
+    .acc-h{cursor:pointer;user-select:none}
+    pre.j{background:var(--surface-1);border:1px solid var(--border-glass);border-radius:12px;padding:.7rem;font-size:.75rem;overflow-x:auto;color:var(--t-base);white-space:pre-wrap;word-break:break-word}
+    .tabbtn{padding:.4rem .8rem;border-radius:12px;font-weight:700;font-size:.82rem;cursor:pointer;border:0;background:none;color:var(--t-muted);font-family:inherit;white-space:nowrap;transition:var(--dur-fast) var(--ease-out)}
+    .tabbtn.active{background:var(--surface-2);color:var(--t-hi)}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(23,201,100,.45),transparent)}
+    ::-webkit-scrollbar{height:7px;width:7px}::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:10px}
+    .hide-scroll::-webkit-scrollbar{display:none}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+    <div class="bg-fx" aria-hidden="true"><span class="orb b"></span><span class="orb g"></span><span class="orb l"></span></div>
+    <div class="noise" aria-hidden="true"></div>
+
+    <!-- ══ GATE: acesso restrito (403) ══ -->
+    <div id="gate" class="fixed inset-0 z-[300] items-center justify-center p-6" style="display:none;background:var(--modal-overlay);backdrop-filter:blur(10px)">
+        <div class="card card-hero p-8 max-w-md text-center">
+            <div class="w-16 h-16 mx-auto rounded-2xl grid place-items-center text-3xl mb-4" style="background:rgba(255,92,122,.15);color:var(--neg)"><i class="fas fa-lock"></i></div>
+            <h2 class="text-xl font-black mb-2">Acesso restrito</h2>
+            <p class="text-sm mb-6" style="color:var(--t-muted)">Sua conta está logada, mas não tem permissão de administrador para acessar este painel.</p>
+            <a href="nickel-dashboard.html" class="btn btn-p w-full justify-center"><i class="fas fa-arrow-left"></i> Voltar ao dashboard</a>
+        </div>
+    </div>
+
+    <!-- ══ Sidebar ══ -->
+    <aside class="hidden md:flex w-60 flex-col shrink-0 z-20">
+        <div class="p-6 border-b" style="border-color:var(--border-glass)">
+            <div class="text-lg font-black flex items-center gap-3" style="color:var(--accent)">
+                <div class="w-9 h-9 rounded-xl grid place-items-center shadow-lg" style="background:var(--grad);color:#03251a"><i class="fas fa-user-shield"></i></div>
+                <div>Nickel <span style="color:var(--green)">Admin</span></div>
+            </div>
+        </div>
+        <nav class="flex-1 p-3 space-y-1 mt-2">
+            <button onclick="go('stats')" id="b-stats" class="nav-link active w-full text-left px-4 py-3 flex items-center gap-3"><i class="fas fa-gauge-high w-5"></i><span class="font-semibold text-sm">Dashboard</span></button>
+            <button onclick="go('users')" id="b-users" class="nav-link w-full text-left px-4 py-3 flex items-center gap-3"><i class="fas fa-users w-5"></i><span class="font-semibold text-sm">Usuários</span></button>
+            <button onclick="go('brain')" id="b-brain" class="nav-link w-full text-left px-4 py-3 flex items-center gap-3"><i class="fas fa-brain w-5"></i><span class="font-semibold text-sm">Cérebro</span></button>
+            <button onclick="go('audit')" id="b-audit" class="nav-link w-full text-left px-4 py-3 flex items-center gap-3"><i class="fas fa-clipboard-list w-5"></i><span class="font-semibold text-sm">Auditoria</span></button>
+        </nav>
+        <div class="p-4 border-t space-y-1" style="border-color:var(--border-glass)">
+            <a href="nickel-dashboard.html" class="nav-link w-full text-left px-4 py-2.5 flex items-center gap-3"><i class="fas fa-chart-pie w-5"></i><span class="text-sm font-semibold">Dashboard do app</span></a>
+            <button onclick="logout()" class="nav-link w-full text-left px-4 py-2.5 flex items-center gap-3" style="color:var(--neg)"><i class="fas fa-sign-out-alt w-5"></i><span class="text-sm font-semibold">Sair</span></button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col w-full relative min-w-0">
+        <header class="px-4 md:px-6 py-3 sticky top-0 z-30 flex items-center gap-3">
+            <div class="md:hidden flex items-center gap-2 font-black" style="color:var(--accent)"><i class="fas fa-user-shield"></i> Admin</div>
+            <h1 id="page-title" class="text-lg md:text-xl font-black flex-1 truncate">Dashboard</h1>
+            <span id="whoami-badge" class="badge b-green hidden sm:inline-flex"><i class="fas fa-shield-halved"></i> <span id="whoami-email"></span></span>
+            <!-- mobile nav -->
+            <select id="mnav" onchange="go(this.value)" class="fld md:hidden" style="width:auto">
+                <option value="stats">Dashboard</option>
+                <option value="users">Usuários</option>
+                <option value="brain">Cérebro</option>
+                <option value="audit">Auditoria</option>
+            </select>
+        </header>
+
+        <div class="p-4 md:p-6 space-y-5 flex-1">
+            <!-- ══════════ DASHBOARD ══════════ -->
+            <section id="sec-stats" class="section-content active">
+                <div id="stats-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="col-span-full text-center py-10" style="color:var(--t-muted)"><i class="fas fa-spinner fa-spin"></i> Carregando…</div>
+                </div>
+            </section>
+
+            <!-- ══════════ USUÁRIOS ══════════ -->
+            <section id="sec-users" class="section-content">
+                <!-- lista -->
+                <div id="users-list">
+                    <div class="card p-4 mb-4 flex flex-wrap items-center gap-3">
+                        <div class="relative flex-1 min-w-[200px]">
+                            <i class="fas fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color:var(--t-faint)"></i>
+                            <input id="users-q" class="fld pl-9" placeholder="Buscar por e-mail…" onkeydown="if(event.key==='Enter')searchUsers()">
+                        </div>
+                        <button class="btn btn-p" onclick="searchUsers()"><i class="fas fa-search"></i> Buscar</button>
+                        <button class="btn btn-s" onclick="document.getElementById('users-q').value='';searchUsers()"><i class="fas fa-xmark"></i> Limpar</button>
+                    </div>
+                    <div class="card p-0 overflow-hidden">
+                        <div class="tblwrap">
+                            <table class="tbl">
+                                <thead><tr>
+                                    <th>E-mail</th><th>Papel</th><th>Cadastro</th><th class="text-right">Transações</th><th class="text-right">Saldo</th><th>Última atividade</th><th class="text-center">TG</th>
+                                </tr></thead>
+                                <tbody id="users-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex items-center justify-between p-3 text-sm" style="color:var(--t-muted)">
+                            <span id="users-count"></span>
+                            <div class="flex gap-2">
+                                <button class="btn btn-s" id="users-prev" onclick="pageUsers(-1)"><i class="fas fa-chevron-left"></i></button>
+                                <button class="btn btn-s" id="users-next" onclick="pageUsers(1)"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- detalhe -->
+                <div id="user-detail" class="hidden"></div>
+            </section>
+
+            <!-- ══════════ CÉREBRO ══════════ -->
+            <section id="sec-brain" class="section-content">
+                <!-- barra de versão -->
+                <div class="card p-4 mb-4">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-code-branch" style="color:var(--accent)"></i>
+                            <select id="brain-ver-sel" class="fld" style="width:auto;min-width:220px" onchange="loadBrainVersion(this.value)"></select>
+                            <span id="brain-ver-badge"></span>
+                        </div>
+                        <div class="flex-1"></div>
+                        <button class="btn btn-s" onclick="newDraft()"><i class="fas fa-plus"></i> Novo rascunho</button>
+                        <button class="btn btn-p" id="brain-activate" onclick="activateVersion()"><i class="fas fa-bolt"></i> Ativar</button>
+                        <button class="btn btn-d" id="brain-delver" onclick="deleteVersion()"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <p id="brain-ro-note" class="text-xs mt-3 hidden" style="color:var(--warn)"><i class="fas fa-lock"></i> Esta versão está <b id="brain-ro-status"></b>. Campos em somente-leitura — clique em <b>Novo rascunho</b> para duplicá-la e editar.</p>
+                </div>
+                <!-- tabs cérebro -->
+                <div class="card p-1.5 mb-4 flex gap-1 overflow-x-auto hide-scroll">
+                    <button class="tabbtn active" id="bt-editor" onclick="brainTab('editor')"><i class="fas fa-sliders"></i> Editor</button>
+                    <button class="tabbtn" id="bt-sim" onclick="brainTab('sim')"><i class="fas fa-flask"></i> Simulador</button>
+                    <button class="tabbtn" id="bt-hist" onclick="brainTab('hist')"><i class="fas fa-clock-rotate-left"></i> Histórico / diff</button>
+                </div>
+
+                <div id="brain-editor" class="brain-tab space-y-4">
+                    <!-- core + messages + categories injetados -->
+                    <div class="text-center py-10" style="color:var(--t-muted)"><i class="fas fa-spinner fa-spin"></i> Carregando cérebro…</div>
+                </div>
+
+                <div id="brain-sim" class="brain-tab space-y-4" style="display:none">
+                    <div class="card p-4 space-y-3">
+                        <h3 class="font-black flex items-center gap-2"><i class="fas fa-flask" style="color:var(--accent)"></i> Simulador do Nickel</h3>
+                        <textarea id="sim-msg" class="fld" rows="3" placeholder="Mensagem do usuário… ex: gastei 50 no mercado hoje"></textarea>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+                                <input type="checkbox" id="sim-real" onchange="document.getElementById('sim-email-wrap').style.display=this.checked?'flex':'none'">
+                                Rodar contra dados reais
+                            </label>
+                            <div id="sim-email-wrap" class="items-center gap-2" style="display:none">
+                                <input id="sim-email" class="fld" style="width:auto" placeholder="e-mail alvo">
+                                <span class="badge b-blue"><i class="fas fa-eye"></i> somente leitura</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <label class="text-sm font-semibold" style="color:var(--t-muted)">Cérebro:</label>
+                            <select id="sim-src" class="fld" style="width:auto">
+                                <option value="draft">Usar rascunho atual (não salvo)</option>
+                                <option value="version">Usar versão selecionada</option>
+                            </select>
+                            <button class="btn btn-p" onclick="simulate()"><i class="fas fa-play"></i> Simular</button>
+                        </div>
+                    </div>
+                    <div id="sim-out"></div>
+                </div>
+
+                <div id="brain-hist" class="brain-tab space-y-4" style="display:none">
+                    <div class="card p-4">
+                        <div class="flex flex-wrap items-center gap-3 mb-3">
+                            <h3 class="font-black flex items-center gap-2"><i class="fas fa-clock-rotate-left" style="color:var(--accent)"></i> Histórico de versões</h3>
+                            <div class="flex-1"></div>
+                            <select id="diff-a" class="fld" style="width:auto"></select>
+                            <span style="color:var(--t-muted)">vs</span>
+                            <select id="diff-b" class="fld" style="width:auto"></select>
+                            <button class="btn btn-p" onclick="showDiff()"><i class="fas fa-code-compare"></i> Ver diff</button>
+                        </div>
+                        <div class="tblwrap">
+                            <table class="tbl"><thead><tr><th>Nome</th><th>Status</th><th>Modelo</th><th>Autor</th><th>Criada</th><th>Ativada</th></tr></thead>
+                            <tbody id="hist-tbody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══════════ AUDITORIA ══════════ -->
+            <section id="sec-audit" class="section-content">
+                <div class="card p-0 overflow-hidden">
+                    <div class="tblwrap">
+                        <table class="tbl">
+                            <thead><tr><th>Quando</th><th>Admin</th><th>Ação</th><th>Tabela</th><th>Usuário alvo</th><th>ID alvo</th></tr></thead>
+                            <tbody id="audit-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex items-center justify-between p-3 text-sm" style="color:var(--t-muted)">
+                        <span id="audit-count"></span>
+                        <div class="flex gap-2">
+                            <button class="btn btn-s" onclick="pageAudit(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <button class="btn btn-s" onclick="pageAudit(1)"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="toast"></div>
+    <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div id="modal-panel" class="modal-panel p-5"></div></div>
+
+<script>
+    // ═══════════ CONFIG / API (herdado do dashboard) ═══════════
+    const API = 'https://168-231-93-191.sslip.io';
+    const TOKEN = localStorage.getItem('nickel_token');
+    const EMAIL = localStorage.getItem('nickel_email');
+    if (!TOKEN) location.href = 'nickel-login.html';
+
+    let ME = null; // { email, role }
+
+    async function api(path, opts = {}) {
+        const res = await fetch(API + path, { ...opts, headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+TOKEN, ...(opts.headers||{}) } });
+        if (res.status === 401) { localStorage.clear(); location.href = 'nickel-login.html'; throw new Error('unauth'); }
+        if (res.status === 403) { showGate(); throw new Error('forbidden'); }
+        if (res.status === 204) return null;
+        let body = null; try { body = await res.json(); } catch(e) {}
+        if (!res.ok) { const msg = (body && (body.error||body.message)) || ('Erro '+res.status); throw new Error(msg); }
+        return body;
+    }
+    function showGate(){ document.getElementById('gate').style.display='flex'; }
+
+    const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);
+    const nf  = v => new Intl.NumberFormat('pt-BR').format(Number(v)||0);
+    function toast(msg,type){ const c=document.getElementById('toast'); const el=document.createElement('div'); el.className='toast'+(type==='error'||type==='err'?' err':''); el.textContent=((type==='error'||type==='err')?'⚠️ ':'✅ ')+msg; c.appendChild(el); setTimeout(()=>{el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>el.remove(),300);},2800); }
+    function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    // *negrito* estilo Telegram → <b>
+    function mdBold(s){ return esc(s).replace(/\*([^*]+)\*/g,'<b>$1</b>').replace(/\n/g,'<br>'); }
+
+    // ═══════════ SESSÃO ═══════════ (marca é dark-only — sem toggle de tema)
+    function logout(){ localStorage.removeItem('nickel_token'); localStorage.removeItem('nickel_email'); location.href='nickel-login.html'; }
+
+    // ═══════════ NAV ═══════════
+    const TITLES = { stats:'Dashboard', users:'Usuários', brain:'Cérebro do Nickel', audit:'Auditoria' };
+    const LOADED = {};
+    function go(id){
+        document.querySelectorAll('.section-content').forEach(s=>s.classList.remove('active'));
+        document.getElementById('sec-'+id).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+        const b=document.getElementById('b-'+id); if(b) b.classList.add('active');
+        document.getElementById('page-title').innerText = TITLES[id]||'';
+        const mn=document.getElementById('mnav'); if(mn) mn.value=id;
+        if(id==='users' && !LOADED.users){ LOADED.users=true; searchUsers(); }
+        if(id==='brain' && !LOADED.brain){ LOADED.brain=true; loadBrain(); }
+        if(id==='audit' && !LOADED.audit){ LOADED.audit=true; loadAudit(); }
+    }
+
+    // ═══════════ MODAL ═══════════
+    function openModal(html){ document.getElementById('modal-panel').innerHTML=html; document.getElementById('modal').classList.add('open'); }
+    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+    // ═══════════ BOOT ═══════════
+    (async function boot(){
+        try {
+            const who = await api('/admin/whoami');
+            ME = who || {};
+            const em = ME.email || EMAIL || '';
+            document.getElementById('whoami-email').innerText = em;
+            document.getElementById('whoami-badge').classList.remove('hidden');
+            loadStats();
+        } catch(e){ /* api() já tratou 401/403 */ }
+    })();
+
+    // ═══════════════════════════════════════ DASHBOARD ═══════════════════════════════════════
+    const STAT_DEFS = [
+        ['users_total','Usuários','fa-users',false],
+        ['new_users_30d','Novos (30d)','fa-user-plus',false],
+        ['users_with_telegram','Com Telegram','fa-telegram',false],
+        ['admins_total','Admins','fa-user-shield',false],
+        ['transactions_total','Transações','fa-list',false],
+        ['transactions_30d','Transações (30d)','fa-calendar-day',false],
+        ['volume_expense_total','Volume despesas','fa-arrow-trend-down',true],
+        ['volume_income_total','Volume receitas','fa-arrow-trend-up',true],
+        ['accounts_total','Contas','fa-building-columns',false],
+        ['goals_total','Caixinhas','fa-piggy-bank',false],
+        ['crypto_holders','Holders cripto','fa-bitcoin',false],
+    ];
+    async function loadStats(){
+        const g=document.getElementById('stats-grid');
+        try {
+            const s = await api('/admin/stats') || {};
+            g.innerHTML = STAT_DEFS.map(([k,label,ic,money])=>{
+                const raw = s[k];
+                const val = money ? fmt(raw) : nf(raw);
+                const cls = k==='volume_income_total'?'color:var(--pos)':(k==='volume_expense_total'?'color:var(--neg)':'');
+                return `<div class="card card-hero p-4">
+                    <p class="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5" style="color:var(--t-muted)"><i class="fas ${ic}"></i>${label}</p>
+                    <h3 class="text-xl md:text-2xl font-black num mt-1 tracking-tight" style="${cls}">${val}</h3>
+                </div>`;
+            }).join('');
+        } catch(e){ g.innerHTML=`<div class="col-span-full text-center py-8" style="color:var(--neg)">${esc(e.message)}</div>`; }
+    }
+
+    // ═══════════════════════════════════════ USUÁRIOS ═══════════════════════════════════════
+    const USERS = { q:'', limit:50, offset:0, rows:[] };
+    function searchUsers(){ USERS.q = document.getElementById('users-q').value.trim(); USERS.offset=0; loadUsers(); }
+    function pageUsers(dir){ const n=USERS.offset+dir*USERS.limit; if(n<0) return; if(dir>0 && USERS.rows.length<USERS.limit) return; USERS.offset=n; loadUsers(); }
+    async function loadUsers(){
+        showUsersList();
+        const tb=document.getElementById('users-tbody');
+        tb.innerHTML=`<tr><td colspan="7" class="text-center py-6" style="color:var(--t-muted)"><i class="fas fa-spinner fa-spin"></i></td></tr>`;
+        try{
+            const qs = `?q=${encodeURIComponent(USERS.q)}&limit=${USERS.limit}&offset=${USERS.offset}`;
+            const rows = await api('/admin/users'+qs) || [];
+            USERS.rows = rows;
+            if(!rows.length){ tb.innerHTML=`<tr><td colspan="7" class="text-center py-6" style="color:var(--t-muted)">Nenhum usuário.</td></tr>`; }
+            else tb.innerHTML = rows.map(u=>`<tr class="click" onclick="openUser('${esc(u.email)}')">
+                <td class="font-semibold" style="color:var(--t-hi)">${esc(u.email)}</td>
+                <td>${roleBadge(u.role)}</td>
+                <td class="mono">${esc(u.created_at)}</td>
+                <td class="text-right num">${nf(u.tx_count)}</td>
+                <td class="text-right num" style="color:var(--t-hi)">${fmt(u.total_balance)}</td>
+                <td class="mono">${esc(u.last_activity||'—')}</td>
+                <td class="text-center">${u.has_telegram?'<i class="fab fa-telegram" style="color:#4d94ff" title="vinculado"></i>':'<span style="color:var(--t-faint)">—</span>'}</td>
+            </tr>`).join('');
+            document.getElementById('users-count').innerText = `${USERS.offset+1}–${USERS.offset+rows.length}`;
+            document.getElementById('users-prev').disabled = USERS.offset===0;
+            document.getElementById('users-next').disabled = rows.length<USERS.limit;
+        }catch(e){ tb.innerHTML=`<tr><td colspan="7" class="text-center py-6" style="color:var(--neg)">${esc(e.message)}</td></tr>`; }
+    }
+    function roleBadge(r){ return r==='admin'?'<span class="badge b-green"><i class="fas fa-shield-halved"></i> admin</span>':'<span class="badge b-gray">user</span>'; }
+    function showUsersList(){ document.getElementById('users-list').classList.remove('hidden'); document.getElementById('user-detail').classList.add('hidden'); }
+
+    // ── detalhe do usuário ──
+    let DETAIL = null; // { email, data, tables:[...], active }
+    async function openUser(email){
+        const box=document.getElementById('user-detail');
+        document.getElementById('users-list').classList.add('hidden');
+        box.classList.remove('hidden');
+        box.innerHTML=`<div class="text-center py-10" style="color:var(--t-muted)"><i class="fas fa-spinner fa-spin"></i> Carregando ${esc(email)}…</div>`;
+        try{
+            const d = await api('/admin/users/'+encodeURIComponent(email));
+            DETAIL = { email, user:d.user||{email}, metrics:d.metrics||{}, data:d.data||{} };
+            DETAIL.tables = Object.keys(DETAIL.data);
+            DETAIL.active = DETAIL.tables[0] || null;
+            renderUserDetail();
+        }catch(e){ box.innerHTML=`<div class="card p-6 text-center" style="color:var(--neg)">${esc(e.message)}<div class="mt-4"><button class="btn btn-s" onclick="showUsersList()">Voltar</button></div></div>`; }
+    }
+    function renderUserDetail(){
+        const box=document.getElementById('user-detail');
+        const u=DETAIL.user; const isSelf = (u.email===(ME&&ME.email));
+        const mHtml = Object.entries(DETAIL.metrics).map(([k,v])=>`<div class="card p-3"><p class="text-[10px] font-bold uppercase" style="color:var(--t-muted)">${esc(k)}</p><h4 class="text-base font-black num mt-0.5">${typeof v==='number'?nf(v):esc(v)}</h4></div>`).join('');
+        const tabs = DETAIL.tables.map(t=>`<button class="tabbtn ${t===DETAIL.active?'active':''}" onclick="setDetailTab('${t}')">${esc(t)} <span style="opacity:.6">${(DETAIL.data[t]||[]).length}</span></button>`).join('');
+        box.innerHTML = `
+        <button class="btn btn-s mb-4" onclick="showUsersList()"><i class="fas fa-arrow-left"></i> Voltar à lista</button>
+        <div class="card card-hero p-5 mb-4">
+            <div class="flex flex-wrap items-center gap-3 mb-3">
+                <div class="w-11 h-11 rounded-xl grid place-items-center text-lg" style="background:var(--surface-2);color:var(--accent)"><i class="fas fa-user"></i></div>
+                <div class="min-w-0"><h2 class="text-lg font-black truncate">${esc(u.email)}</h2>
+                <p class="text-xs" style="color:var(--t-muted)">${roleBadge(u.role)} · cadastro <span class="mono">${esc(u.created_at||'?')}</span></p></div>
+                <div class="flex-1"></div>
+                <div class="flex flex-wrap gap-2">
+                    ${isSelf?'':`<button class="btn btn-s" onclick="changeRole('${esc(u.email)}','${u.role==='admin'?'user':'admin'}')"><i class="fas fa-user-gear"></i> ${u.role==='admin'?'Rebaixar p/ user':'Tornar admin'}</button>`}
+                    <button class="btn btn-s" onclick="resetPwModal('${esc(u.email)}')"><i class="fas fa-key"></i> Resetar senha</button>
+                    ${isSelf?'':`<button class="btn btn-d" onclick="deleteUserModal('${esc(u.email)}')"><i class="fas fa-user-slash"></i> Apagar usuário</button>`}
+                </div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">${mHtml||'<p class="text-xs" style="color:var(--t-muted)">Sem métricas.</p>'}</div>
+        </div>
+        <div class="card p-1.5 mb-3 flex gap-1 overflow-x-auto hide-scroll">${tabs}</div>
+        <div id="detail-table" class="card p-0 overflow-hidden"></div>`;
+        renderDetailTable();
+    }
+    function setDetailTab(t){ DETAIL.active=t; document.querySelectorAll('#user-detail .tabbtn').forEach(b=>b.classList.toggle('active', b.getAttribute('onclick').includes("'"+t+"'"))); renderDetailTable(); }
+    function renderDetailTable(){
+        const wrap=document.getElementById('detail-table');
+        const t=DETAIL.active; const rows=DETAIL.data[t]||[];
+        if(!rows.length){ wrap.innerHTML=`<div class="p-6 text-center text-sm" style="color:var(--t-muted)">Nenhum registro em <b>${esc(t)}</b>.</div>`; return; }
+        const cols = Object.keys(rows[0]);
+        wrap.innerHTML = `<div class="tblwrap"><table class="tbl"><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}<th class="text-right">Ações</th></tr></thead>
+        <tbody>${rows.map((r,i)=>`<tr>${cols.map(c=>`<td class="${typeof r[c]==='number'?'num text-right':''}">${cellVal(r[c])}</td>`).join('')}
+            <td class="text-right whitespace-nowrap">
+                <button class="btn btn-s" style="padding:.3rem .5rem" onclick="editRecord('${esc(t)}',${i})"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-d" style="padding:.3rem .5rem" onclick="deleteRecord('${esc(t)}',${i})"><i class="fas fa-trash"></i></button>
+            </td></tr>`).join('')}</tbody></table></div>`;
+    }
+    function cellVal(v){
+        if(v==null) return '<span style="color:var(--t-faint)">null</span>';
+        if(typeof v==='object') return `<span class="mono" style="font-size:.72rem">${esc(JSON.stringify(v))}</span>`;
+        if(typeof v==='boolean') return v?'<i class="fas fa-check" style="color:var(--pos)"></i>':'<i class="fas fa-xmark" style="color:var(--t-faint)"></i>';
+        return esc(v);
+    }
+    function recordId(row){ return row.id != null ? row.id : (row.chave != null ? row.chave : DETAIL.email); }
+
+    // ── editar registro ──
+    function editRecord(table, idx){
+        const row = DETAIL.data[table][idx];
+        const cols = Object.keys(row).filter(c=>c!=='user_email');
+        const body = cols.map(c=>{
+            const v=row[c]; const ro = (c==='id');
+            const val = (v!=null && typeof v==='object') ? JSON.stringify(v) : (v==null?'':v);
+            const multi = String(val).length>60 || (v!=null&&typeof v==='object');
+            return `<label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">${esc(c)}</span>
+                ${multi?`<textarea class="fld mt-1" rows="2" data-f="${esc(c)}" ${ro?'disabled':''}>${esc(val)}</textarea>`
+                       :`<input class="fld mt-1" data-f="${esc(c)}" value="${esc(val)}" ${ro?'disabled':''}>`}</label>`;
+        }).join('');
+        openModal(`<h3 class="text-lg font-black mb-1">Editar <span class="mono">${esc(table)}</span></h3>
+            <p class="text-xs mb-4" style="color:var(--t-muted)">Só os campos alterados serão enviados no patch.</p>
+            <div class="space-y-3" id="edit-fields">${body}</div>
+            <div class="flex justify-end gap-2 mt-5"><button class="btn btn-s" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-p" onclick='saveRecord("${esc(table)}",${idx})'><i class="fas fa-check"></i> Salvar</button></div>`);
+    }
+    async function saveRecord(table, idx){
+        const row = DETAIL.data[table][idx];
+        const patch={};
+        document.querySelectorAll('#edit-fields [data-f]').forEach(el=>{
+            if(el.disabled) return;
+            const f=el.getAttribute('data-f'); let nv=el.value;
+            const orig = row[f];
+            let ov = (orig!=null && typeof orig==='object') ? JSON.stringify(orig) : (orig==null?'':String(orig));
+            if(nv===ov) return;
+            // tenta reconverter JSON / número
+            if(orig!=null && typeof orig==='object'){ try{ nv=JSON.parse(nv); }catch(e){} }
+            else if(typeof orig==='number' && nv!=='' && !isNaN(nv)){ nv=Number(nv); }
+            else if(typeof orig==='boolean'){ nv=(nv==='true'||nv===true); }
+            else if(nv==='') nv=null;
+            patch[f]=nv;
+        });
+        if(!Object.keys(patch).length){ toast('Nada alterado'); closeModal(); return; }
+        try{
+            await api(`/admin/records/${encodeURIComponent(table)}/${encodeURIComponent(recordId(row))}`,{method:'PATCH',body:JSON.stringify({user_email:DETAIL.email, patch})});
+            toast('Registro atualizado'); closeModal(); openUser(DETAIL.email);
+        }catch(e){ toast(e.message,'error'); }
+    }
+    async function deleteRecord(table, idx){
+        const row=DETAIL.data[table][idx];
+        if(!confirm(`Apagar este registro de ${table}? Esta ação não pode ser desfeita.`)) return;
+        try{
+            await api(`/admin/records/${encodeURIComponent(table)}/${encodeURIComponent(recordId(row))}`,{method:'DELETE',body:JSON.stringify({user_email:DETAIL.email})});
+            toast('Registro apagado'); openUser(DETAIL.email);
+        }catch(e){ toast(e.message,'error'); }
+    }
+
+    // ── ações de conta ──
+    async function changeRole(email, role){
+        if(!confirm(`Alterar papel de ${email} para "${role}"?`)) return;
+        try{ await api(`/admin/users/${encodeURIComponent(email)}/role`,{method:'PATCH',body:JSON.stringify({role})}); toast('Papel atualizado'); openUser(email); }
+        catch(e){ toast(e.message,'error'); }
+    }
+    function resetPwModal(email){
+        openModal(`<h3 class="text-lg font-black mb-1"><i class="fas fa-key" style="color:var(--warn)"></i> Resetar senha</h3>
+            <p class="text-xs mb-4" style="color:var(--t-muted)">Nova senha para <b>${esc(email)}</b> (mín. 6 caracteres). O hash nunca é exibido.</p>
+            <input id="rp-pw" type="password" class="fld" placeholder="Nova senha" oninput="document.getElementById('rp-btn').disabled=this.value.length<6">
+            <div class="flex justify-end gap-2 mt-5"><button class="btn btn-s" onclick="closeModal()">Cancelar</button>
+            <button id="rp-btn" class="btn btn-p" disabled onclick="doResetPw('${esc(email)}')"><i class="fas fa-check"></i> Resetar</button></div>`);
+    }
+    async function doResetPw(email){
+        const pw=document.getElementById('rp-pw').value;
+        if(pw.length<6){ toast('Senha muito curta','error'); return; }
+        try{ await api(`/admin/users/${encodeURIComponent(email)}/reset-password`,{method:'POST',body:JSON.stringify({new_password:pw})}); toast('Senha redefinida'); closeModal(); }
+        catch(e){ toast(e.message,'error'); }
+    }
+    function deleteUserModal(email){
+        openModal(`<h3 class="text-lg font-black mb-1" style="color:var(--neg)"><i class="fas fa-triangle-exclamation"></i> Apagar usuário</h3>
+            <p class="text-sm mb-4" style="color:var(--t-muted)">Isto apaga <b>${esc(email)}</b> e todos os dados. Para confirmar, digite o e-mail exatamente.</p>
+            <input id="du-in" class="fld" placeholder="${esc(email)}" oninput="document.getElementById('du-btn').disabled=this.value!==${JSON.stringify(email)}">
+            <div class="flex justify-end gap-2 mt-5"><button class="btn btn-s" onclick="closeModal()">Cancelar</button>
+            <button id="du-btn" class="btn btn-d" disabled onclick="doDeleteUser('${esc(email)}')"><i class="fas fa-user-slash"></i> Apagar definitivamente</button></div>`);
+    }
+    async function doDeleteUser(email){
+        try{ await api(`/admin/users/${encodeURIComponent(email)}`,{method:'DELETE',body:JSON.stringify({confirm_email:email})}); toast('Usuário apagado'); closeModal(); showUsersList(); loadUsers(); }
+        catch(e){ toast(e.message,'error'); }
+    }
+
+    // ═══════════════════════════════════════ CÉREBRO ═══════════════════════════════════════
+    const BRAIN = { versions:[], current:null };
+    function brainTab(t){
+        ['editor','sim','hist'].forEach(x=>{ document.getElementById('brain-'+x).style.display = x===t?'block':'none'; document.getElementById('bt-'+x).classList.toggle('active', x===t); });
+        if(t==='hist') renderHist();
+    }
+    function verBadge(status){
+        const m={ativa:'b-green',active:'b-green',rascunho:'b-amber',draft:'b-amber',arquivada:'b-gray',archived:'b-gray'};
+        return `<span class="badge ${m[status]||'b-gray'}">${esc(status)}</span>`;
+    }
+    function isDraft(v){ return v && (v.status==='rascunho'||v.status==='draft'); }
+    async function loadBrain(){
+        try{
+            const vs = await api('/admin/brain/versions') || [];
+            BRAIN.versions = vs;
+            const sel=document.getElementById('brain-ver-sel');
+            sel.innerHTML = vs.map(v=>`<option value="${v.id}">${esc(v.nome)} — ${esc(v.status)}</option>`).join('');
+            const da=document.getElementById('diff-a'), db=document.getElementById('diff-b');
+            da.innerHTML = db.innerHTML = vs.map(v=>`<option value="${v.id}">${esc(v.nome)} (${esc(v.status)})</option>`).join('');
+            const active = vs.find(v=>v.status==='ativa'||v.status==='active') || vs[0];
+            if(active){ sel.value=active.id; if(db.options.length>1) db.selectedIndex=1; await loadBrainVersion(active.id); }
+            else document.getElementById('brain-editor').innerHTML=`<div class="card p-6 text-center" style="color:var(--t-muted)">Nenhuma versão do cérebro ainda. Crie um <b>Novo rascunho</b>.</div>`;
+            renderHist();
+        }catch(e){ document.getElementById('brain-editor').innerHTML=`<div class="card p-6 text-center" style="color:var(--neg)">${esc(e.message)}</div>`; }
+    }
+    async function loadBrainVersion(id){
+        try{
+            const d = await api('/admin/brain/versions/'+encodeURIComponent(id));
+            BRAIN.current = d;
+            document.getElementById('brain-ver-sel').value = d.version.id;
+            document.getElementById('brain-ver-badge').innerHTML = verBadge(d.version.status);
+            const draft = isDraft(d.version);
+            const note=document.getElementById('brain-ro-note');
+            note.classList.toggle('hidden', draft);
+            document.getElementById('brain-ro-status').innerText = d.version.status;
+            document.getElementById('brain-delver').disabled = !draft;
+            renderBrainEditor();
+        }catch(e){ document.getElementById('brain-editor').innerHTML=`<div class="card p-6 text-center" style="color:var(--neg)">${esc(e.message)}</div>`; }
+    }
+    function renderBrainEditor(){
+        const d=BRAIN.current; const v=d.version; const ro=!isDraft(v); const dis=ro?'disabled':'';
+        const msgs=d.messages||[]; const cats=d.categories||[];
+        // agrupa mensagens
+        const groups={}; msgs.forEach(m=>{ (groups[m.grupo||'—']=groups[m.grupo||'—']||[]).push(m); });
+        const grpHtml = Object.entries(groups).map(([g,items],gi)=>`
+            <div class="card p-0 overflow-hidden">
+                <div class="acc-h flex items-center justify-between px-4 py-3" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                    <span class="font-black text-sm"><i class="fas fa-layer-group" style="color:var(--accent)"></i> ${esc(g)} <span class="badge b-gray">${items.length}</span></span>
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </div>
+                <div class="${gi===0?'':'hidden'} p-3 pt-0 space-y-3">${items.map(m=>msgCard(m,ro)).join('')}</div>
+            </div>`).join('');
+        document.getElementById('brain-editor').innerHTML = `
+        <!-- CORE -->
+        <div class="card p-5 space-y-4">
+            <h3 class="font-black flex items-center gap-2"><i class="fas fa-microchip" style="color:var(--accent)"></i> Núcleo (core)</h3>
+            <label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Persona</span>
+                <textarea id="c-persona" class="fld mt-1" rows="4" ${dis}>${esc(v.persona||'')}</textarea></label>
+            <label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Regras</span>
+                <textarea id="c-regras" class="fld mt-1" rows="5" ${dis}>${esc(v.regras||'')}</textarea></label>
+            <label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Prompt extra</span>
+                <textarea id="c-extra" class="fld mt-1" rows="3" ${dis}>${esc(v.prompt_extra||'')}</textarea></label>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Modelo</span>
+                    <select id="c-model" class="fld mt-1" ${dis}>
+                        <option value="gpt-4o" ${v.model==='gpt-4o'?'selected':''}>gpt-4o</option>
+                        <option value="gpt-4o-mini" ${v.model==='gpt-4o-mini'?'selected':''}>gpt-4o-mini</option>
+                    </select></label>
+                <label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Temperature <span id="c-temp-v" class="mono" style="color:var(--accent)">${Number(v.temperature||0).toFixed(2)}</span></span>
+                    <input id="c-temp" type="range" min="0" max="2" step="0.05" value="${v.temperature||0}" ${dis} class="w-full mt-3" oninput="document.getElementById('c-temp-v').innerText=Number(this.value).toFixed(2)"></label>
+            </div>
+            <label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Notas</span>
+                <input id="c-notes" class="fld mt-1" value="${esc(v.notes||'')}" ${dis}></label>
+            <div class="flex justify-end"><button class="btn btn-p" onclick="saveBrainCore()" ${dis}><i class="fas fa-floppy-disk"></i> Salvar rascunho</button></div>
+        </div>
+        <!-- MENSAGENS -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="font-black flex items-center gap-2"><i class="fas fa-comment-dots" style="color:var(--accent)"></i> Mensagens <span class="badge b-gray">${msgs.length}</span></h3>
+                <button class="btn btn-s" onclick="newMessage()" ${dis}><i class="fas fa-plus"></i> Nova mensagem</button>
+            </div>
+            ${grpHtml || `<div class="card p-4 text-center text-sm" style="color:var(--t-muted)">Sem mensagens.</div>`}
+        </div>
+        <!-- CATEGORIAS -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="font-black flex items-center gap-2"><i class="fas fa-tags" style="color:var(--accent)"></i> Categorias <span class="badge b-gray">${cats.length}</span></h3>
+                <button class="btn btn-s" onclick="newCategory()" ${dis}><i class="fas fa-plus"></i> Nova</button>
+            </div>
+            <div class="card p-0 overflow-hidden"><div class="tblwrap"><table class="tbl">
+                <thead><tr><th>Nome</th><th>Tipo</th><th>Sinônimos</th><th>Regra</th><th>Ordem</th><th></th></tr></thead>
+                <tbody>${cats.length?cats.map(c=>`<tr>
+                    <td class="font-semibold" style="color:var(--t-hi)">${esc(c.nome)}</td>
+                    <td><span class="badge b-blue">${esc(c.tipo)}</span></td>
+                    <td>${(Array.isArray(c.sinonimos)?c.sinonimos:String(c.sinonimos||'').split(',').filter(Boolean)).map(s=>`<span class="chip">${esc(s.trim?s.trim():s)}</span>`).join('')||'—'}</td>
+                    <td class="text-xs">${esc(c.regra||'—')}</td>
+                    <td class="num">${esc(c.ordem)}</td>
+                    <td class="text-right whitespace-nowrap">
+                        <button class="btn btn-s" style="padding:.3rem .5rem" onclick="editCategory('${c.id}')" ${dis}><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-d" style="padding:.3rem .5rem" onclick="delCategory('${c.id}')" ${dis}><i class="fas fa-trash"></i></button>
+                    </td></tr>`).join(''):`<tr><td colspan="6" class="text-center py-4" style="color:var(--t-muted)">Sem categorias.</td></tr>`}</tbody>
+            </table></div></div>
+        </div>`;
+    }
+    function msgCard(m,ro){ const dis=ro?'disabled':'';
+        const vars=Array.isArray(m.variaveis)?m.variaveis:String(m.variaveis||'').split(',').filter(Boolean);
+        return `<div class="rounded-xl p-3" style="background:var(--surface-1);border:1px solid var(--border-glass)">
+            <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                <span class="mono text-xs font-bold" style="color:var(--accent)">${esc(m.chave)}</span>
+                <div class="flex gap-1">
+                    <button class="btn btn-s" style="padding:.25rem .5rem" onclick="editMessage('${m.id}')" ${dis}><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-d" style="padding:.25rem .5rem" onclick="delMessage('${m.id}')" ${dis}><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <p class="text-[11px] mb-1" style="color:var(--t-muted)">${esc(m.descricao||'')}</p>
+            <p class="text-sm" style="color:var(--t-base)">${mdBold(m.texto||'')}</p>
+            <div class="mt-1">${vars.map(x=>`<span class="chip mono">${esc(x.trim?x.trim():x)}</span>`).join('')}</div>
+        </div>`;
+    }
+    async function saveBrainCore(){
+        const v=BRAIN.current.version;
+        const patch={
+            persona:document.getElementById('c-persona').value,
+            regras:document.getElementById('c-regras').value,
+            prompt_extra:document.getElementById('c-extra').value,
+            model:document.getElementById('c-model').value,
+            temperature:Number(document.getElementById('c-temp').value),
+            notes:document.getElementById('c-notes').value,
+        };
+        try{ await api('/admin/brain/versions/'+encodeURIComponent(v.id),{method:'PATCH',body:JSON.stringify(patch)}); toast('Rascunho salvo'); loadBrainVersion(v.id); }
+        catch(e){ toast(e.message,'error'); }
+    }
+    // versões
+    function newDraft(){
+        const active=BRAIN.versions.find(v=>v.status==='ativa'||v.status==='active');
+        openModal(`<h3 class="text-lg font-black mb-1"><i class="fas fa-plus" style="color:var(--accent)"></i> Novo rascunho</h3>
+            <p class="text-xs mb-4" style="color:var(--t-muted)">Clona a versão ativa como um rascunho editável.</p>
+            <label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Nome</span>
+                <input id="nd-nome" class="fld mt-1" placeholder="ex: v2 — tom mais direto"></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Clonar de</span>
+                <select id="nd-from" class="fld mt-1">
+                    <option value="">(vazio / padrão)</option>
+                    ${BRAIN.versions.map(v=>`<option value="${v.id}" ${active&&active.id===v.id?'selected':''}>${esc(v.nome)} (${esc(v.status)})</option>`).join('')}
+                </select></label>
+            <div class="flex justify-end gap-2 mt-5"><button class="btn btn-s" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-p" onclick="doNewDraft()"><i class="fas fa-check"></i> Criar</button></div>`);
+    }
+    async function doNewDraft(){
+        const nome=document.getElementById('nd-nome').value.trim(); const from=document.getElementById('nd-from').value;
+        if(!nome){ toast('Dê um nome','error'); return; }
+        const body={nome}; if(from) body.from_version_id=from;
+        try{ const r=await api('/admin/brain/versions',{method:'POST',body:JSON.stringify(body)}); toast('Rascunho criado'); closeModal(); await loadBrain(); if(r&&r.id) loadBrainVersion(r.id); }
+        catch(e){ toast(e.message,'error'); }
+    }
+    async function activateVersion(){
+        const v=BRAIN.current&&BRAIN.current.version; if(!v) return;
+        if(!confirm(`Ativar a versão "${v.nome}"? Ela passa a controlar o bot em produção.`)) return;
+        try{ await api(`/admin/brain/versions/${encodeURIComponent(v.id)}/activate`,{method:'POST',body:JSON.stringify({})}); toast('Versão ativada'); loadBrain(); }
+        catch(e){ toast(e.message,'error'); }
+    }
+    async function deleteVersion(){
+        const v=BRAIN.current&&BRAIN.current.version; if(!v||!isDraft(v)) return;
+        if(!confirm(`Apagar o rascunho "${v.nome}"?`)) return;
+        try{ await api('/admin/brain/versions/'+encodeURIComponent(v.id),{method:'DELETE'}); toast('Rascunho apagado'); loadBrain(); }
+        catch(e){ toast(e.message,'error'); }
+    }
+    // mensagens CRUD
+    function msgForm(m){ m=m||{};
+        return `<label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Chave</span><input id="m-chave" class="fld mt-1" value="${esc(m.chave||'')}"></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Grupo</span><input id="m-grupo" class="fld mt-1" value="${esc(m.grupo||'')}"></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Descrição</span><input id="m-desc" class="fld mt-1" value="${esc(m.descricao||'')}"></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Texto</span><textarea id="m-texto" class="fld mt-1" rows="4">${esc(m.texto||'')}</textarea></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Variáveis (separadas por vírgula)</span><input id="m-vars" class="fld mt-1" value="${esc(Array.isArray(m.variaveis)?m.variaveis.join(', '):(m.variaveis||''))}"></label>`;
+    }
+    function msgBody(){
+        const vars=document.getElementById('m-vars').value.split(',').map(s=>s.trim()).filter(Boolean);
+        return { chave:document.getElementById('m-chave').value.trim(), grupo:document.getElementById('m-grupo').value.trim(), descricao:document.getElementById('m-desc').value, texto:document.getElementById('m-texto').value, variaveis:vars };
+    }
+    function newMessage(){ openModal(`<h3 class="text-lg font-black mb-4"><i class="fas fa-comment-medical" style="color:var(--accent)"></i> Nova mensagem</h3>${msgForm()}
+        <div class="flex justify-end gap-2 mt-5"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="doNewMessage()"><i class="fas fa-check"></i> Criar</button></div>`); }
+    async function doNewMessage(){ const v=BRAIN.current.version; try{ await api(`/admin/brain/versions/${encodeURIComponent(v.id)}/messages`,{method:'POST',body:JSON.stringify(msgBody())}); toast('Mensagem criada'); closeModal(); loadBrainVersion(v.id); }catch(e){ toast(e.message,'error'); } }
+    function editMessage(id){ const m=(BRAIN.current.messages||[]).find(x=>String(x.id)===String(id)); if(!m) return;
+        openModal(`<h3 class="text-lg font-black mb-4"><i class="fas fa-pen" style="color:var(--accent)"></i> Editar mensagem</h3>${msgForm(m)}
+        <div class="flex justify-end gap-2 mt-5"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="doEditMessage('${id}')"><i class="fas fa-check"></i> Salvar</button></div>`); }
+    async function doEditMessage(id){ const v=BRAIN.current.version; try{ await api('/admin/brain/messages/'+encodeURIComponent(id),{method:'PATCH',body:JSON.stringify(msgBody())}); toast('Mensagem atualizada'); closeModal(); loadBrainVersion(v.id); }catch(e){ toast(e.message,'error'); } }
+    async function delMessage(id){ if(!confirm('Apagar esta mensagem?')) return; const v=BRAIN.current.version; try{ await api('/admin/brain/messages/'+encodeURIComponent(id),{method:'DELETE'}); toast('Mensagem apagada'); loadBrainVersion(v.id); }catch(e){ toast(e.message,'error'); } }
+    // categorias CRUD
+    function catForm(c){ c=c||{};
+        return `<label class="block"><span class="text-xs font-bold" style="color:var(--t-muted)">Nome</span><input id="ct-nome" class="fld mt-1" value="${esc(c.nome||'')}"></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Tipo</span><select id="ct-tipo" class="fld mt-1">
+                ${['EXPENSE','INCOME','AMBOS'].map(t=>`<option value="${t}" ${c.tipo===t?'selected':''}>${t}</option>`).join('')}</select></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Sinônimos (vírgula)</span><input id="ct-sin" class="fld mt-1" value="${esc(Array.isArray(c.sinonimos)?c.sinonimos.join(', '):(c.sinonimos||''))}"></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Regra</span><input id="ct-regra" class="fld mt-1" value="${esc(c.regra||'')}"></label>
+            <label class="block mt-3"><span class="text-xs font-bold" style="color:var(--t-muted)">Ordem</span><input id="ct-ordem" type="number" class="fld mt-1" value="${esc(c.ordem!=null?c.ordem:0)}"></label>`;
+    }
+    function catBody(){
+        return { nome:document.getElementById('ct-nome').value.trim(), tipo:document.getElementById('ct-tipo').value,
+            sinonimos:document.getElementById('ct-sin').value.split(',').map(s=>s.trim()).filter(Boolean),
+            regra:document.getElementById('ct-regra').value, ordem:Number(document.getElementById('ct-ordem').value)||0 };
+    }
+    function newCategory(){ openModal(`<h3 class="text-lg font-black mb-4"><i class="fas fa-tag" style="color:var(--accent)"></i> Nova categoria</h3>${catForm()}
+        <div class="flex justify-end gap-2 mt-5"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="doNewCategory()"><i class="fas fa-check"></i> Criar</button></div>`); }
+    async function doNewCategory(){ const v=BRAIN.current.version; try{ await api(`/admin/brain/versions/${encodeURIComponent(v.id)}/categories`,{method:'POST',body:JSON.stringify(catBody())}); toast('Categoria criada'); closeModal(); loadBrainVersion(v.id); }catch(e){ toast(e.message,'error'); } }
+    function editCategory(id){ const c=(BRAIN.current.categories||[]).find(x=>String(x.id)===String(id)); if(!c) return;
+        openModal(`<h3 class="text-lg font-black mb-4"><i class="fas fa-pen" style="color:var(--accent)"></i> Editar categoria</h3>${catForm(c)}
+        <div class="flex justify-end gap-2 mt-5"><button class="btn btn-s" onclick="closeModal()">Cancelar</button><button class="btn btn-p" onclick="doEditCategory('${id}')"><i class="fas fa-check"></i> Salvar</button></div>`); }
+    async function doEditCategory(id){ const v=BRAIN.current.version; try{ await api('/admin/brain/categories/'+encodeURIComponent(id),{method:'PATCH',body:JSON.stringify(catBody())}); toast('Categoria atualizada'); closeModal(); loadBrainVersion(v.id); }catch(e){ toast(e.message,'error'); } }
+    async function delCategory(id){ if(!confirm('Apagar esta categoria?')) return; const v=BRAIN.current.version; try{ await api('/admin/brain/categories/'+encodeURIComponent(id),{method:'DELETE'}); toast('Categoria apagada'); loadBrainVersion(v.id); }catch(e){ toast(e.message,'error'); } }
+
+    // ── SIMULADOR ──
+    async function simulate(){
+        const message=document.getElementById('sim-msg').value.trim();
+        if(!message){ toast('Escreva uma mensagem','error'); return; }
+        const out=document.getElementById('sim-out');
+        out.innerHTML=`<div class="card p-6 text-center" style="color:var(--t-muted)"><i class="fas fa-spinner fa-spin"></i> Simulando…</div>`;
+        const body={ message };
+        if(document.getElementById('sim-real').checked){ const em=document.getElementById('sim-email').value.trim(); if(em) body.target_email=em; }
+        if(document.getElementById('sim-src').value==='draft' && BRAIN.current){
+            body.config={ persona:document.getElementById('c-persona')?document.getElementById('c-persona').value:BRAIN.current.version.persona,
+                regras:document.getElementById('c-regras')?document.getElementById('c-regras').value:BRAIN.current.version.regras,
+                prompt_extra:document.getElementById('c-extra')?document.getElementById('c-extra').value:BRAIN.current.version.prompt_extra,
+                model:document.getElementById('c-model')?document.getElementById('c-model').value:BRAIN.current.version.model,
+                temperature:document.getElementById('c-temp')?Number(document.getElementById('c-temp').value):BRAIN.current.version.temperature,
+                messages:BRAIN.current.messages, categories:BRAIN.current.categories };
+        } else if(BRAIN.current){ body.version_id=BRAIN.current.version.id; }
+        try{
+            const r = await api('/admin/brain/simulate',{method:'POST',body:JSON.stringify(body)});
+            renderSimOut(r||{});
+        }catch(e){ out.innerHTML=`<div class="card p-6 text-center" style="color:var(--neg)">${esc(e.message)}</div>`; }
+    }
+    function renderSimOut(r){
+        const trace=r.trace||[]; const u=r.usage||{};
+        const traceHtml = trace.map((step,i)=>`
+            <div class="card p-4">
+                <div class="text-xs font-bold mb-2" style="color:var(--t-muted)">Passo ${step.step!=null?esc(step.step):i+1}</div>
+                ${step.assistant?`<p class="text-sm mb-3" style="color:var(--t-base)">${mdBold(step.assistant)}</p>`:''}
+                ${(step.tool_calls||[]).map(tc=>{
+                    const isRead = tc.readonly===true;
+                    const seal = isRead ? '<span class="badge b-blue"><i class="fas fa-eye"></i> leitura real</span>'
+                                        : '<span class="badge b-green"><i class="fas fa-shield-halved"></i> simulado — nada gravado</span>';
+                    return `<div class="rounded-xl p-3 mb-2" style="background:var(--surface-1);border:1px solid var(--border-glass)">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap"><span class="badge b-amber"><i class="fas fa-wrench"></i> ${esc(tc.name)}</span>${seal}</div>
+                        <div class="text-[10px] font-bold uppercase mb-1" style="color:var(--t-muted)">args</div>
+                        <pre class="j">${esc(JSON.stringify(tc.args,null,2))}</pre>
+                        <div class="text-[10px] font-bold uppercase mt-2 mb-1" style="color:var(--t-muted)">result</div>
+                        <pre class="j">${esc(typeof tc.result==='string'?tc.result:JSON.stringify(tc.result,null,2))}</pre>
+                    </div>`;
+                }).join('')}
+            </div>`).join('');
+        document.getElementById('sim-out').innerHTML = `
+            <div class="card card-hero p-5">
+                <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg grid place-items-center" style="background:var(--grad);color:#03251a"><i class="fas fa-robot"></i></div><h4 class="font-black">Resposta do Nickel</h4></div>
+                <p class="text-sm leading-relaxed" style="color:var(--t-hi)">${mdBold(r.reply||'(sem resposta)')}</p>
+            </div>
+            ${traceHtml?`<div class="mt-3"><h4 class="font-black mb-2 flex items-center gap-2"><i class="fas fa-route" style="color:var(--accent)"></i> Trilha de execução</h4><div class="space-y-3">${traceHtml}</div></div>`:''}
+            <div class="text-xs mt-3 flex flex-wrap gap-4" style="color:var(--t-muted)">
+                <span><i class="fas fa-coins"></i> tokens: <b>${nf(u.total||0)}</b> (prompt ${nf(u.prompt||0)} · completion ${nf(u.completion||0)})</span>
+                <span><i class="fas fa-microchip"></i> modelo: <b>${esc(r.model||'?')}</b></span>
+            </div>`;
+    }
+
+    // ── HISTÓRICO / DIFF ──
+    function renderHist(){
+        const tb=document.getElementById('hist-tbody'); if(!tb) return;
+        tb.innerHTML = (BRAIN.versions||[]).map(v=>`<tr>
+            <td class="font-semibold" style="color:var(--t-hi)">${esc(v.nome)}</td>
+            <td>${verBadge(v.status)}</td>
+            <td class="mono">${esc(v.model||'—')}</td>
+            <td>${esc(v.created_by||'—')}</td>
+            <td class="mono">${esc(v.created_at||'—')}</td>
+            <td class="mono">${esc(v.activated_at||'—')}</td>
+        </tr>`).join('') || `<tr><td colspan="6" class="text-center py-4" style="color:var(--t-muted)">Sem versões.</td></tr>`;
+    }
+    async function showDiff(){
+        const a=document.getElementById('diff-a').value, b=document.getElementById('diff-b').value;
+        if(!a||!b){ toast('Selecione duas versões','error'); return; }
+        if(a===b){ toast('Escolha versões diferentes','error'); return; }
+        try{
+            const d = await api(`/admin/brain/versions/${encodeURIComponent(a)}/diff/${encodeURIComponent(b)}`) || {};
+            const core=d.core||{}, msg=d.messages||{}, cat=d.categories||{};
+            const coreH = Object.keys(core).length ? Object.entries(core).map(([f,o])=>`
+                <div class="rounded-xl p-3 mb-2" style="background:var(--surface-1);border:1px solid var(--border-glass)">
+                    <div class="text-xs font-bold mb-1" style="color:var(--accent)">${esc(f)}</div>
+                    <div class="grid sm:grid-cols-2 gap-2 text-xs">
+                        <div><span class="badge b-red">A</span><pre class="j mt-1">${esc(typeof o.a==='object'?JSON.stringify(o.a,null,2):o.a)}</pre></div>
+                        <div><span class="badge b-green">B</span><pre class="j mt-1">${esc(typeof o.b==='object'?JSON.stringify(o.b,null,2):o.b)}</pre></div>
+                    </div></div>`).join('') : '<p class="text-xs" style="color:var(--t-muted)">Núcleo idêntico.</p>';
+            const listBlock=(title,obj)=>{ obj=obj||{};
+                const seg=(lbl,arr,cls)=>`<div class="mb-1"><span class="badge ${cls}">${lbl} ${(arr||[]).length}</span> ${(arr||[]).map(x=>`<span class="chip mono">${esc(typeof x==='object'?(x.chave||x.nome||JSON.stringify(x)):x)}</span>`).join('')||'<span style="color:var(--t-faint)">—</span>'}</div>`;
+                return `<div class="mb-3"><div class="text-xs font-bold mb-1" style="color:var(--accent)">${title}</div>${seg('adicionadas',obj.added,'b-green')}${seg('removidas',obj.removed,'b-red')}${seg('alteradas',obj.changed,'b-amber')}</div>`;
+            };
+            openModal(`<h3 class="text-lg font-black mb-4"><i class="fas fa-code-compare" style="color:var(--accent)"></i> Diff de versões</h3>
+                <div class="mb-4"><div class="text-xs font-bold uppercase mb-2" style="color:var(--t-muted)">Núcleo</div>${coreH}</div>
+                ${listBlock('Mensagens',msg)}${listBlock('Categorias',cat)}
+                <div class="flex justify-end mt-4"><button class="btn btn-s" onclick="closeModal()">Fechar</button></div>`);
+        }catch(e){ toast(e.message,'error'); }
+    }
+
+    // ═══════════════════════════════════════ AUDITORIA ═══════════════════════════════════════
+    const AUDIT = { limit:50, offset:0, rows:[] };
+    function pageAudit(dir){ const n=AUDIT.offset+dir*AUDIT.limit; if(n<0) return; if(dir>0 && AUDIT.rows.length<AUDIT.limit) return; AUDIT.offset=n; loadAudit(); }
+    async function loadAudit(){
+        const tb=document.getElementById('audit-tbody');
+        tb.innerHTML=`<tr><td colspan="6" class="text-center py-6" style="color:var(--t-muted)"><i class="fas fa-spinner fa-spin"></i></td></tr>`;
+        try{
+            const rows = await api(`/admin/audit?limit=${AUDIT.limit}&offset=${AUDIT.offset}`) || [];
+            AUDIT.rows=rows;
+            tb.innerHTML = rows.length ? rows.map(a=>`<tr>
+                <td class="mono">${esc(a.created_at)}</td>
+                <td class="font-semibold" style="color:var(--t-hi)">${esc(a.admin_email)}</td>
+                <td><span class="badge b-blue">${esc(a.action)}</span></td>
+                <td class="mono">${esc(a.target_table||'—')}</td>
+                <td>${esc(a.target_email||'—')}</td>
+                <td class="mono">${esc(a.target_id||'—')}</td>
+            </tr>`).join('') : `<tr><td colspan="6" class="text-center py-6" style="color:var(--t-muted)">Nenhum registro de auditoria.</td></tr>`;
+            document.getElementById('audit-count').innerText = `${AUDIT.offset+1}–${AUDIT.offset+rows.length}`;
+        }catch(e){ tb.innerHTML=`<tr><td colspan="6" class="text-center py-6" style="color:var(--neg)">${esc(e.message)}</td></tr>`; }
+    }
+</script>
+</body>
+</html>
