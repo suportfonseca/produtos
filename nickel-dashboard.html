@@ -1509,15 +1509,16 @@
         const d=pts.map((p,i)=>`${(i/(pts.length-1||1))*w},${h-((p-mn)/rg)*(h-4)-2}`).join(' ');
         return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%;height:26px"><polyline fill="none" stroke="${color}" stroke-width="2" points="${d}"/></svg>`;
     }
-    function kpiTile(label,value,cls,delta,spark,tip,click,kind){
+    function kpiTile(label,value,cls,delta,spark,tip,click,kind,pinId){
         // click = expressão JS opcional. kind='explain' → abre o popup do Nickel explicando o número;
         // caso contrário → drill (leva ao extrato filtrado). Ícone e título mudam conforme o tipo.
         const isExplain = kind==='explain';
         const icon = isExplain?'fa-wand-magic-sparkles':'fa-arrow-right';
         const ttl = isExplain?'O Nickel explica esse número':'Ver lançamentos';
         const clk = click?` role="button" tabindex="0" title="${ttl}" onclick='${click}' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();${click}}'`:'';
+        const pin = pinId?`<button onclick="event.stopPropagation();pinWidget('${pinId}')" title="Fixar no Meu Painel" class="ml-1.5 text-slate-300 hover:text-brand-500 nf-pin" style="cursor:pointer;background:none;border:none;padding:0"><i class="fas fa-thumbtack text-[9px]"></i></button>`:'';
         return `<div class="card p-4 ${cls||''} ${click?'nf-drill':''}"${clk}>
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center">${label}${tip?hint(tip):''}${click?`<i class="fas ${icon} nf-drill-arrow ml-auto"></i>`:''}</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center">${label}${tip?hint(tip):''}${pin}${click?`<i class="fas ${icon} nf-drill-arrow ml-auto"></i>`:''}</p>
             <h3 class="text-xl md:text-2xl font-black num mt-1 tracking-tight">${value}</h3>
             ${delta?`<div class="text-xs font-bold mt-0.5">${delta}</div>`:''}
             ${spark||''}</div>`;
@@ -1731,13 +1732,13 @@
         const dispColor = disp<0?'var(--neg)':'var(--pos)';
         KPIVAL = Object.assign(KPIVAL, { consol, disp, gastavel, fIn, fOut, sobra, inc, exp, expConta, expCartao, taxa, aporteMes, reservaVal, custoMes, meses, burn, elap, porDia, diasAtePag, recNaoCartao, nContas:S.accounts.length });
         document.getElementById('kpi-grid').innerHTML =
-            kpiTile('💸 Dá pra gastar por dia', `<span style="color:var(--pos)">${fmt(porDia)}</span>`, 'card-hero kpi-hero col-span-2', `até o salário (${diasAtePag} dia${diasAtePag>1?'s':''}) · só a conta, sem cartão`, sparkline(last7Balance(),'var(--accent)'), 'Quanto dá pra gastar POR DIA com o que você tem na conta, já tirando o que ainda precisa pagar (sem cartão), até cair o próximo salário (5º dia útil). O cartão fica de fora — é pra pagar depois.', 'explainKpi("por_dia")', 'explain')
-          + kpiTile('Saldo Consolidado', fmt(consol), '', `${S.accounts.length} conta(s)`, '', 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.', 'explainKpi("consolidado")', 'explain')
-          + kpiTile('Disponível em conta', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'contas do dia a dia', '', 'Quanto você pode gastar até o fim do mês. Considera só as contas corrente e carteira (não a reserva, poupança nem investimentos) menos os compromissos fixos que ainda faltam. A fatura do cartão fica separada.', 'explainKpi("disponivel")', 'explain')
-          + ((S.cards&&S.cards.length)?kpiTile('Fatura do mês no cartão', fmt(S.cards.reduce((s,c)=>s+parseFloat(c.fatura_aberta||0),0)), '', 'no crédito, separado', '', 'Total das faturas abertas dos seus cartões neste ciclo. Fica separado do disponível em conta — só sai do banco quando você paga a fatura.'):'')
-          + kpiTile('Sobra do período', `<span style="color:${sobra<0?'var(--neg)':'var(--pos)'}">${fmt(sobra)}</span>`, '', `entradas ${fmt(inc)}`, '', 'Suas entradas menos suas saídas no período selecionado. Verde é sobra, vermelho é falta.', 'explainKpi("sobra")', 'explain')
+            kpiTile('💸 Dá pra gastar por dia', `<span style="color:var(--pos)">${fmt(porDia)}</span>`, 'card-hero kpi-hero col-span-2', `até o salário (${diasAtePag} dia${diasAtePag>1?'s':''}) · só a conta, sem cartão`, sparkline(last7Balance(),'var(--accent)'), 'Quanto dá pra gastar POR DIA com o que você tem na conta, já tirando o que ainda precisa pagar (sem cartão), até cair o próximo salário (5º dia útil). O cartão fica de fora — é pra pagar depois.', 'explainKpi("por_dia")', 'explain', 'por_dia')
+          + kpiTile('Saldo Consolidado', fmt(consol), '', `${S.accounts.length} conta(s)`, '', 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.', 'explainKpi("consolidado")', 'explain', 'consolidado')
+          + kpiTile('Disponível em conta', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'contas do dia a dia', '', 'Quanto você pode gastar até o fim do mês. Considera só as contas corrente e carteira (não a reserva, poupança nem investimentos) menos os compromissos fixos que ainda faltam. A fatura do cartão fica separada.', 'explainKpi("disponivel")', 'explain', 'disponivel')
+          + ((S.cards&&S.cards.length)?kpiTile('Fatura do mês no cartão', fmt(S.cards.reduce((s,c)=>s+parseFloat(c.fatura_aberta||0),0)), '', 'no crédito, separado', '', 'Total das faturas abertas dos seus cartões neste ciclo. Fica separado do disponível em conta — só sai do banco quando você paga a fatura.', '', '', 'fatura'):'')
+          + kpiTile('Sobra do período', `<span style="color:${sobra<0?'var(--neg)':'var(--pos)'}">${fmt(sobra)}</span>`, '', `entradas ${fmt(inc)}`, '', 'Suas entradas menos suas saídas no período selecionado. Verde é sobra, vermelho é falta.', 'explainKpi("sobra")', 'explain', 'sobra')
           + kpiTile('Taxa de aporte', taxa.toFixed(0)+'%', '', 'da renda guardada', '', 'Quanto da sua renda deste mês você conseguiu guardar.', 'explainKpi("taxa_aporte")', 'explain')
-          + kpiTile('Reserva', meses>0?meses.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que você já tem guardado.', 'explainKpi("reserva")', 'explain')
+          + kpiTile('Reserva', meses>0?meses.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que você já tem guardado.', 'explainKpi("reserva")', 'explain', 'reserva')
           + kpiTile('Burn rate', fmt(burn)+'/dia', '', 'ritmo de gasto', '', 'Seu ritmo médio de gasto por dia neste mês.', 'explainKpi("burn")', 'explain');
 
         renderFlow(ignoreCards()?tx.filter(t=>!(t.type==='EXPENSE'&&_cardSet.has(String(t.account_id)))):tx, R);
@@ -1782,7 +1783,7 @@
         const maior=sorted[0];
         KPIVAL = Object.assign(KPIVAL, { gExp:exp, gElap:elap, gMedia:elap>0?exp/elap:0 });
         document.getElementById('gastos-kpis').innerHTML =
-            kpiTile('Total gasto no período', fmt(exp), 'card-hero kpi-hero col-span-2', `${nExp} lançamentos${ign?' · cartões fora':''}`, '', 'Soma das suas saídas no período. Com o filtro de cartões ligado, os gastos no cartão de crédito não entram (viram fatura).', 'goFilter("extrato",{type:"EXPENSE"})')
+            kpiTile('Total gasto no período', fmt(exp), 'card-hero kpi-hero col-span-2', `${nExp} lançamentos${ign?' · cartões fora':''}`, '', 'Soma das suas saídas no período. Com o filtro de cartões ligado, os gastos no cartão de crédito não entram (viram fatura).', 'goFilter("extrato",{type:"EXPENSE"})', '', 'gasto_mes')
           + kpiTile('Média por dia', fmt(elap>0?exp/elap:0), '', 'no período', '', 'Total gasto dividido pelos dias já corridos do período.', 'explainKpi("media_dia")', 'explain')
           + kpiTile('Maior categoria', maior?maior[0]:'—', '', maior?fmt(maior[1]):'', '', 'A categoria em que você mais gastou neste mês.', maior?`drillCat(${JSON.stringify(maior[0])})`:'');
         renderDonut(cats,exp);
@@ -1903,10 +1904,10 @@
         // ---- KPIs ----
         KPIVAL = Object.assign(KPIVAL, { netWorth, gConsol:consol, caixinhas, cryptoNow, cardsDevido, varPct, varDelta:cur-prev, savingsRate, gInc:inc, gExp2:expConta2, meses:mesesRes, reservaVal, custoMes, limiteTot, expoCartao, ativosRisco });
         document.getElementById('kpi-grid-g').innerHTML =
-            kpiTile('Patrimônio líquido total', fmt(netWorth), 'card-hero kpi-hero col-span-2', `<span style="color:${varCol}">${varPct>=0?'▲':'▼'} ${Math.abs(varPct).toFixed(1)}% no mês</span>`, sparkline(evoData,'var(--accent)'), 'Tudo somado entre todos os bancos e ativos: contas + caixinhas + cripto, menos a dívida de cartão. A cripto entra uma única vez.', 'explainKpi("patrimonio")', 'explain')
+            kpiTile('Patrimônio líquido total', fmt(netWorth), 'card-hero kpi-hero col-span-2', `<span style="color:${varCol}">${varPct>=0?'▲':'▼'} ${Math.abs(varPct).toFixed(1)}% no mês</span>`, sparkline(evoData,'var(--accent)'), 'Tudo somado entre todos os bancos e ativos: contas + caixinhas + cripto, menos a dívida de cartão. A cripto entra uma única vez.', 'explainKpi("patrimonio")', 'explain', 'patrimonio')
           + kpiTile('Variação no mês', `<span style="color:${varCol}">${varPct>=0?'+':''}${varPct.toFixed(1)}%</span>`, '', fmt(cur-prev)+' vs mês anterior', '', 'Quanto seu patrimônio cresceu ou caiu ante o mês anterior (estimativa pelos lançamentos).', 'explainKpi("variacao")', 'explain')
-          + kpiTile('Taxa de poupança', savingsRate.toFixed(0)+'%', '', 'da renda do mês', '', 'Quanto da sua renda deste mês sobrou. É o motor do crescimento.', 'explainKpi("poupanca")', 'explain')
-          + kpiTile('Reserva', mesesRes>0?mesesRes.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que já está guardado.', 'explainKpi("reserva")', 'explain')
+          + kpiTile('Taxa de poupança', savingsRate.toFixed(0)+'%', '', 'da renda do mês', '', 'Quanto da sua renda deste mês sobrou. É o motor do crescimento.', 'explainKpi("poupanca")', 'explain', 'poupanca')
+          + kpiTile('Reserva', mesesRes>0?mesesRes.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que já está guardado.', 'explainKpi("reserva")', 'explain', 'reserva')
           + kpiTile('Exposição a cartão', limiteTot>0?expoCartao.toFixed(0)+'%':'—', '', fmt(cardsDevido)+' devido', '', 'Quanto do seu limite total de cartão já está comprometido. Acima de 50% liga o alerta.', 'explainKpi("exposicao")', 'explain')
           + kpiTile('Ativos de risco/rendimento', fmt(ativosRisco), '', 'investimentos + cripto', '', 'Parte do patrimônio que trabalha por você em investimentos e cripto.', 'explainKpi("ativos")', 'explain');
         const grid=GRID, tick=TICK;
