@@ -1221,6 +1221,7 @@
         document.querySelectorAll('.nav-top').forEach(b=>b.classList.remove('active'));
         document.getElementById(a?a.parent:(NAV_PARENT[sec]||''))?.classList.add('active');
         document.getElementById('page-title').innerText=a?a.title:SEC_TITLE[sec];
+        try{ localStorage.setItem('nickel_tab', id); }catch(e){}
         requestAnimationFrame(animateActiveSection);
         if(sec==='plan') renderCalendar();
         if(sec==='cartoes') renderCartoes();
@@ -2428,6 +2429,8 @@
     const _mainEl=document.querySelector('main'), _hdrEl=document.querySelector('main > header');
     if(_mainEl&&_hdrEl) _mainEl.addEventListener('scroll',()=>_hdrEl.classList.toggle('scrolled',_mainEl.scrollTop>20),{passive:true});
     applyTheme(); loadAll();
-    </script>
+    // F5 mantém a aba onde você estava (não volta pra default)
+    try{ const _t=localStorage.getItem('nickel_tab'); if(_t){ const _s=(NAV_ALIAS[_t]&&NAV_ALIAS[_t].sec)||_t; if(document.getElementById('sec-'+_s)) go(_t); } }catch(e){}
+</script>
 </body>
 </html>
