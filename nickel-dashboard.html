@@ -419,6 +419,7 @@
             </div>
             <nav class="hidden md:flex items-center gap-0.5">
                 <button class="nav-top" id="t-geral" onclick="go('geral')"><i class="fas fa-earth-americas text-[11px]"></i> Geral</button>
+                <button class="nav-top" id="t-meu" onclick="go('meu')"><i class="fas fa-table-cells-large text-[11px]"></i> Meu Painel</button>
                 <div class="nav-item"><button class="nav-top" id="t-dash">Dashboard <i class="fas fa-chevron-down text-[9px]"></i></button>
                     <div class="nav-drop">
                         <button onclick="go('dash')"><i class="fas fa-wallet"></i> Finanças</button>
@@ -489,6 +490,15 @@
                     <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black">Lançamentos recentes</h3><button onclick="go('extrato')" class="text-xs font-bold" style="color:var(--accent)">Extrato →</button></div>
                     <div id="recent-logs" class="space-y-2.5"></div>
                 </div>
+            </div>
+
+            <!-- ══════════ MEU PAINEL (personalizável) ══════════ -->
+            <div id="sec-meu" class="section-content space-y-6">
+                <div class="card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Meu Painel</p><h3 class="text-lg font-black mt-1">Seu dashboard, do seu jeito <span class="text-[11px] font-medium text-slate-400">(arraste pra reordenar)</span></h3></div>
+                    <button onclick="openWidgetPicker()" class="text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i> Adicionar bloco</button>
+                </div>
+                <div id="meu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
             </div>
 
             <!-- ══════════ GERAL (dashboard globalizado) ══════════ -->
@@ -766,6 +776,15 @@
                 <button onclick="closeModal('m-card-welcome');openNewTxCard(_welcomeCard);_welcomeReturn=true" class="w-full card p-4 flex items-center gap-3 text-left hover:border-brand-500"><span class="w-10 h-10 rounded-xl grid place-items-center shrink-0" style="background:rgba(42,120,214,.12);color:var(--accent)"><i class="fas fa-plus"></i></span><div><div class="text-sm font-bold">Quero lançar um gasto que já fiz</div><div class="text-[11px] text-slate-400">Uma compra recente nesse cartão</div></div></button>
                 <button onclick="closeModal('m-card-welcome');_welcomeReturn=false" class="w-full py-2.5 rounded-xl font-bold text-sm bg-slate-100 dark:bg-slate-800 mt-1">Tá tudo certo, valeu 👍</button>
             </div>
+        </div>
+    </div>
+
+    <div id="m-widget-add" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card p-6 w-full max-w-md" style="max-height:88vh;display:flex;flex-direction:column">
+            <div class="flex items-center justify-between mb-3"><h4 class="font-black text-lg">Adicionar blocos</h4><button onclick="closeModal('m-widget-add')" class="w-8 h-8 rounded-lg" style="background:var(--surface-1)"><i class="fas fa-xmark"></i></button></div>
+            <p class="text-xs text-slate-400 mb-3">Toque pra adicionar/tirar do seu painel. Depois arraste pra ordenar.</p>
+            <div id="widget-picker-list" class="space-y-2 overflow-y-auto flex-1"></div>
+            <button onclick="closeModal('m-widget-add')" class="w-full mt-3 bg-slate-100 dark:bg-slate-800 py-2.5 rounded-xl font-bold text-sm">Pronto</button>
         </div>
     </div>
 
@@ -1267,10 +1286,10 @@
         parcelados:{sec:'plan',anchor:'installments-anchor',parent:'t-plan',title:'Planejamento'},
         transfers:{sec:'contas',anchor:'transfers-list',parent:'t-contas',title:'Transferências'},
     };
-    const NAV_PARENT={geral:'t-geral',dash:'t-dash',gastos:'t-dash',invest:'t-dash',sonhos:'t-dash',contas:'t-contas',cartoes:'t-contas',cad:'t-cad',plan:'t-plan',extrato:'t-extrato'};
-    const SEC_TITLE={geral:'Geral',dash:'Finanças',gastos:'Gastos',invest:'Investimentos',sonhos:'Sonhos',cad:'Categorias',contas:'Contas',cartoes:'Cartões',plan:'Planejamento',extrato:'Extrato'};
+    const NAV_PARENT={geral:'t-geral',meu:'t-meu',dash:'t-dash',gastos:'t-dash',invest:'t-dash',sonhos:'t-dash',contas:'t-contas',cartoes:'t-contas',cad:'t-cad',plan:'t-plan',extrato:'t-extrato'};
+    const SEC_TITLE={geral:'Geral',meu:'Meu Painel',dash:'Finanças',gastos:'Gastos',invest:'Investimentos',sonhos:'Sonhos',cad:'Categorias',contas:'Contas',cartoes:'Cartões',plan:'Planejamento',extrato:'Extrato'};
     // re-render por seção ao abrir (nenhuma tela fica "parada" precisando de refresh manual)
-    const SEC_RENDER={ geral:()=>renderGeral(), dash:()=>renderOverview(), gastos:()=>renderGastos(), invest:()=>renderInvest(), sonhos:()=>renderSonhos(), contas:()=>renderContas(), cartoes:()=>renderCartoes(), cad:()=>renderCad(), plan:()=>renderCalendar(), extrato:()=>renderExtrato() };
+    const SEC_RENDER={ geral:()=>renderGeral(), meu:()=>renderMeu(), dash:()=>renderOverview(), gastos:()=>renderGastos(), invest:()=>renderInvest(), sonhos:()=>renderSonhos(), contas:()=>renderContas(), cartoes:()=>renderCartoes(), cad:()=>renderCad(), plan:()=>renderCalendar(), extrato:()=>renderExtrato() };
     // o filtro de período só faz sentido nestas telas (as outras não usam curRange/monthTx)
     const PERIOD_SECS=new Set(['geral','dash','gastos','extrato']);
     function go(id){
@@ -1300,7 +1319,7 @@
 
     // ═══════════ RENDER GLOBAL + PERÍODO + FILTROS ═══════════
     function renderAll(){
-        renderOverview(); renderTodayBlock(); renderBadges(); renderGastos(); renderContas(); renderCartoes(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); renderCalendar(); fillAccountSelects();
+        renderOverview(); renderTodayBlock(); renderBadges(); renderGastos(); renderContas(); renderCartoes(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); renderCalendar(); renderMeu(); fillAccountSelects();
         requestAnimationFrame(animateActiveSection);
     }
     function setPeriod(mode){
@@ -1576,6 +1595,46 @@
     }
     // gasto do período que caiu em cartão de crédito (não sai da conta agora — vira fatura)
     function cardExpenseOf(txArr){ const s=new Set(S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO').map(a=>String(a.id))); let v=0; (txArr||[]).forEach(t=>{ if(t.type==='EXPENSE'&&s.has(String(t.account_id))) v+=parseFloat(t.amount||0); }); return v; }
+    // ═══════════ MEU PAINEL (dashboard personalizável) ═══════════
+    function _wcard(title,val,sub,color){ return `<div class="card p-4 h-full"><p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">${title}</p><h3 class="text-xl font-black num mt-1"${color?` style="color:${color}"`:''}>${val}</h3>${sub?`<p class="text-[10px] text-slate-400 mt-0.5">${sub}</p>`:''}</div>`; }
+    const WIDGETS={
+        por_dia:{title:'💸 Dá pra gastar por dia',render:()=>_wcard('💸 Dá pra gastar por dia',fmt(KPIVAL.porDia||0),`até o salário (${KPIVAL.diasAtePag||'?'}d) · sem cartão`,'var(--pos)')},
+        disponivel:{title:'Disponível em conta',render:()=>_wcard('Disponível em conta',fmt(KPIVAL.disp||0),'contas do dia a dia')},
+        consolidado:{title:'Saldo Consolidado',render:()=>_wcard('Saldo Consolidado',fmt(KPIVAL.consol||0),`${(S.accounts||[]).length} conta(s)`)},
+        fatura:{title:'Fatura do mês no cartão',render:()=>_wcard('Fatura do mês no cartão',fmt((S.cards||[]).reduce((s,c)=>s+num(c.fatura_aberta),0)),'no crédito, separado','var(--neg)')},
+        sobra:{title:'Sobra do período',render:()=>_wcard('Sobra do período',fmt(KPIVAL.sobra||0),`entradas ${fmt(KPIVAL.inc||0)}`,(KPIVAL.sobra||0)>=0?'var(--pos)':'var(--neg)')},
+        reserva:{title:'Reserva (meses)',render:()=>_wcard('Reserva',(KPIVAL.meses>0?KPIVAL.meses.toFixed(1)+' meses':'—'),fmt(KPIVAL.reservaVal||0))},
+        patrimonio:{title:'Patrimônio líquido',render:()=>_wcard('Patrimônio líquido',fmt(KPIVAL.netWorth||0),'contas + caixinhas + cripto − cartão','var(--accent)')},
+        poupanca:{title:'Taxa de poupança',render:()=>_wcard('Taxa de poupança',(KPIVAL.savingsRate||0).toFixed(0)+'%','da renda do mês')},
+        gasto_mes:{title:'Total gasto no mês',render:()=>_wcard('Total gasto no mês',fmt(KPIVAL.gExp||0),'saídas do período')},
+        cofrinho:{title:'Cofrinho (guardado)',render:()=>_wcard('🐷 Seu cofrinho',fmt((S.goals||[]).reduce((s,g)=>s+num(g.current_amount),0)),`${(S.goals||[]).length} sonho(s)`,'var(--accent)')},
+        streak:{title:'🔥 Dias no controle',render:()=>_wcard('🔥 Dias no controle',((STREAK&&STREAK.current)||1)+'',`recorde: ${(STREAK&&STREAK.best)||1}`)},
+        cartoes:{title:'Cartões (resumo)',render:()=>{ const cs=(S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO'); if(!cs.length)return _wcard('Cartões','—','nenhum cartão'); return `<div class="card p-4 h-full"><p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Cartões</p><div class="space-y-1.5 mt-2">${cs.map(a=>{const c=cardSum(a.id);return `<div class="flex justify-between text-[12px]"><span class="truncate">${a.nome}</span><span class="num font-bold text-rose-600">${fmt(c.fatura_aberta)}</span></div>`;}).join('')}</div></div>`; }},
+        contas:{title:'Minhas contas',render:()=>{ const cs=(S.accounts||[]).filter(a=>a.tipo!=='CARTAO_CREDITO'); return `<div class="card p-4 h-full"><p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Minhas contas</p><div class="space-y-1.5 mt-2">${cs.slice(0,6).map(a=>`<div class="flex justify-between text-[12px]"><span class="truncate">${a.nome}</span><span class="num font-bold">${fmt(a.balance)}</span></div>`).join('')||'<span class="text-slate-400 text-[12px]">—</span>'}</div></div>`; }},
+    };
+    const _PIN_DEFAULT=['por_dia','disponivel','sobra','cofrinho'];
+    function pinnedList(){ try{ const v=JSON.parse(localStorage.getItem('nickel_pinned')||'null'); return Array.isArray(v)?v:_PIN_DEFAULT.slice(); }catch(e){ return _PIN_DEFAULT.slice(); } }
+    function savePinned(arr){ try{ localStorage.setItem('nickel_pinned',JSON.stringify(arr)); }catch(e){} }
+    function pinWidget(id){ if(!WIDGETS[id])return; const l=pinnedList(); if(!l.includes(id)){ l.push(id); savePinned(l); toast('Fixado no Meu Painel 📌'); } renderMeu(); if(document.getElementById('m-widget-add')&&document.getElementById('m-widget-add').classList.contains('open')) fillWidgetPicker(); }
+    function unpinWidget(id){ savePinned(pinnedList().filter(x=>x!==id)); renderMeu(); }
+    function toggleWidget(id){ const l=pinnedList(); if(l.includes(id)) savePinned(l.filter(x=>x!==id)); else if(WIDGETS[id]){ l.push(id); savePinned(l); } renderMeu(); fillWidgetPicker(); }
+    function meuMove(id,dir){ const l=pinnedList(); const i=l.indexOf(id), j=i+dir; if(i<0||j<0||j>=l.length)return; const t=l[i]; l[i]=l[j]; l[j]=t; savePinned(l); renderMeu(); }
+    let _meuDrag=null;
+    function meuDragStart(e,id){ _meuDrag=id; if(e.dataTransfer){ e.dataTransfer.effectAllowed='move'; } }
+    function meuDrop(e,targetId){ if(e&&e.preventDefault)e.preventDefault(); if(!_meuDrag||_meuDrag===targetId)return; const l=pinnedList(); const from=l.indexOf(_meuDrag), to=l.indexOf(targetId); if(from<0||to<0)return; l.splice(from,1); l.splice(to,0,_meuDrag); savePinned(l); _meuDrag=null; renderMeu(); }
+    function renderMeu(){
+        const host=document.getElementById('meu-grid'); if(!host)return;
+        const l=pinnedList().filter(id=>WIDGETS[id]);
+        if(!l.length){ host.innerHTML=`<div class="card p-8 text-center col-span-full"><div class="text-4xl mb-2">🧩</div><p class="text-sm text-slate-400 mb-3">Seu painel está vazio. Adicione os blocos que importam pra você.</p><button onclick="openWidgetPicker()" class="py-2.5 px-5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus mr-1"></i>Adicionar bloco</button></div>`; return; }
+        host.innerHTML=l.map((id,i)=>`<div class="relative group" draggable="true" data-id="${id}" ondragstart="meuDragStart(event,'${id}')" ondragover="event.preventDefault()" ondrop="meuDrop(event,'${id}')" style="cursor:grab">
+            <div class="absolute top-1.5 right-1.5 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                <button onclick="meuMove('${id}',-1)" class="w-6 h-6 rounded-lg grid place-items-center" style="background:var(--surface-1)" title="Mover pra cima"><i class="fas fa-chevron-up text-[9px] text-slate-400"></i></button>
+                <button onclick="meuMove('${id}',1)" class="w-6 h-6 rounded-lg grid place-items-center" style="background:var(--surface-1)" title="Mover pra baixo"><i class="fas fa-chevron-down text-[9px] text-slate-400"></i></button>
+                <button onclick="unpinWidget('${id}')" class="w-6 h-6 rounded-lg grid place-items-center text-rose-500" style="background:var(--surface-1)" title="Remover"><i class="fas fa-xmark text-[10px]"></i></button>
+            </div>${WIDGETS[id].render()}</div>`).join('');
+    }
+    function fillWidgetPicker(){ const host=document.getElementById('widget-picker-list'); if(!host)return; const pinned=new Set(pinnedList()); host.innerHTML=Object.keys(WIDGETS).map(id=>{ const on=pinned.has(id); return `<button onclick="toggleWidget('${id}')" class="w-full card p-3 flex items-center justify-between text-left"><span class="text-sm font-bold">${WIDGETS[id].title}</span><span class="w-6 h-6 rounded-lg grid place-items-center shrink-0" style="background:${on?'var(--accent)':'var(--surface-1)'};color:${on?'#03251a':'var(--t-muted)'}"><i class="fas ${on?'fa-check':'fa-plus'} text-[10px]"></i></span></button>`; }).join(''); }
+    function openWidgetPicker(){ fillWidgetPicker(); openModal('m-widget-add'); }
     // ═══════════ STREAK + "Como você está hoje" ═══════════
     let STREAK=null;
     function computeStreak(){ let st; try{ st=JSON.parse(localStorage.getItem('nickel_streak')||'null'); }catch(e){} const today=new Date().toISOString().slice(0,10); const yD=new Date(); yD.setDate(yD.getDate()-1); const yest=yD.toISOString().slice(0,10); if(!st||!st.last){ st={last:today,current:1,best:1}; } else if(st.last===today){} else if(st.last===yest){ st.current=(st.current||0)+1; st.last=today; } else { st.current=1; st.last=today; } st.best=Math.max(st.best||0,st.current||1); try{ localStorage.setItem('nickel_streak',JSON.stringify(st)); }catch(e){} STREAK=st; return st; }
