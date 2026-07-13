@@ -475,6 +475,7 @@
                     <h4 class="text-sm font-bold mb-4">Fluxo de caixa — entradas vs saídas</h4>
                     <div class="h-60"><canvas id="chartFlow"></canvas></div>
                 </div>
+                <div id="badges-card"></div>
                 <div>
                     <div class="flex justify-between items-center mb-3 px-1"><h3 class="text-base font-black">Suas contas</h3><button onclick="go('contas')" class="text-xs font-bold" style="color:var(--accent)">Ver todas →</button></div>
                     <div id="mini-accounts" class="flex gap-3 overflow-x-auto hide-scroll pb-1"></div>
@@ -1293,7 +1294,7 @@
 
     // ═══════════ RENDER GLOBAL + PERÍODO + FILTROS ═══════════
     function renderAll(){
-        renderOverview(); renderGastos(); renderContas(); renderCartoes(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); renderCalendar(); fillAccountSelects();
+        renderOverview(); renderBadges(); renderGastos(); renderContas(); renderCartoes(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); renderCalendar(); fillAccountSelects();
         requestAnimationFrame(animateActiveSection);
     }
     function setPeriod(mode){
@@ -1423,7 +1424,7 @@
         if(S.profile && S.profile.onboarded===false) showWizard();
         api('/crypto/portfolio').then(p=>{ S.crypto=p; renderOverview(); renderInvest(); renderContas(); renderGeral(); });
         api('/installments').then(x=>{ S.installments=x||[]; renderInstallments(); renderCartoes(); renderCalendar(); });
-        renderAll(); syncPeriodUI();
+        renderAll(); syncPeriodUI(); setTimeout(checkBadgeUnlocks, 1600);
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
     }
 
@@ -1568,6 +1569,42 @@
     }
     // gasto do período que caiu em cartão de crédito (não sai da conta agora — vira fatura)
     function cardExpenseOf(txArr){ const s=new Set(S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO').map(a=>String(a.id))); let v=0; (txArr||[]).forEach(t=>{ if(t.type==='EXPENSE'&&s.has(String(t.account_id))) v+=parseFloat(t.amount||0); }); return v; }
+    // ═══════════ CONQUISTAS (gamificação) ═══════════
+    const BADGES=[
+        {id:'primeiro_passo',emoji:'👣',name:'Primeiro passo',desc:'Você fez seu primeiro lançamento!',hint:'Anote seu primeiro gasto ou entrada.',test:S=>(S.tx||[]).length>=1},
+        {id:'cartao',emoji:'💳',name:'Cartão na área',desc:'Cadastrou um cartão de crédito.',hint:'Cadastre um cartão de crédito.',test:S=>(S.accounts||[]).some(a=>a.tipo==='CARTAO_CREDITO')},
+        {id:'sonhador',emoji:'✨',name:'Sonhador',desc:'Criou sua primeira caixinha de sonho.',hint:'Crie uma caixinha de sonho.',test:S=>(S.goals||[]).length>=1},
+        {id:'formiguinha',emoji:'🐜',name:'Formiguinha',desc:'Fez seu primeiro aporte numa caixinha.',hint:'Guarde um valor numa caixinha.',test:S=>(S.transfers||[]).some(t=>t.goal_id)},
+        {id:'sonho_real',emoji:'🏆',name:'Sonho realizado',desc:'Bateu 100% de uma meta. Orgulho!',hint:'Encha uma caixinha até o topo.',test:S=>(S.goals||[]).some(g=>+g.target_amount>0&&+g.current_amount>=+g.target_amount)},
+        {id:'contador',emoji:'💯',name:'Contador nato',desc:'50 lançamentos registrados!',hint:'Chegue a 50 lançamentos.',test:S=>(S.tx||[]).length>=50},
+        {id:'falei',emoji:'🎙️',name:'Falei, ele anotou',desc:'Registrou algo pelo Telegram.',hint:'Mande um gasto pelo Telegram (texto/áudio).',test:S=>(S.tx||[]).some(t=>String(t.source||'').startsWith('telegram'))},
+        {id:'cripto',emoji:'🪙',name:'Primeira cripto',desc:'Registrou sua primeira cripto.',hint:'Registre uma compra de cripto.',test:S=>!!(S.crypto&&((+S.crypto.total_invested||0)>0||(S.crypto.items||[]).length))},
+        {id:'guardou',emoji:'🐷',name:'Começou a guardar',desc:'Tem dinheiro na reserva/poupança.',hint:'Guarde algo numa reserva ou poupança.',test:S=>(S.accounts||[]).some(a=>['RESERVA','POUPANCA'].includes(a.tipo)&&num(a.balance)>0)},
+        {id:'organizado',emoji:'🗂️',name:'Organizado',desc:'Cadastrou 3+ contas/carteiras.',hint:'Cadastre 3 contas ou carteiras.',test:S=>(S.accounts||[]).filter(a=>a.tipo!=='CARTAO_CREDITO').length>=3},
+        {id:'controle',emoji:'🎯',name:'No controle',desc:'Definiu um orçamento por categoria.',hint:'Crie um orçamento em Gastos.',test:S=>(S.budgets||[]).length>=1},
+        {id:'no_azul',emoji:'💙',name:'Mês no azul',desc:'Fechou o mês gastando menos do que entrou!',hint:'Termine o mês no positivo.',test:S=>{ const mes=new Date().toISOString().slice(0,7); const cardIds=new Set((S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO').map(a=>String(a.id))); let inc=0,exp=0,has=false; (S.tx||[]).forEach(t=>{ if(!String(t.date||'').startsWith(mes))return; has=true; const v=num(t.amount); if(t.type==='INCOME')inc+=v; else if(!cardIds.has(String(t.account_id)))exp+=v; }); return has&&inc>0&&inc>=exp; }},
+    ];
+    function earnedBadges(){ return BADGES.filter(b=>{ try{ return b.test(S); }catch(e){ return false; } }).map(b=>b.id); }
+    function renderBadges(){
+        const host=document.getElementById('badges-card'); if(!host) return;
+        const earned=new Set(earnedBadges()); const n=earned.size, tot=BADGES.length;
+        host.innerHTML=`<div class="card p-5">
+            <div class="flex items-center justify-between mb-3"><h3 class="text-base font-black flex items-center gap-2">🏅 Suas conquistas</h3><span class="text-xs font-bold text-slate-400">${n} de ${tot}</span></div>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">${BADGES.map(b=>{ const on=earned.has(b.id); return `<div class="rounded-xl p-2.5 text-center" title="${on?b.desc:('🔒 '+b.hint)}" style="border:1px solid var(--border-glass);background:${on?'rgba(23,201,100,.08)':'transparent'};opacity:${on?1:.5}"><div class="text-2xl leading-none">${on?b.emoji:'🔒'}</div><div class="text-[10px] font-bold mt-1 leading-tight" style="color:${on?'var(--t-hi)':'var(--t-muted)'}">${b.name}</div></div>`; }).join('')}</div>
+            ${n<tot?`<p class="text-[11px] text-slate-400 mt-3">Toque num bloqueado 🔒 pra ver como desbloquear.</p>`:`<p class="text-[12px] font-bold mt-3" style="color:var(--pos)">Você desbloqueou tudo! Que fera 🎉</p>`}
+        </div>`;
+    }
+    function celebrateBadge(b){
+        try{ openModal('m-explain'); document.getElementById('explain-title').textContent='Conquista desbloqueada! '+b.emoji; const mascot=document.getElementById('explain-mascot'); if(mascot)mascot.classList.add('writing'); typeWriter(document.getElementById('explain-text'), `${b.name} 🎉\n\n${b.desc} Cada passo desses te deixa mais no controle — orgulho de você!`); }catch(e){ toast(b.emoji+' Conquista: '+b.name+'!','ok'); }
+    }
+    function checkBadgeUnlocks(){
+        const earned=earnedBadges(); let seen=null;
+        try{ seen=JSON.parse(localStorage.getItem('nickel_badges')||'null'); }catch(e){}
+        if(!Array.isArray(seen)){ try{ localStorage.setItem('nickel_badges',JSON.stringify(earned)); }catch(e){} return; } // 1ª vez: semeia sem celebrar
+        const fresh=earned.filter(id=>!seen.includes(id));
+        try{ localStorage.setItem('nickel_badges',JSON.stringify(earned)); }catch(e){}
+        if(fresh.length){ const b0=BADGES.find(x=>x.id===fresh[0]); if(b0) celebrateBadge(b0); fresh.slice(1).forEach(id=>{ const bb=BADGES.find(x=>x.id===id); if(bb) toast(bb.emoji+' Conquista: '+bb.name+'!','ok'); }); }
+    }
     function renderOverview(){
         renderPending();
         const tx=monthTx();
@@ -2081,7 +2118,7 @@
     }
     function renderLogList(elId,list){
         const el=document.getElementById(elId);
-        if(!list.length){ el.innerHTML='<div class="card p-6 text-center text-sm text-slate-400 border-dashed">Nenhum lançamento.</div>'; return; }
+        if(!list.length){ el.innerHTML='<div class="card p-6 text-center border-dashed"><img src="mascote.png" alt="Nickel" style="width:56px;margin:0 auto 8px;object-fit:contain"><p class="text-sm font-bold">Bora dar o pontapé? 🚀</p><p class="text-[12px] text-slate-400 mt-0.5 leading-snug">Anota seu primeiro lançamento e eu já começo a te mostrar pra onde vai o dinheiro.</p><button onclick="openNewTx()" class="mt-3 py-2 px-4 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus mr-1"></i>Anotar agora</button></div>'; return; }
         el.innerHTML=list.map(t=>{ const out=t.type==='EXPENSE'; const v=parseFloat(t.amount);
             const d=new Date(t.date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
             return `<div class="card p-4 flex items-center justify-between group">
