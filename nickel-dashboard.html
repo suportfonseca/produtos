@@ -525,11 +525,17 @@
             <!-- ══════════ CARTÕES ══════════ -->
             <div id="sec-cartoes" class="section-content space-y-6">
                 <div class="card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Seus cartões de crédito</p><h3 class="text-lg font-black mt-1">Limite, faturas e parcelas num lugar só</h3></div>
+                    <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Central de cartões</p><h3 class="text-lg font-black mt-1">Limite, faturas, parcelas e o que dá pra melhorar</h3></div>
                     <button onclick="openAccountCard()" class="text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i> Novo cartão</button>
                 </div>
+                <div id="cartoes-tabs" class="flex gap-2 overflow-x-auto pb-1"></div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="cartoes-kpis"></div>
-                <div id="cartoes-list" class="space-y-5"></div>
+                <div id="cartoes-strategist"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="card p-5"><div class="flex items-center justify-between mb-3 gap-2"><h4 class="text-sm font-black">Compromissos no cartão <span class="text-[11px] font-medium text-slate-400">(maiores primeiro)</span></h4><div class="flex gap-3 text-[11px] shrink-0"><span><i class="fas fa-square" style="color:var(--accent)"></i> parcelado</span><span><i class="fas fa-square" style="color:var(--pos)"></i> assinatura</span></div></div><div style="height:16rem"><canvas id="chartCardComp"></canvas></div></div>
+                    <div class="card p-5"><h4 class="text-sm font-black mb-1">Previsão das próximas faturas</h4><p class="text-[11px] text-slate-400 mb-3">Só o fixo + parcelas — compra avulsa não dá pra prever. A barra cai quando um parcelamento acaba.</p><div style="height:16rem"><canvas id="chartCardFcast"></canvas></div></div>
+                </div>
+                <div id="cartoes-detail" class="space-y-5"></div>
             </div>
 
             <!-- ══════════ GASTOS ══════════ -->
@@ -1203,6 +1209,7 @@
         document.getElementById('page-title').innerText=a?a.title:SEC_TITLE[sec];
         requestAnimationFrame(animateActiveSection);
         if(sec==='plan') renderCalendar();
+        if(sec==='cartoes') renderCartoes();
         if(a&&a.anchor){ setTimeout(()=>document.getElementById(a.anchor)?.scrollIntoView({behavior:'smooth',block:'start'}),90); }
         else (document.querySelector('main')||window).scrollTo({top:0,behavior:'smooth'});
     }
@@ -1437,10 +1444,10 @@
     function closeExplain(){ clearInterval(_twTimer); const m=document.getElementById('explain-mascot'); if(m)m.classList.remove('writing'); closeModal('m-explain'); }
     // Cada explicação usa os números reais do cliente (KPIVAL), no tom do Nickel.
     const EXPLAIN = {
-        burn:{ title:v=>'Seu ritmo de gasto', body:v=>`Seu burn rate é ${fmt(v.burn)} por dia. Cheguei nisso pegando tudo que você gastou no período (${fmt(v.exp)}) e dividindo pelos ${v.elap} dia(s) já corridos.\n\nOu seja: no ritmo de agora, cada dia "custa" mais ou menos ${fmt(v.burn)}. Se um dia puxou muito a média, dá uma olhada na sua maior categoria — às vezes um gasto pontual distorce tudo.` },
+        burn:{ title:v=>'Seu ritmo de gasto', body:v=>`Seu ritmo é ${fmt(v.burn)} por dia — contando só o que saiu da conta (${fmt(v.expConta)}) dividido pelos ${v.elap} dia(s) já corridos.${v.expCartao>0?` As compras no cartão (${fmt(v.expCartao)}) ficam de fora daqui: viram fatura pra pagar no vencimento, não saem agora.`:''}\n\nNo ritmo de agora, cada dia "custa" mais ou menos ${fmt(v.burn)}. Se um dia puxou muito, dá uma olhada na sua maior categoria — às vezes um gasto pontual distorce tudo.` },
         reserva:{ title:v=>'Sua reserva de emergência', body:v=>`Sua reserva cobre ${v.meses.toFixed(1)} ${v.meses.toFixed(1)==='1.0'?'mês':'meses'}. Você tem ${fmt(v.reservaVal)} guardado (reserva, poupança e caixinhas), e seus custos giram em torno de ${fmt(v.custoMes)} por mês.\n\nDividindo um pelo outro, dá pra viver ~${v.meses.toFixed(1)} ${v.meses.toFixed(1)==='1.0'?'mês':'meses'} só com o que já está guardado, mesmo se a renda parasse. Cada real a mais aqui empurra esse número pra cima. 🛟` },
         disponivel:{ title:v=>'Quanto dá pra gastar', body:v=>`Você tem ${fmt(v.disp)} disponível pra gastar. Peguei o que está nas contas do dia a dia (corrente e carteira): ${fmt(v.gastavel)}${v.fOut>0?`, tirei ${fmt(v.fOut)} de compromissos fixos que ainda faltam vencer este mês`:''}${v.fIn>0?`, e somei ${fmt(v.fIn)} de entradas fixas ainda por vir`:''}.\n\nReserva, poupança e investimentos ficam de fora de propósito — esse número é só o que dá pra usar sem mexer no que é pra guardar.` },
-        sobra:{ title:v=>'Sua sobra do período', body:v=> v.sobra>=0 ? `Sua sobra é ${fmt(v.sobra)}. Simples: entrou ${fmt(v.inc)} e saiu ${fmt(v.exp)}. Sobraram ${fmt(v.sobra)} — esse é o combustível pra guardar ou investir. 🎉` : `Você fechou o período em ${fmt(v.sobra)}. Entrou ${fmt(v.inc)} e saíram ${fmt(v.exp)}, ou seja, ${fmt(-v.sobra)} a mais do que entrou.\n\nSem pânico — dá pra olhar na sua maior categoria onde apertar um pouco.` },
+        sobra:{ title:v=>'Sua sobra do período', body:v=> v.sobra>=0 ? `Sua sobra é ${fmt(v.sobra)}. Entrou ${fmt(v.inc)} e saiu da conta ${fmt(v.expConta)}.${v.expCartao>0?` O cartão (${fmt(v.expCartao)}) não entra aqui — é fatura pra pagar no vencimento, não dinheiro que já saiu.`:''} Sobraram ${fmt(v.sobra)} — esse é o combustível pra guardar ou investir. 🎉` : `Você fechou o período em ${fmt(v.sobra)}. Entrou ${fmt(v.inc)} e saiu da conta ${fmt(v.expConta)}, ou seja, ${fmt(-v.sobra)} a mais do que entrou.${v.expCartao>0?` (A fatura do cartão, ${fmt(v.expCartao)}, é um compromisso à parte.)`:''}\n\nSem pânico — dá pra olhar na sua maior categoria onde apertar um pouco.` },
         taxa_aporte:{ title:v=>'Sua taxa de aporte', body:v=>`Sua taxa de aporte é ${v.taxa.toFixed(0)}%. Isso quer dizer que ${v.taxa.toFixed(0)}% da sua renda do mês (${fmt(v.inc)}) está indo pra guardar — hoje ${fmt(v.aporteMes)} em aportes programados.\n\nQuanto maior essa fatia, mais rápido suas metas chegam. Subir só 1% já faz diferença lá na frente.` },
         consolidado:{ title:v=>'Seu saldo consolidado', body:v=>`Seu saldo consolidado é ${fmt(v.consol)}. É a soma do dinheiro das suas ${v.nContas} conta(s) marcadas pra entrar no consolidado.\n\nCartão de crédito não entra aqui (a fatura aparece separada), e a cripto conta no patrimônio, não no saldo do banco.` },
         media_dia:{ title:v=>'Sua média por dia', body:v=>`Sua média é ${fmt(v.gMedia)} por dia. Peguei o total gasto no período (${fmt(v.gExp)}) e dividi pelos ${v.gElap} dia(s) já corridos.\n\nServe pra você sentir o ritmo sem precisar olhar lançamento por lançamento.` },
@@ -1484,6 +1491,8 @@
         await api('/pending_incomes/'+id+'/skip',{method:'POST',body:JSON.stringify({})});
         toast('Ok, não contei essa entrada'); loadAll();
     }
+    // gasto do período que caiu em cartão de crédito (não sai da conta agora — vira fatura)
+    function cardExpenseOf(txArr){ const s=new Set(S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO').map(a=>String(a.id))); let v=0; (txArr||[]).forEach(t=>{ if(t.type==='EXPENSE'&&s.has(String(t.account_id))) v+=parseFloat(t.amount||0); }); return v; }
     function renderOverview(){
         renderPending();
         const tx=monthTx();
@@ -1493,7 +1502,8 @@
             if(t.type==='EXPENSE'){ exp+=v; const c=t.category||'OUTROS'; cats[c]=(cats[c]||0)+v; const d=parseInt(t.date.split('-')[2]); daily[d]=(daily[d]||0)+v; }
             else inc+=v; });
         const consol=consolidated();
-        const sobra=inc-exp;
+        const expCartao=cardExpenseOf(tx); const expConta=exp-expCartao;
+        const sobra=inc-expConta;
         // disponível p/ gastar = só contas do dia a dia (corrente/carteira), sem reserva/poupança/investimento
         const today=new Date().getDate();
         let fIn=0,fOut=0;
@@ -1506,12 +1516,12 @@
         const taxa = inc>0 ? (aporteMes/inc*100) : 0;
         // reserva em meses
         const reservaVal = S.accounts.filter(a=>['RESERVA','POUPANCA'].includes(a.tipo)).reduce((s,a)=>s+parseFloat(a.balance||0),0) + S.goals.reduce((s,g)=>s+parseFloat(g.current_amount),0);
-        const custoMes = S.fixed.filter(f=>f.type==='FIXED_EXPENSE').reduce((s,f)=>s+parseFloat(f.amount),0) + exp;
+        const custoMes = S.fixed.filter(f=>f.type==='FIXED_EXPENSE').reduce((s,f)=>s+parseFloat(f.amount),0) + expConta;
         const meses = custoMes>0 ? (reservaVal/custoMes) : 0;
-        const elap = elapsedDays(R); const burn = elap>0 ? exp/elap : 0;
+        const elap = elapsedDays(R); const burn = elap>0 ? expConta/elap : 0;
 
         const dispColor = disp<0?'var(--neg)':'var(--pos)';
-        KPIVAL = Object.assign(KPIVAL, { consol, disp, gastavel, fIn, fOut, sobra, inc, exp, taxa, aporteMes, reservaVal, custoMes, meses, burn, elap, nContas:S.accounts.length });
+        KPIVAL = Object.assign(KPIVAL, { consol, disp, gastavel, fIn, fOut, sobra, inc, exp, expConta, expCartao, taxa, aporteMes, reservaVal, custoMes, meses, burn, elap, nContas:S.accounts.length });
         document.getElementById('kpi-grid').innerHTML =
             kpiTile('Saldo Consolidado', fmt(consol), 'card-hero kpi-hero col-span-2', `<span class="text-slate-400">${S.accounts.length} conta(s)</span>`, sparkline(last7Balance(),'var(--accent)'), 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.', 'explainKpi("consolidado")', 'explain')
           + kpiTile('Disponível em conta', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'contas do dia a dia', '', 'Quanto você pode gastar até o fim do mês. Considera só as contas corrente e carteira (não a reserva, poupança nem investimentos) menos os compromissos fixos que ainda faltam. A fatura do cartão fica separada.', 'explainKpi("disponivel")', 'explain')
@@ -1522,7 +1532,7 @@
           + kpiTile('Burn rate', fmt(burn)+'/dia', '', 'ritmo de gasto', '', 'Seu ritmo médio de gasto por dia neste mês.', 'explainKpi("burn")', 'explain');
 
         renderFlow(tx,R);
-        renderAlerts({consol,disp,exp,inc,burn,days,cats});
+        renderAlerts({consol,disp,exp:expConta,inc,burn,days,cats});
         renderMiniAccounts();
         renderLogList('recent-logs', S.tx.slice(0,5));
     }
@@ -1733,54 +1743,104 @@
         }).join('')||'<p class="text-xs text-slate-400 px-1">Nenhuma transferência ainda.</p>';
     }
 
-    // ═══════════ CARTÕES (gestão) ═══════════
-    function cardSum(id){ return S.cards.find(x=>String(x.id)===String(id))||{limite:0,devido:0,disponivel:0,disponivel_real:0,fatura_aberta:0,comprometido_futuro:0,proxima_fatura_estimada:0,dia_fechamento:null,dia_vencimento:null}; }
+    // ═══════════ CARTÕES (central analítica) ═══════════
+    let cartaoView='all';
+    let chartCardComp=null, chartCardFcast=null;
+    function cssVar(n){ return (getComputedStyle(document.documentElement).getPropertyValue(n)||'').trim(); }
+    function mdBold(t){ return String(t).replace(/\*([^*]+)\*/g,'<b>$1</b>'); }
+    function cardSum(id){ return S.cards.find(x=>String(x.id)===String(id))||{limite:0,devido:0,disponivel:0,disponivel_real:0,fatura_aberta:0,comprometido_futuro:0,proxima_fatura_estimada:0,recorrente_mensal:0,dia_fechamento:null,dia_vencimento:null}; }
     function openParceladoCard(id){ openParcelado(); const s=document.getElementById('par-acc'); if(s) s.value=id; }
     function openAccountCard(){ openAccount(); document.getElementById('account-title').innerText='Novo cartão'; document.getElementById('acc-tipo').value='CARTAO_CREDITO'; document.getElementById('acc-icone').value='fa-credit-card'; document.getElementById('acc-cor').value='#8b5cf6'; accTipoChange(); }
+    function cardGastavel(){ return S.accounts.filter(a=>['CORRENTE','CARTEIRA'].includes(a.tipo)&&a.incluir_no_consolidado).reduce((s,a)=>s+parseFloat(a.balance||0),0); }
+    function mensalizarRec(r){ const a=+r.amount||0,u=r.freq_unit||'MONTH',n=Math.max(1,+r.every_n||1); if(u==='WEEK')return a*(30/(7*n)); if(u==='DAY')return a*(30/n); return a/n; }
+    function parcelaVal(p){ const n=+p.total_itens||+p.n_parcelas||1; return (+p.total_amount||0)/n; }
+    function mensalParc(p){ const v=parcelaVal(p),u=p.freq_unit||'MONTH',n=Math.max(1,+p.every_n||1); if(u==='WEEK')return v*(30/(7*n)); if(u==='DAY')return v*(30/n); return v/n; }
+    function installmentEndDate(p){ let d=(p.first_date||'').slice(0,10); if(!d)return null; const u=p.freq_unit||'MONTH',n=Math.max(1,+p.every_n||1),total=+p.total_itens||+p.n_parcelas||1; for(let k=1;k<total;k++)d=addIntervalJS(d,u,n,parseInt(d.split('-')[2])); return d; }
+    const _mesAno=s=>s?_mesAbr(s.slice(0,7))+'/'+s.slice(2,4):'';
+    function scopeCardIds(){ const cards=S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO'); return cartaoView==='all'?cards.map(c=>c.id):cards.filter(c=>String(c.id)===String(cartaoView)).map(c=>c.id); }
+    function cardCommitments(ids){ const set=new Set(ids.map(String));
+        const subs=(S.recurring||[]).filter(r=>r.tipo==='EXPENSE'&&r.account_id&&set.has(String(r.account_id))).map(r=>({label:r.description,tipo:'assinatura',mensal:mensalizarRec(r),raw:+r.amount||0,meta:r}));
+        const parc=(S.installments||[]).filter(p=>p.ativo!==false&&set.has(String(p.account_id))&&(+p.pagas<(+p.total_itens||+p.n_parcelas))).map(p=>({label:p.description,tipo:'parcelado',mensal:mensalParc(p),raw:parcelaVal(p),meta:p}));
+        return [...subs,...parc].sort((a,b)=>b.mensal-a.mensal);
+    }
+    function cardForecast(ids,months){ const set=new Set(ids.map(String)); const now=new Date(); const keys=[],b={};
+        for(let i=0;i<months;i++){ const d=new Date(now.getFullYear(),now.getMonth()+i,1); const k=`${d.getFullYear()}-${pad2(d.getMonth()+1)}`; keys.push(k); b[k]={mes:k,parcelas:0,assinaturas:0}; }
+        (S.installments||[]).filter(p=>p.ativo!==false&&set.has(String(p.account_id))).forEach(p=>{ const u=p.freq_unit||'MONTH',n=Math.max(1,+p.every_n||1),total=+p.total_itens||+p.n_parcelas||1,pagas=+p.pagas||0,val=parcelaVal(p); let d=(p.first_date||'').slice(0,10); if(!d)return; for(let k=0;k<total;k++){ if(k>=pagas){ const key=d.slice(0,7); if(b[key])b[key].parcelas+=val; } d=addIntervalJS(d,u,n,parseInt(d.split('-')[2])); } });
+        const subs=(S.recurring||[]).filter(r=>r.tipo==='EXPENSE'&&set.has(String(r.account_id))).reduce((s,r)=>s+mensalizarRec(r),0);
+        keys.forEach(k=>b[k].assinaturas+=subs);
+        return keys.map(k=>({...b[k],total:b[k].parcelas+b[k].assinaturas}));
+    }
+    function cardInsights(ids){ const set=new Set(ids.map(String)); const out=[]; const commits=cardCommitments(ids);
+        const subsTot=commits.filter(c=>c.tipo==='assinatura').reduce((s,c)=>s+c.mensal,0);
+        const parcTot=commits.filter(c=>c.tipo==='parcelado').reduce((s,c)=>s+c.mensal,0);
+        const fixoTot=subsTot+parcTot;
+        const cards=S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO'&&set.has(String(a.id)));
+        let devido=0,limite=0; cards.forEach(a=>{ const c=cardSum(a.id); devido+=num(c.devido); limite+=num(c.limite); });
+        out.push({i:'fa-sack-dollar',t:`Compromisso fixo no cartão: *${fmt(fixoTot)}/mês* — ${fmt(subsTot)} em assinaturas + ${fmt(parcTot)} em parcelas.`});
+        const plans=(S.installments||[]).filter(p=>p.ativo!==false&&set.has(String(p.account_id))&&(+p.pagas<(+p.total_itens||+p.n_parcelas)));
+        const ends=plans.map(p=>({p,end:installmentEndDate(p),mensal:mensalParc(p)})).filter(x=>x.end).sort((a,b)=>a.end<b.end?-1:1);
+        if(ends.length){ const e=ends[0]; out.push({i:'fa-flag-checkered',t:`O parcelamento *${e.p.description}* termina em *${_mesAno(e.end)}* e libera *${fmt(e.mensal)}/mês* pra você.`}); }
+        if(limite>0){ const pctL=devido/limite*100; if(pctL>=50) out.push({i:'fa-gauge-high',t:`Uso do limite em *${pctL.toFixed(0)}%* (${fmt(devido)} de ${fmt(limite)}). Acima de 50% deixa pouco fôlego pra imprevisto — segurar compra grande agora ajuda.`}); else out.push({i:'fa-gauge',t:`Uso do limite tranquilo: *${pctL.toFixed(0)}%* (${fmt(devido)} de ${fmt(limite)}). Dá pra respirar.`}); }
+        const gast=cardGastavel();
+        const cand=plans.map(p=>({p,rest:+p.valor_restante||0,mensal:mensalParc(p),falta:((+p.total_itens||+p.n_parcelas)-+p.pagas)})).filter(x=>x.rest>0&&x.falta>=3).sort((a,b)=>b.mensal-a.mensal)[0];
+        if(cand && gast>=cand.rest) out.push({i:'fa-forward',t:`Dá pra *quitar ${cand.p.description}* à vista (${fmt(cand.rest)}) com o que você tem em conta (${fmt(gast)}) — tira *${fmt(cand.mensal)}/mês* de compromisso pelos próximos ${cand.falta} meses. Vale se não mexer na sua reserva.`});
+        const subMaior=commits.filter(c=>c.tipo==='assinatura').sort((a,b)=>b.mensal-a.mensal)[0];
+        if(subMaior && subsTot>0) out.push({i:'fa-magnifying-glass-dollar',t:`Assinatura mais cara: *${subMaior.label}* (${fmt(subMaior.mensal)}/mês). Se não usa direito, cortar aqui é dinheiro no bolso todo mês.`});
+        const fc=cardForecast(ids,6); const dropIdx=fc.findIndex((m,i)=>i>0&&m.total<fc[0].total-0.5);
+        if(dropIdx>0) out.push({i:'fa-arrow-trend-down',t:`A partir de *${_mesAbr(fc[dropIdx].mes)}* seu compromisso mensal no cartão cai pra *${fmt(fc[dropIdx].total)}* (hoje ${fmt(fc[0].total)}). O fôlego melhora lá.`});
+        if(!plans.length && subsTot===0) out.push({i:'fa-face-smile',t:`Sem parcelas nem assinaturas fixas no cartão — você usa ele à vista. Limpo assim é mais fácil de controlar. 👏`});
+        return {out,fixoTot,subsTot,parcTot,devido,limite};
+    }
+    function hideCardCharts(){ if(chartCardComp){chartCardComp.destroy();chartCardComp=null;} if(chartCardFcast){chartCardFcast.destroy();chartCardFcast=null;} }
+    function renderCardCharts(ids){
+        const tick=cssVar('--t-base')||'#94a3b8', cA=cssVar('--accent')||'#3b82f6', cG=cssVar('--pos')||'#22c55e', grid='rgba(128,128,128,.14)';
+        const commits=cardCommitments(ids).slice(0,12);
+        if(chartCardComp){chartCardComp.destroy();chartCardComp=null;}
+        const c1=document.getElementById('chartCardComp');
+        if(c1&&commits.length&&window.Chart){ chartCardComp=new Chart(c1,{type:'bar',data:{labels:commits.map(c=>c.label),datasets:[{data:commits.map(c=>+c.mensal.toFixed(2)),backgroundColor:commits.map(c=>c.tipo==='parcelado'?cA:cG),borderRadius:6,barThickness:'flex',maxBarThickness:26}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>' '+fmt(x.raw)+'/mês'}}},scales:{x:{ticks:{color:tick,callback:v=>fmt(v)},grid:{color:grid}},y:{ticks:{color:tick,font:{size:11}},grid:{display:false}}}}}); }
+        else if(c1){ const ctx=c1.getContext('2d'); ctx.clearRect(0,0,c1.width,c1.height); }
+        const fc=cardForecast(ids,6);
+        if(chartCardFcast){chartCardFcast.destroy();chartCardFcast=null;}
+        const c2=document.getElementById('chartCardFcast');
+        if(c2&&window.Chart){ chartCardFcast=new Chart(c2,{type:'bar',data:{labels:fc.map(m=>_mesAbr(m.mes)),datasets:[{label:'Parcelas',data:fc.map(m=>+m.parcelas.toFixed(2)),backgroundColor:cA,borderRadius:5,stack:'s'},{label:'Assinaturas',data:fc.map(m=>+m.assinaturas.toFixed(2)),backgroundColor:cG,borderRadius:5,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:tick,boxWidth:10,font:{size:11}}},tooltip:{callbacks:{label:x=>' '+x.dataset.label+': '+fmt(x.raw)}}},scales:{x:{stacked:true,ticks:{color:tick},grid:{display:false}},y:{stacked:true,ticks:{color:tick,callback:v=>fmt(v)},grid:{color:grid}}}}}); }
+    }
+    function cardManageBlock(a){
+        const c=cardSum(a.id); const disp=c.disponivel_real!=null?c.disponivel_real:c.disponivel; const pct=c.limite>0?Math.min(100,num(c.devido)/c.limite*100):0;
+        const subs=(S.recurring||[]).filter(r=>r.tipo==='EXPENSE'&&String(r.account_id)===String(a.id));
+        const parc=(S.installments||[]).filter(p=>p.ativo!==false&&String(p.account_id)===String(a.id)&&(+p.pagas<(+p.total_itens||+p.n_parcelas)));
+        const subsHtml=subs.length?subs.map(r=>`<div class="flex items-center justify-between py-1.5 text-sm"><span class="truncate min-w-0"><i class="fas fa-rotate text-[10px] mr-1.5" style="color:var(--pos)"></i>${r.description}</span><span class="num font-bold shrink-0 ml-2">${fmt(r.amount)}<span class="text-[10px] text-slate-400">/mês</span></span></div>`).join(''):'<p class="text-[13px] text-slate-400 py-1">Nenhuma assinatura fixa aqui.</p>';
+        const parcHtml=parc.length?parc.map(p=>{ const pagas=+p.pagas,total=+p.total_itens||+p.n_parcelas,pc=total?Math.round(pagas/total*100):0; const end=installmentEndDate(p); const endTxt=end?`acaba ${_mesAno(end)}`:''; return `<div class="py-2"><div class="flex items-center justify-between gap-2"><div class="min-w-0"><div class="text-sm font-bold truncate">${p.description}</div><div class="text-[11px] text-slate-400">${pagas}/${total} · ${fmt(parcelaVal(p))}/parcela${endTxt?' · '+endTxt:''}</div></div><div class="text-right shrink-0"><div class="num font-black text-sm">${fmt(p.total_amount)}</div><div class="text-[11px] text-slate-400">falta ${fmt(p.valor_restante)}</div></div></div><div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-1.5"><div class="h-full rounded-full" style="width:${pc}%;background:var(--accent)"></div></div></div>`; }).join(''):'<p class="text-[13px] text-slate-400 py-1">Nada parcelado. 🎉</p>';
+        return `<div class="card p-5 md:p-6">
+            <div class="flex justify-between items-start mb-4"><div class="flex items-center gap-3"><span class="w-12 h-12 rounded-xl grid place-items-center text-lg" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone||'fa-credit-card'}"></i></span><div><b class="text-base">${a.nome}</b><div class="text-[11px] text-slate-500">${c.dia_vencimento?`fecha dia ${c.dia_fechamento} · vence dia ${c.dia_vencimento}`:'defina fechamento e vencimento ✎'}</div></div></div>
+                <div class="flex gap-1"><button onclick='editAccount(${JSON.stringify(a)})' class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500" title="Editar"><i class="fas fa-pen text-[11px]"></i></button><button onclick="delAccount('${a.id}','${a.nome.replace(/'/g,'')}')" class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500" title="Excluir"><i class="fas fa-trash text-[11px]"></i></button></div></div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                <div><p class="text-[11px] text-slate-500">Fatura aberta</p><p class="num font-black text-rose-600">${fmt(c.fatura_aberta)}</p></div>
+                <div><p class="text-[11px] text-slate-500">Disponível</p><p class="num font-black" style="color:var(--pos)">${fmt(disp)}</p></div>
+                <div><p class="text-[11px] text-slate-500">Comprometido futuro</p><p class="num font-black">${fmt(c.comprometido_futuro||0)}</p></div>
+                <div><p class="text-[11px] text-slate-500">Próxima fatura ~</p><p class="num font-black">${fmt(c.proxima_fatura_estimada||0)}</p></div></div>
+            <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-4"><div class="h-full rounded-full" style="width:${pct}%;background:${pct>85?'var(--neg)':'var(--accent)'}"></div></div>
+            <div class="flex flex-wrap gap-2 mb-5"><button onclick="openFatura('${a.id}')" class="flex-1 min-w-[140px] py-2.5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-file-invoice-dollar mr-1"></i> Faturas / pagar</button><button onclick="openParceladoCard('${a.id}')" class="flex-1 min-w-[140px] py-2.5 rounded-xl font-bold text-sm bg-slate-100 dark:bg-slate-800"><i class="fas fa-layer-group mr-1"></i> Nova compra parcelada</button></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><h4 class="text-sm font-black mb-1">Assinaturas <span class="text-[10px] text-slate-400">(fixo/mês)</span></h4>${subsHtml}</div><div><h4 class="text-sm font-black mb-1">Parcelamentos</h4>${parcHtml}</div></div>
+        </div>`;
+    }
+    function setCartaoView(id){ cartaoView=id; renderCartoes(); }
     function renderCartoes(){
-        const host=document.getElementById('cartoes-list'); if(!host) return;
+        const kpiEl=document.getElementById('cartoes-kpis'); if(!kpiEl) return;
+        const tabsEl=document.getElementById('cartoes-tabs'), stratEl=document.getElementById('cartoes-strategist'), detEl=document.getElementById('cartoes-detail');
         const cards=S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO');
-        let tDevido=0,tLimite=0,tDisp=0,tProx=0;
-        cards.forEach(a=>{ const c=cardSum(a.id); const disp=c.disponivel_real!=null?c.disponivel_real:c.disponivel; tDevido+=num(c.devido); tLimite+=num(c.limite); tDisp+=num(disp); tProx+=num(c.proxima_fatura_estimada||c.fatura_aberta); });
-        const kpi=(lbl,val,color,tip)=>`<div class="card p-4"><p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">${lbl}</p><h3 class="text-xl font-black num mt-1"${color?` style="color:${color}"`:''}>${fmt(val)}</h3>${tip?`<p class="text-[11px] text-slate-400 mt-0.5">${tip}</p>`:''}</div>`;
-        document.getElementById('cartoes-kpis').innerHTML = cards.length ? (
-            kpi('Devido agora',tDevido,'var(--neg)','faturas em aberto')+kpi('Limite total',tLimite,'')+kpi('Disponível',tDisp,'var(--pos)','pra usar')+kpi('Próxima fatura ~',tProx,'','estimativa')
-        ) : '';
-        host.innerHTML = cards.length ? cards.map(a=>{
-            const c=cardSum(a.id);
-            const disp=c.disponivel_real!=null?c.disponivel_real:c.disponivel;
-            const pct=c.limite>0?Math.min(100,num(c.devido)/c.limite*100):0;
-            const parc=(S.installments||[]).filter(p=>String(p.account_id)===String(a.id)&&(+p.pagas<+p.total_itens));
-            const parcHtml = parc.length ? parc.map(p=>{
-                const pagas=+p.pagas,total=+p.total_itens,pc=total?Math.round(pagas/total*100):0;
-                const prox=p.proxima_due?new Date(p.proxima_due+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
-                return `<div class="flex items-center justify-between gap-3 py-2.5">
-                    <div class="min-w-0 flex-1"><div class="text-sm font-bold truncate">${p.description}</div><div class="text-[11px] text-slate-400">parcela ${pagas} de ${total}${prox?' · próxima '+prox:''}</div>
-                        <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-1.5" style="max-width:200px"><div class="h-full rounded-full" style="width:${pc}%;background:var(--accent)"></div></div></div>
-                    <div class="text-right shrink-0"><div class="num font-black text-sm">${fmt(p.total_amount)}</div><div class="text-[11px] text-slate-400">falta <b class="num">${fmt(p.valor_restante)}</b></div></div></div>`;
-            }).join('<div style="border-top:1px solid var(--border-glass)"></div>') : '<p class="text-sm text-slate-400 py-2">Nada parcelado neste cartão. 🎉</p>';
-            return `<div class="card p-5 md:p-6">
-                <div class="flex justify-between items-start mb-5">
-                    <div class="flex items-center gap-3"><span class="w-12 h-12 rounded-xl grid place-items-center text-lg" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone||'fa-credit-card'}"></i></span>
-                        <div><b class="text-base">${a.nome}</b><div class="text-[11px] text-slate-500">${c.dia_vencimento?`fecha dia ${c.dia_fechamento} · vence dia ${c.dia_vencimento}`:'defina fechamento e vencimento ✎'}</div></div></div>
-                    <div class="flex gap-1"><button onclick='editAccount(${JSON.stringify(a)})' class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500" title="Editar cartão"><i class="fas fa-pen text-[11px]"></i></button>
-                        <button onclick="delAccount('${a.id}','${a.nome.replace(/'/g,'')}')" class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500" title="Excluir"><i class="fas fa-trash text-[11px]"></i></button></div>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                    <div><p class="text-[11px] text-slate-500">Fatura aberta</p><p class="num font-black text-rose-600">${fmt(c.fatura_aberta)}</p></div>
-                    <div><p class="text-[11px] text-slate-500">Disponível</p><p class="num font-black" style="color:var(--pos)">${fmt(disp)}</p></div>
-                    <div><p class="text-[11px] text-slate-500">Comprometido futuro</p><p class="num font-black">${fmt(c.comprometido_futuro||0)}</p></div>
-                    <div><p class="text-[11px] text-slate-500">Próxima fatura ~</p><p class="num font-black">${fmt(c.proxima_fatura_estimada||0)}</p></div>
-                </div>
-                <div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Limite usado</span><span class="num text-slate-500"><b style="color:var(--t-hi)">${fmt(c.devido)}</b> de ${fmt(c.limite)}</span></div>
-                <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-4"><div class="h-full rounded-full" style="width:${pct}%;background:${pct>85?'var(--neg)':'var(--accent)'}"></div></div>
-                <div class="flex flex-wrap gap-2 mb-5">
-                    <button onclick="openFatura('${a.id}')" class="flex-1 min-w-[140px] py-2.5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-file-invoice-dollar mr-1"></i> Faturas / pagar</button>
-                    <button onclick="openParceladoCard('${a.id}')" class="flex-1 min-w-[140px] py-2.5 rounded-xl font-bold text-sm bg-slate-100 dark:bg-slate-800"><i class="fas fa-layer-group mr-1"></i> Nova compra parcelada</button>
-                </div>
-                <div><h4 class="text-sm font-black mb-1">O que está parcelado</h4><div class="mt-1">${parcHtml}</div></div>
-            </div>`;
-        }).join('') : `<div class="card p-8 text-center"><div class="text-5xl mb-3">💳</div><p class="text-sm text-slate-400 mb-4">Você ainda não cadastrou nenhum cartão de crédito.<br>Cadastre pra acompanhar limite, faturas e parcelas.</p><button onclick="openAccountCard()" class="py-2.5 px-5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus mr-1"></i> Adicionar cartão</button></div>`;
+        if(!cards.length){ if(tabsEl)tabsEl.innerHTML=''; kpiEl.innerHTML=''; if(stratEl)stratEl.innerHTML=''; hideCardCharts(); if(detEl)detEl.innerHTML=`<div class="card p-8 text-center"><div class="text-5xl mb-3">💳</div><p class="text-sm text-slate-400 mb-4">Você ainda não cadastrou nenhum cartão de crédito.<br>Cadastre pra acompanhar limite, faturas, parcelas e o que dá pra melhorar.</p><button onclick="openAccountCard()" class="py-2.5 px-5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus mr-1"></i> Adicionar cartão</button></div>`; return; }
+        if(cartaoView!=='all' && !cards.some(c=>String(c.id)===String(cartaoView))) cartaoView='all';
+        const tab=(id,label,active)=>`<button onclick="setCartaoView('${id}')" class="px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap ${active?'':'bg-slate-100 dark:bg-slate-800 text-slate-500'}"${active?` style="background:var(--grad);background-size:200% auto;color:#03251a"`:''}>${label}</button>`;
+        if(tabsEl) tabsEl.innerHTML=(cards.length>1?tab('all','🗂️ Todos somados',cartaoView==='all'):'')+cards.map(c=>tab(c.id,'💳 '+c.nome,String(cartaoView)===String(c.id))).join('');
+        const ids=scopeCardIds();
+        let devido=0,limite=0,disp=0,aberta=0,prox=0; ids.forEach(id=>{ const c=cardSum(id); devido+=num(c.devido);limite+=num(c.limite);disp+=num(c.disponivel_real!=null?c.disponivel_real:c.disponivel);aberta+=num(c.fatura_aberta);prox+=num(c.proxima_fatura_estimada); });
+        const pctL=limite>0?Math.min(100,devido/limite*100):0;
+        const kpi=(l,v,color,tip)=>`<div class="card p-4"><p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">${l}</p><h3 class="text-xl font-black num mt-1"${color?` style="color:${color}"`:''}>${fmt(v)}</h3>${tip?`<p class="text-[11px] text-slate-400 mt-0.5">${tip}</p>`:''}</div>`;
+        kpiEl.innerHTML=kpi('Fatura aberta',aberta,'var(--neg)','ciclo atual')+kpi('Próxima fatura ~',prox,'','estimativa')+kpi('Disponível',disp,'var(--pos)','pra usar')+`<div class="card p-4"><p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Uso do limite</p><h3 class="text-xl font-black num mt-1">${pctL.toFixed(0)}%</h3><div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-2"><div class="h-full rounded-full" style="width:${pctL}%;background:${pctL>85?'var(--neg)':'var(--accent)'}"></div></div></div>`;
+        const ins=cardInsights(ids);
+        if(stratEl) stratEl.innerHTML=`<div class="card p-5" style="border-left:4px solid var(--accent)"><div class="flex items-center gap-2.5 mb-3"><img src="mascote.png" alt="Nickel" style="width:34px;height:34px;object-fit:contain"><div><b class="text-sm">Nickel estrategista</b><div class="text-[11px] text-slate-400">leitura ${cartaoView==='all'?'de todos os cartões':'do '+(cards.find(c=>String(c.id)===String(cartaoView))||{}).nome}</div></div></div><div class="space-y-2.5">${ins.out.map(x=>`<div class="flex items-start gap-2.5 text-sm leading-snug"><span class="w-6 h-6 rounded-lg grid place-items-center shrink-0 mt-0.5" style="background:var(--accent)1a;color:var(--accent)"><i class="fas ${x.i} text-[11px]"></i></span><span>${mdBold(x.t)}</span></div>`).join('')}</div></div>`;
+        renderCardCharts(ids);
+        if(detEl) detEl.innerHTML=cards.filter(a=>ids.map(String).includes(String(a.id))).map(cardManageBlock).join('');
     }
 
     // ═══════════ INVESTIMENTOS ═══════════
