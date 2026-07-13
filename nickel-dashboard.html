@@ -522,6 +522,16 @@
                 <div><h3 class="text-base font-black mb-3 px-1">Transferências recentes</h3><div id="transfers-list" class="space-y-2.5"></div></div>
             </div>
 
+            <!-- ══════════ CARTÕES ══════════ -->
+            <div id="sec-cartoes" class="section-content space-y-6">
+                <div class="card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Seus cartões de crédito</p><h3 class="text-lg font-black mt-1">Limite, faturas e parcelas num lugar só</h3></div>
+                    <button onclick="openAccountCard()" class="text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i> Novo cartão</button>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="cartoes-kpis"></div>
+                <div id="cartoes-list" class="space-y-5"></div>
+            </div>
+
             <!-- ══════════ GASTOS ══════════ -->
             <div id="sec-gastos" class="section-content space-y-6">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="gastos-kpis"></div>
@@ -877,6 +887,18 @@
                 </div>
                 <div id="rec-panel-month"><input id="rec-day" type="number" min="1" max="31" placeholder="Todo dia (1–31)" class="w-full card px-4 py-3 text-sm num" oninput="recPreview()"></div>
                 <div id="rec-panel-everyn" class="hidden"><div class="flex items-center gap-2"><span class="text-sm text-slate-500">Repetir a cada</span><input id="rec-every" type="number" min="1" max="365" value="15" class="card px-4 py-3 text-sm num w-24" oninput="recPreview()"><span class="text-sm text-slate-500">dias</span></div></div>
+                <div id="rec-panel-week" class="hidden">
+                    <label class="text-xs font-bold text-slate-500">Em que dia da semana?</label>
+                    <div class="nf-seg mt-1" style="width:100%" role="group" aria-label="Dia da semana" id="rec-dow-seg">
+                        <button type="button" class="nf-seg-btn" data-w="0" onclick="recDow(0)">Dom</button>
+                        <button type="button" class="nf-seg-btn" data-w="1" onclick="recDow(1)">Seg</button>
+                        <button type="button" class="nf-seg-btn" data-w="2" onclick="recDow(2)">Ter</button>
+                        <button type="button" class="nf-seg-btn" data-w="3" onclick="recDow(3)">Qua</button>
+                        <button type="button" class="nf-seg-btn" data-w="4" onclick="recDow(4)">Qui</button>
+                        <button type="button" class="nf-seg-btn" data-w="5" onclick="recDow(5)">Sex</button>
+                        <button type="button" class="nf-seg-btn" data-w="6" onclick="recDow(6)">Sáb</button>
+                    </div>
+                </div>
                 <div>
                     <label class="text-xs font-bold text-slate-500">Começando em</label>
                     <input id="rec-start" type="date" class="w-full card px-4 py-3 text-sm num mt-1" oninput="recPreview()">
@@ -1050,7 +1072,10 @@
                 </div>
                 <div><label class="text-xs font-bold text-slate-500">Categoria</label><select id="ntx-cat" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
                 <div><label class="text-xs font-bold text-slate-500">Conta</label><select id="ntx-acc" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
-                <button type="button" onclick="closeModal('m-newtx');openParcelado()" class="text-xs font-bold text-left" style="color:var(--accent)"><i class="fas fa-layer-group mr-1"></i>É uma compra parcelada? →</button>
+                <div class="flex flex-col gap-1.5">
+                    <button type="button" onclick="closeModal('m-newtx');openParcelado()" class="text-xs font-bold text-left" style="color:var(--accent)"><i class="fas fa-layer-group mr-1"></i>É uma compra parcelada? →</button>
+                    <button type="button" onclick="closeModal('m-newtx');openRecurring('EXPENSE')" class="text-xs font-bold text-left" style="color:var(--accent)"><i class="fas fa-repeat mr-1"></i>É um gasto que se repete (todo mês/semana)? →</button>
+                </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-newtx')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
                     <button onclick="saveNewTx()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Lançar</button>
@@ -1158,11 +1183,10 @@
     const NAV_ALIAS={
         cripto:{sec:'invest',anchor:'crypto-anchor',parent:'t-cad',title:'Carteira de cripto'},
         recorrentes:{sec:'cad',anchor:'recurring-list',parent:'t-cad',title:'Cadastros'},
-        cartoes:{sec:'contas',anchor:'accounts-grid',parent:'t-contas',title:'Cartões'},
         transfers:{sec:'contas',anchor:'transfers-list',parent:'t-contas',title:'Transferências'},
     };
-    const NAV_PARENT={geral:'t-geral',dash:'t-dash',gastos:'t-dash',invest:'t-dash',sonhos:'t-dash',contas:'t-contas',cad:'t-cad',plan:'t-plan',extrato:'t-extrato'};
-    const SEC_TITLE={geral:'Geral',dash:'Finanças',gastos:'Gastos',invest:'Investimentos',sonhos:'Sonhos',cad:'Cadastros',contas:'Contas',plan:'Planejamento',extrato:'Extrato'};
+    const NAV_PARENT={geral:'t-geral',dash:'t-dash',gastos:'t-dash',invest:'t-dash',sonhos:'t-dash',contas:'t-contas',cartoes:'t-contas',cad:'t-cad',plan:'t-plan',extrato:'t-extrato'};
+    const SEC_TITLE={geral:'Geral',dash:'Finanças',gastos:'Gastos',invest:'Investimentos',sonhos:'Sonhos',cad:'Cadastros',contas:'Contas',cartoes:'Cartões',plan:'Planejamento',extrato:'Extrato'};
     function go(id){
         const a=NAV_ALIAS[id]; const sec=a?a.sec:id;
         closeMore();
@@ -1188,7 +1212,7 @@
 
     // ═══════════ RENDER GLOBAL + PERÍODO + FILTROS ═══════════
     function renderAll(){
-        renderOverview(); renderGastos(); renderContas(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); fillAccountSelects();
+        renderOverview(); renderGastos(); renderContas(); renderCartoes(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); fillAccountSelects();
         requestAnimationFrame(animateActiveSection);
     }
     function setPeriod(mode){
@@ -1317,7 +1341,7 @@
         document.getElementById('user-email-text').innerText = S.profile.apelido ? ('Olá, '+S.profile.apelido+' 👋') : EMAIL;
         if(S.profile && S.profile.onboarded===false) showWizard();
         api('/crypto/portfolio').then(p=>{ S.crypto=p; renderInvest(); renderContas(); renderGeral(); });
-        api('/installments').then(x=>{ S.installments=x||[]; renderInstallments(); });
+        api('/installments').then(x=>{ S.installments=x||[]; renderInstallments(); renderCartoes(); });
         renderAll(); syncPeriodUI();
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
     }
@@ -1709,6 +1733,56 @@
         }).join('')||'<p class="text-xs text-slate-400 px-1">Nenhuma transferência ainda.</p>';
     }
 
+    // ═══════════ CARTÕES (gestão) ═══════════
+    function cardSum(id){ return S.cards.find(x=>String(x.id)===String(id))||{limite:0,devido:0,disponivel:0,disponivel_real:0,fatura_aberta:0,comprometido_futuro:0,proxima_fatura_estimada:0,dia_fechamento:null,dia_vencimento:null}; }
+    function openParceladoCard(id){ openParcelado(); const s=document.getElementById('par-acc'); if(s) s.value=id; }
+    function openAccountCard(){ openAccount(); document.getElementById('account-title').innerText='Novo cartão'; document.getElementById('acc-tipo').value='CARTAO_CREDITO'; document.getElementById('acc-icone').value='fa-credit-card'; document.getElementById('acc-cor').value='#8b5cf6'; accTipoChange(); }
+    function renderCartoes(){
+        const host=document.getElementById('cartoes-list'); if(!host) return;
+        const cards=S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO');
+        let tDevido=0,tLimite=0,tDisp=0,tProx=0;
+        cards.forEach(a=>{ const c=cardSum(a.id); const disp=c.disponivel_real!=null?c.disponivel_real:c.disponivel; tDevido+=num(c.devido); tLimite+=num(c.limite); tDisp+=num(disp); tProx+=num(c.proxima_fatura_estimada||c.fatura_aberta); });
+        const kpi=(lbl,val,color,tip)=>`<div class="card p-4"><p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">${lbl}</p><h3 class="text-xl font-black num mt-1"${color?` style="color:${color}"`:''}>${fmt(val)}</h3>${tip?`<p class="text-[11px] text-slate-400 mt-0.5">${tip}</p>`:''}</div>`;
+        document.getElementById('cartoes-kpis').innerHTML = cards.length ? (
+            kpi('Devido agora',tDevido,'var(--neg)','faturas em aberto')+kpi('Limite total',tLimite,'')+kpi('Disponível',tDisp,'var(--pos)','pra usar')+kpi('Próxima fatura ~',tProx,'','estimativa')
+        ) : '';
+        host.innerHTML = cards.length ? cards.map(a=>{
+            const c=cardSum(a.id);
+            const disp=c.disponivel_real!=null?c.disponivel_real:c.disponivel;
+            const pct=c.limite>0?Math.min(100,num(c.devido)/c.limite*100):0;
+            const parc=(S.installments||[]).filter(p=>String(p.account_id)===String(a.id)&&(+p.pagas<+p.total_itens));
+            const parcHtml = parc.length ? parc.map(p=>{
+                const pagas=+p.pagas,total=+p.total_itens,pc=total?Math.round(pagas/total*100):0;
+                const prox=p.proxima_due?new Date(p.proxima_due+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}):'';
+                return `<div class="flex items-center justify-between gap-3 py-2.5">
+                    <div class="min-w-0 flex-1"><div class="text-sm font-bold truncate">${p.description}</div><div class="text-[11px] text-slate-400">parcela ${pagas} de ${total}${prox?' · próxima '+prox:''}</div>
+                        <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-1.5" style="max-width:200px"><div class="h-full rounded-full" style="width:${pc}%;background:var(--accent)"></div></div></div>
+                    <div class="text-right shrink-0"><div class="num font-black text-sm">${fmt(p.total_amount)}</div><div class="text-[11px] text-slate-400">falta <b class="num">${fmt(p.valor_restante)}</b></div></div></div>`;
+            }).join('<div style="border-top:1px solid var(--border-glass)"></div>') : '<p class="text-sm text-slate-400 py-2">Nada parcelado neste cartão. 🎉</p>';
+            return `<div class="card p-5 md:p-6">
+                <div class="flex justify-between items-start mb-5">
+                    <div class="flex items-center gap-3"><span class="w-12 h-12 rounded-xl grid place-items-center text-lg" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone||'fa-credit-card'}"></i></span>
+                        <div><b class="text-base">${a.nome}</b><div class="text-[11px] text-slate-500">${c.dia_vencimento?`fecha dia ${c.dia_fechamento} · vence dia ${c.dia_vencimento}`:'defina fechamento e vencimento ✎'}</div></div></div>
+                    <div class="flex gap-1"><button onclick='editAccount(${JSON.stringify(a)})' class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500" title="Editar cartão"><i class="fas fa-pen text-[11px]"></i></button>
+                        <button onclick="delAccount('${a.id}','${a.nome.replace(/'/g,'')}')" class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500" title="Excluir"><i class="fas fa-trash text-[11px]"></i></button></div>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    <div><p class="text-[11px] text-slate-500">Fatura aberta</p><p class="num font-black text-rose-600">${fmt(c.fatura_aberta)}</p></div>
+                    <div><p class="text-[11px] text-slate-500">Disponível</p><p class="num font-black" style="color:var(--pos)">${fmt(disp)}</p></div>
+                    <div><p class="text-[11px] text-slate-500">Comprometido futuro</p><p class="num font-black">${fmt(c.comprometido_futuro||0)}</p></div>
+                    <div><p class="text-[11px] text-slate-500">Próxima fatura ~</p><p class="num font-black">${fmt(c.proxima_fatura_estimada||0)}</p></div>
+                </div>
+                <div class="flex justify-between text-[11px] mb-1"><span class="text-slate-500">Limite usado</span><span class="num text-slate-500"><b style="color:var(--t-hi)">${fmt(c.devido)}</b> de ${fmt(c.limite)}</span></div>
+                <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-4"><div class="h-full rounded-full" style="width:${pct}%;background:${pct>85?'var(--neg)':'var(--accent)'}"></div></div>
+                <div class="flex flex-wrap gap-2 mb-5">
+                    <button onclick="openFatura('${a.id}')" class="flex-1 min-w-[140px] py-2.5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-file-invoice-dollar mr-1"></i> Faturas / pagar</button>
+                    <button onclick="openParceladoCard('${a.id}')" class="flex-1 min-w-[140px] py-2.5 rounded-xl font-bold text-sm bg-slate-100 dark:bg-slate-800"><i class="fas fa-layer-group mr-1"></i> Nova compra parcelada</button>
+                </div>
+                <div><h4 class="text-sm font-black mb-1">O que está parcelado</h4><div class="mt-1">${parcHtml}</div></div>
+            </div>`;
+        }).join('') : `<div class="card p-8 text-center"><div class="text-5xl mb-3">💳</div><p class="text-sm text-slate-400 mb-4">Você ainda não cadastrou nenhum cartão de crédito.<br>Cadastre pra acompanhar limite, faturas e parcelas.</p><button onclick="openAccountCard()" class="py-2.5 px-5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus mr-1"></i> Adicionar cartão</button></div>`;
+    }
+
     // ═══════════ INVESTIMENTOS ═══════════
     function renderInvest(){
         const consol=consolidated();
@@ -2000,14 +2074,18 @@
     // Recorrência
     function recTipoChange(){ const t=document.getElementById('rec-tipo').value; document.getElementById('rec-goal').classList.toggle('hidden',t!=='APORTE'); if(t==='APORTE') document.getElementById('rec-goal').innerHTML=S.goals.map(g=>`<option value="${g.id}">${g.emoji} ${g.nome}</option>`).join(''); document.getElementById('rec-confirm-wrap').classList.toggle('hidden',t!=='INCOME'); }
     let recFreqMode='MONTH', recEndMode='NONE';
-    function recFreq(m){ recFreqMode=m; document.querySelectorAll('#rec-freq-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.f===m)); document.getElementById('rec-panel-month').classList.toggle('hidden',m!=='MONTH'); document.getElementById('rec-panel-everyn').classList.toggle('hidden',m!=='EVERYN'); recPreview(); }
+    function recFreq(m){ recFreqMode=m; document.querySelectorAll('#rec-freq-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.f===m)); document.getElementById('rec-panel-month').classList.toggle('hidden',m!=='MONTH'); document.getElementById('rec-panel-everyn').classList.toggle('hidden',m!=='EVERYN'); const wk=(m==='WEEK'||m==='BIWEEK'); document.getElementById('rec-panel-week').classList.toggle('hidden',!wk); if(wk){ const s=document.getElementById('rec-start').value; if(s){ const [y,mo,d]=s.split('-').map(Number); recDow_=new Date(Date.UTC(y,mo-1,d)).getUTCDay(); } highlightDow(recDow_); } recPreview(); }
+    let recDow_=null;
+    function nextDowStr(fromStr,dow){ const [y,m,d]=fromStr.split('-').map(Number); const dt=new Date(Date.UTC(y,m-1,d)); dt.setUTCDate(dt.getUTCDate()+((dow-dt.getUTCDay()+7)%7)); return dt.toISOString().slice(0,10); }
+    function highlightDow(n){ document.querySelectorAll('#rec-dow-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',+b.dataset.w===n)); }
+    function recDow(n){ recDow_=n; highlightDow(n); document.getElementById('rec-start').value=nextDowStr(new Date().toISOString().slice(0,10),n); recPreview(); }
     function recEnd(m){ recEndMode=m; document.querySelectorAll('#rec-end-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.e===m)); document.getElementById('rec-until').classList.toggle('hidden',m!=='UNTIL'); document.getElementById('rec-count-wrap').classList.toggle('hidden',m!=='COUNT'); recPreview(); }
-    function recCfg(){ if(recFreqMode==='MONTH')return{unit:'MONTH',n:1}; if(recFreqMode==='WEEK')return{unit:'WEEK',n:1}; if(recFreqMode==='BIWEEK')return{unit:'DAY',n:15}; return{unit:'DAY',n:Math.max(1,parseInt(document.getElementById('rec-every').value)||15)}; }
+    function recCfg(){ if(recFreqMode==='MONTH')return{unit:'MONTH',n:1}; if(recFreqMode==='WEEK')return{unit:'WEEK',n:1}; if(recFreqMode==='BIWEEK')return{unit:'WEEK',n:2}; return{unit:'DAY',n:Math.max(1,parseInt(document.getElementById('rec-every').value)||15)}; }
     function addIntervalJS(dateStr,unit,n,anchorDay){ const [y,m,d]=dateStr.split('-').map(Number); if(unit==='DAY'||unit==='WEEK'){ const dt=new Date(Date.UTC(y,m-1,d)); dt.setUTCDate(dt.getUTCDate()+n*(unit==='WEEK'?7:1)); return dt.toISOString().slice(0,10);} const idx=(m-1)+n,ny=y+Math.floor(idx/12),nm=((idx%12)+12)%12; const dim=new Date(Date.UTC(ny,nm+1,0)).getUTCDate(); const day=Math.min(anchorDay||d,dim); return `${ny}-${pad2(nm+1)}-${pad2(day)}`; }
-    function recPreview(){ const el=document.getElementById('rec-preview'); if(!el)return; const cfg=recCfg(); const amt=parseFloat(document.getElementById('rec-amount').value)||0; let start=document.getElementById('rec-start').value; if(cfg.unit==='MONTH'&&!start){ const dd=parseInt(document.getElementById('rec-day').value); if(dd){ const t=new Date(); start=`${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(Math.min(dd,28))}`; } } if(!start){ el.innerHTML='<i class="fas fa-circle-info" style="color:var(--accent)"></i> Escolha a frequência e a data de início.'; return; } const anchor=cfg.unit==='MONTH'?(parseInt(document.getElementById('rec-day').value)||parseInt(start.split('-')[2])):null; const ds=[start]; for(let i=0;i<2;i++)ds.push(addIntervalJS(ds[ds.length-1],cfg.unit,cfg.n,anchor)); const f=s=>new Date(s+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}); const ft={MONTH:'todo mês',WEEK:'toda semana',BIWEEK:'a cada 15 dias',EVERYN:'a cada '+cfg.n+' dias'}[recFreqMode]; el.innerHTML=`<i class="fas fa-calendar-check" style="color:var(--accent)"></i> ${ft}: <b>${f(ds[0])}</b>, depois <b>${f(ds[1])}</b> e <b>${f(ds[2])}</b>${amt?` — <b class="num">${fmt(amt)}</b> cada`:''}.`; }
-    function openRecurring(){ document.getElementById('rec-id').value=''; document.getElementById('rec-title').innerText='Lançamento automático'; ['rec-desc','rec-amount','rec-day'].forEach(i=>document.getElementById(i).value=''); document.getElementById('rec-every').value='15'; document.getElementById('rec-until').value=''; document.getElementById('rec-count').value='12'; document.getElementById('rec-start').value=new Date().toISOString().slice(0,10); document.getElementById('rec-account').innerHTML=accountOptions(); document.getElementById('rec-tipo').value='INCOME'; document.getElementById('rec-confirm').checked=true; recFreq('MONTH'); recEnd('NONE'); recTipoChange(); recPreview(); openModal('m-recurring'); }
-    function editRecurring(r){ document.getElementById('rec-id').value=r.id; document.getElementById('rec-title').innerText='Editar automático'; document.getElementById('rec-account').innerHTML=accountOptions(); document.getElementById('rec-tipo').value=r.tipo; document.getElementById('rec-desc').value=r.description; document.getElementById('rec-amount').value=r.amount; document.getElementById('rec-day').value=r.day_of_month||''; document.getElementById('rec-every').value=(r.freq_unit==='DAY'&&r.every_n!==15)?r.every_n:'15'; document.getElementById('rec-start').value=(r.start_date||r.next_run_date||'').slice(0,10); document.getElementById('rec-until').value=(r.end_date||'').slice(0,10); document.getElementById('rec-count').value=r.max_occurrences||'12'; document.getElementById('rec-account').value=r.account_id||''; document.getElementById('rec-confirm').checked=r.confirmar!==false;
-        const m=r.freq_unit==='WEEK'?'WEEK':(r.freq_unit==='DAY'?(r.every_n===15?'BIWEEK':'EVERYN'):'MONTH'); recFreq(m); recEnd(r.end_date?'UNTIL':(r.max_occurrences?'COUNT':'NONE')); recTipoChange(); if(r.dest_goal_id)document.getElementById('rec-goal').value=r.dest_goal_id; recPreview(); openModal('m-recurring'); }
+    function recPreview(){ const el=document.getElementById('rec-preview'); if(!el)return; const cfg=recCfg(); const amt=parseFloat(document.getElementById('rec-amount').value)||0; let start=document.getElementById('rec-start').value; if(cfg.unit==='MONTH'&&!start){ const dd=parseInt(document.getElementById('rec-day').value); if(dd){ const t=new Date(); start=`${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(Math.min(dd,28))}`; } } if(!start){ el.innerHTML='<i class="fas fa-circle-info" style="color:var(--accent)"></i> Escolha a frequência e a data de início.'; return; } const anchor=cfg.unit==='MONTH'?(parseInt(document.getElementById('rec-day').value)||parseInt(start.split('-')[2])):null; const ds=[start]; for(let i=0;i<2;i++)ds.push(addIntervalJS(ds[ds.length-1],cfg.unit,cfg.n,anchor)); const f=s=>new Date(s+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}); const ft={MONTH:'todo mês',WEEK:'toda semana',BIWEEK:'a cada 2 semanas',EVERYN:'a cada '+cfg.n+' dias'}[recFreqMode]; el.innerHTML=`<i class="fas fa-calendar-check" style="color:var(--accent)"></i> ${ft}: <b>${f(ds[0])}</b>, depois <b>${f(ds[1])}</b> e <b>${f(ds[2])}</b>${amt?` — <b class="num">${fmt(amt)}</b> cada`:''}.`; }
+    function openRecurring(preTipo){ document.getElementById('rec-id').value=''; document.getElementById('rec-title').innerText='Lançamento automático'; ['rec-desc','rec-amount','rec-day'].forEach(i=>document.getElementById(i).value=''); document.getElementById('rec-every').value='15'; document.getElementById('rec-until').value=''; document.getElementById('rec-count').value='12'; document.getElementById('rec-start').value=new Date().toISOString().slice(0,10); document.getElementById('rec-account').innerHTML=accountOptions(); document.getElementById('rec-tipo').value=preTipo||'INCOME'; document.getElementById('rec-confirm').checked=true; recDow_=null; recFreq('MONTH'); recEnd('NONE'); recTipoChange(); recPreview(); openModal('m-recurring'); }
+    function editRecurring(r){ document.getElementById('rec-id').value=r.id; document.getElementById('rec-title').innerText='Editar automático'; document.getElementById('rec-account').innerHTML=accountOptions(); document.getElementById('rec-tipo').value=r.tipo; document.getElementById('rec-desc').value=r.description; document.getElementById('rec-amount').value=r.amount; document.getElementById('rec-day').value=r.day_of_month||''; document.getElementById('rec-every').value=(r.freq_unit==='DAY')?r.every_n:'15'; document.getElementById('rec-start').value=(r.start_date||r.next_run_date||'').slice(0,10); document.getElementById('rec-until').value=(r.end_date||'').slice(0,10); document.getElementById('rec-count').value=r.max_occurrences||'12'; document.getElementById('rec-account').value=r.account_id||''; document.getElementById('rec-confirm').checked=r.confirmar!==false;
+        const m=r.freq_unit==='WEEK'?(r.every_n===2?'BIWEEK':'WEEK'):(r.freq_unit==='DAY'?'EVERYN':'MONTH'); recFreq(m); recEnd(r.end_date?'UNTIL':(r.max_occurrences?'COUNT':'NONE')); recTipoChange(); if(r.dest_goal_id)document.getElementById('rec-goal').value=r.dest_goal_id; recPreview(); openModal('m-recurring'); }
     async function saveRecurring(){ const id=document.getElementById('rec-id').value; const cfg=recCfg(); const b={tipo:document.getElementById('rec-tipo').value,description:document.getElementById('rec-desc').value,amount:parseFloat(document.getElementById('rec-amount').value),account_id:document.getElementById('rec-account').value,freq_unit:cfg.unit,every_n:cfg.n,start_date:document.getElementById('rec-start').value||null}; if(cfg.unit==='MONTH')b.day_of_month=parseInt(document.getElementById('rec-day').value)||(b.start_date?parseInt(b.start_date.split('-')[2]):null); if(recEndMode==='UNTIL')b.end_date=document.getElementById('rec-until').value||null; if(recEndMode==='COUNT')b.max_occurrences=parseInt(document.getElementById('rec-count').value)||null; if(b.tipo==='APORTE')b.dest_goal_id=document.getElementById('rec-goal').value; if(b.tipo==='INCOME')b.confirmar=document.getElementById('rec-confirm').checked; if(!b.description||!b.amount){ toast('Preencha descrição e valor.','err'); return; } if(cfg.unit==='MONTH'&&!b.day_of_month&&!b.start_date){ toast('Diga o dia do mês ou a data de início.','err'); return; } if(cfg.unit!=='MONTH'&&!b.start_date){ toast('Escolha a data de início.','err'); return; } if(id)await api('/recurring/'+id,{method:'PATCH',body:JSON.stringify(b)}); else await api('/recurring',{method:'POST',body:JSON.stringify(b)}); closeModal('m-recurring'); toast(id?'Automático atualizado':'Lançamento automático criado'); loadAll(); }
     async function delRecurring(id){ if(confirm('Apagar este lançamento automático?')){ await api('/recurring/'+id,{method:'DELETE'}); toast('Removido'); loadAll(); } }
 
