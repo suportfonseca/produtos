@@ -373,7 +373,6 @@
             <button onclick="go('geral')" id="b-geral" class="nav-link w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"><i class="fas fa-earth-americas w-5"></i><span class="font-semibold text-sm">Geral</span></button>
             <button onclick="go('dash')" id="b-dash" class="nav-link active w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"><i class="fas fa-chart-pie w-5"></i><span class="font-semibold text-sm">Visão Geral</span></button>
             <button onclick="go('contas')" id="b-contas" class="nav-link w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"><i class="fas fa-building-columns w-5"></i><span class="font-semibold text-sm">Contas</span></button>
-            <button onclick="go('patri')" id="b-patri" class="nav-link w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"><i class="fas fa-gem w-5"></i><span class="font-semibold text-sm">Patrimônio</span></button>
             <button onclick="go('plan')" id="b-plan" class="nav-link w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"><i class="fas fa-calendar-check w-5"></i><span class="font-semibold text-sm">Planejamento</span></button>
             <button onclick="go('extrato')" id="b-extrato" class="nav-link w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"><i class="fas fa-receipt w-5"></i><span class="font-semibold text-sm">Extrato</span></button>
         </nav>
@@ -423,7 +422,7 @@
                         <button onclick="go('sonhos')"><i class="fas fa-piggy-bank"></i> Sonhos</button>
                         <button onclick="go('gastos')"><i class="fas fa-cart-shopping"></i> Gastos</button>
                     </div></div>
-                <div class="nav-item"><button class="nav-top" id="t-contas">Contas <i class="fas fa-chevron-down text-[9px]"></i></button>
+                <div class="nav-item"><button class="nav-top" id="t-contas">Contas e cartões <i class="fas fa-chevron-down text-[9px]"></i></button>
                     <div class="nav-drop">
                         <button onclick="go('contas')"><i class="fas fa-building-columns"></i> Contas &amp; carteiras</button>
                         <button onclick="go('cartoes')"><i class="fas fa-credit-card"></i> Cartões de crédito</button>
@@ -435,8 +434,6 @@
                     <div class="nav-drop">
                         <button onclick="go('cad')"><i class="fas fa-tags"></i> Categorias</button>
                         <button onclick="go('recorrentes')"><i class="fas fa-repeat"></i> Lançamentos automáticos</button>
-                        <button onclick="go('cripto')"><i class="fab fa-bitcoin"></i> Carteira de cripto</button>
-                        <button onclick="go('contas')"><i class="fas fa-landmark"></i> Bancos e contas</button>
                     </div></div>
             </nav>
             <div class="md:hidden">
@@ -1201,7 +1198,7 @@
     function logout(){ localStorage.removeItem('nickel_token'); localStorage.removeItem('nickel_email'); location.href='nickel-login.html'; }
 
     const NAV_ALIAS={
-        cripto:{sec:'invest',anchor:'crypto-anchor',parent:'t-cad',title:'Carteira de cripto'},
+        cripto:{sec:'invest',anchor:'crypto-anchor',parent:'t-dash',title:'Carteira de cripto'},
         recorrentes:{sec:'cad',anchor:'recurring-list',parent:'t-cad',title:'Cadastros'},
         transfers:{sec:'contas',anchor:'transfers-list',parent:'t-contas',title:'Transferências'},
     };
@@ -1835,7 +1832,7 @@
                 <div><p class="text-[11px] text-slate-500">Comprometido futuro</p><p class="num font-black">${fmt(c.comprometido_futuro||0)}</p></div>
                 <div><p class="text-[11px] text-slate-500">Próxima fatura ~</p><p class="num font-black">${fmt(c.proxima_fatura_estimada||0)}</p></div></div>
             <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-4"><div class="h-full rounded-full" style="width:${pct}%;background:${pct>85?'var(--neg)':'var(--accent)'}"></div></div>
-            <div class="flex flex-wrap gap-2 mb-5"><button onclick="openFatura('${a.id}')" class="flex-1 min-w-[140px] py-2.5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-file-invoice-dollar mr-1"></i> Faturas / pagar</button><button onclick="openParceladoCard('${a.id}')" class="flex-1 min-w-[140px] py-2.5 rounded-xl font-bold text-sm bg-slate-100 dark:bg-slate-800"><i class="fas fa-layer-group mr-1"></i> Nova compra parcelada</button></div>
+            <div class="flex flex-wrap gap-2 mb-5"><button onclick="openNewTxCard('${a.id}')" class="flex-1 min-w-[130px] py-2.5 rounded-xl font-bold text-sm text-white" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus mr-1"></i> Lançar no cartão</button><button onclick="openFatura('${a.id}')" class="flex-1 min-w-[130px] py-2.5 rounded-xl font-bold text-sm bg-slate-100 dark:bg-slate-800"><i class="fas fa-file-invoice-dollar mr-1"></i> Faturas / pagar</button><button onclick="openParceladoCard('${a.id}')" class="flex-1 min-w-[130px] py-2.5 rounded-xl font-bold text-sm bg-slate-100 dark:bg-slate-800"><i class="fas fa-layer-group mr-1"></i> Compra parcelada</button></div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><h4 class="text-sm font-black mb-1">Assinaturas <span class="text-[10px] text-slate-400">(fixo/mês)</span></h4>${subsHtml}</div><div><h4 class="text-sm font-black mb-1">Parcelamentos</h4>${parcHtml}</div></div>
         </div>`;
     }
@@ -2282,6 +2279,7 @@
     let ntxType_='EXPENSE';
     function ntxSetType(t){ ntxType_=t; const e=document.getElementById('ntx-exp'),i=document.getElementById('ntx-inc'); e.classList.toggle('border-rose-500',t==='EXPENSE'); e.classList.toggle('border-transparent',t!=='EXPENSE'); i.classList.toggle('border-emerald-500',t==='INCOME'); i.classList.toggle('border-transparent',t!=='INCOME'); }
     function openNewTx(){ closeMore(); document.getElementById('ntx-desc').value=''; document.getElementById('ntx-amount').value=''; document.getElementById('ntx-date').value=new Date().toISOString().slice(0,10); document.getElementById('ntx-cat').innerHTML=categoryOptions('OUTROS'); document.getElementById('ntx-cat').value='OUTROS'; document.getElementById('ntx-acc').innerHTML=accountOptions(); ntxSetType('EXPENSE'); openModal('m-newtx'); }
+    function openNewTxCard(id){ openNewTx(); const s=document.getElementById('ntx-acc'); if(s) s.value=id; ntxSetType('EXPENSE'); }
     async function saveNewTx(){ const desc=document.getElementById('ntx-desc').value, amt=parseFloat(document.getElementById('ntx-amount').value); if(!desc||!amt){ toast('Preencha descrição e valor.','err'); return; } await api('/transactions',{method:'POST',body:JSON.stringify({description:desc,amount:amt,type:ntxType_,category:document.getElementById('ntx-cat').value,date:document.getElementById('ntx-date').value||null,account_id:document.getElementById('ntx-acc').value})}); closeModal('m-newtx'); toast('Lançamento registrado'); loadAll(); }
     async function saveTx(){ const id=document.getElementById('tx-id').value; await api('/transactions/'+id,{method:'PATCH',body:JSON.stringify({description:document.getElementById('tx-desc').value,category:(document.getElementById('tx-cat').value||'').toUpperCase(),amount:parseFloat(document.getElementById('tx-amount').value),type:document.getElementById('tx-type').value,date:document.getElementById('tx-date').value||null,account_id:document.getElementById('tx-acc').value||null})}); closeModal('m-edittx'); toast('Lançamento atualizado'); loadAll(); }
     async function delTx(id){ if(confirm('Apagar este lançamento?')){ await api('/transactions/'+id,{method:'DELETE'}); toast('Lançamento excluído'); loadAll(); } }
