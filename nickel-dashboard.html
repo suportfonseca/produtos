@@ -1246,6 +1246,10 @@
     };
     const NAV_PARENT={geral:'t-geral',dash:'t-dash',gastos:'t-dash',invest:'t-dash',sonhos:'t-dash',contas:'t-contas',cartoes:'t-contas',cad:'t-cad',plan:'t-plan',extrato:'t-extrato'};
     const SEC_TITLE={geral:'Geral',dash:'Finanças',gastos:'Gastos',invest:'Investimentos',sonhos:'Sonhos',cad:'Categorias',contas:'Contas',cartoes:'Cartões',plan:'Planejamento',extrato:'Extrato'};
+    // re-render por seção ao abrir (nenhuma tela fica "parada" precisando de refresh manual)
+    const SEC_RENDER={ geral:()=>renderGeral(), dash:()=>renderOverview(), gastos:()=>renderGastos(), invest:()=>renderInvest(), sonhos:()=>renderSonhos(), contas:()=>renderContas(), cartoes:()=>renderCartoes(), cad:()=>renderCad(), plan:()=>renderCalendar(), extrato:()=>renderExtrato() };
+    // o filtro de período só faz sentido nestas telas (as outras não usam curRange/monthTx)
+    const PERIOD_SECS=new Set(['geral','dash','gastos','extrato']);
     function go(id){
         const a=NAV_ALIAS[id]; const sec=a?a.sec:id;
         closeMore();
@@ -1262,8 +1266,8 @@
         document.getElementById('page-title').innerText=a?a.title:SEC_TITLE[sec];
         try{ localStorage.setItem('nickel_tab', id); }catch(e){}
         requestAnimationFrame(animateActiveSection);
-        if(sec==='plan') renderCalendar();
-        if(sec==='cartoes') renderCartoes();
+        try{ (SEC_RENDER[sec]||function(){})(); }catch(e){ console.error('render '+sec, e); }
+        const _pbar=document.querySelector('.nf-pbar'); if(_pbar) _pbar.style.display = PERIOD_SECS.has(sec) ? '' : 'none';
         if(a&&a.anchor){ setTimeout(()=>document.getElementById(a.anchor)?.scrollIntoView({behavior:'smooth',block:'start'}),90); }
         else (document.querySelector('main')||window).scrollTo({top:0,behavior:'smooth'});
     }
