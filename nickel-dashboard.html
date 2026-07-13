@@ -615,10 +615,11 @@
                         <span id="cal-month" class="w-40 text-center font-black text-sm uppercase">--</span>
                         <button onclick="moveMonth(1)" class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <button onclick="openFixed()" class="w-full sm:w-auto text-white px-5 py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i> Novo compromisso</button>
+                    <button onclick="openPlanAdd()" class="w-full sm:w-auto text-white px-5 py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i> Adicionar</button>
                 </div>
+                <div class="grid grid-cols-3 gap-2" id="cal-summary"></div>
                 <div class="card p-4"><div class="grid grid-cols-7 gap-1 md:gap-2" id="cal-grid"></div></div>
-                <div><h3 class="text-base font-black mb-3 px-1">Compromissos fixos</h3><div id="fixed-list" class="space-y-2.5"></div></div>
+                <div><h3 class="text-base font-black mb-3 px-1">Do mês <span class="text-[11px] font-medium text-slate-400">(entra, sai e o que vai pro cartão)</span></h3><div id="fixed-list" class="space-y-2.5"></div></div>
             </div>
 
             <!-- ══════════ EXTRATO ══════════ -->
@@ -973,6 +974,19 @@
         </div>
     </div>
 
+    <div id="m-plan-add" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
+        <div class="card p-6 w-full max-w-sm">
+            <h4 class="font-black text-lg mb-1">O que você quer programar?</h4>
+            <p class="text-xs text-slate-400 mb-4">As mesmas opções do lançamento normal — agora com conta/cartão.</p>
+            <div class="space-y-2.5">
+                <button onclick="closeModal('m-plan-add');openRecurring('EXPENSE')" class="w-full card p-4 flex items-center gap-3 text-left hover:border-brand-500"><span class="w-10 h-10 rounded-xl grid place-items-center" style="background:rgba(42,120,214,.12);color:var(--accent)"><i class="fas fa-repeat"></i></span><div><div class="text-sm font-bold">Recorrente (conta ou cartão)</div><div class="text-[11px] text-slate-400">Netflix no cartão, salário, aluguel… repete sozinho</div></div></button>
+                <button onclick="closeModal('m-plan-add');openParcelado()" class="w-full card p-4 flex items-center gap-3 text-left hover:border-brand-500"><span class="w-10 h-10 rounded-xl grid place-items-center" style="background:rgba(124,124,240,.14);color:#7C7CF0"><i class="fas fa-layer-group"></i></span><div><div class="text-sm font-bold">Compra parcelada</div><div class="text-[11px] text-slate-400">Ex.: celular em 12x no cartão</div></div></button>
+                <button onclick="closeModal('m-plan-add');openFixed()" class="w-full card p-4 flex items-center gap-3 text-left hover:border-brand-500"><span class="w-10 h-10 rounded-xl grid place-items-center" style="background:rgba(255,184,77,.14);color:#FFB84D"><i class="fas fa-calendar-day"></i></span><div><div class="text-sm font-bold">Compromisso fixo (lembrete)</div><div class="text-[11px] text-slate-400">Só marca no calendário — sem conta/cartão</div></div></button>
+            </div>
+            <button onclick="closeModal('m-plan-add')" class="w-full mt-4 bg-slate-100 dark:bg-slate-800 py-2.5 rounded-xl font-bold text-sm">Cancelar</button>
+        </div>
+    </div>
+
     <div id="m-fixed" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
         <div class="card p-7 w-full max-w-md">
             <h4 class="font-black text-xl mb-5" id="fixed-title">Novo compromisso</h4>
@@ -1219,7 +1233,7 @@
 
     // ═══════════ RENDER GLOBAL + PERÍODO + FILTROS ═══════════
     function renderAll(){
-        renderOverview(); renderGastos(); renderContas(); renderCartoes(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); fillAccountSelects();
+        renderOverview(); renderGastos(); renderContas(); renderCartoes(); renderInvest(); renderSonhos(); renderCad(); renderExtrato(); renderGeral(); renderCalendar(); fillAccountSelects();
         requestAnimationFrame(animateActiveSection);
     }
     function setPeriod(mode){
@@ -1348,7 +1362,7 @@
         document.getElementById('user-email-text').innerText = S.profile.apelido ? ('Olá, '+S.profile.apelido+' 👋') : EMAIL;
         if(S.profile && S.profile.onboarded===false) showWizard();
         api('/crypto/portfolio').then(p=>{ S.crypto=p; renderOverview(); renderInvest(); renderContas(); renderGeral(); });
-        api('/installments').then(x=>{ S.installments=x||[]; renderInstallments(); renderCartoes(); });
+        api('/installments').then(x=>{ S.installments=x||[]; renderInstallments(); renderCartoes(); renderCalendar(); });
         renderAll(); syncPeriodUI();
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
     }
@@ -2035,31 +2049,66 @@
 
     // ═══════════ PLANEJAMENTO (fixos) ═══════════
     function moveMonth(d){ viewDate.setMonth(viewDate.getMonth()+d); renderCalendar(); }
+    function openPlanAdd(){ openModal('m-plan-add'); }
+    // Todos os eventos programados de um mês: fixos + recorrentes + parcelas + faturas
+    function planMonthEvents(y,m){
+        const dim=new Date(y,m+1,0).getDate();
+        const mStart=`${y}-${pad2(m+1)}-01`, mEnd=`${y}-${pad2(m+1)}-${pad2(dim)}`;
+        const inMonth=ds=>ds>=mStart&&ds<=mEnd;
+        const accOf=id=>S.accounts.find(a=>String(a.id)===String(id));
+        const tagOf=id=>{ const a=accOf(id); if(a&&a.tipo==='CARTAO_CREDITO')return{card:true,label:a.nome}; return{card:false,label:a?a.nome:'conta'}; };
+        const ev=[];
+        (S.fixed||[]).forEach(f=>{ const day=parseInt(f.due_day); if(day>=1&&day<=dim) ev.push({day,kind:'fixed',type:f.type==='FIXED_INCOME'?'in':'out',desc:f.description,amount:+f.amount||0,card:false,label:null,src:f}); });
+        (S.recurring||[]).forEach(r=>{ if(r.ativo===false)return; const t=tagOf(r.account_id); const type=r.tipo==='INCOME'?'in':'out'; const unit=r.freq_unit||'MONTH', n=Math.max(1,+r.every_n||1);
+            if(unit==='MONTH'){ let day=+r.day_of_month|| (r.start_date?parseInt(String(r.start_date).slice(8,10)):(r.next_run_date?parseInt(String(r.next_run_date).slice(8,10)):1)); day=Math.min(day||1,dim); ev.push({day,kind:'recurring',type,desc:r.description,amount:+r.amount||0,card:t.card,label:t.card?t.label:null,src:r}); }
+            else { let d=String(r.start_date||r.next_run_date||'').slice(0,10); if(!d)return; let guard=0; while(d<mStart&&guard++<800) d=addIntervalJS(d,unit,n,parseInt(d.split('-')[2])); while(inMonth(d)&&guard++<800){ ev.push({day:parseInt(d.split('-')[2]),kind:'recurring',type,desc:r.description,amount:+r.amount||0,card:t.card,label:t.card?t.label:null,src:r}); d=addIntervalJS(d,unit,n,parseInt(d.split('-')[2])); } }
+        });
+        (S.installments||[]).forEach(p=>{ if(p.ativo===false)return; const t=tagOf(p.account_id); const total=+p.total_itens||+p.n_parcelas||1; const val=(+p.total_amount||0)/total; const unit=p.freq_unit||'MONTH', n=Math.max(1,+p.every_n||1); let d=String(p.first_date||'').slice(0,10); if(!d)return; for(let k=0;k<total;k++){ if(inMonth(d)) ev.push({day:parseInt(d.split('-')[2]),kind:'installment',type:'out',desc:`${p.description} ${k+1}/${total}`,amount:val,card:t.card,label:t.card?t.label:null,planId:p.id}); d=addIntervalJS(d,unit,n,parseInt(d.split('-')[2])); if(d>mEnd)break; } });
+        (S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO'&&a.dia_vencimento).forEach(a=>{ const c=cardSum(a.id); const day=Math.min(+a.dia_vencimento,dim); const val=num(c.proxima_fatura_estimada)||num(c.fatura_aberta); if(val>0) ev.push({day,kind:'fatura',type:'out',desc:`Fatura ${a.nome}`,amount:val,card:true,label:a.nome,fatura:true,accId:a.id}); });
+        return ev;
+    }
     function renderCalendar(){
-        const g=document.getElementById('cal-grid');
+        const g=document.getElementById('cal-grid'); if(!g) return;
         const m=viewDate.getMonth(),y=viewDate.getFullYear();
         const names=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
         document.getElementById('cal-month').innerText=names[m]+' '+y;
         const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
+        const events=planMonthEvents(y,m);
+        const colOf=e=> e.type==='in'?'var(--pos)':(e.card&&!e.fatura?'var(--accent)':'var(--neg)');
+        const bgOf=e=> e.type==='in'?'rgba(23,201,100,.14)':(e.card&&!e.fatura?'rgba(42,120,214,.14)':'rgba(255,92,122,.14)');
         let html=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d=>`<div class="text-center text-[10px] font-bold text-slate-400 uppercase py-1">${d}</div>`).join('');
         for(let i=0;i<first;i++) html+='<div></div>';
         const today=new Date();
         for(let d=1;d<=dim;d++){
-            const ev=S.fixed.filter(f=>parseInt(f.due_day)===d);
+            const ev=events.filter(e=>e.day===d);
             const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
             html+=`<div class="min-h-[54px] md:min-h-[80px] p-1 border border-slate-100 dark:border-slate-800 rounded-lg flex flex-col">
                 <span class="text-[11px] font-bold ${isToday?'text-white rounded-full w-5 h-5 grid place-items-center':'text-slate-400'}" style="${isToday?'background:var(--accent)':''}">${d}</span>
-                <div class="flex-1 overflow-hidden mt-0.5">${ev.map(x=>`<div class="text-[8px] md:text-[9px] font-bold px-1 py-0.5 rounded mb-0.5 truncate" style="background:${x.type==='FIXED_EXPENSE'?'rgba(255,92,122,.14)':'rgba(23,201,100,.14)'};color:${x.type==='FIXED_EXPENSE'?'var(--neg)':'var(--pos)'}" title="${x.description}"><span class="hidden md:inline">${x.description}</span><span class="md:hidden">•</span></div>`).join('')}</div>
+                <div class="flex-1 overflow-hidden mt-0.5">${ev.map(x=>`<div class="text-[8px] md:text-[9px] font-bold px-1 py-0.5 rounded mb-0.5 truncate" style="background:${bgOf(x)};color:${colOf(x)}" title="${x.desc}${x.card&&!x.fatura?' (cartão '+x.label+')':''}"><span class="hidden md:inline">${x.card?'💳 ':''}${x.desc}</span><span class="md:hidden">•</span></div>`).join('')}</div>
             </div>`;
         }
         g.innerHTML=html;
-        document.getElementById('fixed-list').innerHTML=S.fixed.map(f=>{ const out=f.type==='FIXED_EXPENSE';
-            return `<div class="card p-4 flex items-center justify-between group">
-                <div class="flex items-center gap-3"><span class="text-xs font-black px-2.5 py-1.5 rounded-lg" style="background:rgba(42,120,214,.1);color:var(--accent)">Dia ${f.due_day}</span><div><div class="text-sm font-bold">${f.description}</div><span class="text-[10px] font-bold uppercase text-slate-400">${f.category||'GERAL'}</span></div></div>
-                <div class="flex items-center gap-3"><span class="font-black num text-sm" style="color:${out?'var(--neg)':'var(--pos)'}">${fmt(f.amount)}</span>
-                <div class="opacity-0 group-hover:opacity-100 flex gap-1"><button onclick='editFixed(${JSON.stringify(f)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delFixed('${f.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div>
+        const entradas=events.filter(e=>e.type==='in').reduce((s,e)=>s+e.amount,0);
+        const saiConta=events.filter(e=>(e.type==='out'&&!e.card)||e.fatura).reduce((s,e)=>s+e.amount,0);
+        const noCartao=events.filter(e=>e.type==='out'&&e.card&&!e.fatura).reduce((s,e)=>s+e.amount,0);
+        const sumEl=document.getElementById('cal-summary');
+        if(sumEl){ const chip=(l,v,c,tip)=>`<div class="card p-3 text-center"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">${l}</p><p class="num font-black text-sm mt-0.5" style="color:${c}">${fmt(v)}</p>${tip?`<p class="text-[9px] text-slate-400">${tip}</p>`:''}</div>`;
+            sumEl.innerHTML=chip('Entra no mês',entradas,'var(--pos)')+chip('Sai da conta',saiConta,'var(--neg)','pix/débito + faturas')+chip('Vai pro cartão',noCartao,'var(--accent)','paga na fatura'); }
+        const byDay=[...events].sort((a,b)=>a.day-b.day);
+        document.getElementById('fixed-list').innerHTML = byDay.length ? byDay.map(e=>{
+            const col=colOf(e); const tag=e.card?('💳 '+e.label):'🏦 '+(e.label||'conta');
+            const kindLbl={fixed:'fixo',recurring:'recorrente',installment:'parcela',fatura:'fatura do cartão'}[e.kind]||'';
+            let actions='';
+            if(e.kind==='fixed') actions=`<button onclick='editFixed(${JSON.stringify(e.src)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delFixed('${e.src.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button>`;
+            else if(e.kind==='recurring') actions=`<button onclick='editRecurring(${JSON.stringify(e.src)})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delRecurring('${e.src.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button>`;
+            else if(e.kind==='installment') actions=`<button onclick="go('cartoes')" title="ver na Central de Cartões" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-arrow-right text-[10px]"></i></button>`;
+            else if(e.kind==='fatura') actions=`<button onclick="openFatura('${e.accId}')" title="ver/pagar fatura" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-file-invoice-dollar text-[10px]"></i></button>`;
+            return `<div class="card p-3 flex items-center justify-between gap-2 group">
+                <div class="flex items-center gap-2.5 min-w-0"><span class="text-[11px] font-black px-2 py-1 rounded-lg shrink-0" style="background:rgba(42,120,214,.1);color:var(--accent)">Dia ${e.day}</span>
+                    <div class="min-w-0"><div class="text-sm font-bold truncate">${e.desc}</div><div class="text-[10px] text-slate-400">${tag} · ${kindLbl}${e.card&&!e.fatura?' → fatura':''}</div></div></div>
+                <div class="flex items-center gap-2 shrink-0"><span class="num font-black text-sm" style="color:${col}">${e.type==='in'?'+':'−'}${fmt(e.amount)}</span><div class="opacity-0 group-hover:opacity-100 flex gap-1">${actions}</div></div>
             </div>`;
-        }).join('') || '<p class="text-sm text-slate-400 card p-5 text-center">Nenhum compromisso fixo.</p>';
+        }).join('') : '<p class="text-sm text-slate-400 card p-5 text-center">Nada programado neste mês. Toque em <b>+ Adicionar</b>.</p>';
     }
 
     // ═══════════ MODAIS: helpers ═══════════
