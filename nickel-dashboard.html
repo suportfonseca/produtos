@@ -543,6 +543,7 @@
 
             <!-- ══════════ GASTOS ══════════ -->
             <div id="sec-gastos" class="section-content space-y-6">
+                <div id="ign-cards-bar"></div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="gastos-kpis"></div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div class="card p-5">
@@ -1685,15 +1686,20 @@
         return floor;
     }
     // ═══════════ GASTOS ═══════════
+    function ignoreCards(){ if(S.settings&&S.settings.notifications&&typeof S.settings.notifications.ignore_cards==='boolean') return S.settings.notifications.ignore_cards; try{ return localStorage.getItem('nickel_ignore_cards')==='1'; }catch(e){ return false; } }
+    async function toggleIgnoreCards(){ const next=!ignoreCards(); const notif=Object.assign({}, (S.settings&&S.settings.notifications)||{}, {ignore_cards:next}); if(!S.settings)S.settings={}; S.settings.notifications=notif; try{ localStorage.setItem('nickel_ignore_cards', next?'1':'0'); }catch(e){} renderGastos(); try{ if(typeof renderGeral==='function')renderGeral(); }catch(e){} try{ await api('/settings',{method:'PUT',body:JSON.stringify({notifications:notif})}); toast(next?'Cartões fora dos totais 💳':'Cartões de volta aos totais'); }catch(e){ toast('Salvo neste aparelho','err'); } }
     function renderGastos(){
-        const tx=monthTx(); let exp=0; const cats={};
-        tx.forEach(t=>{ if(t.type==='EXPENSE'){ const v=parseFloat(t.amount); exp+=v; const c=t.category||'OUTROS'; cats[c]=(cats[c]||0)+v; }});
+        const ign=ignoreCards(); const cardIds=new Set((S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO').map(a=>String(a.id)));
+        const isIgn=t=>ign&&cardIds.has(String(t.account_id));
+        const _igb=document.getElementById('ign-cards-bar'); if(_igb) _igb.innerHTML=`<div class="card p-3 flex items-center justify-between gap-3"><div class="flex items-center gap-2 text-sm min-w-0"><i class="fas fa-credit-card text-slate-400 shrink-0"></i><div class="min-w-0"><div class="font-bold">Desconsiderar cartões nos totais</div><div class="text-[11px] text-slate-400 leading-tight">Gasto no cartão vira fatura — não conta como saída do mês.</div></div></div><button onclick="toggleIgnoreCards()" role="switch" aria-checked="${ign}" class="shrink-0 relative rounded-full transition" style="width:48px;height:28px;background:${ign?'var(--accent)':'var(--border-glass)'}"><span class="absolute rounded-full bg-white transition-all" style="top:4px;width:20px;height:20px;left:${ign?'24px':'4px'}"></span></button></div>`;
+        const tx=monthTx(); let exp=0,nExp=0; const cats={};
+        tx.forEach(t=>{ if(t.type==='EXPENSE'&&!isIgn(t)){ const v=parseFloat(t.amount); exp+=v; nExp++; const c=t.category||'OUTROS'; cats[c]=(cats[c]||0)+v; }});
         const elap=elapsedDays();
         const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
         const maior=sorted[0];
         KPIVAL = Object.assign(KPIVAL, { gExp:exp, gElap:elap, gMedia:elap>0?exp/elap:0 });
         document.getElementById('gastos-kpis').innerHTML =
-            kpiTile('Total gasto no período', fmt(exp), 'card-hero kpi-hero col-span-2', `${tx.filter(t=>t.type==='EXPENSE').length} lançamentos`, '', 'Soma de todas as suas saídas no período selecionado.', 'goFilter("extrato",{type:"EXPENSE"})')
+            kpiTile('Total gasto no período', fmt(exp), 'card-hero kpi-hero col-span-2', `${nExp} lançamentos${ign?' · cartões fora':''}`, '', 'Soma das suas saídas no período. Com o filtro de cartões ligado, os gastos no cartão de crédito não entram (viram fatura).', 'goFilter("extrato",{type:"EXPENSE"})')
           + kpiTile('Média por dia', fmt(elap>0?exp/elap:0), '', 'no período', '', 'Total gasto dividido pelos dias já corridos do período.', 'explainKpi("media_dia")', 'explain')
           + kpiTile('Maior categoria', maior?maior[0]:'—', '', maior?fmt(maior[1]):'', '', 'A categoria em que você mais gastou neste mês.', maior?`drillCat(${JSON.stringify(maior[0])})`:'');
         renderDonut(cats,exp);
