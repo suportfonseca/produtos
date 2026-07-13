@@ -1347,7 +1347,7 @@
         }
         document.getElementById('user-email-text').innerText = S.profile.apelido ? ('Olá, '+S.profile.apelido+' 👋') : EMAIL;
         if(S.profile && S.profile.onboarded===false) showWizard();
-        api('/crypto/portfolio').then(p=>{ S.crypto=p; renderInvest(); renderContas(); renderGeral(); });
+        api('/crypto/portfolio').then(p=>{ S.crypto=p; renderOverview(); renderInvest(); renderContas(); renderGeral(); });
         api('/installments').then(x=>{ S.installments=x||[]; renderInstallments(); renderCartoes(); });
         renderAll(); syncPeriodUI();
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
@@ -1399,7 +1399,8 @@
             return true;
         });
     }
-    const consolidated = () => S.accounts.filter(a=>a.incluir_no_consolidado).reduce((s,a)=>s+parseFloat(a.balance||0),0);
+    const consolidated = () => S.accounts.filter(a=>a.incluir_no_consolidado).reduce((s,a)=>s+parseFloat(a.balance||0)+cryptoValueForAccount(a.id),0);
+    const linkedCryptoTotal = () => S.accounts.filter(a=>a.incluir_no_consolidado).reduce((s,a)=>s+cryptoValueForAccount(a.id),0);
 
     // ═══════════ VISÃO GERAL ═══════════
     function sparkline(pts,color){
@@ -1449,7 +1450,7 @@
         disponivel:{ title:v=>'Quanto dá pra gastar', body:v=>`Você tem ${fmt(v.disp)} disponível pra gastar. Peguei o que está nas contas do dia a dia (corrente e carteira): ${fmt(v.gastavel)}${v.fOut>0?`, tirei ${fmt(v.fOut)} de compromissos fixos que ainda faltam vencer este mês`:''}${v.fIn>0?`, e somei ${fmt(v.fIn)} de entradas fixas ainda por vir`:''}.\n\nReserva, poupança e investimentos ficam de fora de propósito — esse número é só o que dá pra usar sem mexer no que é pra guardar.` },
         sobra:{ title:v=>'Sua sobra do período', body:v=> v.sobra>=0 ? `Sua sobra é ${fmt(v.sobra)}. Entrou ${fmt(v.inc)} e saiu da conta ${fmt(v.expConta)}.${v.expCartao>0?` O cartão (${fmt(v.expCartao)}) não entra aqui — é fatura pra pagar no vencimento, não dinheiro que já saiu.`:''} Sobraram ${fmt(v.sobra)} — esse é o combustível pra guardar ou investir. 🎉` : `Você fechou o período em ${fmt(v.sobra)}. Entrou ${fmt(v.inc)} e saiu da conta ${fmt(v.expConta)}, ou seja, ${fmt(-v.sobra)} a mais do que entrou.${v.expCartao>0?` (A fatura do cartão, ${fmt(v.expCartao)}, é um compromisso à parte.)`:''}\n\nSem pânico — dá pra olhar na sua maior categoria onde apertar um pouco.` },
         taxa_aporte:{ title:v=>'Sua taxa de aporte', body:v=>`Sua taxa de aporte é ${v.taxa.toFixed(0)}%. Isso quer dizer que ${v.taxa.toFixed(0)}% da sua renda do mês (${fmt(v.inc)}) está indo pra guardar — hoje ${fmt(v.aporteMes)} em aportes programados.\n\nQuanto maior essa fatia, mais rápido suas metas chegam. Subir só 1% já faz diferença lá na frente.` },
-        consolidado:{ title:v=>'Seu saldo consolidado', body:v=>`Seu saldo consolidado é ${fmt(v.consol)}. É a soma do dinheiro das suas ${v.nContas} conta(s) marcadas pra entrar no consolidado.\n\nCartão de crédito não entra aqui (a fatura aparece separada), e a cripto conta no patrimônio, não no saldo do banco.` },
+        consolidado:{ title:v=>'Seu saldo consolidado', body:v=>`Seu saldo consolidado é ${fmt(v.consol)}. É a soma do que há nas suas ${v.nContas} conta(s) incluídas: o saldo em conta + a cripto vinculada a cada conta, avaliada ao vivo pela cotação.\n\nCartão de crédito não entra aqui — a fatura aparece separada. Assim uma conta tipo Binance mostra o valor real, não zero.` },
         media_dia:{ title:v=>'Sua média por dia', body:v=>`Sua média é ${fmt(v.gMedia)} por dia. Peguei o total gasto no período (${fmt(v.gExp)}) e dividi pelos ${v.gElap} dia(s) já corridos.\n\nServe pra você sentir o ritmo sem precisar olhar lançamento por lançamento.` },
         patrimonio:{ title:v=>'Seu patrimônio líquido', body:v=>`Seu patrimônio líquido é ${fmt(v.netWorth)}. Somei tudo: contas (${fmt(v.gConsol)}) + caixinhas (${fmt(v.caixinhas)})${v.cryptoNow>0?` + cripto (${fmt(v.cryptoNow)})`:''}${v.cardsDevido>0?`, e tirei a fatura de cartão em aberto (${fmt(v.cardsDevido)})`:''}.\n\nA cripto entra uma única vez pra não contar dobrado. É a foto mais completa do quanto você tem hoje.` },
         variacao:{ title:v=>'Variação do mês', body:v=> v.varPct>=0 ? `Seu patrimônio cresceu ${v.varPct.toFixed(1)}% no mês (${fmt(v.varDelta)} a mais que no mês anterior). 🎉 É uma estimativa pelos seus lançamentos e aportes do período. Bora manter o ritmo!` : `Seu patrimônio recuou ${Math.abs(v.varPct).toFixed(1)}% no mês (${fmt(v.varDelta)} ante o mês anterior). É uma estimativa pelos lançamentos — pode ser um mês de gasto maior ou a cripto oscilando. Vale olhar a maior categoria do período.` },
@@ -1651,7 +1652,7 @@
         const caixinhas=S.goals.reduce((s,g)=>s+num(g.current_amount),0);
         const cryptoNow=S.crypto?.total_now||0;
         const cardsDevido=(S.cards||[]).reduce((s,c)=>s+num(c.devido),0);
-        const netWorth=consol+caixinhas+cryptoNow-cardsDevido;
+        const netWorth=consol+caixinhas+(cryptoNow-linkedCryptoTotal())-cardsDevido;
         // ---- KPIs auxiliares ----
         const tx=monthTx(); let inc=0,exp=0;
         tx.forEach(t=>{ const v=num(t.amount); t.type==='INCOME'?inc+=v:exp+=v; });
@@ -1852,7 +1853,7 @@
         const pnl=S.crypto?S.crypto.total_pnl:0;
         const pnlPct=S.crypto?S.crypto.total_pnl_pct:0;
         const cardDebt=S.cards.reduce((s,c)=>s+parseFloat(c.devido||0),0);
-        const patrimonio=consol+goalsSum+cryptoVal-cardDebt;
+        const patrimonio=consol+goalsSum+(cryptoVal-linkedCryptoTotal())-cardDebt;
         const mult=cryptoInv>0?(cryptoVal/cryptoInv):0;
         const expo=patrimonio>0?(cryptoVal/patrimonio*100):0;
         const pc=pnl>=0?'var(--pos)':'var(--neg)';
