@@ -1189,6 +1189,7 @@
         try { return await res.json(); } catch(e) { return null; }
     }
     const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:(S.profile&&S.profile.currency)||'BRL'}).format(Number(v)||0);
+    const num = v => parseFloat(v||0)||0;
     function toast(msg,type){ const c=document.getElementById('toast'); const el=document.createElement('div'); el.className='toast'+(type==='err'?' err':''); el.textContent=(type==='err'?'⚠️ ':'✅ ')+msg; c.appendChild(el); setTimeout(()=>{el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>el.remove(),300);},2600); }
     const COLORS = ['#2F7CF0','#17C964','#A6E635','#FFB84D','#7C7CF0','#FF5C7A','#e87ba4','#3ad0c0'];
     // tema (claro/escuro) — padrão escuro; escolha lembrada no aparelho + sincronizada na conta
