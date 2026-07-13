@@ -1526,6 +1526,7 @@
     function closeExplain(){ clearInterval(_twTimer); const m=document.getElementById('explain-mascot'); if(m)m.classList.remove('writing'); closeModal('m-explain'); }
     // Cada explicação usa os números reais do cliente (KPIVAL), no tom do Nickel.
     const EXPLAIN = {
+        por_dia:{ title:v=>'Dá pra gastar por dia', body:v=>`Dá pra gastar cerca de ${fmt(v.porDia)} por dia até o próximo salário (faltam ${v.diasAtePag} dia${v.diasAtePag>1?'s':''}, no 5º dia útil).\n\nPeguei o que você tem nas contas do dia a dia (${fmt(v.gastavel)}), tirei o que ainda precisa pagar sem ser cartão (${fmt((v.fOut||0)+(v.recNaoCartao||0))}) e dividi pelos dias que faltam.\n\nO cartão de crédito NÃO entra aqui — ele é pra pagar depois, na fatura. Assim você sabe quanto rola gastar sem precisar recorrer ao crédito.` },
         burn:{ title:v=>'Seu ritmo de gasto', body:v=>`Seu ritmo é ${fmt(v.burn)} por dia — contando só o que saiu da conta (${fmt(v.expConta)}) dividido pelos ${v.elap} dia(s) já corridos.${v.expCartao>0?` As compras no cartão (${fmt(v.expCartao)}) ficam de fora daqui: viram fatura pra pagar no vencimento, não saem agora.`:''}\n\nNo ritmo de agora, cada dia "custa" mais ou menos ${fmt(v.burn)}. Se um dia puxou muito, dá uma olhada na sua maior categoria — às vezes um gasto pontual distorce tudo.` },
         reserva:{ title:v=>'Sua reserva de emergência', body:v=>`Sua reserva cobre ${v.meses.toFixed(1)} ${v.meses.toFixed(1)==='1.0'?'mês':'meses'}. Você tem ${fmt(v.reservaVal)} guardado (reserva, poupança e caixinhas), e seus custos giram em torno de ${fmt(v.custoMes)} por mês.\n\nDividindo um pelo outro, dá pra viver ~${v.meses.toFixed(1)} ${v.meses.toFixed(1)==='1.0'?'mês':'meses'} só com o que já está guardado, mesmo se a renda parasse. Cada real a mais aqui empurra esse número pra cima. 🛟` },
         disponivel:{ title:v=>'Quanto dá pra gastar', body:v=>`Você tem ${fmt(v.disp)} disponível pra gastar. Peguei o que está nas contas do dia a dia (corrente e carteira): ${fmt(v.gastavel)}${v.fOut>0?`, tirei ${fmt(v.fOut)} de compromissos fixos que ainda faltam vencer este mês`:''}${v.fIn>0?`, e somei ${fmt(v.fIn)} de entradas fixas ainda por vir`:''}.\n\nReserva, poupança e investimentos ficam de fora de propósito — esse número é só o que dá pra usar sem mexer no que é pra guardar.` },
@@ -1646,6 +1647,14 @@
         S.fixed.forEach(f=>{ const v=parseFloat(f.amount); if(parseInt(f.due_day)>=today){ if(f.type==='FIXED_INCOME')fIn+=v; else fOut+=v; }});
         const gastavel=S.accounts.filter(a=>['CORRENTE','CARTEIRA'].includes(a.tipo)&&a.incluir_no_consolidado).reduce((s,a)=>s+parseFloat(a.balance||0),0);
         const disp=gastavel+fIn-fOut;
+        // "dá pra gastar por dia" (sem cartão) = (gastável − obrigações não-cartão) / dias até o próximo salário (5º dia útil)
+        const _cardSet=new Set(S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO').map(a=>String(a.id)));
+        const _bd=(y,mo,n)=>{ let d=0,c=0; while(c<n){ d++; const w=new Date(y,mo,d).getDay(); if(w!==0&&w!==6)c++; } return new Date(y,mo,d); };
+        const _tn=new Date(), _t0=new Date(_tn.getFullYear(),_tn.getMonth(),_tn.getDate());
+        let _sal=_bd(_tn.getFullYear(),_tn.getMonth(),5); if(_sal<=_t0) _sal=_bd(_tn.getFullYear(),_tn.getMonth()+1,5);
+        const diasAtePag=Math.max(1,Math.round((_sal-_t0)/86400000));
+        const recNaoCartao=S.recurring.filter(r=>r.tipo==='EXPENSE'&&!_cardSet.has(String(r.account_id))).reduce((s,r)=>s+parseFloat(r.amount||0),0);
+        const porDia=Math.max(0,(gastavel-fOut-recNaoCartao))/diasAtePag;
         // taxa de aporte: aportes do mês / receita do mês
         const aportes = S.goals.length ? 0 : 0; // aportes vêm de transfers; aproximação via recurring APORTE
         const aporteMes = S.recurring.filter(r=>r.tipo==='APORTE').reduce((s,r)=>s+parseFloat(r.amount),0);
@@ -1657,9 +1666,10 @@
         const elap = elapsedDays(R); const burn = elap>0 ? expConta/elap : 0;
 
         const dispColor = disp<0?'var(--neg)':'var(--pos)';
-        KPIVAL = Object.assign(KPIVAL, { consol, disp, gastavel, fIn, fOut, sobra, inc, exp, expConta, expCartao, taxa, aporteMes, reservaVal, custoMes, meses, burn, elap, nContas:S.accounts.length });
+        KPIVAL = Object.assign(KPIVAL, { consol, disp, gastavel, fIn, fOut, sobra, inc, exp, expConta, expCartao, taxa, aporteMes, reservaVal, custoMes, meses, burn, elap, porDia, diasAtePag, recNaoCartao, nContas:S.accounts.length });
         document.getElementById('kpi-grid').innerHTML =
-            kpiTile('Saldo Consolidado', fmt(consol), 'card-hero kpi-hero col-span-2', `<span class="text-slate-400">${S.accounts.length} conta(s)</span>`, sparkline(last7Balance(),'var(--accent)'), 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.', 'explainKpi("consolidado")', 'explain')
+            kpiTile('💸 Dá pra gastar por dia', `<span style="color:var(--pos)">${fmt(porDia)}</span>`, 'card-hero kpi-hero col-span-2', `até o salário (${diasAtePag} dia${diasAtePag>1?'s':''}) · só a conta, sem cartão`, sparkline(last7Balance(),'var(--accent)'), 'Quanto dá pra gastar POR DIA com o que você tem na conta, já tirando o que ainda precisa pagar (sem cartão), até cair o próximo salário (5º dia útil). O cartão fica de fora — é pra pagar depois.', 'explainKpi("por_dia")', 'explain')
+          + kpiTile('Saldo Consolidado', fmt(consol), '', `${S.accounts.length} conta(s)`, '', 'Soma do dinheiro de todas as contas marcadas para entrar no consolidado.', 'explainKpi("consolidado")', 'explain')
           + kpiTile('Disponível em conta', `<span style="color:${dispColor}">${fmt(disp)}</span>`, '', 'contas do dia a dia', '', 'Quanto você pode gastar até o fim do mês. Considera só as contas corrente e carteira (não a reserva, poupança nem investimentos) menos os compromissos fixos que ainda faltam. A fatura do cartão fica separada.', 'explainKpi("disponivel")', 'explain')
           + ((S.cards&&S.cards.length)?kpiTile('Fatura do mês no cartão', fmt(S.cards.reduce((s,c)=>s+parseFloat(c.fatura_aberta||0),0)), '', 'no crédito, separado', '', 'Total das faturas abertas dos seus cartões neste ciclo. Fica separado do disponível em conta — só sai do banco quando você paga a fatura.'):'')
           + kpiTile('Sobra do período', `<span style="color:${sobra<0?'var(--neg)':'var(--pos)'}">${fmt(sobra)}</span>`, '', `entradas ${fmt(inc)}`, '', 'Suas entradas menos suas saídas no período selecionado. Verde é sobra, vermelho é falta.', 'explainKpi("sobra")', 'explain')
@@ -1667,7 +1677,7 @@
           + kpiTile('Reserva', meses>0?meses.toFixed(1)+' meses':'—', '', fmt(reservaVal), '', 'Por quantos meses seus custos ficam pagos só com o que você já tem guardado.', 'explainKpi("reserva")', 'explain')
           + kpiTile('Burn rate', fmt(burn)+'/dia', '', 'ritmo de gasto', '', 'Seu ritmo médio de gasto por dia neste mês.', 'explainKpi("burn")', 'explain');
 
-        renderFlow(tx,R);
+        renderFlow(ignoreCards()?tx.filter(t=>!(t.type==='EXPENSE'&&_cardSet.has(String(t.account_id)))):tx, R);
         renderAlerts({consol,disp,exp:expConta,inc,burn,days,cats});
         renderMiniAccounts();
         renderLogList('recent-logs', S.tx.slice(0,5));
