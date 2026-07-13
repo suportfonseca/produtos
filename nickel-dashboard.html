@@ -1818,11 +1818,13 @@
         const cardsDevido=(S.cards||[]).reduce((s,c)=>s+num(c.devido),0);
         const netWorth=consol+caixinhas+(cryptoNow-linkedCryptoTotal())-cardsDevido;
         // ---- KPIs auxiliares ----
-        const tx=monthTx(); let inc=0,exp=0;
-        tx.forEach(t=>{ const v=num(t.amount); t.type==='INCOME'?inc+=v:exp+=v; });
-        const savingsRate=inc>0?((inc-exp)/inc*100):0;
+        const tx=monthTx(); let inc=0,exp=0,expConta2=0;
+        const _cs=new Set((S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO').map(a=>String(a.id)));
+        tx.forEach(t=>{ const v=num(t.amount); if(t.type==='INCOME')inc+=v; else { exp+=v; if(!_cs.has(String(t.account_id)))expConta2+=v; } });
+        // taxa de poupança = quanto da renda sobrou depois dos gastos DE CONTA (cartão não conta — vira fatura). Piso em -100% pra não assustar.
+        const savingsRate=inc>0?Math.max(-100,((inc-expConta2)/inc*100)):0;
         const reservaVal=accSum(['RESERVA','POUPANCA'])+caixinhas;
-        const custoMes=S.fixed.filter(f=>f.type==='FIXED_EXPENSE').reduce((s,f)=>s+num(f.amount),0)+exp;
+        const custoMes=S.fixed.filter(f=>f.type==='FIXED_EXPENSE').reduce((s,f)=>s+num(f.amount),0)+expConta2;
         const mesesRes=custoMes>0?reservaVal/custoMes:0;
         const limiteTot=(S.cards||[]).reduce((s,c)=>s+num(c.limite),0);
         const expoCartao=limiteTot>0?(cardsDevido/limiteTot*100):0;
@@ -1840,7 +1842,7 @@
         const cur=evoData[evoData.length-1];
         const varPct=prev!==0?((cur-prev)/Math.abs(prev)*100):0; const varCol=varPct>=0?'var(--pos)':'var(--neg)';
         // ---- KPIs ----
-        KPIVAL = Object.assign(KPIVAL, { netWorth, gConsol:consol, caixinhas, cryptoNow, cardsDevido, varPct, varDelta:cur-prev, savingsRate, gInc:inc, gExp2:exp, meses:mesesRes, reservaVal, custoMes, limiteTot, expoCartao, ativosRisco });
+        KPIVAL = Object.assign(KPIVAL, { netWorth, gConsol:consol, caixinhas, cryptoNow, cardsDevido, varPct, varDelta:cur-prev, savingsRate, gInc:inc, gExp2:expConta2, meses:mesesRes, reservaVal, custoMes, limiteTot, expoCartao, ativosRisco });
         document.getElementById('kpi-grid-g').innerHTML =
             kpiTile('Patrimônio líquido total', fmt(netWorth), 'card-hero kpi-hero col-span-2', `<span style="color:${varCol}">${varPct>=0?'▲':'▼'} ${Math.abs(varPct).toFixed(1)}% no mês</span>`, sparkline(evoData,'var(--accent)'), 'Tudo somado entre todos os bancos e ativos: contas + caixinhas + cripto, menos a dívida de cartão. A cripto entra uma única vez.', 'explainKpi("patrimonio")', 'explain')
           + kpiTile('Variação no mês', `<span style="color:${varCol}">${varPct>=0?'+':''}${varPct.toFixed(1)}%</span>`, '', fmt(cur-prev)+' vs mês anterior', '', 'Quanto seu patrimônio cresceu ou caiu ante o mês anterior (estimativa pelos lançamentos).', 'explainKpi("variacao")', 'explain')
