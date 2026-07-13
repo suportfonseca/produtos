@@ -1072,27 +1072,70 @@
     </div>
 
     <div id="m-newtx" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] items-center justify-center p-4">
-        <div class="card p-7 w-full max-w-md">
-            <h4 class="font-black text-xl mb-5">Novo lançamento</h4>
-            <div class="space-y-3">
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" id="ntx-exp" onclick="ntxSetType('EXPENSE')" class="py-2.5 rounded-xl font-bold text-sm border-2 border-transparent bg-slate-100 dark:bg-slate-800">🔴 Saída</button>
-                    <button type="button" id="ntx-inc" onclick="ntxSetType('INCOME')" class="py-2.5 rounded-xl font-bold text-sm border-2 border-transparent bg-slate-100 dark:bg-slate-800">🟢 Entrada</button>
+        <div class="card w-full max-w-2xl" style="padding:0;max-height:92vh;display:flex;flex-direction:column;overflow:hidden">
+            <div class="p-5 md:p-6 pb-4 flex items-center justify-between" style="border-bottom:1px solid var(--border-glass)">
+                <h4 class="font-black text-xl">Novo lançamento</h4>
+                <button onclick="closeModal('m-newtx')" class="w-8 h-8 rounded-lg" style="background:var(--surface-1)"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="p-5 md:p-6 overflow-y-auto flex-1">
+                <div class="grid md:grid-cols-2 gap-5 md:gap-6">
+                    <div class="space-y-4">
+                        <div class="nf-seg" style="width:100%" role="group" aria-label="Tipo" id="ntx-type-seg">
+                            <button type="button" class="nf-seg-btn is-active" data-t="EXPENSE" onclick="ntxSetType('EXPENSE')">🔴 Gasto</button>
+                            <button type="button" class="nf-seg-btn" data-t="INCOME" onclick="ntxSetType('INCOME')">🟢 Entrada</button>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Valor</label>
+                            <div class="flex items-baseline gap-1.5 mt-1"><span class="text-lg font-black text-slate-400">R$</span><input id="ntx-amount" type="number" step="0.01" inputmode="decimal" placeholder="0,00" class="w-full bg-transparent text-3xl font-black num outline-none" style="color:var(--t-hi)" oninput="ntxUpdate()"></div>
+                            <div style="height:1px;background:var(--border-glass);margin-top:6px"></div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Descrição</label>
+                            <input id="ntx-desc" placeholder="Ex.: Mercado do mês" class="w-full card px-4 py-3 text-sm mt-1" oninput="ntxUpdate()">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Categoria</label>
+                            <div id="ntx-cat-chips" class="flex flex-wrap gap-2 mt-1.5"></div>
+                            <input type="hidden" id="ntx-cat" value="OUTROS">
+                            <select id="ntx-cat-sel" class="w-full card px-4 py-3 text-sm font-semibold mt-2 hidden" onchange="ntxPickCat(this.value)"></select>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Pagar com</label>
+                            <div class="nf-seg mt-1" style="width:100%" role="group" aria-label="Onde" id="ntx-pay-seg">
+                                <button type="button" class="nf-seg-btn is-active" data-p="conta" onclick="ntxSetPay('conta')">🏦 Conta</button>
+                                <button type="button" class="nf-seg-btn" data-p="cartao" onclick="ntxSetPay('cartao')">💳 Cartão</button>
+                            </div>
+                            <div id="ntx-acc-list" class="grid grid-cols-1 gap-1.5 mt-2"></div>
+                            <input type="hidden" id="ntx-acc">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Quando</label>
+                            <div class="flex gap-2 mt-1">
+                                <button type="button" onclick="ntxQuickDate(0)" class="card px-3 py-2 text-sm font-bold">Hoje</button>
+                                <button type="button" onclick="ntxQuickDate(1)" class="card px-3 py-2 text-sm font-bold">Ontem</button>
+                                <input id="ntx-date" type="date" class="card px-3 py-2 text-sm num flex-1" onchange="ntxUpdate()">
+                            </div>
+                        </div>
+                        <div id="ntx-impact" aria-live="polite"></div>
+                    </div>
                 </div>
-                <input id="ntx-desc" placeholder="Descrição (ex: Mercado)" class="w-full card px-4 py-3 text-sm">
-                <div class="grid grid-cols-2 gap-3">
-                    <input id="ntx-amount" type="number" step="0.01" placeholder="Valor" class="card px-4 py-3 text-lg font-black num">
-                    <input id="ntx-date" type="date" class="card px-4 py-3 text-sm">
+                <div class="mt-6">
+                    <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Como lançar</label>
+                    <div class="nf-seg mt-1" style="width:100%" role="group" aria-label="Modo" id="ntx-mode-seg">
+                        <button type="button" class="nf-seg-btn is-active" data-m="UNICO" onclick="ntxSetMode('UNICO')">Único</button>
+                        <button type="button" class="nf-seg-btn" data-m="PARCELADO" onclick="ntxSetMode('PARCELADO')">Parcelado</button>
+                        <button type="button" class="nf-seg-btn" data-m="RECORRENTE" onclick="ntxSetMode('RECORRENTE')">Repete</button>
+                    </div>
+                    <div id="ntx-mode-panel" class="mt-3"></div>
                 </div>
-                <div><label class="text-xs font-bold text-slate-500">Categoria</label><select id="ntx-cat" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
-                <div><label class="text-xs font-bold text-slate-500">Conta</label><select id="ntx-acc" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
-                <div class="flex flex-col gap-1.5">
-                    <button type="button" onclick="closeModal('m-newtx');openParcelado()" class="text-xs font-bold text-left" style="color:var(--accent)"><i class="fas fa-layer-group mr-1"></i>É uma compra parcelada? →</button>
-                    <button type="button" onclick="closeModal('m-newtx');openRecurring('EXPENSE')" class="text-xs font-bold text-left" style="color:var(--accent)"><i class="fas fa-repeat mr-1"></i>É um gasto que se repete (todo mês/semana)? →</button>
-                </div>
-                <div class="flex gap-3 pt-2">
+                <div id="ntx-summary" class="mt-4 rounded-xl px-3 py-2.5 text-[13px] leading-snug" style="background:var(--surface-1);border:1px solid var(--border-glass);color:var(--t-base)" aria-live="polite"></div>
+            </div>
+            <div class="p-4 md:p-5" style="border-top:1px solid var(--border-glass);background:var(--surface-1)">
+                <div class="flex gap-3">
                     <button onclick="closeModal('m-newtx')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
-                    <button onclick="saveNewTx()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Lançar</button>
+                    <button id="ntx-save-btn" onclick="saveNewTx()" class="flex-1 text-white py-3 rounded-xl font-black text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Lançar</button>
                 </div>
             </div>
         </div>
@@ -2267,11 +2310,97 @@
     // Transação (editar)
     function editTx(t){ document.getElementById('tx-id').value=t.id; document.getElementById('tx-type').value=t.type||'EXPENSE'; document.getElementById('tx-desc').value=t.description; document.getElementById('tx-cat').innerHTML=categoryOptions(t.category); document.getElementById('tx-cat').value=(t.category||'').toUpperCase(); document.getElementById('tx-amount').value=t.amount; document.getElementById('tx-date').value=(t.date||'').slice(0,10); document.getElementById('tx-acc').innerHTML=accountOptions(); document.getElementById('tx-acc').value=t.account_id||''; openModal('m-edittx'); }
     // ── Novo lançamento manual ──
-    let ntxType_='EXPENSE';
-    function ntxSetType(t){ ntxType_=t; const e=document.getElementById('ntx-exp'),i=document.getElementById('ntx-inc'); e.classList.toggle('border-rose-500',t==='EXPENSE'); e.classList.toggle('border-transparent',t!=='EXPENSE'); i.classList.toggle('border-emerald-500',t==='INCOME'); i.classList.toggle('border-transparent',t!=='INCOME'); }
-    function openNewTx(){ closeMore(); document.getElementById('ntx-desc').value=''; document.getElementById('ntx-amount').value=''; document.getElementById('ntx-date').value=new Date().toISOString().slice(0,10); document.getElementById('ntx-cat').innerHTML=categoryOptions('OUTROS'); document.getElementById('ntx-cat').value='OUTROS'; document.getElementById('ntx-acc').innerHTML=accountOptions(); ntxSetType('EXPENSE'); openModal('m-newtx'); }
-    function openNewTxCard(id){ openNewTx(); const s=document.getElementById('ntx-acc'); if(s) s.value=id; ntxSetType('EXPENSE'); }
-    async function saveNewTx(){ const desc=document.getElementById('ntx-desc').value, amt=parseFloat(document.getElementById('ntx-amount').value); if(!desc||!amt){ toast('Preencha descrição e valor.','err'); return; } await api('/transactions',{method:'POST',body:JSON.stringify({description:desc,amount:amt,type:ntxType_,category:document.getElementById('ntx-cat').value,date:document.getElementById('ntx-date').value||null,account_id:document.getElementById('ntx-acc').value})}); closeModal('m-newtx'); toast('Lançamento registrado'); loadAll(); }
+    // ── Novo lançamento ("Bancada") ──
+    let ntxType_='EXPENSE', ntxPay_='conta', ntxMode_='UNICO', ntxRecFreq_='MONTH';
+    function ntxSetType(t){ ntxType_=t; document.querySelectorAll('#ntx-type-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.t===t)); ntxRenderCatChips(); ntxUpdate(); }
+    function ntxSetPay(p){ ntxPay_=p; document.querySelectorAll('#ntx-pay-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.p===p)); ntxRenderAccList(); ntxUpdate(); }
+    function ntxQuickDate(d){ const t=new Date(); t.setDate(t.getDate()-d); document.getElementById('ntx-date').value=t.toISOString().slice(0,10); ntxUpdate(); }
+    function ntxRenderCatChips(){
+        const cats=S.categories.filter(c=>c.tipo===ntxType_||c.tipo==='AMBOS'||!c.tipo);
+        const cur=document.getElementById('ntx-cat').value;
+        if(!cats.some(c=>c.nome===cur)) document.getElementById('ntx-cat').value=(cats[0]?cats[0].nome:'OUTROS');
+        const curN=document.getElementById('ntx-cat').value;
+        const el=document.getElementById('ntx-cat-chips'); if(!el) return;
+        el.innerHTML=cats.slice(0,8).map(c=>{ const on=c.nome===curN; const nm=c.nome.replace(/'/g,"\\'");
+            return `<button type="button" onclick="ntxPickCat('${nm}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold" style="border:1.5px solid ${on?c.cor:'var(--border-glass)'};background:${on?c.cor+'22':'transparent'};color:${on?c.cor:'var(--t-base)'}"><i class="fas ${c.icone||'fa-tag'} text-[10px]"></i>${c.nome}</button>`; }).join('')
+          + `<button type="button" onclick="document.getElementById('ntx-cat-sel').classList.toggle('hidden')" class="px-3 py-1.5 rounded-full text-[12px] font-bold" style="border:1.5px dashed var(--border-glass);color:var(--t-muted)">＋ mais</button>`;
+        document.getElementById('ntx-cat-sel').innerHTML=cats.map(c=>`<option value="${c.nome}" ${c.nome===curN?'selected':''}>${c.nome}</option>`).join('');
+    }
+    function ntxPickCat(n){ document.getElementById('ntx-cat').value=n; ntxRenderCatChips(); ntxUpdate(); }
+    function ntxRenderAccList(){
+        const cards=S.accounts.filter(a=>a.tipo==='CARTAO_CREDITO'), contas=S.accounts.filter(a=>a.tipo!=='CARTAO_CREDITO');
+        const list=ntxPay_==='cartao'?cards:contas;
+        const el=document.getElementById('ntx-acc-list'), accEl=document.getElementById('ntx-acc'); if(!el) return;
+        if(!list.length){ el.innerHTML=`<p class="text-[12px] text-slate-400 py-1">${ntxPay_==='cartao'?'Nenhum cartão cadastrado.':'Nenhuma conta cadastrada.'}</p>`; accEl.value=''; return; }
+        if(!list.some(a=>String(a.id)===String(accEl.value))) accEl.value=list[0].id;
+        const cur=accEl.value;
+        el.innerHTML=list.map(a=>{ const on=String(a.id)===String(cur); const isCard=a.tipo==='CARTAO_CREDITO'; const right=isCard?'':fmt(a.balance);
+            return `<button type="button" onclick="ntxPickAcc('${a.id}')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm" style="border:1.5px solid ${on?'var(--accent)':'var(--border-glass)'};background:${on?'rgba(42,120,214,.08)':'transparent'}"><span class="font-bold flex items-center gap-2"><i class="fas ${isCard?'fa-credit-card':(a.icone||'fa-building-columns')}" style="color:${a.cor||'var(--accent)'}"></i>${a.nome}</span><span class="num text-[12px] text-slate-400">${right}</span></button>`; }).join('');
+    }
+    function ntxPickAcc(id){ document.getElementById('ntx-acc').value=id; ntxRenderAccList(); ntxUpdate(); }
+    function ntxRenderImpact(){
+        const el=document.getElementById('ntx-impact'); if(!el) return;
+        const amt=parseFloat(document.getElementById('ntx-amount').value)||0;
+        const a=S.accounts.find(x=>String(x.id)===String(document.getElementById('ntx-acc').value));
+        if(!a){ el.innerHTML=''; return; }
+        if(ntxType_==='INCOME'){ const bal=parseFloat(a.balance||0); el.innerHTML=`<div class="card p-3 text-[13px]"><b style="color:var(--pos)">🟢 Entra em ${a.nome}</b><div class="text-slate-500 mt-0.5">${amt?'Saldo '+fmt(bal)+' → '+fmt(bal+amt):'Soma no seu saldo.'}</div></div>`; return; }
+        if(a.tipo==='CARTAO_CREDITO'){ const c=cardSum(a.id); const fatA=num(c.fatura_aberta), fatD=fatA+amt; const dA=num(c.disponivel_real!=null?c.disponivel_real:c.disponivel), dD=dA-amt; const pct=c.limite>0?Math.min(100,(num(c.devido)+amt)/c.limite*100):0; const over=amt>dA&&amt>0;
+            el.innerHTML=`<div class="card p-3.5" style="border:1px solid ${over?'var(--warn)':'var(--border-glass)'}">
+                <div class="flex items-center gap-2 text-[13px] font-black" style="color:${over?'var(--warn)':'var(--accent)'}"><i class="fas fa-credit-card"></i> Cai na fatura do ${a.nome}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">${c.dia_vencimento?`fecha dia ${c.dia_fechamento} · vence dia ${c.dia_vencimento} — `:''}não sai do seu saldo agora</div>
+                <div class="flex justify-between text-[12px] mt-2"><span class="text-slate-500">Fatura aberta</span><span class="num">${fmt(fatA)} → <b style="color:var(--t-hi)">${fmt(fatD)}</b></span></div>
+                <div class="flex justify-between text-[12px] mt-1"><span class="text-slate-500">Limite livre</span><span class="num">${fmt(dA)} → <b style="color:${dD<0?'var(--neg)':'var(--pos)'}">${fmt(dD)}</b></span></div>
+                <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-1.5"><div class="h-full rounded-full" style="width:${pct}%;background:${pct>85?'var(--neg)':'var(--accent)'}"></div></div>
+                ${over?`<div class="text-[11px] mt-1.5" style="color:var(--warn)">⚠️ Passa do limite livre em ${fmt(amt-dA)} — ainda dá, mas fica de olho.</div>`:''}</div>`;
+        } else { const bal=parseFloat(a.balance||0), dep=bal-amt; el.innerHTML=`<div class="card p-3 text-[13px]"><b style="color:var(--neg)">💸 Sai de ${a.nome}</b><div class="text-slate-500 mt-0.5">${amt?fmt(bal)+' → '+fmt(dep)+(dep<0?' — fica negativo, cuidado.':''):'Sai do seu saldo agora.'}</div></div>`; }
+    }
+    function ntxRenderSummary(){
+        const el=document.getElementById('ntx-summary'); if(!el) return;
+        const amt=parseFloat(document.getElementById('ntx-amount').value)||0;
+        const cat=document.getElementById('ntx-cat').value;
+        const a=S.accounts.find(x=>String(x.id)===String(document.getElementById('ntx-acc').value));
+        const catObj=S.categories.find(c=>c.nome===cat);
+        const ic=catObj?`<i class="fas ${catObj.icone}" style="color:${catObj.cor}"></i> `:'';
+        if(!amt||!a){ el.innerHTML='<span class="text-slate-400">Preencha o valor e onde pra eu resumir. 👇</span>'; return; }
+        const onde=a.tipo==='CARTAO_CREDITO'?`na fatura do ${a.nome}`:(ntxType_==='INCOME'?`em ${a.nome}`:`do ${a.nome}`);
+        let txt;
+        if(ntxMode_==='PARCELADO'){ const n=parseInt(document.getElementById('ntx-parc-n')?.value)||1; txt=`${n}x de <b>${fmt(amt/n)}</b> = <b>${fmt(amt)}</b> em ${ic}${cat} ${onde}.`; }
+        else if(ntxMode_==='RECORRENTE'){ const f={MONTH:'todo mês',WEEK:'toda semana',BIWEEK:'a cada 15 dias'}[ntxRecFreq_]; txt=`<b>${fmt(amt)}</b> em ${ic}${cat} ${onde}, <b>${f}</b>.`; }
+        else { txt=`${ntxType_==='INCOME'?'entrada de':'gasto de'} <b>${fmt(amt)}</b> em ${ic}${cat} ${onde}.`; }
+        el.innerHTML=`✅ Vou anotar: ${txt}`;
+    }
+    function ntxUpdate(){ ntxRenderImpact(); ntxRenderSummary(); }
+    function ntxRecFreq(f){ ntxRecFreq_=f; document.querySelectorAll('#ntx-rec-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.f===f)); ntxUpdate(); }
+    function ntxSetMode(m){ ntxMode_=m; document.querySelectorAll('#ntx-mode-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.m===m));
+        const p=document.getElementById('ntx-mode-panel');
+        if(m==='PARCELADO'){ p.innerHTML=`<div class="flex items-center gap-2 flex-wrap"><span class="text-sm text-slate-500">Em</span><input id="ntx-parc-n" type="number" min="2" max="60" value="12" class="card px-3 py-2 text-sm num w-20" oninput="ntxUpdate()"><span class="text-sm text-slate-500">parcelas — o valor acima é o <b>total</b> da compra.</span></div>`; }
+        else if(m==='RECORRENTE'){ p.innerHTML=`<div class="nf-seg" style="width:100%" role="group" aria-label="Frequência" id="ntx-rec-seg"><button type="button" class="nf-seg-btn is-active" data-f="MONTH" onclick="ntxRecFreq('MONTH')">Mensal</button><button type="button" class="nf-seg-btn" data-f="WEEK" onclick="ntxRecFreq('WEEK')">Semanal</button><button type="button" class="nf-seg-btn" data-f="BIWEEK" onclick="ntxRecFreq('BIWEEK')">Quinzenal</button></div><p class="text-[11px] text-slate-400 mt-1.5">Começa na data escolhida e repete. Pra opções avançadas (dia da semana, término), use o Planejamento.</p>`; ntxRecFreq_='MONTH'; }
+        else { p.innerHTML=''; }
+        const b=document.getElementById('ntx-save-btn'); if(b) b.textContent = m==='PARCELADO'?'Lançar parcelas':(m==='RECORRENTE'?'Salvar recorrente':'Lançar');
+        ntxUpdate();
+    }
+    function openNewTx(){ closeMore();
+        document.getElementById('ntx-desc').value=''; document.getElementById('ntx-amount').value='';
+        document.getElementById('ntx-date').value=new Date().toISOString().slice(0,10);
+        document.getElementById('ntx-cat').value='OUTROS'; document.getElementById('ntx-cat-sel').classList.add('hidden');
+        ntxType_='EXPENSE'; ntxPay_='conta'; ntxRecFreq_='MONTH'; document.getElementById('ntx-acc').value='';
+        document.querySelectorAll('#ntx-type-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.t==='EXPENSE'));
+        document.querySelectorAll('#ntx-pay-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.p==='conta'));
+        ntxRenderCatChips(); ntxRenderAccList(); ntxSetMode('UNICO');
+        openModal('m-newtx');
+    }
+    function openNewTxCard(id){ openNewTx(); ntxPay_='cartao'; document.querySelectorAll('#ntx-pay-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.p==='cartao')); document.getElementById('ntx-acc').value=id; ntxRenderAccList(); ntxUpdate(); }
+    async function saveNewTx(){
+        const desc=document.getElementById('ntx-desc').value.trim(), amt=parseFloat(document.getElementById('ntx-amount').value), cat=document.getElementById('ntx-cat').value, date=document.getElementById('ntx-date').value||null, acc=document.getElementById('ntx-acc').value;
+        if(!desc||!amt){ toast('Preencha descrição e valor.','err'); return; }
+        if(!acc){ toast('Escolha a conta ou o cartão.','err'); return; }
+        try{
+            if(ntxMode_==='PARCELADO'){ const n=parseInt(document.getElementById('ntx-parc-n').value)||0; if(n<2){ toast('Nº de parcelas inválido (mín. 2).','err'); return; } await api('/installments',{method:'POST',body:JSON.stringify({description:desc,total_amount:amt,n_parcelas:n,first_date:date||new Date().toISOString().slice(0,10),account_id:acc,category:cat})}); toast(n+' parcelas registradas'); }
+            else if(ntxMode_==='RECORRENTE'){ const cfg=ntxRecFreq_==='MONTH'?{unit:'MONTH',n:1}:(ntxRecFreq_==='WEEK'?{unit:'WEEK',n:1}:{unit:'WEEK',n:2}); const b={tipo:ntxType_,description:desc,amount:amt,account_id:acc,freq_unit:cfg.unit,every_n:cfg.n,start_date:date}; if(cfg.unit==='MONTH')b.day_of_month=date?parseInt(date.split('-')[2]):null; await api('/recurring',{method:'POST',body:JSON.stringify(b)}); toast('Recorrente criado ⚡'); }
+            else { await api('/transactions',{method:'POST',body:JSON.stringify({description:desc,amount:amt,type:ntxType_,category:cat,date,account_id:acc})}); toast('Lançamento registrado'); }
+            closeModal('m-newtx'); loadAll();
+        }catch(e){ toast('Não consegui salvar. Tenta de novo.','err'); }
+    }
     async function saveTx(){ const id=document.getElementById('tx-id').value; await api('/transactions/'+id,{method:'PATCH',body:JSON.stringify({description:document.getElementById('tx-desc').value,category:(document.getElementById('tx-cat').value||'').toUpperCase(),amount:parseFloat(document.getElementById('tx-amount').value),type:document.getElementById('tx-type').value,date:document.getElementById('tx-date').value||null,account_id:document.getElementById('tx-acc').value||null})}); closeModal('m-edittx'); toast('Lançamento atualizado'); loadAll(); }
     async function delTx(id){ if(confirm('Apagar este lançamento?')){ await api('/transactions/'+id,{method:'DELETE'}); toast('Lançamento excluído'); loadAll(); } }
 
