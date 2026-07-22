@@ -440,6 +440,7 @@
             <div class="border-t border-slate-100 dark:border-slate-800 my-2"></div>
             <button onclick="vincularTelegram();closeMore()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fab fa-telegram-plane w-5 text-sky-500"></i><span class="font-semibold text-sm">Vincular Telegram</span></button>
             <button onclick="openSettings();closeMore()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fas fa-gear w-5 text-slate-400"></i><span class="font-semibold text-sm">Configurações</span></button>
+            <button onclick="togglePrivacy()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i id="privacy-ic-more" class="fas fa-eye w-5 text-slate-400"></i><span id="privacy-tx-more" class="font-semibold text-sm">Esconder valores</span></button>
             <button onclick="toggleTheme()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800"><i class="fas fa-moon w-5 text-slate-400"></i><span class="font-semibold text-sm">Alternar tema</span></button>
             <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-rose-50 dark:hover:bg-rose-500/10 text-rose-600"><i class="fas fa-sign-out-alt w-5"></i><span class="font-semibold text-sm">Sair</span></button>
         </div>
@@ -480,6 +481,7 @@
             </div>
             <div class="flex items-center gap-2 ml-auto">
                 <button onclick="openNewTx()" class="btn-glow flex items-center gap-1.5 text-white px-3 py-2 rounded-xl font-bold text-xs shadow" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i><span class="hidden sm:inline">Lançar</span></button>
+                <button id="privacy-btn" onclick="togglePrivacy()" title="Esconder valores" aria-label="Esconder valores da tela" aria-pressed="false" class="w-9 h-9 rounded-full card grid place-items-center text-slate-500"><i id="privacy-ic" class="fas fa-eye"></i></button>
                 <input type="month" id="monthFilter" onchange="loadAll()" class="hidden sm:block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold num">
                 <button onclick="vincularTelegram()" title="Telegram" class="w-9 h-9 rounded-full card grid place-items-center text-sky-500"><i class="fab fa-telegram-plane"></i></button>
                 <button onclick="toggleTheme()" title="Tema" class="hidden md:grid w-9 h-9 rounded-full card place-items-center text-slate-500"><i id="theme-ic-top" class="fas fa-moon"></i></button>
@@ -561,7 +563,7 @@
             <!-- ══════════ CONTAS ══════════ -->
             <div id="sec-contas" class="section-content space-y-6">
                 <div class="card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Saldo Consolidado</p><h3 id="consol-big" class="text-3xl font-black num mt-1">R$ 0,00</h3></div>
+                    <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Saldo Consolidado</p><h3 id="consol-big" class="text-3xl font-black num mt-1">—</h3></div>
                     <div class="flex gap-2">
                         <button onclick="openTransfer()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2"><i class="fas fa-right-left"></i> Transferir</button>
                         <button onclick="openAccount()" class="text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg" style="background:var(--grad);background-size:200% auto;color:#03251a"><i class="fas fa-plus"></i> Nova conta</button>
@@ -1280,7 +1282,38 @@
         if (res.status === 204) return null;
         try { return await res.json(); } catch(e) { return null; }
     }
-    const fmt = (v,cur) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:cur||(S.profile&&S.profile.currency)||'BRL'}).format(Number(v)||0);
+    // ── Modo privacidade ("Esconder valores") ──────────────────────────
+    // Máscara aplicada DENTRO do fmt() — é o funil por onde passa todo valor
+    // monetário da UI (cards, KPIs, extrato e tooltips dos gráficos). Máscara de
+    // tamanho fixo: não vaza a ordem de grandeza. Datas, %, nomes e campos de
+    // digitação continuam visíveis (não passam por fmt).
+    let hideVals = (function(){ try{ return localStorage.getItem('nickel_hide_values')==='1'; }catch(e){ return false; } })();
+    const fmt = (v,cur) => hideVals ? (curSym(cur||(S.profile&&S.profile.currency)||'BRL')+' •••')
+        : new Intl.NumberFormat('pt-BR',{style:'currency',currency:cur||(S.profile&&S.profile.currency)||'BRL'}).format(Number(v)||0);
+    // rótulo de eixo de gráfico (fora do fmt porque abrevia em "k")
+    const axisMoney = v => hideVals ? '' : 'R$'+(v/1000).toFixed(0)+'k';
+    // quantidade de cripto é valor disfarçado (qtd × cotação pública) → mascara junto
+    const qtd = q => hideVals ? '•••' : (+q).toLocaleString('pt-BR',{maximumFractionDigits:8});
+    function togglePrivacy(){
+        hideVals=!hideVals;
+        try{ localStorage.setItem('nickel_hide_values', hideVals?'1':'0'); }catch(e){}
+        applyPrivacyUI();
+        _counted.clear();                    // deixa os contadores de KPI rodarem de novo
+        // modais só-leitura não são repintados pelo renderAll() — fecha pra máscara não mentir
+        ['m-fatura','m-explain'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
+        try{ renderAll(); }catch(e){ console.error('privacy render', e); }
+        toast(hideVals?'Valores escondidos 🙈':'Valores visíveis de novo 👀');
+    }
+    function applyPrivacyUI(){
+        const ic=document.getElementById('privacy-ic'), btn=document.getElementById('privacy-btn');
+        if(ic) ic.className='fas '+(hideVals?'fa-eye-slash':'fa-eye');
+        if(btn){ btn.setAttribute('aria-pressed', hideVals?'true':'false');
+            btn.style.color=hideVals?'var(--accent)':''; btn.title=hideVals?'Mostrar valores':'Esconder valores';
+            btn.setAttribute('aria-label', hideVals?'Mostrar valores na tela':'Esconder valores da tela'); }
+        const icM=document.getElementById('privacy-ic-more'), txM=document.getElementById('privacy-tx-more');
+        if(icM) icM.className='fas '+(hideVals?'fa-eye-slash':'fa-eye')+' w-5 text-slate-400';
+        if(txM) txM.textContent=hideVals?'Mostrar valores':'Esconder valores';
+    }
     const num = v => parseFloat(v||0)||0;
     // ── Moeda por conta (BRL/USD/EUR) ──────────────────────────────────
     // Saldo e lançamentos ficam na moeda da conta; tudo que soma/compara usa BRL (S.fx).
@@ -1471,7 +1504,7 @@
         });
     }
     function runKpiCounters(secId){
-        if(_reduceMotion || _counted.has(secId)) return; _counted.add(secId);
+        if(_reduceMotion || hideVals || _counted.has(secId)) return; _counted.add(secId);   // não faz sentido "contar" até uma máscara
         document.querySelectorAll('#sec-'+secId+' .kpi-hero h3').forEach(el=>{
             const raw=el.textContent.trim(); if(!raw) return;
             const neg=/-\s*R?\$?\s*\d/.test(raw);
@@ -1699,11 +1732,11 @@
         cartoes:{title:'Cartões (resumo)',go:'cartoes',render:()=>{ const cs=(S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO'); if(!cs.length)return _wcard('Cartões','—','nenhum cartão'); return `<div class="card p-4 h-full"><p class="text-[11px] font-bold uppercase tracking-wide text-center" style="color:var(--t-muted)">Cartões</p><div class="space-y-1.5 mt-2">${cs.map(a=>{const c=cardSum(a.id);return `<div class="flex justify-between text-[12px]"><span class="truncate">${a.nome}</span><span class="num font-bold text-rose-600">${fmt(c.fatura_aberta)}</span></div>`;}).join('')}</div></div>`; }},
         contas:{title:'Minhas contas',go:'contas',render:()=>{ const cs=(S.accounts||[]).filter(a=>a.tipo!=='CARTAO_CREDITO'); return `<div class="card p-4 h-full"><p class="text-[11px] font-bold uppercase tracking-wide text-center" style="color:var(--t-muted)">Minhas contas</p><div class="space-y-1.5 mt-2">${cs.slice(0,6).map(a=>`<div class="flex justify-between text-[12px]"><span class="truncate">${a.nome}</span><span class="num font-bold">${fmt(a.balance_native,a.currency)}</span></div>`).join('')||'<span class="text-slate-400 text-[12px]">—</span>'}</div></div>`; }},
         gastos_cat:{title:'🍩 Pra onde foi seu dinheiro',type:'chart',defSize:'M',go:'gastos',render:()=>_chartCard('🍩 Pra onde foi seu dinheiro','seus gastos do mês por categoria'),mount:(cv)=>{ const m={}; monthTx().filter(t=>t.type==='EXPENSE').forEach(t=>{const k=t.category||'Outros'; m[k]=(m[k]||0)+num(t.amount);}); const ent=Object.entries(m).sort((a,b)=>b[1]-a[1]); if(!ent.length){ _chartNo(cv,'Sem gastos ainda 🎉'); return;} const top=ent.slice(0,5), resto=ent.slice(5).reduce((s,e)=>s+e[1],0); const labels=top.map(e=>e[0]), data=top.map(e=>e[1]); if(resto>0){labels.push('Outros');data.push(resto);} const cols=labels.map(l=>l==='Outros'?'#94a3b8':catColor(l)); MEU_CHARTS.gastos_cat=new Chart(cv,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:cols,borderWidth:2,borderColor:SEAL,hoverOffset:6}]},options:{cutout:'68%',maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.parsed)}}}}}); }},
-        entrou_saiu:{title:'📊 Entrou vs Saiu',type:'chart',defSize:'M',go:'dash',render:()=>_chartCard('📊 Entrou vs Saiu','o mês em uma olhada'),mount:(cv)=>{ MEU_CHARTS.entrou_saiu=new Chart(cv,{type:'bar',data:{labels:['Entrou','Saiu'],datasets:[{data:[KPIVAL.inc||0,KPIVAL.gExp||0],backgroundColor:[cssVar('--pos')||'#17C964',cssVar('--neg')||'#FF5C7A'],borderRadius:8,maxBarThickness:70}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},scales:{y:{ticks:{color:TICK,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:GRID}},x:{ticks:{color:TICK,font:{weight:'bold'}},grid:{display:false}}}}}); }},
-        fluxo_6m:{title:'📈 Melhorando mês a mês?',type:'chart',defSize:'G',go:'geral',render:()=>_chartCard('📈 Melhorando mês a mês?','entradas, saídas e o que sobrou'),mount:(cv)=>{ const base=(selMonth()||new Date().toISOString().slice(0,7)); const [yy,mm]=base.split('-').map(Number); const keys=[]; for(let i=5;i>=0;i--){ const d=new Date(yy,mm-1-i,1); keys.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')); } const inc=keys.map(()=>0),exp=keys.map(()=>0); (S.tx||[]).forEach(t=>{ if(!t.date)return; const idx=keys.indexOf(t.date.slice(0,7)); if(idx<0)return; if(t.type==='INCOME')inc[idx]+=num(t.amount); else if(t.type==='EXPENSE')exp[idx]+=num(t.amount); }); const sobra=keys.map((k,i)=>inc[i]-exp[i]); const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; const labs=keys.map(k=>MES[+k.split('-')[1]-1]); MEU_CHARTS.fluxo_6m=new Chart(cv,{data:{labels:labs,datasets:[{type:'bar',label:'Entrou',data:inc,backgroundColor:'rgba(23,201,100,.7)',borderRadius:5,order:2},{type:'bar',label:'Saiu',data:exp,backgroundColor:'rgba(255,92,122,.7)',borderRadius:5,order:2},{type:'line',label:'Sobrou',data:sobra,borderColor:cssVar('--accent')||'#2F7CF0',backgroundColor:cssVar('--accent')||'#2F7CF0',tension:.35,pointRadius:0,borderWidth:2,order:1}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:TICK,font:{size:9},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:GRID}},x:{ticks:{color:TICK,font:{size:10,weight:'bold'}},grid:{display:false}}}}}); }},
+        entrou_saiu:{title:'📊 Entrou vs Saiu',type:'chart',defSize:'M',go:'dash',render:()=>_chartCard('📊 Entrou vs Saiu','o mês em uma olhada'),mount:(cv)=>{ MEU_CHARTS.entrou_saiu=new Chart(cv,{type:'bar',data:{labels:['Entrou','Saiu'],datasets:[{data:[KPIVAL.inc||0,KPIVAL.gExp||0],backgroundColor:[cssVar('--pos')||'#17C964',cssVar('--neg')||'#FF5C7A'],borderRadius:8,maxBarThickness:70}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},scales:{y:{ticks:{color:TICK,font:{size:10},callback:v=>axisMoney(v)},grid:{color:GRID}},x:{ticks:{color:TICK,font:{weight:'bold'}},grid:{display:false}}}}}); }},
+        fluxo_6m:{title:'📈 Melhorando mês a mês?',type:'chart',defSize:'G',go:'geral',render:()=>_chartCard('📈 Melhorando mês a mês?','entradas, saídas e o que sobrou'),mount:(cv)=>{ const base=(selMonth()||new Date().toISOString().slice(0,7)); const [yy,mm]=base.split('-').map(Number); const keys=[]; for(let i=5;i>=0;i--){ const d=new Date(yy,mm-1-i,1); keys.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')); } const inc=keys.map(()=>0),exp=keys.map(()=>0); (S.tx||[]).forEach(t=>{ if(!t.date)return; const idx=keys.indexOf(t.date.slice(0,7)); if(idx<0)return; if(t.type==='INCOME')inc[idx]+=num(t.amount); else if(t.type==='EXPENSE')exp[idx]+=num(t.amount); }); const sobra=keys.map((k,i)=>inc[i]-exp[i]); const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; const labs=keys.map(k=>MES[+k.split('-')[1]-1]); MEU_CHARTS.fluxo_6m=new Chart(cv,{data:{labels:labs,datasets:[{type:'bar',label:'Entrou',data:inc,backgroundColor:'rgba(23,201,100,.7)',borderRadius:5,order:2},{type:'bar',label:'Saiu',data:exp,backgroundColor:'rgba(255,92,122,.7)',borderRadius:5,order:2},{type:'line',label:'Sobrou',data:sobra,borderColor:cssVar('--accent')||'#2F7CF0',backgroundColor:cssVar('--accent')||'#2F7CF0',tension:.35,pointRadius:0,borderWidth:2,order:1}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:TICK,font:{size:9},callback:v=>axisMoney(v)},grid:{color:GRID}},x:{ticks:{color:TICK,font:{size:10,weight:'bold'}},grid:{display:false}}}}}); }},
         sonhos_prog:{title:'🎯 Seus sonhos enchendo',type:'chart',defSize:'M',go:'sonhos',render:()=>_chartCard('🎯 Seus sonhos enchendo','quanto já falta pra cada meta'),mount:(cv)=>{ const gs=(S.goals||[]).filter(g=>num(g.target_amount)>0); if(!gs.length){ _chartNo(cv,'Crie uma caixinha na aba Sonhos 🎯'); return;} const labs=gs.map(g=>g.nome||g.name||'Sonho'); const pct=gs.map(g=>Math.min(100,Math.round(num(g.current_amount)/num(g.target_amount)*100))); const cols=pct.map(p=>p>=100?(cssVar('--pos')||'#17C964'):(cssVar('--accent')||'#2F7CF0')); MEU_CHARTS.sonhos_prog=new Chart(cv,{type:'bar',data:{labels:labs,datasets:[{data:pct,backgroundColor:cols,borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const g=gs[c.dataIndex];return c.parsed.x+'% · '+fmt(num(g.current_amount))+' de '+fmt(num(g.target_amount));}}}},scales:{x:{min:0,max:100,ticks:{color:TICK,font:{size:9},callback:v=>v+'%'},grid:{color:GRID}},y:{ticks:{color:TICK,font:{size:10,weight:'bold'}},grid:{display:false}}}}}); }},
         reserva_meses:{title:'🛡️ Sua reserva de emergência',type:'chart',defSize:'M',go:'dash',render:()=>{ const m=KPIVAL.meses||0; return _chartCard('🛡️ Sua reserva de emergência',m>=6?'Blindado 🛡️':m>=3?'Quase lá — mire 6 meses':'Começando — mire 3 meses'); },mount:(cv)=>{ const meses=Math.max(0,KPIVAL.meses||0); const val=Math.min(meses,6), rest=Math.max(0,6-val); const col=meses>=6?(cssVar('--pos')||'#17C964'):meses>=3?(cssVar('--accent')||'#2F7CF0'):(cssVar('--warn')||'#F5A524'); MEU_CHARTS.reserva_meses=new Chart(cv,{type:'bar',data:{labels:['Reserva'],datasets:[{data:[val],backgroundColor:col,borderRadius:6,barThickness:36},{data:[rest],backgroundColor:'rgba(128,128,128,.15)',borderRadius:6,barThickness:36}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{filter:i=>i.datasetIndex===0,callbacks:{label:()=>meses.toFixed(1)+' meses de reserva'}}},scales:{x:{stacked:true,min:0,max:6,ticks:{color:TICK,font:{size:9},stepSize:1,callback:v=>v+'m'},grid:{color:GRID}},y:{stacked:true,ticks:{display:false},grid:{display:false}}}}}); }},
-        ritmo_mes:{title:'🌡️ Termômetro do mês',type:'chart',defSize:'G',go:'dash',render:()=>_chartCard('🌡️ Termômetro do mês','como seu saldo se moveu no mês'),mount:(cv)=>{ const base=(selMonth()||new Date().toISOString().slice(0,7)); const [yy,mm]=base.split('-').map(Number); const days=new Date(yy,mm,0).getDate(); const daily=new Array(days).fill(0); monthTx().filter(t=>t.date&&t.date.slice(0,7)===base).forEach(t=>{ const d=+t.date.slice(8,10); if(d>=1&&d<=days) daily[d-1]+=(t.type==='INCOME'?num(t.amount):-num(t.amount)); }); let acc=0; const pts=daily.map(v=>{acc+=v;return +acc.toFixed(2);}); const ac=cssVar('--accent')||'#2F7CF0'; MEU_CHARTS.ritmo_mes=new Chart(cv,{type:'line',data:{labels:daily.map((_,i)=>i+1),datasets:[{data:pts,borderColor:ac,backgroundColor:'rgba(47,124,240,.12)',fill:true,tension:.3,pointRadius:0,borderWidth:2}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>'Dia '+i[0].label,label:c=>'Saldo do mês: '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:TICK,font:{size:9},callback:v=>'R$'+(v/1000).toFixed(1)+'k'},grid:{color:GRID}},x:{ticks:{color:TICK,font:{size:9},maxTicksLimit:8},grid:{display:false}}}}}); }},
+        ritmo_mes:{title:'🌡️ Termômetro do mês',type:'chart',defSize:'G',go:'dash',render:()=>_chartCard('🌡️ Termômetro do mês','como seu saldo se moveu no mês'),mount:(cv)=>{ const base=(selMonth()||new Date().toISOString().slice(0,7)); const [yy,mm]=base.split('-').map(Number); const days=new Date(yy,mm,0).getDate(); const daily=new Array(days).fill(0); monthTx().filter(t=>t.date&&t.date.slice(0,7)===base).forEach(t=>{ const d=+t.date.slice(8,10); if(d>=1&&d<=days) daily[d-1]+=(t.type==='INCOME'?num(t.amount):-num(t.amount)); }); let acc=0; const pts=daily.map(v=>{acc+=v;return +acc.toFixed(2);}); const ac=cssVar('--accent')||'#2F7CF0'; MEU_CHARTS.ritmo_mes=new Chart(cv,{type:'line',data:{labels:daily.map((_,i)=>i+1),datasets:[{data:pts,borderColor:ac,backgroundColor:'rgba(47,124,240,.12)',fill:true,tension:.3,pointRadius:0,borderWidth:2}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>'Dia '+i[0].label,label:c=>'Saldo do mês: '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:TICK,font:{size:9},callback:v=>axisMoney(v)},grid:{color:GRID}},x:{ticks:{color:TICK,font:{size:9},maxTicksLimit:8},grid:{display:false}}}}}); }},
     };
     const _PIN_DEFAULT=['disponivel','por_dia','fatura','cofrinho','gastos_cat'];
     function pinnedList(){ try{ const v=JSON.parse(localStorage.getItem('nickel_pinned')||'null'); return Array.isArray(v)?v:_PIN_DEFAULT.slice(); }catch(e){ return _PIN_DEFAULT.slice(); } }
@@ -1940,7 +1973,7 @@
                 {label:'Saídas',data:outArr,borderColor:'#FF5C7A',backgroundColor:'rgba(255,92,122,.10)',fill:true,tension:.35,pointRadius:0,borderWidth:2}
             ]},
             options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:tick,font:{family:'Inter',weight:'bold',size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},
-            scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+v},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10}},grid:{display:false}}}}
+            scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>hideVals?'':'R$'+v},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10}},grid:{display:false}}}}
         });
     }
     function renderDonut(cats,total){
@@ -1952,7 +1985,7 @@
         const el=document.getElementById('chartDonut');
         if(!data.length){ el.getContext('2d').clearRect(0,0,el.width,el.height); document.getElementById('donut-legend').innerHTML='<p class="text-xs text-slate-400 text-center">Sem gastos neste mês.</p>'; return; }
         const cols=labels.map(l=>l==='Outros'?'#94a3b8':catColor(l));
-        donutChart=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:cols,borderWidth:2,borderColor:SEAL,hoverOffset:8}]},options:{cutout:'72%',maintainAspectRatio:false,onClick:(e,els)=>{if(els.length){const lab=labels[els[0].index];if(lab&&lab!=='Outros')drillCat(lab);}},onHover:(e,els)=>{const t=e.native&&e.native.target;if(t)t.style.cursor=els.length&&labels[els[0].index]!=='Outros'?'pointer':'default';},plugins:{legend:{display:false}}}});
+        donutChart=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:cols,borderWidth:2,borderColor:SEAL,hoverOffset:8}]},options:{cutout:'72%',maintainAspectRatio:false,onClick:(e,els)=>{if(els.length){const lab=labels[els[0].index];if(lab&&lab!=='Outros')drillCat(lab);}},onHover:(e,els)=>{const t=e.native&&e.native.target;if(t)t.style.cursor=els.length&&labels[els[0].index]!=='Outros'?'pointer':'default';},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.label+': '+fmt(c.parsed)}}}}});
         const dPct=pctShares(data);
         document.getElementById('donut-legend').innerHTML=labels.map((l,i)=>`<div class="flex justify-between items-center text-xs ${l!=='Outros'?'nf-drill-row':''}"${l!=='Outros'?` role="button" tabindex="0" title="Ver lançamentos de ${l}" onclick='drillCat(${escAttr(JSON.stringify(l))})' onkeydown='if(event.key==="Enter"){drillCat(${escAttr(JSON.stringify(l))})}'`:''}><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm" style="background:${cols[i]}"></span>${l}</span><span class="font-bold num">${dPct[i]}%</span></div>`).join('');
     }
@@ -2013,7 +2046,7 @@
         if(window.geralChartEvo) window.geralChartEvo.destroy();
         window.geralChartEvo=new Chart(document.getElementById('geralEvo'),{type:'line',
             data:{labels:evoLabels,datasets:[{label:'Patrimônio (estimado)',data:evoData,borderColor:'#2F7CF0',backgroundColor:'rgba(47,124,240,.12)',fill:true,tension:.35,pointRadius:0,borderWidth:2}]},
-            options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Estimativa: '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10}},grid:{display:false}}}}});
+            options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Estimativa: '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>axisMoney(v)},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10}},grid:{display:false}}}}});
         // 2) Alocação por classe (doughnut)
         const classes=[['Corrente/Carteira',accSum(['CORRENTE','CARTEIRA']),'#2F7CF0'],['Reserva/Poupança',accSum(['RESERVA','POUPANCA']),'#17C964'],['Investimento',accSum(['INVESTIMENTO']),'#FFB84D'],['Caixinhas/Sonhos',caixinhas,'#7C7CF0'],['Cripto',cryptoNow,'#A6E635']].filter(c=>c[1]>0);
         if(window.geralChartAloc) window.geralChartAloc.destroy();
@@ -2029,13 +2062,13 @@
             S.tx.forEach(t=>{ if(t.date&&t.date.startsWith(mk)){ t.type==='INCOME'?i+=num(t.amount):o+=num(t.amount); }});
             fLabels.push(d.toLocaleDateString('pt-BR',{month:'short'})); fIn.push(i); fOut.push(o); }
         if(window.geralChartFlow) window.geralChartFlow.destroy();
-        window.geralChartFlow=new Chart(document.getElementById('geralFlow'),{type:'bar',data:{labels:fLabels,datasets:[{label:'Entradas',data:fIn,backgroundColor:'#17C964',borderRadius:6},{label:'Saídas',data:fOut,backgroundColor:'#FF5C7A',borderRadius:6}]},options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:tick,font:{family:'Inter',weight:'bold',size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10,weight:'bold'}},grid:{display:false}}}}});
+        window.geralChartFlow=new Chart(document.getElementById('geralFlow'),{type:'bar',data:{labels:fLabels,datasets:[{label:'Entradas',data:fIn,backgroundColor:'#17C964',borderRadius:6},{label:'Saídas',data:fOut,backgroundColor:'#FF5C7A',borderRadius:6}]},options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:tick,font:{family:'Inter',weight:'bold',size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>axisMoney(v)},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10,weight:'bold'}},grid:{display:false}}}}});
         // 4) Distribuição por conta/banco (barras horizontais)
         const contas=S.accounts.filter(a=>a.tipo!=='CARTAO_CREDITO'&&a.incluir_no_consolidado&&num(a.balance)>0).sort((a,b)=>num(b.balance)-num(a.balance)).slice(0,8);
         if(window.geralChartBancos) window.geralChartBancos.destroy();
         const bEl=document.getElementById('geralBancos');
         if(!contas.length){ bEl.getContext('2d').clearRect(0,0,bEl.width,bEl.height); }
-        else { window.geralChartBancos=new Chart(bEl,{type:'bar',data:{labels:contas.map(a=>a.nome),datasets:[{data:contas.map(a=>num(a.balance)),backgroundColor:contas.map(a=>a.cor||'#2F7CF0'),borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,onClick:(e,els)=>{if(els.length&&contas[els[0].index])drillAcc(contas[els[0].index].id);},onHover:(e,els)=>{const t=e.native&&e.native.target;if(t)t.style.cursor=els.length?'pointer':'default';},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)}}},scales:{x:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:grid}},y:{ticks:{color:tick,font:{weight:'bold',size:10}},grid:{display:false}}}}}); }
+        else { window.geralChartBancos=new Chart(bEl,{type:'bar',data:{labels:contas.map(a=>a.nome),datasets:[{data:contas.map(a=>num(a.balance)),backgroundColor:contas.map(a=>a.cor||'#2F7CF0'),borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,onClick:(e,els)=>{if(els.length&&contas[els[0].index])drillAcc(contas[els[0].index].id);},onHover:(e,els)=>{const t=e.native&&e.native.target;if(t)t.style.cursor=els.length?'pointer':'default';},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)}}},scales:{x:{ticks:{color:tick,font:{size:10},callback:v=>axisMoney(v)},grid:{color:grid}},y:{ticks:{color:tick,font:{weight:'bold',size:10}},grid:{display:false}}}}}); }
     }
 
     // ═══════════ CONTAS ═══════════
@@ -2124,12 +2157,12 @@
         const commits=cardCommitments(ids).slice(0,12);
         if(chartCardComp){chartCardComp.destroy();chartCardComp=null;}
         const c1=document.getElementById('chartCardComp');
-        if(c1&&commits.length&&window.Chart){ chartCardComp=new Chart(c1,{type:'bar',data:{labels:commits.map(c=>c.label),datasets:[{data:commits.map(c=>+c.mensal.toFixed(2)),backgroundColor:commits.map(c=>c.tipo==='parcelado'?cA:cG),borderRadius:6,barThickness:'flex',maxBarThickness:26}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>' '+fmt(x.raw)+'/mês'}}},scales:{x:{ticks:{color:tick,callback:v=>fmt(v)},grid:{color:grid}},y:{ticks:{color:tick,font:{size:11}},grid:{display:false}}}}}); }
+        if(c1&&commits.length&&window.Chart){ chartCardComp=new Chart(c1,{type:'bar',data:{labels:commits.map(c=>c.label),datasets:[{data:commits.map(c=>+c.mensal.toFixed(2)),backgroundColor:commits.map(c=>c.tipo==='parcelado'?cA:cG),borderRadius:6,barThickness:'flex',maxBarThickness:26}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>' '+fmt(x.raw)+'/mês'}}},scales:{x:{ticks:{color:tick,callback:v=>hideVals?'':fmt(v)},grid:{color:grid}},y:{ticks:{color:tick,font:{size:11}},grid:{display:false}}}}}); }
         else if(c1){ const ctx=c1.getContext('2d'); ctx.clearRect(0,0,c1.width,c1.height); }
         const fc=cardForecast(ids,6);
         if(chartCardFcast){chartCardFcast.destroy();chartCardFcast=null;}
         const c2=document.getElementById('chartCardFcast');
-        if(c2&&window.Chart){ chartCardFcast=new Chart(c2,{type:'bar',data:{labels:fc.map(m=>_mesAbr(m.mes)),datasets:[{label:'Parcelas',data:fc.map(m=>+m.parcelas.toFixed(2)),backgroundColor:cA,borderRadius:5,stack:'s'},{label:'Assinaturas',data:fc.map(m=>+m.assinaturas.toFixed(2)),backgroundColor:cG,borderRadius:5,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:tick,boxWidth:10,font:{size:11}}},tooltip:{callbacks:{label:x=>' '+x.dataset.label+': '+fmt(x.raw)}}},scales:{x:{stacked:true,ticks:{color:tick},grid:{display:false}},y:{stacked:true,ticks:{color:tick,callback:v=>fmt(v)},grid:{color:grid}}}}}); }
+        if(c2&&window.Chart){ chartCardFcast=new Chart(c2,{type:'bar',data:{labels:fc.map(m=>_mesAbr(m.mes)),datasets:[{label:'Parcelas',data:fc.map(m=>+m.parcelas.toFixed(2)),backgroundColor:cA,borderRadius:5,stack:'s'},{label:'Assinaturas',data:fc.map(m=>+m.assinaturas.toFixed(2)),backgroundColor:cG,borderRadius:5,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:tick,boxWidth:10,font:{size:11}}},tooltip:{callbacks:{label:x=>' '+x.dataset.label+': '+fmt(x.raw)}}},scales:{x:{stacked:true,ticks:{color:tick},grid:{display:false}},y:{stacked:true,ticks:{color:tick,callback:v=>hideVals?'':fmt(v)},grid:{color:grid}}}}}); }
     }
     function cardManageBlock(a){
         const c=cardSum(a.id); const disp=c.disponivel_real!=null?c.disponivel_real:c.disponivel; const pct=c.limite>0?Math.min(100,num(c.devido)/c.limite*100):0; const showC=ignoreCards();
@@ -2217,12 +2250,12 @@
             : '';
         // 1) Investido vs hoje
         if(invChart) invChart.destroy();
-        invChart=new Chart(document.getElementById('chartInvHoje'),{type:'bar',data:{labels:['Investido','Valor hoje'],datasets:[{data:[inv,now],backgroundColor:[isDark?'rgba(255,255,255,.28)':'rgba(91,107,134,.45)','#17C964'],borderRadius:8,borderWidth:0}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:grid}},x:{ticks:{color:tick,font:{weight:'bold'}},grid:{display:false}}}}});
+        invChart=new Chart(document.getElementById('chartInvHoje'),{type:'bar',data:{labels:['Investido','Valor hoje'],datasets:[{data:[inv,now],backgroundColor:[isDark?'rgba(255,255,255,.28)':'rgba(91,107,134,.45)','#17C964'],borderRadius:8,borderWidth:0}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>axisMoney(v)},grid:{color:grid}},x:{ticks:{color:tick,font:{weight:'bold'}},grid:{display:false}}}}});
         // 2) Alocação por moeda
         const items=[...S.crypto.items];
         if(alocChart) alocChart.destroy();
         const cCol=['#f7931a','#627eea','#14f195','#f3ba2f','#e6007a','#2775ca','#0033ad','#c2a633'];
-        alocChart=new Chart(document.getElementById('chartAloc'),{type:'doughnut',data:{labels:items.map(i=>i.symbol),datasets:[{data:items.map(i=>i.value_now),backgroundColor:cCol,borderWidth:2,borderColor:SEAL,hoverOffset:8}]},options:{cutout:'70%',maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+        alocChart=new Chart(document.getElementById('chartAloc'),{type:'doughnut',data:{labels:items.map(i=>i.symbol),datasets:[{data:items.map(i=>i.value_now),backgroundColor:cCol,borderWidth:2,borderColor:SEAL,hoverOffset:8}]},options:{cutout:'70%',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.label+': '+fmt(c.parsed)}}}}});
         const aPct=pctShares(items.map(i=>i.value_now));
         document.getElementById('aloc-legend').innerHTML=items.map((i,x)=>`<div class="flex justify-between items-center text-xs"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm" style="background:${cCol[x%cCol.length]}"></span>${i.symbol}</span><span class="font-bold num">${aPct[x]}%</span></div>`).join('');
         // 3) Ranking de resultado por moeda
@@ -2233,7 +2266,7 @@
         const lots=items.flatMap(i=>i.lots.map(l=>({d:l.purchase_date,v:l.total}))).sort((a,b)=>a.d.localeCompare(b.d));
         let acc=0; const pts=lots.map(l=>({x:l.d,y:(acc+=l.v)}));
         if(aportesChart) aportesChart.destroy();
-        aportesChart=new Chart(document.getElementById('chartAportes'),{type:'line',data:{labels:pts.map(p=>new Date(p.x+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),datasets:[{data:pts.map(p=>p.y),borderColor:'#17C964',backgroundColor:'rgba(23,201,100,.1)',fill:true,stepped:true,pointRadius:3,pointBackgroundColor:'#17C964',borderWidth:2}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Acumulado: '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(1)+'k'},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10}},grid:{display:false}}}}});
+        aportesChart=new Chart(document.getElementById('chartAportes'),{type:'line',data:{labels:pts.map(p=>new Date(p.x+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),datasets:[{data:pts.map(p=>p.y),borderColor:'#17C964',backgroundColor:'rgba(23,201,100,.1)',fill:true,stepped:true,pointRadius:3,pointBackgroundColor:'#17C964',borderWidth:2}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Acumulado: '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:tick,font:{size:10},callback:v=>axisMoney(v)},grid:{color:grid}},x:{ticks:{color:tick,font:{size:10}},grid:{display:false}}}}});
         // best/worst
         const best=[...items].sort((a,b)=>b.pnl_pct-a.pnl_pct)[0], worst=[...items].sort((a,b)=>a.pnl_pct-b.pnl_pct)[0];
         document.getElementById('invest-bestworst').innerHTML=
@@ -2247,7 +2280,7 @@
             body.innerHTML=S.crypto.items.map(i=>{ const up=i.pnl>=0;
                 return `<tr class="border-b border-slate-50 dark:border-slate-800/50">
                     <td class="p-4 font-bold">${i.symbol}</td>
-                    <td class="p-4 text-right num text-slate-500">${(+i.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})}</td>
+                    <td class="p-4 text-right num text-slate-500">${qtd(i.quantity)}</td>
                     <td class="p-4 text-right num">${fmt(i.avg_price)}</td>
                     <td class="p-4 text-right num">${fmt(i.price_brl)}</td>
                     <td class="p-4 text-right num text-slate-500">${fmt(i.invested_brl)}</td>
@@ -2258,7 +2291,7 @@
             foot.innerHTML=`<tr class="border-t-2 border-slate-200 dark:border-slate-700 font-black"><td class="p-4">Total</td><td></td><td></td><td></td><td class="p-4 text-right num">${fmt(S.crypto.total_invested)}</td><td class="p-4 text-right num">${fmt(S.crypto.total_now)}</td><td class="p-4 text-right num" style="color:${up?'var(--pos)':'var(--neg)'}">${up?'▲':'▼'} ${up?'+':''}${S.crypto.total_pnl_pct.toFixed(1)}%</td></tr>`;
             document.getElementById('crypto-updated').innerText='· ao vivo';
             const lots=S.crypto.items.flatMap(i=>i.lots.map(l=>({...l,symbol:i.symbol,coingecko_id:i.coingecko_id}))).sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date));
-            lotsEl.innerHTML=lots.length?('<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1 mb-1">Compras registradas</p>'+lots.map(l=>`<div class="card p-3 flex justify-between items-center group"><div class="flex items-center gap-3"><span class="text-xs font-black px-2 py-1 rounded" style="background:rgba(247,147,26,.12);color:#f7931a">${l.symbol}</span><div><div class="text-sm font-bold num">${(+l.quantity).toLocaleString('pt-BR',{maximumFractionDigits:8})} @ ${fmt(l.unit_price_brl)}</div><div class="text-[11px] text-slate-400 num">${new Date(l.purchase_date+'T12:00:00').toLocaleDateString('pt-BR')} · total ${fmt(l.total)}</div></div></div><div class="flex gap-1 opacity-0 group-hover:opacity-100"><button onclick='editPurchase(${escAttr(JSON.stringify(l))})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delPurchase('${l.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div>`).join('')):'';
+            lotsEl.innerHTML=lots.length?('<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1 mb-1">Compras registradas</p>'+lots.map(l=>`<div class="card p-3 flex justify-between items-center group"><div class="flex items-center gap-3"><span class="text-xs font-black px-2 py-1 rounded" style="background:rgba(247,147,26,.12);color:#f7931a">${l.symbol}</span><div><div class="text-sm font-bold num">${qtd(l.quantity)} @ ${fmt(l.unit_price_brl)}</div><div class="text-[11px] text-slate-400 num">${new Date(l.purchase_date+'T12:00:00').toLocaleDateString('pt-BR')} · total ${fmt(l.total)}</div></div></div><div class="flex gap-1 opacity-0 group-hover:opacity-100"><button onclick='editPurchase(${escAttr(JSON.stringify(l))})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button><button onclick="delPurchase('${l.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div>`).join('')):'';
         } else { body.innerHTML='<tr><td colspan="7" class="p-6 text-center text-sm text-slate-400">Nenhuma cripto cadastrada.</td></tr>'; foot.innerHTML=''; lotsEl.innerHTML=''; }
     }
     // ═══════════ SONHOS ═══════════
@@ -2893,7 +2926,7 @@
     // header ganha estado "scrolled" quando o <main> rola
     const _mainEl=document.querySelector('main'), _hdrEl=document.querySelector('main > header');
     if(_mainEl&&_hdrEl) _mainEl.addEventListener('scroll',()=>_hdrEl.classList.toggle('scrolled',_mainEl.scrollTop>20),{passive:true});
-    applyTheme(); loadAll();
+    applyTheme(); applyPrivacyUI(); loadAll();
     // F5 mantém a aba onde você estava (não volta pra default)
     try{ const _t=localStorage.getItem('nickel_tab'); if(_t){ const _s=(NAV_ALIAS[_t]&&NAV_ALIAS[_t].sec)||_t; if(document.getElementById('sec-'+_s)) go(_t); } }catch(e){}
 </script>
