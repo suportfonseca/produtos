@@ -836,6 +836,15 @@
                     <select id="acc-tipo" onchange="accTipoChange()" class="w-full card px-4 py-3 text-sm font-semibold"><option value="CORRENTE">Conta corrente</option><option value="POUPANCA">Poupança</option><option value="INVESTIMENTO">Investimento</option><option value="RESERVA">Reserva</option><option value="CARTEIRA">Carteira/dinheiro</option><option value="CARTAO_CREDITO">Cartão de crédito</option></select>
                     <input id="acc-saldo" type="number" step="0.01" placeholder="Saldo atual" class="w-full card px-4 py-3 text-sm num">
                 </div>
+                <div id="acc-moeda-wrap">
+                    <label class="text-xs font-bold text-slate-500">Moeda da conta</label>
+                    <select id="acc-moeda" onchange="accMoedaChange()" class="w-full card px-4 py-3 text-sm font-semibold mt-1">
+                        <option value="BRL">🇧🇷 Real — R$</option>
+                        <option value="USD">🇺🇸 Dólar — US$</option>
+                        <option value="EUR">🇪🇺 Euro — €</option>
+                    </select>
+                    <p id="acc-moeda-hint" class="text-[11px] text-slate-400 leading-snug mt-1.5 hidden"></p>
+                </div>
                 <div id="acc-card-fields" class="hidden space-y-3">
                     <p class="text-[11px] text-slate-400 leading-snug">💡 No campo <b>Fatura atual</b> acima, coloque quanto você já <b>deve hoje</b> nesse cartão (0 se estiver zerado). É o que já está na fatura.</p>
                     <input id="acc-limite" type="number" step="0.01" placeholder="Limite total do cartão (R$)" class="w-full card px-4 py-3 text-sm num">
@@ -856,10 +865,15 @@
         <div class="card p-7 w-full max-w-md">
             <h4 class="font-black text-xl mb-5">Transferir entre contas</h4>
             <div class="space-y-3">
-                <div><label class="text-xs font-bold text-slate-500">De</label><select id="tr-from" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
+                <div><label class="text-xs font-bold text-slate-500">De</label><select id="tr-from" onchange="trCurChange()" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
                 <div class="text-center text-slate-400"><i class="fas fa-arrow-down"></i></div>
-                <div><label class="text-xs font-bold text-slate-500">Para</label><select id="tr-to" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
-                <input id="tr-amount" type="number" step="0.01" placeholder="Valor (R$)" class="w-full card px-4 py-3 text-lg font-black num">
+                <div><label class="text-xs font-bold text-slate-500">Para</label><select id="tr-to" onchange="trCurChange()" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
+                <input id="tr-amount" type="number" step="0.01" oninput="trFxSuggest()" placeholder="Valor (R$)" class="w-full card px-4 py-3 text-lg font-black num">
+                <div id="tr-fx-wrap" class="hidden space-y-2">
+                    <div class="text-[11px] font-bold" style="color:var(--accent)"><i class="fas fa-right-left"></i> Moedas diferentes — confirme quanto <b>chegou de verdade</b> na conta de destino</div>
+                    <input id="tr-amount-to" type="number" step="0.01" oninput="trFxRateLine()" placeholder="Valor que entra" class="w-full card px-4 py-3 text-lg font-black num">
+                    <p id="tr-fx-line" class="text-[11px] text-slate-400 leading-snug"></p>
+                </div>
                 <div id="tr-err" class="text-rose-500 text-xs font-medium hidden"></div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-transfer')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
@@ -1087,11 +1101,11 @@
                 <select id="tx-type" class="w-full card px-4 py-3 text-sm font-semibold"><option value="EXPENSE">🔴 Saída</option><option value="INCOME">🟢 Entrada</option></select>
                 <input id="tx-desc" placeholder="Descrição" class="w-full card px-4 py-3 text-sm">
                 <div class="grid grid-cols-2 gap-3">
-                    <input id="tx-amount" type="number" step="0.01" placeholder="Valor" class="card px-4 py-3 text-lg font-black num">
+                    <div><input id="tx-amount" type="number" step="0.01" placeholder="Valor" class="w-full card px-4 py-3 text-lg font-black num"><span id="tx-cur-hint" class="hidden text-[11px] font-bold text-slate-400 mt-1 block"></span></div>
                     <input id="tx-date" type="date" class="card px-4 py-3 text-sm">
                 </div>
                 <select id="tx-cat" class="w-full card px-4 py-3 text-sm font-semibold"></select>
-                <div><label class="text-xs font-bold text-slate-500">Conta</label><select id="tx-acc" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
+                <div><label class="text-xs font-bold text-slate-500">Conta</label><select id="tx-acc" onchange="editTxCur()" class="w-full card px-4 py-3 text-sm font-semibold mt-1"></select></div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal('m-edittx')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold text-sm">Cancelar</button>
                     <button onclick="saveTx()" class="flex-1 text-white py-3 rounded-xl font-bold text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Salvar</button>
@@ -1164,7 +1178,7 @@
                         </div>
                         <div>
                             <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Valor</label>
-                            <div class="flex items-baseline gap-1.5 mt-1"><span class="text-lg font-black text-slate-400">R$</span><input id="ntx-amount" type="number" step="0.01" inputmode="decimal" placeholder="0,00" class="w-full bg-transparent text-3xl font-black num outline-none" style="color:var(--t-hi)" oninput="ntxUpdate()"></div>
+                            <div class="flex items-baseline gap-1.5 mt-1"><span id="ntx-cursym" class="text-lg font-black text-slate-400">R$</span><input id="ntx-amount" type="number" step="0.01" inputmode="decimal" placeholder="0,00" class="w-full bg-transparent text-3xl font-black num outline-none" style="color:var(--t-hi)" oninput="ntxUpdate()"></div>
                             <div style="height:1px;background:var(--border-glass);margin-top:6px"></div>
                         </div>
                         <div>
@@ -1266,8 +1280,16 @@
         if (res.status === 204) return null;
         try { return await res.json(); } catch(e) { return null; }
     }
-    const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:(S.profile&&S.profile.currency)||'BRL'}).format(Number(v)||0);
+    const fmt = (v,cur) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:cur||(S.profile&&S.profile.currency)||'BRL'}).format(Number(v)||0);
     const num = v => parseFloat(v||0)||0;
+    // ── Moeda por conta (BRL/USD/EUR) ──────────────────────────────────
+    // Saldo e lançamentos ficam na moeda da conta; tudo que soma/compara usa BRL (S.fx).
+    const CUR_INFO={ BRL:{sym:'R$',flag:'🇧🇷',nome:'Real'}, USD:{sym:'US$',flag:'🇺🇸',nome:'Dólar'}, EUR:{sym:'€',flag:'🇪🇺',nome:'Euro'} };
+    const fxRate = c => (S.fx&&S.fx.rates&&S.fx.rates[c||'BRL'])||1;
+    const accCur = id => ((S.accounts||[]).find(a=>String(a.id)===String(id))||{}).currency||'BRL';
+    const curSym = c => (CUR_INFO[c]||CUR_INFO.BRL).sym;
+    // valor na moeda original + equivalência em reais quando não for BRL
+    const fmtCur = (v,c) => fmt(v,c)+(c&&c!=='BRL'?` <span class="text-[11px] font-semibold" style="color:var(--t-muted)">≈ ${fmt(num(v)*fxRate(c))}</span>`:'');
     function toast(msg,type){ const c=document.getElementById('toast'); const el=document.createElement('div'); el.className='toast'+(type==='err'?' err':''); el.textContent=(type==='err'?'⚠️ ':'✅ ')+msg; c.appendChild(el); setTimeout(()=>{el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>el.remove(),300);},2600); }
     const COLORS = ['#2F7CF0','#17C964','#A6E635','#FFB84D','#7C7CF0','#FF5C7A','#e87ba4','#3ad0c0'];
     // tema (claro/escuro) — padrão escuro; escolha lembrada no aparelho + sincronizada na conta
@@ -1469,13 +1491,16 @@
     // ═══════════ LOAD ═══════════
     async function loadAll(){
         const ic=document.getElementById('sync-ic'); ic.classList.add('animate-spin');
-        const [acc,tx,goals,rec,fixed,budgets,settings,transfers,cards,categories,profile,pending] = await Promise.all([
+        const [acc,tx,goals,rec,fixed,budgets,settings,transfers,cards,categories,profile,pending,fx] = await Promise.all([
             api('/accounts'), api('/transactions'), api('/goals'), api('/recurring'), api('/fixed_expenses'),
             api('/budgets'), api('/settings'), api('/transfers'), api('/cards/summary'), api('/categories'), api('/profile'),
-            api('/pending_incomes').catch(()=>[])
+            api('/pending_incomes').catch(()=>[]),
+            api('/fx').catch(()=>null)
         ]);
         S.accounts=acc||[]; S.tx=tx||[]; S.goals=goals||[]; S.recurring=rec||[]; S.fixed=fixed||[];
         S.budgets=budgets||[]; S.settings=settings||{}; S.transfers=transfers||[]; S.cards=cards||[]; S.categories=categories||[]; S.profile=profile||{}; S.pendingIncomes=pending||[];
+        S.fx=(fx&&fx.rates)?fx:{usd_brl:5,eur_brl:5.8,rates:{BRL:1,USD:5,EUR:5.8}};
+        normalizeCurrencies();
         // tema salvo na conta vence o cache local (sincroniza entre aparelhos)
         if(S.settings && (S.settings.theme==='light'||S.settings.theme==='dark')){
             const want = S.settings.theme!=='light';
@@ -1489,6 +1514,27 @@
         setTimeout(()=>ic.classList.remove('animate-spin'),500);
     }
 
+    // Converte contas/lançamentos de moeda estrangeira para BRL (cotação atual).
+    // Regra: `amount`/`balance` passam a valer em REAIS (é o que todo relatório soma);
+    // o valor original fica em `amount_native`/`balance_native` + `currency` para exibir.
+    function normalizeCurrencies(){
+        const curOf={};
+        (S.accounts||[]).forEach(a=>{
+            a.currency=a.currency||'BRL'; curOf[String(a.id)]=a.currency;
+            a.balance_native=parseFloat(a.balance||0);
+            a.balance=a.balance_native*fxRate(a.currency);   // consolidado/gráficos somam em BRL
+            a.saldo_inicial_native=a.saldo_inicial;
+        });
+        (S.tx||[]).forEach(t=>{
+            const c=curOf[String(t.account_id)]||'BRL'; t.currency=c;
+            t.amount_native=parseFloat(t.amount||0);
+            t.amount=t.amount_native*fxRate(c);          // relatórios somam sempre em BRL
+        });
+        (S.transfers||[]).forEach(t=>{
+            t.currency_from=curOf[String(t.from_account_id)]||'BRL';
+            t.currency_to=t.to_account_id?(curOf[String(t.to_account_id)]||'BRL'):'BRL';
+        });
+    }
     const selMonth = () => document.getElementById('monthFilter').value;
     // ═══════════ PERÍODO GLOBAL + FILTROS (client-side sobre S.tx) ═══════════
     let EF = { q:'', accounts:[], category:'', type:'', period:{ mode:'month', from:null, to:null } };
@@ -1651,7 +1697,7 @@
         cofrinho:{title:'Cofrinho (guardado)',go:'sonhos',render:()=>_wcard('🐷 Seu cofrinho',fmt((S.goals||[]).reduce((s,g)=>s+num(g.current_amount),0)),`${(S.goals||[]).length} sonho(s)`,'var(--accent)')},
         streak:{title:'🔥 Dias no controle',go:'dash',render:()=>_wcard('🔥 Dias no controle',((STREAK&&STREAK.current)||1)+'',`recorde: ${(STREAK&&STREAK.best)||1}`)},
         cartoes:{title:'Cartões (resumo)',go:'cartoes',render:()=>{ const cs=(S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO'); if(!cs.length)return _wcard('Cartões','—','nenhum cartão'); return `<div class="card p-4 h-full"><p class="text-[11px] font-bold uppercase tracking-wide text-center" style="color:var(--t-muted)">Cartões</p><div class="space-y-1.5 mt-2">${cs.map(a=>{const c=cardSum(a.id);return `<div class="flex justify-between text-[12px]"><span class="truncate">${a.nome}</span><span class="num font-bold text-rose-600">${fmt(c.fatura_aberta)}</span></div>`;}).join('')}</div></div>`; }},
-        contas:{title:'Minhas contas',go:'contas',render:()=>{ const cs=(S.accounts||[]).filter(a=>a.tipo!=='CARTAO_CREDITO'); return `<div class="card p-4 h-full"><p class="text-[11px] font-bold uppercase tracking-wide text-center" style="color:var(--t-muted)">Minhas contas</p><div class="space-y-1.5 mt-2">${cs.slice(0,6).map(a=>`<div class="flex justify-between text-[12px]"><span class="truncate">${a.nome}</span><span class="num font-bold">${fmt(a.balance)}</span></div>`).join('')||'<span class="text-slate-400 text-[12px]">—</span>'}</div></div>`; }},
+        contas:{title:'Minhas contas',go:'contas',render:()=>{ const cs=(S.accounts||[]).filter(a=>a.tipo!=='CARTAO_CREDITO'); return `<div class="card p-4 h-full"><p class="text-[11px] font-bold uppercase tracking-wide text-center" style="color:var(--t-muted)">Minhas contas</p><div class="space-y-1.5 mt-2">${cs.slice(0,6).map(a=>`<div class="flex justify-between text-[12px]"><span class="truncate">${a.nome}</span><span class="num font-bold">${fmt(a.balance_native,a.currency)}</span></div>`).join('')||'<span class="text-slate-400 text-[12px]">—</span>'}</div></div>`; }},
         gastos_cat:{title:'🍩 Pra onde foi seu dinheiro',type:'chart',defSize:'M',go:'gastos',render:()=>_chartCard('🍩 Pra onde foi seu dinheiro','seus gastos do mês por categoria'),mount:(cv)=>{ const m={}; monthTx().filter(t=>t.type==='EXPENSE').forEach(t=>{const k=t.category||'Outros'; m[k]=(m[k]||0)+num(t.amount);}); const ent=Object.entries(m).sort((a,b)=>b[1]-a[1]); if(!ent.length){ _chartNo(cv,'Sem gastos ainda 🎉'); return;} const top=ent.slice(0,5), resto=ent.slice(5).reduce((s,e)=>s+e[1],0); const labels=top.map(e=>e[0]), data=top.map(e=>e[1]); if(resto>0){labels.push('Outros');data.push(resto);} const cols=labels.map(l=>l==='Outros'?'#94a3b8':catColor(l)); MEU_CHARTS.gastos_cat=new Chart(cv,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:cols,borderWidth:2,borderColor:SEAL,hoverOffset:6}]},options:{cutout:'68%',maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.parsed)}}}}}); }},
         entrou_saiu:{title:'📊 Entrou vs Saiu',type:'chart',defSize:'M',go:'dash',render:()=>_chartCard('📊 Entrou vs Saiu','o mês em uma olhada'),mount:(cv)=>{ MEU_CHARTS.entrou_saiu=new Chart(cv,{type:'bar',data:{labels:['Entrou','Saiu'],datasets:[{data:[KPIVAL.inc||0,KPIVAL.gExp||0],backgroundColor:[cssVar('--pos')||'#17C964',cssVar('--neg')||'#FF5C7A'],borderRadius:8,maxBarThickness:70}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},scales:{y:{ticks:{color:TICK,font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:GRID}},x:{ticks:{color:TICK,font:{weight:'bold'}},grid:{display:false}}}}}); }},
         fluxo_6m:{title:'📈 Melhorando mês a mês?',type:'chart',defSize:'G',go:'geral',render:()=>_chartCard('📈 Melhorando mês a mês?','entradas, saídas e o que sobrou'),mount:(cv)=>{ const base=(selMonth()||new Date().toISOString().slice(0,7)); const [yy,mm]=base.split('-').map(Number); const keys=[]; for(let i=5;i>=0;i--){ const d=new Date(yy,mm-1-i,1); keys.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')); } const inc=keys.map(()=>0),exp=keys.map(()=>0); (S.tx||[]).forEach(t=>{ if(!t.date)return; const idx=keys.indexOf(t.date.slice(0,7)); if(idx<0)return; if(t.type==='INCOME')inc[idx]+=num(t.amount); else if(t.type==='EXPENSE')exp[idx]+=num(t.amount); }); const sobra=keys.map((k,i)=>inc[i]-exp[i]); const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; const labs=keys.map(k=>MES[+k.split('-')[1]-1]); MEU_CHARTS.fluxo_6m=new Chart(cv,{data:{labels:labs,datasets:[{type:'bar',label:'Entrou',data:inc,backgroundColor:'rgba(23,201,100,.7)',borderRadius:5,order:2},{type:'bar',label:'Saiu',data:exp,backgroundColor:'rgba(255,92,122,.7)',borderRadius:5,order:2},{type:'line',label:'Sobrou',data:sobra,borderColor:cssVar('--accent')||'#2F7CF0',backgroundColor:cssVar('--accent')||'#2F7CF0',tension:.35,pointRadius:0,borderWidth:2,order:1}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},scales:{y:{ticks:{color:TICK,font:{size:9},callback:v=>'R$'+(v/1000).toFixed(0)+'k'},grid:{color:GRID}},x:{ticks:{color:TICK,font:{size:10,weight:'bold'}},grid:{display:false}}}}}); }},
@@ -1914,7 +1960,7 @@
         document.getElementById('mini-accounts').innerHTML = S.accounts.map(a=>`
             <div class="card p-4 min-w-[150px] shrink-0 nf-drill group" role="button" tabindex="0" title="Ver lançamentos de ${a.nome}" onclick="drillAcc('${a.id}')" onkeydown="if(event.key==='Enter')drillAcc('${a.id}')">
                 <div class="flex items-center gap-2 mb-2"><span class="w-7 h-7 rounded-lg grid place-items-center text-xs" style="background:${a.cor}22;color:${a.cor}"><i class="fas ${a.icone}"></i></span><span class="text-[11px] font-bold text-slate-500 truncate">${a.nome}</span><i class="fas fa-arrow-right nf-drill-arrow ml-auto"></i></div>
-                <div class="font-black num text-sm ${parseFloat(a.balance)<0?'text-rose-600':''}">${fmt(a.balance)}</div>
+                <div class="font-black num text-sm ${parseFloat(a.balance)<0?'text-rose-600':''}">${fmt(a.balance_native,a.currency)}</div>
             </div>`).join('') || '<p class="text-xs text-slate-400">Nenhuma conta.</p>';
     }
 
@@ -2013,12 +2059,14 @@
             }
             const cryptoLinked=cryptoValueForAccount(a.id);
             const cryptoRow=cryptoLinked>0?`<div class="mt-2 flex items-center justify-between text-[11px] rounded-lg px-2.5 py-1.5" style="background:rgba(247,147,26,.10)"><span class="font-bold" style="color:#f7931a"><i class="fab fa-bitcoin"></i> cripto vinculada</span><span class="num font-black" style="color:#f7931a">${fmt(cryptoLinked)}</span></div><div class="mt-1 text-[11px] text-slate-400">total c/ cripto <b class="num text-slate-600 dark:text-slate-300">${fmt(parseFloat(a.balance)+cryptoLinked)}</b></div>`:'';
-            return `<div class="card p-5">${head}<div class="text-2xl font-black num ${parseFloat(a.balance)<0?'text-rose-600':''}">${fmt(a.balance)}</div>${cryptoRow}</div>`;
+            // conta em moeda estrangeira: valor grande na moeda dela + equivalente em reais
+            const fxRow=(a.currency&&a.currency!=='BRL')?`<div class="mt-1.5 flex items-center gap-2 text-[11px] text-slate-400"><span class="px-1.5 py-0.5 rounded-md font-bold" style="background:var(--surface-1);color:var(--accent)">${(CUR_INFO[a.currency]||{}).flag||''} ${a.currency}</span><span>≈ <b class="num text-slate-600 dark:text-slate-300">${fmt(a.balance)}</b> · ${curSym(a.currency)}1 = ${fmt(fxRate(a.currency))}</span></div>`:'';
+            return `<div class="card p-5">${head}<div class="text-2xl font-black num ${parseFloat(a.balance)<0?'text-rose-600':''}">${fmt(a.balance_native,a.currency)}</div>${fxRow}${cryptoRow}</div>`;
         }).join('') + `<button onclick="openAccount()" class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-5 text-slate-400 hover:border-brand-500 hover:text-brand-500 flex flex-col items-center justify-center gap-2 min-h-[130px]"><i class="fas fa-plus text-xl"></i><span class="text-sm font-bold">Nova conta</span></button>`;
         const nameOf=id=>S.accounts.find(a=>a.id===id)?.nome||'—';
         document.getElementById('transfers-list').innerHTML=S.transfers.slice(0,10).map(t=>{
             const dest = t.goal_id ? (S.goals.find(g=>g.id===t.goal_id)?.nome||'Caixinha') : nameOf(t.to_account_id);
-            return `<div class="card p-4 flex justify-between items-center group"><div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg grid place-items-center" style="background:rgba(42,120,214,.1);color:var(--accent)"><i class="fas fa-right-left text-xs"></i></span><div><div class="text-sm font-bold">${nameOf(t.from_account_id)} → ${dest}</div><div class="text-[11px] text-slate-400 num">${t.date}</div></div></div><div class="flex items-center gap-3"><span class="font-black num text-sm">${fmt(t.amount)}</span><button onclick="delTransfer('${t.id}')" class="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div>`;
+            return `<div class="card p-4 flex justify-between items-center group"><div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg grid place-items-center" style="background:rgba(42,120,214,.1);color:var(--accent)"><i class="fas fa-right-left text-xs"></i></span><div><div class="text-sm font-bold">${nameOf(t.from_account_id)} → ${dest}</div><div class="text-[11px] text-slate-400 num">${t.date}</div></div></div><div class="flex items-center gap-3"><span class="font-black num text-sm">${fmt(t.amount,t.currency_from)}${t.amount_to!=null?' <span class="text-[11px] text-slate-400">→ '+fmt(t.amount_to,t.currency_to)+'</span>':''}</span><button onclick="delTransfer('${t.id}')" class="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button></div></div>`;
         }).join('')||'<p class="text-xs text-slate-400 px-1">Nenhuma transferência ainda.</p>';
     }
 
@@ -2303,7 +2351,7 @@
                     <div><div class="text-sm font-bold">${t.description}</div><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${t.category||'GERAL'}${t.source==='telegram_audio'?' · 🎙️':t.source==='recurring'?' · ⚡':''}</span></div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="font-black num text-sm" style="color:${out?'var(--neg)':'var(--pos)'}">${out?'-':'+'}${fmt(v)}</span>
+                    <span class="font-black num text-sm text-right" style="color:${out?'var(--neg)':'var(--pos)'}">${out?'-':'+'}${fmt(t.currency&&t.currency!=='BRL'?t.amount_native:v,t.currency)}${t.currency&&t.currency!=='BRL'?`<div class="text-[10px] font-semibold text-slate-400">≈ ${fmt(v)}</div>`:''}</span>
                     <div class="opacity-0 group-hover:opacity-100 flex gap-1">
                         <button onclick='editTx(${escAttr(JSON.stringify(t))})' class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500"><i class="fas fa-pen text-[10px]"></i></button>
                         <button onclick="delTx('${t.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500"><i class="fas fa-trash text-[10px]"></i></button>
@@ -2391,7 +2439,7 @@
     document.addEventListener('click', (e)=>{ if(e.target.classList && e.target.classList.contains('modal')) e.target.classList.remove('open'); });
     // fecha por Esc (todos os modais abertos)
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); });
-    function accountOptions(){ return S.accounts.map(a=>`<option value="${a.id}">${a.nome} (${fmt(a.balance)})</option>`).join(''); }
+    function accountOptions(){ return S.accounts.map(a=>`<option value="${a.id}">${a.nome} (${fmt(a.balance_native,a.currency)})</option>`).join(''); }
     // contas para vincular cripto (exclui cartão); permite "externa" (sem conta)
     function cryptoWalletOptions(){ return '<option value="">— externa / nenhuma —</option>'+S.accounts.filter(a=>a.tipo!=='CARTAO_CREDITO').map(a=>`<option value="${a.id}">${a.nome}</option>`).join(''); }
     // valor de cripto (ao vivo) vinculado a uma conta específica
@@ -2399,22 +2447,65 @@
 
     // Conta
     const BANKS=[['Nubank','#820ad1'],['Inter','#ff7a00'],['Itaú','#ec7000'],['Bradesco','#cc092f'],['Banco do Brasil','#0038a8'],['Caixa','#0070af'],['Santander','#ec0000'],['C6 Bank','#1a1a1a'],['PicPay','#11c76f'],['Mercado Pago','#00b1ea'],['BTG','#001e50'],['Sicoob','#003641']];
-    function accTipoChange(){ const card=document.getElementById('acc-tipo').value==='CARTAO_CREDITO'; document.getElementById('acc-card-fields').classList.toggle('hidden',!card); document.getElementById('acc-saldo').placeholder=card?'Fatura atual (R$)':'Saldo atual'; }
+    function accTipoChange(){ const card=document.getElementById('acc-tipo').value==='CARTAO_CREDITO'; document.getElementById('acc-card-fields').classList.toggle('hidden',!card);
+        // cartão de crédito é sempre em reais (fatura/limite em R$)
+        const w=document.getElementById('acc-moeda-wrap'); if(w){ w.classList.toggle('hidden',card); if(card) document.getElementById('acc-moeda').value='BRL'; }
+        accMoedaChange(); }
+    function accMoedaChange(){
+        const card=document.getElementById('acc-tipo').value==='CARTAO_CREDITO';
+        const c=document.getElementById('acc-moeda').value||'BRL', sym=curSym(c);
+        document.getElementById('acc-saldo').placeholder=card?'Fatura atual (R$)':('Saldo atual ('+sym+')');
+        const h=document.getElementById('acc-moeda-hint'); if(!h) return;
+        if(c==='BRL'||card){ h.classList.add('hidden'); h.innerHTML=''; return; }
+        const r=fxRate(c);
+        h.classList.remove('hidden');
+        h.innerHTML=`💡 Saldo e lançamentos dessa conta ficam em <b>${sym}</b>. Nos totais e gráficos em reais eu converto pela cotação do dia (hoje ${sym}1 = ${fmt(r)}).`;
+    }
     function pickBank(name){ const b=BANKS.find(x=>x[0]===name); if(b){ if(!document.getElementById('acc-nome').value) document.getElementById('acc-nome').value=b[0]; document.getElementById('acc-cor').value=b[1]; document.getElementById('acc-icone').value='fa-building-columns'; } }
-    function openAccount(){ ['acc-id','acc-nome','acc-saldo','acc-limite','acc-fech','acc-venc'].forEach(i=>document.getElementById(i).value=''); document.getElementById('account-title').innerText='Nova conta'; document.getElementById('acc-tipo').value='CORRENTE'; document.getElementById('acc-cor').value='#2F7CF0'; document.getElementById('acc-icone').value='fa-building-columns'; document.getElementById('acc-bank').innerHTML='<option value="">Personalizado</option>'+BANKS.map(b=>`<option value="${b[0]}">${b[0]}</option>`).join(''); accTipoChange(); openModal('m-account'); }
-    function editAccount(a){ document.getElementById('acc-bank').innerHTML='<option value="">Personalizado</option>'+BANKS.map(b=>`<option value="${b[0]}">${b[0]}</option>`).join(''); document.getElementById('acc-cor').value=a.cor||'#2F7CF0'; document.getElementById('acc-icone').value=a.icone||'fa-building-columns'; document.getElementById('acc-id').value=a.id; document.getElementById('account-title').innerText='Editar conta'; document.getElementById('acc-nome').value=a.nome; document.getElementById('acc-tipo').value=a.tipo; document.getElementById('acc-saldo').value=(a.tipo==='CARTAO_CREDITO'?Math.abs(parseFloat(a.saldo_inicial)||0):a.saldo_inicial); document.getElementById('acc-limite').value=a.limite||''; document.getElementById('acc-fech').value=a.dia_fechamento||''; document.getElementById('acc-venc').value=a.dia_vencimento||''; accTipoChange(); openModal('m-account'); }
-    async function saveAccount(){ const id=document.getElementById('acc-id').value; const tipo=document.getElementById('acc-tipo').value; const b={nome:document.getElementById('acc-nome').value,tipo,saldo_inicial:parseFloat(document.getElementById('acc-saldo').value)||0,cor:document.getElementById('acc-cor').value,icone:document.getElementById('acc-icone').value}; if(tipo==='CARTAO_CREDITO'){ b.saldo_inicial=-Math.abs(b.saldo_inicial); /* fatura atual = dívida = saldo negativo */ b.limite=parseFloat(document.getElementById('acc-limite').value)||0; b.dia_fechamento=parseInt(document.getElementById('acc-fech').value)||null; b.dia_vencimento=parseInt(document.getElementById('acc-venc').value)||null; } if(!b.nome){ toast('Dê um nome à conta.','err'); return; } let res; if(id){ await api('/accounts/'+id,{method:'PATCH',body:JSON.stringify(b)}); } else { res=await api('/accounts',{method:'POST',body:JSON.stringify(b)}); } closeModal('m-account'); toast(id?'Conta atualizada':'Conta "'+b.nome+'" criada'); try{ await loadAll(); }catch(e){ console.error('loadAll pós-conta', e); } const newCardId=res&&(res.id||res.account_id); if(!id&&tipo==='CARTAO_CREDITO'){ const nc=(S.accounts||[]).find(a=>String(a.id)===String(newCardId))||(S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO').slice(-1)[0]; showCardWelcome(nc?nc.id:newCardId, nc?nc.nome:b.nome); } }
+    function openAccount(){ ['acc-id','acc-nome','acc-saldo','acc-limite','acc-fech','acc-venc'].forEach(i=>document.getElementById(i).value=''); document.getElementById('account-title').innerText='Nova conta'; document.getElementById('acc-tipo').value='CORRENTE'; document.getElementById('acc-cor').value='#2F7CF0'; document.getElementById('acc-icone').value='fa-building-columns'; document.getElementById('acc-moeda').value='BRL'; document.getElementById('acc-bank').innerHTML='<option value="">Personalizado</option>'+BANKS.map(b=>`<option value="${b[0]}">${b[0]}</option>`).join(''); accTipoChange(); openModal('m-account'); }
+    function editAccount(a){ document.getElementById('acc-bank').innerHTML='<option value="">Personalizado</option>'+BANKS.map(b=>`<option value="${b[0]}">${b[0]}</option>`).join(''); document.getElementById('acc-cor').value=a.cor||'#2F7CF0'; document.getElementById('acc-icone').value=a.icone||'fa-building-columns'; document.getElementById('acc-id').value=a.id; document.getElementById('account-title').innerText='Editar conta'; document.getElementById('acc-nome').value=a.nome; document.getElementById('acc-tipo').value=a.tipo; document.getElementById('acc-saldo').value=(a.tipo==='CARTAO_CREDITO'?Math.abs(parseFloat(a.saldo_inicial)||0):a.saldo_inicial); document.getElementById('acc-limite').value=a.limite||''; document.getElementById('acc-fech').value=a.dia_fechamento||''; document.getElementById('acc-venc').value=a.dia_vencimento||''; document.getElementById('acc-moeda').value=a.currency||'BRL'; accTipoChange(); openModal('m-account'); }
+    async function saveAccount(){ const id=document.getElementById('acc-id').value; const tipo=document.getElementById('acc-tipo').value; const b={nome:document.getElementById('acc-nome').value,tipo,saldo_inicial:parseFloat(document.getElementById('acc-saldo').value)||0,cor:document.getElementById('acc-cor').value,icone:document.getElementById('acc-icone').value,currency:(tipo==='CARTAO_CREDITO'?'BRL':(document.getElementById('acc-moeda').value||'BRL'))}; if(tipo==='CARTAO_CREDITO'){ b.saldo_inicial=-Math.abs(b.saldo_inicial); /* fatura atual = dívida = saldo negativo */ b.limite=parseFloat(document.getElementById('acc-limite').value)||0; b.dia_fechamento=parseInt(document.getElementById('acc-fech').value)||null; b.dia_vencimento=parseInt(document.getElementById('acc-venc').value)||null; } if(!b.nome){ toast('Dê um nome à conta.','err'); return; } let res; if(id){ await api('/accounts/'+id,{method:'PATCH',body:JSON.stringify(b)}); } else { res=await api('/accounts',{method:'POST',body:JSON.stringify(b)}); } closeModal('m-account'); toast(id?'Conta atualizada':'Conta "'+b.nome+'" criada'); try{ await loadAll(); }catch(e){ console.error('loadAll pós-conta', e); } const newCardId=res&&(res.id||res.account_id); if(!id&&tipo==='CARTAO_CREDITO'){ const nc=(S.accounts||[]).find(a=>String(a.id)===String(newCardId))||(S.accounts||[]).filter(a=>a.tipo==='CARTAO_CREDITO').slice(-1)[0]; showCardWelcome(nc?nc.id:newCardId, nc?nc.nome:b.nome); } }
     let _welcomeCard=null, _welcomeReturn=false;
     function showCardWelcome(cardId,cardName){ _welcomeCard=cardId; const nm=cardName||((S.accounts||[]).find(a=>String(a.id)===String(cardId))||{}).nome||'cartão'; document.getElementById('cw-name').innerText=nm; openModal('m-card-welcome'); }
     function openRecurringCard(id){ openRecurring('EXPENSE'); const s=document.getElementById('rec-account'); if(s) s.value=id; }
     async function delAccount(id,nome){ if(confirm('Excluir a conta "'+nome+'"? Os lançamentos dela ficam no histórico.')){ await api('/accounts/'+id,{method:'DELETE'}); toast('Conta excluída'); loadAll(); } }
 
     // Transferência
-    function openTransfer(){ document.getElementById('tr-from').innerHTML=accountOptions(); document.getElementById('tr-to').innerHTML=accountOptions(); document.getElementById('tr-amount').value=''; document.getElementById('tr-err').classList.add('hidden'); openModal('m-transfer'); }
+    function openTransfer(){ document.getElementById('tr-from').innerHTML=accountOptions(); document.getElementById('tr-to').innerHTML=accountOptions(); document.getElementById('tr-amount').value=''; document.getElementById('tr-amount-to').value=''; document.getElementById('tr-err').classList.add('hidden'); trCurChange(); openModal('m-transfer'); }
+    // moedas diferentes → o valor que sai (origem) e o que entra (destino) são digitados separados
+    function trCurChange(){
+        const cf=accCur(document.getElementById('tr-from').value), ct=accCur(document.getElementById('tr-to').value);
+        document.getElementById('tr-amount').placeholder='Valor que sai ('+curSym(cf)+')';
+        document.getElementById('tr-amount-to').placeholder='Valor que entra ('+curSym(ct)+')';
+        const w=document.getElementById('tr-fx-wrap'); w.classList.toggle('hidden', cf===ct);
+        if(cf===ct){ document.getElementById('tr-amount-to').value=''; document.getElementById('tr-amount').placeholder='Valor ('+curSym(cf)+')'; }
+        else trFxSuggest();
+    }
+    function trFxSuggest(){
+        const cf=accCur(document.getElementById('tr-from').value), ct=accCur(document.getElementById('tr-to').value);
+        if(cf===ct) return;
+        const amt=parseFloat(document.getElementById('tr-amount').value)||0;
+        const el=document.getElementById('tr-amount-to');
+        if(amt>0 && (!el.value || el.dataset.auto==='1')){ el.value=(amt*fxRate(cf)/fxRate(ct)).toFixed(2); el.dataset.auto='1'; }
+        trFxRateLine(true);
+    }
+    function trFxRateLine(manual){
+        const cf=accCur(document.getElementById('tr-from').value), ct=accCur(document.getElementById('tr-to').value);
+        const el=document.getElementById('tr-amount-to'); if(manual!==true) el.dataset.auto='0';
+        const a=parseFloat(document.getElementById('tr-amount').value)||0, b=parseFloat(el.value)||0;
+        const line=document.getElementById('tr-fx-line');
+        if(!a||!b){ line.innerHTML='Sugeri pela cotação de hoje — ajuste para o valor real que caiu na conta.'; return; }
+        line.innerHTML=`Câmbio dessa operação: <b>${curSym(ct)}1 = ${fmt(a/b,cf)}</b> · sugestão de hoje era ${fmt(a*fxRate(cf)/fxRate(ct),ct)}.`;
+    }
     async function saveTransfer(){ const from=document.getElementById('tr-from').value,to=document.getElementById('tr-to').value,amt=parseFloat(document.getElementById('tr-amount').value); const err=document.getElementById('tr-err');
+        const cf=accCur(from), ct=accCur(to);
+        const amtTo=parseFloat(document.getElementById('tr-amount-to').value);
         if(!amt||amt<=0){err.innerText='Informe um valor.';err.classList.remove('hidden');return;}
         if(from===to){err.innerText='Escolha contas diferentes.';err.classList.remove('hidden');return;}
-        await api('/transfers',{method:'POST',body:JSON.stringify({from_account_id:from,to_account_id:to,amount:amt})}); closeModal('m-transfer'); toast('Transferência de '+fmt(amt)+' feita'); loadAll(); }
+        if(cf!==ct && (!amtTo||amtTo<=0)){err.innerText='Informe quanto entrou em '+curSym(ct)+' na conta de destino.';err.classList.remove('hidden');return;}
+        const body={from_account_id:from,to_account_id:to,amount:amt}; if(cf!==ct) body.amount_to=amtTo;
+        await api('/transfers',{method:'POST',body:JSON.stringify(body)}); closeModal('m-transfer');
+        toast('Transferência de '+fmt(amt,cf)+(cf!==ct?(' → '+fmt(amtTo,ct)):'')+' feita'); loadAll(); }
     async function delTransfer(id){ if(confirm('Excluir esta transferência?')){ await api('/transfers/'+id,{method:'DELETE'}); toast('Transferência excluída'); loadAll(); } }
 
     // Caixinha
@@ -2544,7 +2635,7 @@
         const falta=aberta?(aberta.total-aberta.pago):0;
         const pagavel=aberta&&aberta.status!=='futura'&&falta>0.005;
         document.getElementById('fatura-foot').innerHTML=pagavel?`
-            <select id="fatura-from" class="w-full card px-3 py-2.5 text-sm font-semibold mb-2">${S.accounts.filter(a=>a.tipo!=='CARTAO_CREDITO').map(a=>`<option value="${a.id}">${a.nome} (${fmt(a.balance)})</option>`).join('')}</select>
+            <select id="fatura-from" class="w-full card px-3 py-2.5 text-sm font-semibold mb-2">${S.accounts.filter(a=>a.tipo!=='CARTAO_CREDITO').map(a=>`<option value="${a.id}">${a.nome} (${fmt(a.balance_native,a.currency)})</option>`).join('')}</select>
             <button onclick="pagarFatura('${c.id}','${aberta.competencia}',${falta})" class="w-full py-3.5 rounded-xl font-black text-sm" style="background:var(--grad);background-size:200% auto;color:#03251a">Pagar fatura · ${fmt(falta)}</button>
             <p class="text-[11px] text-slate-400 text-center mt-2">Sai da conta escolhida acima.</p>`
             :`<div class="text-center text-sm font-bold py-1" style="color:var(--pos)"><i class="fas fa-check"></i> Nada a pagar por enquanto</div>`;
@@ -2558,7 +2649,9 @@
     async function delFixed(id){ if(confirm('Apagar compromisso?')){ await api('/fixed_expenses/'+id,{method:'DELETE'}); toast('Compromisso excluído'); loadAll(); } }
 
     // Transação (editar)
-    function editTx(t){ document.getElementById('tx-id').value=t.id; document.getElementById('tx-type').value=t.type||'EXPENSE'; document.getElementById('tx-desc').value=t.description; document.getElementById('tx-cat').innerHTML=categoryOptions(t.category); document.getElementById('tx-cat').value=(t.category||'').toUpperCase(); document.getElementById('tx-amount').value=t.amount; document.getElementById('tx-date').value=(t.date||'').slice(0,10); document.getElementById('tx-acc').innerHTML=accountOptions(); document.getElementById('tx-acc').value=t.account_id||''; openModal('m-edittx'); }
+    function editTx(t){ document.getElementById('tx-id').value=t.id; document.getElementById('tx-type').value=t.type||'EXPENSE'; document.getElementById('tx-desc').value=t.description; document.getElementById('tx-cat').innerHTML=categoryOptions(t.category); document.getElementById('tx-cat').value=(t.category||'').toUpperCase(); document.getElementById('tx-amount').value=(t.amount_native!=null?t.amount_native:t.amount); document.getElementById('tx-date').value=(t.date||'').slice(0,10); document.getElementById('tx-acc').innerHTML=accountOptions(); document.getElementById('tx-acc').value=t.account_id||''; editTxCur(); openModal('m-edittx'); }
+    // valor do lançamento é sempre na moeda da conta — mostra qual é
+    function editTxCur(){ const c=accCur(document.getElementById('tx-acc').value); const el=document.getElementById('tx-cur-hint'); if(el){ el.textContent=c==='BRL'?'':('valor em '+curSym(c)); el.classList.toggle('hidden',c==='BRL'); } }
     // ── Novo lançamento manual ──
     // ── Novo lançamento ("Bancada") ──
     let ntxType_='EXPENSE', ntxPay_='conta', ntxMode_='UNICO', ntxRecFreq_='MONTH';
@@ -2584,7 +2677,7 @@
         if(!list.length){ el.innerHTML=`<p class="text-[12px] text-slate-400 py-1">${ntxPay_==='cartao'?'Nenhum cartão cadastrado.':'Nenhuma conta cadastrada.'}</p>`; accEl.value=''; return; }
         if(!list.some(a=>String(a.id)===String(accEl.value))) accEl.value=list[0].id;
         const cur=accEl.value;
-        el.innerHTML=list.map(a=>{ const on=String(a.id)===String(cur); const isCard=a.tipo==='CARTAO_CREDITO'; const right=isCard?'':fmt(a.balance);
+        el.innerHTML=list.map(a=>{ const on=String(a.id)===String(cur); const isCard=a.tipo==='CARTAO_CREDITO'; const right=isCard?'':fmt(a.balance_native,a.currency);
             return `<button type="button" onclick="ntxPickAcc('${a.id}')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm" style="border:1.5px solid ${on?'var(--accent)':'var(--border-glass)'};background:${on?'rgba(42,120,214,.08)':'transparent'}"><span class="font-bold flex items-center gap-2"><i class="fas ${isCard?'fa-credit-card':(a.icone||'fa-building-columns')}" style="color:${a.cor||'var(--accent)'}"></i>${a.nome}</span><span class="num text-[12px] text-slate-400">${right}</span></button>`; }).join('');
     }
     function ntxPickAcc(id){ document.getElementById('ntx-acc').value=id; ntxRenderAccList(); ntxUpdate(); }
@@ -2593,7 +2686,8 @@
         const amt=parseFloat(document.getElementById('ntx-amount').value)||0;
         const a=S.accounts.find(x=>String(x.id)===String(document.getElementById('ntx-acc').value));
         if(!a){ el.innerHTML=''; return; }
-        if(ntxType_==='INCOME'){ const bal=parseFloat(a.balance||0); el.innerHTML=`<div class="card p-3 text-[13px]"><b style="color:var(--pos)">🟢 Entra em ${a.nome}</b><div class="text-slate-500 mt-0.5">${amt?'Saldo '+fmt(bal)+' → '+fmt(bal+amt):'Soma no seu saldo.'}</div></div>`; return; }
+        const ac=a.currency||'BRL';
+        if(ntxType_==='INCOME'){ const bal=num(a.balance_native); el.innerHTML=`<div class="card p-3 text-[13px]"><b style="color:var(--pos)">🟢 Entra em ${a.nome}</b><div class="text-slate-500 mt-0.5">${amt?'Saldo '+fmt(bal,ac)+' → '+fmt(bal+amt,ac)+(ac!=='BRL'?' (≈ '+fmt((bal+amt)*fxRate(ac))+')':''):'Soma no seu saldo.'}</div></div>`; return; }
         if(a.tipo==='CARTAO_CREDITO'){ const c=cardSum(a.id); const fatA=num(c.fatura_aberta), fatD=fatA+amt; const dA=num(c.disponivel_real!=null?c.disponivel_real:c.disponivel), dD=dA-amt; const pct=c.limite>0?Math.min(100,(num(c.devido)+amt)/c.limite*100):0; const over=amt>dA&&amt>0;
             el.innerHTML=`<div class="card p-3.5" style="border:1px solid ${over?'var(--warn)':'var(--border-glass)'}">
                 <div class="flex items-center gap-2 text-[13px] font-black" style="color:${over?'var(--warn)':'var(--accent)'}"><i class="fas fa-credit-card"></i> Cai na fatura do ${a.nome}</div>
@@ -2602,7 +2696,7 @@
                 <div class="flex justify-between text-[12px] mt-1"><span class="text-slate-500">Limite livre</span><span class="num">${fmt(dA)} → <b style="color:${dD<0?'var(--neg)':'var(--pos)'}">${fmt(dD)}</b></span></div>
                 <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-1.5"><div class="h-full rounded-full" style="width:${pct}%;background:${pct>85?'var(--neg)':'var(--accent)'}"></div></div>
                 ${over?`<div class="text-[11px] mt-1.5" style="color:var(--warn)">⚠️ Passa do limite livre em ${fmt(amt-dA)} — ainda dá, mas fica de olho.</div>`:''}</div>`;
-        } else { const bal=parseFloat(a.balance||0), dep=bal-amt; el.innerHTML=`<div class="card p-3 text-[13px]"><b style="color:var(--neg)">💸 Sai de ${a.nome}</b><div class="text-slate-500 mt-0.5">${amt?fmt(bal)+' → '+fmt(dep)+(dep<0?' — fica negativo, cuidado.':''):'Sai do seu saldo agora.'}</div></div>`; }
+        } else { const bal=num(a.balance_native), dep=bal-amt; el.innerHTML=`<div class="card p-3 text-[13px]"><b style="color:var(--neg)">💸 Sai de ${a.nome}</b><div class="text-slate-500 mt-0.5">${amt?fmt(bal,ac)+' → '+fmt(dep,ac)+(ac!=='BRL'?' (≈ '+fmt(dep*fxRate(ac))+')':'')+(dep<0?' — fica negativo, cuidado.':''):'Sai do seu saldo agora.'}</div></div>`; }
     }
     function ntxRenderSummary(){
         const el=document.getElementById('ntx-summary'); if(!el) return;
@@ -2613,13 +2707,16 @@
         const ic=catObj?`<i class="fas ${catObj.icone}" style="color:${catObj.cor}"></i> `:'';
         if(!amt||!a){ el.innerHTML='<span class="text-slate-400">Preencha o valor e onde pra eu resumir. 👇</span>'; return; }
         const onde=a.tipo==='CARTAO_CREDITO'?`na fatura do ${a.nome}`:(ntxType_==='INCOME'?`em ${a.nome}`:`do ${a.nome}`);
+        const ac=a.currency||'BRL', f$=v=>fmt(v,ac);
         let txt;
-        if(ntxMode_==='PARCELADO'){ const n=parseInt(document.getElementById('ntx-parc-n')?.value)||1; txt=`${n}x de <b>${fmt(amt/n)}</b> = <b>${fmt(amt)}</b> em ${ic}${cat} ${onde}.`; }
-        else if(ntxMode_==='RECORRENTE'){ const f={MONTH:'todo mês',WEEK:'toda semana',BIWEEK:'a cada 15 dias'}[ntxRecFreq_]; txt=`<b>${fmt(amt)}</b> em ${ic}${cat} ${onde}, <b>${f}</b>.`; }
-        else { txt=`${ntxType_==='INCOME'?'entrada de':'gasto de'} <b>${fmt(amt)}</b> em ${ic}${cat} ${onde}.`; }
-        el.innerHTML=`✅ Vou anotar: ${txt}`;
+        if(ntxMode_==='PARCELADO'){ const n=parseInt(document.getElementById('ntx-parc-n')?.value)||1; txt=`${n}x de <b>${f$(amt/n)}</b> = <b>${f$(amt)}</b> em ${ic}${cat} ${onde}.`; }
+        else if(ntxMode_==='RECORRENTE'){ const f={MONTH:'todo mês',WEEK:'toda semana',BIWEEK:'a cada 15 dias'}[ntxRecFreq_]; txt=`<b>${f$(amt)}</b> em ${ic}${cat} ${onde}, <b>${f}</b>.`; }
+        else { txt=`${ntxType_==='INCOME'?'entrada de':'gasto de'} <b>${f$(amt)}</b> em ${ic}${cat} ${onde}.`; }
+        el.innerHTML=`✅ Vou anotar: ${txt}`+(ac!=='BRL'?`<div class="text-[11px] text-slate-400 mt-0.5">≈ ${fmt(amt*fxRate(ac))} nos seus totais em reais (câmbio de hoje).</div>`:'');
     }
-    function ntxUpdate(){ ntxRenderImpact(); ntxRenderSummary(); }
+    function ntxUpdate(){ ntxSyncCur(); ntxRenderImpact(); ntxRenderSummary(); }
+    // o valor digitado é sempre na moeda da conta escolhida
+    function ntxSyncCur(){ const el=document.getElementById('ntx-cursym'); if(el) el.textContent=curSym(accCur(document.getElementById('ntx-acc').value)); }
     function ntxRecFreq(f){ ntxRecFreq_=f; document.querySelectorAll('#ntx-rec-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.f===f)); ntxUpdate(); }
     function ntxSetMode(m){ ntxMode_=m; document.querySelectorAll('#ntx-mode-seg .nf-seg-btn').forEach(b=>b.classList.toggle('is-active',b.dataset.m===m));
         const p=document.getElementById('ntx-mode-panel');
